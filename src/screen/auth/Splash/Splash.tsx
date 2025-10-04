@@ -29,7 +29,7 @@ const Splash: React.FC = () => {
     // Navigate to Home after 2 seconds
     const timer = setTimeout(() => {
       // navigation.replace(ScreenNameEnum.EarningsScreen);
-      navigation.replace(ScreenNameEnum.UploadDocumentsScreen);
+      navigation.replace(ScreenNameEnum.OnboardingScreen);
     }, 2000);
 
     return () => clearTimeout(timer);
