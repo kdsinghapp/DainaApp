@@ -1,0 +1,614 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 54;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		0AECF0D592CC4A35952868BB /* TT Neoris Trial DemiBold Italic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = BDCD7D343A174F34A757877A /* TT Neoris Trial DemiBold Italic.ttf */; };
+		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
+		227392B2FAAD4D18A5E4881F /* TT Neoris Trial Black Italic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = C8F3D165793F4F58B00B639F /* TT Neoris Trial Black Italic.ttf */; };
+		2CCE72972AE649C2AC0239D0 /* TT Neoris Trial Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 0569C5698C1140518C04BD8E /* TT Neoris Trial Bold.ttf */; };
+		3858F1F801D14945A8B0672F /* TT Neoris Trial ExtraBold Italic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = C0EF55C11FF741B980F24B60 /* TT Neoris Trial ExtraBold Italic.ttf */; };
+		3CBF9077E1494DEFBFE4006E /* TT Neoris Trial Thin Italic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 726D45B3B7B841BA9A3625E6 /* TT Neoris Trial Thin Italic.ttf */; };
+		47EBA2556F904A989E817C1A /* TT Neoris Trial ExtraLight Italic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 7633AB502DB44FCA959AF883 /* TT Neoris Trial ExtraLight Italic.ttf */; };
+		600AA01E33514953BDA3327A /* TT Neoris Trial Variable.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 23BE6E31B5B8471C95577D4E /* TT Neoris Trial Variable.ttf */; };
+		6D56BC0A46294F81A4BD9F6D /* TT Neoris Trial ExtraBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = AA7C69F740E34F30A614668C /* TT Neoris Trial ExtraBold.ttf */; };
+		761780ED2CA45674006654EE /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 761780EC2CA45674006654EE /* AppDelegate.swift */; };
+		7CEF12DAC235479AAA908887 /* TT Neoris Trial ExtraLight.ttf in Resources */ = {isa = PBXBuildFile; fileRef = FE5DCC8FD35747639E3BFEB5 /* TT Neoris Trial ExtraLight.ttf */; };
+		7DF802757CCD449DA5FE836B /* TT Neoris Trial Hairline Italic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 8BF6208708BA4AE586D9D6DE /* TT Neoris Trial Hairline Italic.ttf */; };
+		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
+		99AFAA4AE3991B182DB80CE4 /* libPods-ChewbeApp.a in Frameworks */ = {isa = PBXBuildFile; fileRef = DAAC485441FB1FC716829A7E /* libPods-ChewbeApp.a */; };
+		9FEEC9C59EAC42409A0C963E /* TT Neoris Trial DemiBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 24B536112B9B4271AA20C95B /* TT Neoris Trial DemiBold.ttf */; };
+		AA0F2AC03C0A499C9F7B0A46 /* TT Neoris Trial Italic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 72D1A480DE5C4502911C23A5 /* TT Neoris Trial Italic.ttf */; };
+		AC37D5B2CC254D14B7743CEE /* TT Neoris Trial Light.ttf in Resources */ = {isa = PBXBuildFile; fileRef = F89BF327AED94CE5AF4615D2 /* TT Neoris Trial Light.ttf */; };
+		AC78BB58482A4C488BDE9816 /* Monolith Regular.otf in Resources */ = {isa = PBXBuildFile; fileRef = BACC2B2BC9824EE28C331056 /* Monolith Regular.otf */; };
+		B136918589944E8DBA3C399C /* TT Neoris Trial Thin.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 8DFA08540A50490288791646 /* TT Neoris Trial Thin.ttf */; };
+		C2B06A5D2420434DB8BA9F74 /* TT Neoris Trial Light Italic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 12016C250235407CBD6BA148 /* TT Neoris Trial Light Italic.ttf */; };
+		CB3E726B59DD4115B0945FB9 /* TT Neoris Trial Bold Italic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 481BFC8CF45646DC9510075F /* TT Neoris Trial Bold Italic.ttf */; };
+		D8BCF44E096C4F09BB4C7F86 /* TT Neoris Trial Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 0F025943F53849E399F4E818 /* TT Neoris Trial Medium.ttf */; };
+		E2C86E292A16421CA9B93DB5 /* Panton-Trial-SemiBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 7DA315965DF24FD4811C120A /* Panton-Trial-SemiBold.ttf */; };
+		E3F391C189864712A1218DF7 /* TT Neoris Trial Black.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 54BA20C35C584592B4882FCE /* TT Neoris Trial Black.ttf */; };
+		EF5551C9490744F283B052C0 /* TT Neoris Trial Medium Italic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 1010E562EFFD4E2CBC7EDE4E /* TT Neoris Trial Medium Italic.ttf */; };
+		F335CE979421432B8D6B6428 /* TT Neoris Trial Hairline.ttf in Resources */ = {isa = PBXBuildFile; fileRef = F293E960DF564ABA89346479 /* TT Neoris Trial Hairline.ttf */; };
+		F33910B4A07C44208F1F9FA6 /* TT Neoris Trial Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 0F7FA053AFBA4A92B0BCCDFE /* TT Neoris Trial Regular.ttf */; };
+		FB7BFF0C4DDD83A78F262120 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB81A68108700A75B9A /* PrivacyInfo.xcprivacy */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		0569C5698C1140518C04BD8E /* TT Neoris Trial Bold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "TT Neoris Trial Bold.ttf"; path = "../assets/fonts/TT Neoris Trial Bold.ttf"; sourceTree = "<group>"; };
+		0F025943F53849E399F4E818 /* TT Neoris Trial Medium.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "TT Neoris Trial Medium.ttf"; path = "../assets/fonts/TT Neoris Trial Medium.ttf"; sourceTree = "<group>"; };
+		0F7FA053AFBA4A92B0BCCDFE /* TT Neoris Trial Regular.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "TT Neoris Trial Regular.ttf"; path = "../assets/fonts/TT Neoris Trial Regular.ttf"; sourceTree = "<group>"; };
+		1010E562EFFD4E2CBC7EDE4E /* TT Neoris Trial Medium Italic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "TT Neoris Trial Medium Italic.ttf"; path = "../assets/fonts/TT Neoris Trial Medium Italic.ttf"; sourceTree = "<group>"; };
+		12016C250235407CBD6BA148 /* TT Neoris Trial Light Italic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "TT Neoris Trial Light Italic.ttf"; path = "../assets/fonts/TT Neoris Trial Light Italic.ttf"; sourceTree = "<group>"; };
+		13B07F961A680F5B00A75B9A /* ChewbeApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ChewbeApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = ChewbeApp/Images.xcassets; sourceTree = "<group>"; };
+		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = ChewbeApp/Info.plist; sourceTree = "<group>"; };
+		13B07FB81A68108700A75B9A /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = PrivacyInfo.xcprivacy; path = ChewbeApp/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		23BE6E31B5B8471C95577D4E /* TT Neoris Trial Variable.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "TT Neoris Trial Variable.ttf"; path = "../assets/fonts/TT Neoris Trial Variable.ttf"; sourceTree = "<group>"; };
+		24B536112B9B4271AA20C95B /* TT Neoris Trial DemiBold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "TT Neoris Trial DemiBold.ttf"; path = "../assets/fonts/TT Neoris Trial DemiBold.ttf"; sourceTree = "<group>"; };
+		281C46439F96AF372229C895 /* Pods-ChewbeApp.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ChewbeApp.release.xcconfig"; path = "Target Support Files/Pods-ChewbeApp/Pods-ChewbeApp.release.xcconfig"; sourceTree = "<group>"; };
+		481BFC8CF45646DC9510075F /* TT Neoris Trial Bold Italic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "TT Neoris Trial Bold Italic.ttf"; path = "../assets/fonts/TT Neoris Trial Bold Italic.ttf"; sourceTree = "<group>"; };
+		54BA20C35C584592B4882FCE /* TT Neoris Trial Black.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "TT Neoris Trial Black.ttf"; path = "../assets/fonts/TT Neoris Trial Black.ttf"; sourceTree = "<group>"; };
+		726D45B3B7B841BA9A3625E6 /* TT Neoris Trial Thin Italic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "TT Neoris Trial Thin Italic.ttf"; path = "../assets/fonts/TT Neoris Trial Thin Italic.ttf"; sourceTree = "<group>"; };
+		72D1A480DE5C4502911C23A5 /* TT Neoris Trial Italic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "TT Neoris Trial Italic.ttf"; path = "../assets/fonts/TT Neoris Trial Italic.ttf"; sourceTree = "<group>"; };
+		761780EC2CA45674006654EE /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = ChewbeApp/AppDelegate.swift; sourceTree = "<group>"; };
+		7633AB502DB44FCA959AF883 /* TT Neoris Trial ExtraLight Italic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "TT Neoris Trial ExtraLight Italic.ttf"; path = "../assets/fonts/TT Neoris Trial ExtraLight Italic.ttf"; sourceTree = "<group>"; };
+		7D919E9E2E43309900B6C466 /* ChewbeApp.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = ChewbeApp.entitlements; path = ChewbeApp/ChewbeApp.entitlements; sourceTree = "<group>"; };
+		7DA315965DF24FD4811C120A /* Panton-Trial-SemiBold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Panton-Trial-SemiBold.ttf"; path = "../assets/fonts/Panton-Trial-SemiBold.ttf"; sourceTree = "<group>"; };
+		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = ChewbeApp/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		8BF6208708BA4AE586D9D6DE /* TT Neoris Trial Hairline Italic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "TT Neoris Trial Hairline Italic.ttf"; path = "../assets/fonts/TT Neoris Trial Hairline Italic.ttf"; sourceTree = "<group>"; };
+		8DFA08540A50490288791646 /* TT Neoris Trial Thin.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "TT Neoris Trial Thin.ttf"; path = "../assets/fonts/TT Neoris Trial Thin.ttf"; sourceTree = "<group>"; };
+		AA7C69F740E34F30A614668C /* TT Neoris Trial ExtraBold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "TT Neoris Trial ExtraBold.ttf"; path = "../assets/fonts/TT Neoris Trial ExtraBold.ttf"; sourceTree = "<group>"; };
+		BACC2B2BC9824EE28C331056 /* Monolith Regular.otf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = "Monolith Regular.otf"; path = "../assets/fonts/Monolith Regular.otf"; sourceTree = "<group>"; };
+		BDCD7D343A174F34A757877A /* TT Neoris Trial DemiBold Italic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "TT Neoris Trial DemiBold Italic.ttf"; path = "../assets/fonts/TT Neoris Trial DemiBold Italic.ttf"; sourceTree = "<group>"; };
+		C0EF55C11FF741B980F24B60 /* TT Neoris Trial ExtraBold Italic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "TT Neoris Trial ExtraBold Italic.ttf"; path = "../assets/fonts/TT Neoris Trial ExtraBold Italic.ttf"; sourceTree = "<group>"; };
+		C8F3D165793F4F58B00B639F /* TT Neoris Trial Black Italic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "TT Neoris Trial Black Italic.ttf"; path = "../assets/fonts/TT Neoris Trial Black Italic.ttf"; sourceTree = "<group>"; };
+		D60FED2D3D1B0CA429FBD4BF /* Pods-ChewbeApp.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ChewbeApp.debug.xcconfig"; path = "Target Support Files/Pods-ChewbeApp/Pods-ChewbeApp.debug.xcconfig"; sourceTree = "<group>"; };
+		DAAC485441FB1FC716829A7E /* libPods-ChewbeApp.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-ChewbeApp.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
+		F293E960DF564ABA89346479 /* TT Neoris Trial Hairline.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "TT Neoris Trial Hairline.ttf"; path = "../assets/fonts/TT Neoris Trial Hairline.ttf"; sourceTree = "<group>"; };
+		F89BF327AED94CE5AF4615D2 /* TT Neoris Trial Light.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "TT Neoris Trial Light.ttf"; path = "../assets/fonts/TT Neoris Trial Light.ttf"; sourceTree = "<group>"; };
+		FE5DCC8FD35747639E3BFEB5 /* TT Neoris Trial ExtraLight.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "TT Neoris Trial ExtraLight.ttf"; path = "../assets/fonts/TT Neoris Trial ExtraLight.ttf"; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		13B07F8C1A680F5B00A75B9A /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				99AFAA4AE3991B182DB80CE4 /* libPods-ChewbeApp.a in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		13B07FAE1A68108700A75B9A /* ChewbeApp */ = {
+			isa = PBXGroup;
+			children = (
+				7D919E9E2E43309900B6C466 /* ChewbeApp.entitlements */,
+				13B07FB51A68108700A75B9A /* Images.xcassets */,
+				761780EC2CA45674006654EE /* AppDelegate.swift */,
+				13B07FB61A68108700A75B9A /* Info.plist */,
+				81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */,
+				13B07FB81A68108700A75B9A /* PrivacyInfo.xcprivacy */,
+			);
+			name = ChewbeApp;
+			sourceTree = "<group>";
+		};
+		2D16E6871FA4F8E400B85C8A /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				ED297162215061F000B7C4FE /* JavaScriptCore.framework */,
+				DAAC485441FB1FC716829A7E /* libPods-ChewbeApp.a */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		832341AE1AAA6A7D00B99B32 /* Libraries */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Libraries;
+			sourceTree = "<group>";
+		};
+		83CBB9F61A601CBA00E9B192 = {
+			isa = PBXGroup;
+			children = (
+				13B07FAE1A68108700A75B9A /* ChewbeApp */,
+				832341AE1AAA6A7D00B99B32 /* Libraries */,
+				83CBBA001A601CBA00E9B192 /* Products */,
+				2D16E6871FA4F8E400B85C8A /* Frameworks */,
+				BBD78D7AC51CEA395F1C20DB /* Pods */,
+				FB46AD8632EB403CBCC8EE27 /* Resources */,
+			);
+			indentWidth = 2;
+			sourceTree = "<group>";
+			tabWidth = 2;
+			usesTabs = 0;
+		};
+		83CBBA001A601CBA00E9B192 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				13B07F961A680F5B00A75B9A /* ChewbeApp.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		BBD78D7AC51CEA395F1C20DB /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				D60FED2D3D1B0CA429FBD4BF /* Pods-ChewbeApp.debug.xcconfig */,
+				281C46439F96AF372229C895 /* Pods-ChewbeApp.release.xcconfig */,
+			);
+			path = Pods;
+			sourceTree = "<group>";
+		};
+		FB46AD8632EB403CBCC8EE27 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				C8F3D165793F4F58B00B639F /* TT Neoris Trial Black Italic.ttf */,
+				54BA20C35C584592B4882FCE /* TT Neoris Trial Black.ttf */,
+				481BFC8CF45646DC9510075F /* TT Neoris Trial Bold Italic.ttf */,
+				0569C5698C1140518C04BD8E /* TT Neoris Trial Bold.ttf */,
+				BDCD7D343A174F34A757877A /* TT Neoris Trial DemiBold Italic.ttf */,
+				24B536112B9B4271AA20C95B /* TT Neoris Trial DemiBold.ttf */,
+				C0EF55C11FF741B980F24B60 /* TT Neoris Trial ExtraBold Italic.ttf */,
+				AA7C69F740E34F30A614668C /* TT Neoris Trial ExtraBold.ttf */,
+				7633AB502DB44FCA959AF883 /* TT Neoris Trial ExtraLight Italic.ttf */,
+				FE5DCC8FD35747639E3BFEB5 /* TT Neoris Trial ExtraLight.ttf */,
+				8BF6208708BA4AE586D9D6DE /* TT Neoris Trial Hairline Italic.ttf */,
+				F293E960DF564ABA89346479 /* TT Neoris Trial Hairline.ttf */,
+				72D1A480DE5C4502911C23A5 /* TT Neoris Trial Italic.ttf */,
+				12016C250235407CBD6BA148 /* TT Neoris Trial Light Italic.ttf */,
+				F89BF327AED94CE5AF4615D2 /* TT Neoris Trial Light.ttf */,
+				1010E562EFFD4E2CBC7EDE4E /* TT Neoris Trial Medium Italic.ttf */,
+				0F025943F53849E399F4E818 /* TT Neoris Trial Medium.ttf */,
+				0F7FA053AFBA4A92B0BCCDFE /* TT Neoris Trial Regular.ttf */,
+				726D45B3B7B841BA9A3625E6 /* TT Neoris Trial Thin Italic.ttf */,
+				8DFA08540A50490288791646 /* TT Neoris Trial Thin.ttf */,
+				23BE6E31B5B8471C95577D4E /* TT Neoris Trial Variable.ttf */,
+				7DA315965DF24FD4811C120A /* Panton-Trial-SemiBold.ttf */,
+				BACC2B2BC9824EE28C331056 /* Monolith Regular.otf */,
+			);
+			name = Resources;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		13B07F861A680F5B00A75B9A /* ChewbeApp */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "ChewbeApp" */;
+			buildPhases = (
+				53583860C02EB9BA2F9B559B /* [CP] Check Pods Manifest.lock */,
+				13B07F871A680F5B00A75B9A /* Sources */,
+				13B07F8C1A680F5B00A75B9A /* Frameworks */,
+				13B07F8E1A680F5B00A75B9A /* Resources */,
+				00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */,
+				F7F6D22B919878710BCBF36B /* [CP] Embed Pods Frameworks */,
+				AECACC6F51BAE9FA60C0508F /* [CP] Copy Pods Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = ChewbeApp;
+			productName = ChewbeApp;
+			productReference = 13B07F961A680F5B00A75B9A /* ChewbeApp.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		83CBB9F71A601CBA00E9B192 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 1210;
+				TargetAttributes = {
+					13B07F861A680F5B00A75B9A = {
+						LastSwiftMigration = 1120;
+					};
+				};
+			};
+			buildConfigurationList = 83CBB9FA1A601CBA00E9B192 /* Build configuration list for PBXProject "ChewbeApp" */;
+			compatibilityVersion = "Xcode 12.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 83CBB9F61A601CBA00E9B192;
+			productRefGroup = 83CBBA001A601CBA00E9B192 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				13B07F861A680F5B00A75B9A /* ChewbeApp */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		13B07F8E1A680F5B00A75B9A /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */,
+				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
+				227392B2FAAD4D18A5E4881F /* TT Neoris Trial Black Italic.ttf in Resources */,
+				E3F391C189864712A1218DF7 /* TT Neoris Trial Black.ttf in Resources */,
+				CB3E726B59DD4115B0945FB9 /* TT Neoris Trial Bold Italic.ttf in Resources */,
+				2CCE72972AE649C2AC0239D0 /* TT Neoris Trial Bold.ttf in Resources */,
+				0AECF0D592CC4A35952868BB /* TT Neoris Trial DemiBold Italic.ttf in Resources */,
+				9FEEC9C59EAC42409A0C963E /* TT Neoris Trial DemiBold.ttf in Resources */,
+				3858F1F801D14945A8B0672F /* TT Neoris Trial ExtraBold Italic.ttf in Resources */,
+				6D56BC0A46294F81A4BD9F6D /* TT Neoris Trial ExtraBold.ttf in Resources */,
+				47EBA2556F904A989E817C1A /* TT Neoris Trial ExtraLight Italic.ttf in Resources */,
+				7CEF12DAC235479AAA908887 /* TT Neoris Trial ExtraLight.ttf in Resources */,
+				7DF802757CCD449DA5FE836B /* TT Neoris Trial Hairline Italic.ttf in Resources */,
+				F335CE979421432B8D6B6428 /* TT Neoris Trial Hairline.ttf in Resources */,
+				AA0F2AC03C0A499C9F7B0A46 /* TT Neoris Trial Italic.ttf in Resources */,
+				C2B06A5D2420434DB8BA9F74 /* TT Neoris Trial Light Italic.ttf in Resources */,
+				AC37D5B2CC254D14B7743CEE /* TT Neoris Trial Light.ttf in Resources */,
+				EF5551C9490744F283B052C0 /* TT Neoris Trial Medium Italic.ttf in Resources */,
+				D8BCF44E096C4F09BB4C7F86 /* TT Neoris Trial Medium.ttf in Resources */,
+				F33910B4A07C44208F1F9FA6 /* TT Neoris Trial Regular.ttf in Resources */,
+				3CBF9077E1494DEFBFE4006E /* TT Neoris Trial Thin Italic.ttf in Resources */,
+				B136918589944E8DBA3C399C /* TT Neoris Trial Thin.ttf in Resources */,
+				600AA01E33514953BDA3327A /* TT Neoris Trial Variable.ttf in Resources */,
+				E2C86E292A16421CA9B93DB5 /* Panton-Trial-SemiBold.ttf in Resources */,
+				FB7BFF0C4DDD83A78F262120 /* PrivacyInfo.xcprivacy in Resources */,
+				AC78BB58482A4C488BDE9816 /* Monolith Regular.otf in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"$(SRCROOT)/.xcode.env.local",
+				"$(SRCROOT)/.xcode.env",
+			);
+			name = "Bundle React Native code and images";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "set -e\n\nWITH_ENVIRONMENT=\"$REACT_NATIVE_PATH/scripts/xcode/with-environment.sh\"\nREACT_NATIVE_XCODE=\"$REACT_NATIVE_PATH/scripts/react-native-xcode.sh\"\n\n/bin/sh -c \"$WITH_ENVIRONMENT $REACT_NATIVE_XCODE\"\n";
+		};
+		53583860C02EB9BA2F9B559B /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-ChewbeApp-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		AECACC6F51BAE9FA60C0508F /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-ChewbeApp/Pods-ChewbeApp-resources-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Copy Pods Resources";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-ChewbeApp/Pods-ChewbeApp-resources-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-ChewbeApp/Pods-ChewbeApp-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		F7F6D22B919878710BCBF36B /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-ChewbeApp/Pods-ChewbeApp-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-ChewbeApp/Pods-ChewbeApp-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-ChewbeApp/Pods-ChewbeApp-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		13B07F871A680F5B00A75B9A /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				761780ED2CA45674006654EE /* AppDelegate.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		13B07F941A680F5B00A75B9A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = D60FED2D3D1B0CA429FBD4BF /* Pods-ChewbeApp.debug.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = ChewbeApp/ChewbeApp.entitlements;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = YK4V89Z262;
+				ENABLE_BITCODE = NO;
+				INFOPLIST_FILE = ChewbeApp/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-ObjC",
+					"-lc++",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = dev.ingenius.chewbes;
+				PRODUCT_NAME = ChewbeApp;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				VERSIONING_SYSTEM = "apple-generic";
+			};
+			name = Debug;
+		};
+		13B07F951A680F5B00A75B9A /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 281C46439F96AF372229C895 /* Pods-ChewbeApp.release.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = ChewbeApp/ChewbeApp.entitlements;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = YK4V89Z262;
+				INFOPLIST_FILE = ChewbeApp/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-ObjC",
+					"-lc++",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = dev.ingenius.chewbes;
+				PRODUCT_NAME = ChewbeApp;
+				SWIFT_VERSION = 5.0;
+				VERSIONING_SYSTEM = "apple-generic";
+			};
+			name = Release;
+		};
+		83CBBA201A601CBA00E9B192 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++20";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = "";
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"${PODS_CONFIGURATION_BUILD_DIR}/ReactCommon/ReactCommon.framework/Headers",
+					"${PODS_CONFIGURATION_BUILD_DIR}/ReactCommon/ReactCommon.framework/Headers/react/nativemodule/core",
+					"${PODS_CONFIGURATION_BUILD_DIR}/ReactCommon-Samples/ReactCommon_Samples.framework/Headers",
+					"${PODS_CONFIGURATION_BUILD_DIR}/ReactCommon-Samples/ReactCommon_Samples.framework/Headers/platform/ios",
+					"${PODS_CONFIGURATION_BUILD_DIR}/React-Fabric/React_Fabric.framework/Headers/react/renderer/components/view/platform/cxx",
+					"${PODS_CONFIGURATION_BUILD_DIR}/React-NativeModulesApple/React_NativeModulesApple.framework/Headers",
+					"${PODS_CONFIGURATION_BUILD_DIR}/React-graphics/React_graphics.framework/Headers",
+					"${PODS_CONFIGURATION_BUILD_DIR}/React-graphics/React_graphics.framework/Headers/react/renderer/graphics/platform/ios",
+				);
+				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
+				LD_RUNPATH_SEARCH_PATHS = (
+					/usr/lib/swift,
+					"$(inherited)",
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"\"$(SDKROOT)/usr/lib/swift\"",
+					"\"$(TOOLCHAIN_DIR)/usr/lib/swift/$(PLATFORM_NAME)\"",
+					"\"$(inherited)\"",
+				);
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				OTHER_CPLUSPLUSFLAGS = (
+					"$(OTHER_CFLAGS)",
+					"-DFOLLY_NO_CONFIG",
+					"-DFOLLY_MOBILE=1",
+					"-DFOLLY_USE_LIBCPP=1",
+					"-DFOLLY_CFG_NO_COROUTINES=1",
+					"-DFOLLY_HAVE_CLOCK_GETTIME=1",
+				);
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					" ",
+				);
+				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) DEBUG";
+				USE_HERMES = true;
+			};
+			name = Debug;
+		};
+		83CBBA211A601CBA00E9B192 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++20";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = YES;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = "";
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"${PODS_CONFIGURATION_BUILD_DIR}/ReactCommon/ReactCommon.framework/Headers",
+					"${PODS_CONFIGURATION_BUILD_DIR}/ReactCommon/ReactCommon.framework/Headers/react/nativemodule/core",
+					"${PODS_CONFIGURATION_BUILD_DIR}/ReactCommon-Samples/ReactCommon_Samples.framework/Headers",
+					"${PODS_CONFIGURATION_BUILD_DIR}/ReactCommon-Samples/ReactCommon_Samples.framework/Headers/platform/ios",
+					"${PODS_CONFIGURATION_BUILD_DIR}/React-Fabric/React_Fabric.framework/Headers/react/renderer/components/view/platform/cxx",
+					"${PODS_CONFIGURATION_BUILD_DIR}/React-NativeModulesApple/React_NativeModulesApple.framework/Headers",
+					"${PODS_CONFIGURATION_BUILD_DIR}/React-graphics/React_graphics.framework/Headers",
+					"${PODS_CONFIGURATION_BUILD_DIR}/React-graphics/React_graphics.framework/Headers/react/renderer/graphics/platform/ios",
+				);
+				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
+				LD_RUNPATH_SEARCH_PATHS = (
+					/usr/lib/swift,
+					"$(inherited)",
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"\"$(SDKROOT)/usr/lib/swift\"",
+					"\"$(TOOLCHAIN_DIR)/usr/lib/swift/$(PLATFORM_NAME)\"",
+					"\"$(inherited)\"",
+				);
+				MTL_ENABLE_DEBUG_INFO = NO;
+				OTHER_CPLUSPLUSFLAGS = (
+					"$(OTHER_CFLAGS)",
+					"-DFOLLY_NO_CONFIG",
+					"-DFOLLY_MOBILE=1",
+					"-DFOLLY_USE_LIBCPP=1",
+					"-DFOLLY_CFG_NO_COROUTINES=1",
+					"-DFOLLY_HAVE_CLOCK_GETTIME=1",
+				);
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					" ",
+				);
+				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
+				SDKROOT = iphoneos;
+				USE_HERMES = true;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "ChewbeApp" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				13B07F941A680F5B00A75B9A /* Debug */,
+				13B07F951A680F5B00A75B9A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		83CBB9FA1A601CBA00E9B192 /* Build configuration list for PBXProject "ChewbeApp" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				83CBBA201A601CBA00E9B192 /* Debug */,
+				83CBBA211A601CBA00E9B192 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 83CBB9F71A601CBA00E9B192 /* Project object */;
+}

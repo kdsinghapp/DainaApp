@@ -1,0 +1,280 @@
+import React from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  ScrollView,
+  Image
+ } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import font from "../../../theme/font";
+import imageIndex from "../../../assets/imageIndex";
+import CustomButton from "../../../compoent/CustomButton";
+import HomeHeaderBar from "../../../compoent/HomeHeaderBar";
+import StatusBarComponent from "../../../compoent/StatusBarCompoent";
+import ScreenNameEnum from "../../../routes/screenName.enum";
+import { useNavigation } from "@react-navigation/native";
+ 
+const ShippingScreen = () => {
+  const parcels = [
+    {
+      id: "5R9G87R",
+      date: "14 May 2023",
+      from: "1234 Elm Street Springfield, IL 62701",
+      to: "5678 Maple Avenue Seattle, WA 98101",
+      status: "Delivered",
+      statusColor: "#4CAF50",
+      iconBg: "#E8F5E9",
+      icon: "cube-outline",
+    },
+    
+    
+  ];
+const navigation = useNavigation()
+  return (
+    <SafeAreaView style={styles.container}>
+        <StatusBarComponent/>
+      {/* Current location */}
+      <HomeHeaderBar
+      location="Wallace, Australia"
+      onLocationPress={() => console.log("Change location")}
+      onNotificationPress={() => console.log("Notifications clicked")}
+      hasNotification={true}
+    />
+      <TouchableOpacity style={styles.inputBox} 
+      onPress={()=> navigation.navigate(ScreenNameEnum.PickupFromLocation)}
+      >
+        <Text style={{ color: "black" ,fontSize:14, fontFamily:font.MonolithRegular}}>Enter Pickup Location</Text>
+      <Image source={imageIndex.Next} 
+      style={{
+        height:20,
+        width:20
+      }}
+      />
+       </TouchableOpacity>
+
+  <View style={{
+    marginTop:11 ,marginBottom:5
+  }}>
+      <CustomButton title={"Create Parcel"} 
+      onPress={()=> navigation.navigate(ScreenNameEnum.OfferOR)}
+      />
+      </View>
+      {/* Shipping History */} 
+
+      <View style={{
+        flexDirection:"row",
+        justifyContent:"space-between" ,
+        alignItems:"center" ,
+        marginTop:18 ,
+        marginBottom:10
+      }}>
+      <Text style={styles.sectionTitle}>Shipping History</Text>
+
+        <Image source={imageIndex.Filter} 
+
+        style={{
+            height:24,
+            width:24
+        }}
+        />
+      </View>
+
+      <ScrollView showsVerticalScrollIndicator={false}>
+        {parcels.map((item, index) => (
+          <View key={index} style={styles.card}>
+             <View style={styles.cardTop}>
+                
+              <View style={[styles.iconBox, ]}>
+              
+              <Image source={imageIndex.icons} 
+      style={{
+        height:40,
+        width:40
+      }}
+      />
+               </View>
+              <Text style={[styles.cardId,{
+                fontFamily:font.MonolithRegular ,
+                fontSize:14,
+                color:"black"
+              }]}>#{item.id}</Text>
+               <Text style={styles.cardDate}>{item.date}</Text>
+           <Text style={styles.cardDate}>ss</Text>
+
+            </View>
+
+            {/* From / To */}
+            <View style={{
+                flexDirection:"row",
+                justifyContent:"space-evenly" ,
+                alignItems:"center"
+            }}>
+                <Image source={imageIndex.Vector} 
+                style={{
+                    height:88,
+                    width:10
+                }}
+                resizeMode="contain"
+                />
+
+  <View style={{
+                flexDirection:"column",
+                right:11
+             }}>
+<Text style={styles.label}>From</Text>
+            <Text style={[styles.value,{
+                marginTop:5
+            }]}>{item.from}</Text>
+            <Text style={[styles.label,{
+                marginTop:10
+            }]}>To</Text>
+            <Text style={[styles.value,{
+                marginTop:5
+            }]}>{item.to || "5678 Maple Avenue Seattle, WA 98101"}</Text>
+
+            {/* Status */}
+            <View style={styles.statusRow}>
+              <Text style={styles.statusText}>Delivery Status :</Text>
+              <Text style={[styles.statusValue, { color: item.statusColor }]}>
+                {item.status}
+              </Text>
+            </View>
+</View>
+            </View>
+           
+          </View>
+        ))}
+      </ScrollView>
+    </SafeAreaView>
+  );
+};
+
+export default ShippingScreen;
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    padding: 16,
+    backgroundColor: "#fff",
+  },
+  locationRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 14,
+  },
+  locationText: {
+    fontSize: 14,
+    fontWeight: "500",
+    marginLeft: 6,
+  },
+  inputBox: {
+    backgroundColor: "#fff",
+    borderRadius: 16,
+    padding: 17,
+    marginBottom: 15,
+    borderWidth: 1,
+    borderColor: "white",
+    marginHorizontal: 2,
+    marginTop:11,
+    // iOS shadow
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 6,
+    // Android shadow
+    elevation: 2, 
+
+    flexDirection:"row" ,
+    justifyContent:"space-between"
+  },
+  createBtn: {
+    backgroundColor: "#FFD600",
+    padding: 16,
+    borderRadius: 16,
+    alignItems: "center",
+    marginBottom: 22,
+  },
+  createBtnText: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#000",
+  },
+  sectionTitle: {
+    fontSize: 16,
+    fontWeight: "600",
+     color:"black",
+    fontFamily:font.MonolithRegular ,
+     
+  },
+  card: {
+    backgroundColor: "#fff",
+    borderRadius: 16,
+    padding: 17,
+    marginBottom: 20,
+    borderWidth: 1,
+    borderColor: "#eee",
+    marginHorizontal: 1,
+    // iOS shadow
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 6,
+    // Android shadow
+    elevation: 1,
+    
+  },
+  cardTop: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 12,
+  },
+  iconBox: {
+    width: 32,
+    height: 32,
+    borderRadius: 8,
+    alignItems: "center",
+    justifyContent: "center",
+    marginRight: 8,
+  },
+  cardId: {
+    fontWeight: "700",
+    fontSize: 15,
+    marginRight: 8,
+  },
+  cardDate: {
+    fontSize: 14,
+    color: "#BABFC5",
+    fontFamily:font.MonolithRegular
+
+  },
+  label: {
+    fontSize: 14,
+    color: "#BABFC5",
+    marginTop: 6,
+    fontFamily:font.MonolithRegular
+
+  },
+  value: {
+    fontSize: 14,
+     color: "#76889A",
+     fontFamily:font.MonolithRegular
+  },
+  statusRow: {
+    flexDirection: "row",
+    marginTop: 10,
+  },
+  statusText: {
+    fontSize: 12,
+    color: "#555",
+    marginRight: 6,
+    fontFamily:font.MonolithRegular
+  },
+  statusValue: {
+    fontSize: 13,
+     color: "#555",
+    fontFamily:font.MonolithRegular
+
+  },
+});

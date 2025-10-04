@@ -1,0 +1,54 @@
+{
+  "project_info": {
+    "project_number": "996226020296",
+    "project_id": "chewbe",
+    "storage_bucket": "chewbe.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:996226020296:android:d0d75cb5024cc63823c6fd",
+        "android_client_info": {
+          "package_name": "dev.ingenius.chewbe"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "996226020296-aauv5rdf598nlsi917i7o95vp04rqltv.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "dev.ingenius.chewbe",
+            "certificate_hash": "6d45fdf14ba9674f9bed8c8e3be8b8cd68980f0d"
+          }
+        },
+        {
+          "client_id": "996226020296-6k1n00n6on0e99b6uaife4lqe17bj7sd.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyApLQbB5niMm13D8b5-ioDgafEhGT4K9BQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "996226020296-6k1n00n6on0e99b6uaife4lqe17bj7sd.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "996226020296-137gljjh0qa6i4734qj5o8lb868jd31s.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "dev.ingenius.chewbe"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
