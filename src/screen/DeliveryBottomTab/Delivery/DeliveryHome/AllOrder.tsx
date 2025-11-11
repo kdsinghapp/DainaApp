@@ -21,6 +21,7 @@ import ScreenNameEnum from "../../../../routes/screenName.enum";
 import { successToast } from "../../../../utils/customToast";
 import { useDeliveryHome } from "./useDeliveryHome";
 import LoadingModal from "../../../../utils/Loader";
+import CustomHeader from "../../../../compoent/CustomHeader";
  
 type Parcel = {
   id: string;
@@ -35,7 +36,7 @@ type Parcel = {
 
 const TABS = ["Pending", "Complete", "Canceled"] as const;
 
-const DeliveryHome = () => {
+const AllOrder = () => {
    const { 
        isLoading,
      requests,
@@ -43,6 +44,9 @@ const DeliveryHome = () => {
   // ---------- STATE ----------
   const [activeTab, setActiveTab] = useState<(typeof TABS)[number]>("Pending");
   const [isOnline, setIsOnline] = useState(false);
+
+ console.log("requests --- ",requests)
+
    const pillX = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
@@ -102,74 +106,11 @@ const filteredRequests = useMemo(() => {
     <SafeAreaView style={styles.container}>
       <StatusBarComponent />
                                        <LoadingModal visible ={isLoading}/>  
+ 
+ 
+ 
 
-      <HomeHeaderBar
-        location="Wallace, Australia"
-        onLocationPress={() => console.log("Change location")}
-        onNotificationPress={() => console.log("Notifications clicked")}
-        hasNotification={true}
-        style1={{
-                        fontWeight:"500"
-
-        }}
-      />
-<View style={{
-  marginTop:12 ,
-  marginBottom:5
-}}>
-    <OnlineSlideRight 
-    onSlideSuccess={() => 
-successToast("Online")
-
-    } 
-
-    />
-    </View>
-    <View style={styles.container1}>
-      {/* Earnings */}
-      <View style={styles.card1}>
-        <Image source={imageIndex.earing} style={{
-            height:35,
-            width:35
-        }} 
-        
-        resizeMode="contain"
-        />
-        <Text style={styles.title}>Today's Earnings</Text>
-        <Text style={{
-              color: "#fff",
-              fontSize: 18,
-              fontWeight: "bold",
-              marginTop:5
-        }}>7.72€</Text>
-      </View>
-
-      {/* Rides */}
-      <View style={styles.card1}>
-        <Image source={imageIndex.cars} style={{
-          height:35,
-          width:35
-        }}        resizeMode="contain"
-        />
-        <Text style={styles.title}>Today's Rides</Text>
-        <Text style={{
-              color: "#fff",
-              fontSize: 18,
-              fontWeight: "bold",
-              marginTop:5
-        }}>12</Text>
-      </View>
-    </View>
-
-      {/* Orders header row */}
-      <View style={styles.ordersHeader}>
-        <Text style={styles.sectionTitle}>Orders</Text>
-        <Image
-          source={imageIndex?.Filter || { uri: "" }}
-          style={{ height: 24, width: 24 }}
-        />
-      </View>
-
+         <CustomHeader label="All Orders" />
        <View style={styles.tabs}>
         {TABS.map((tab) => {
           const active = tab === activeTab;
@@ -186,20 +127,13 @@ successToast("Online")
           );
         })}
       </View>
-      <View style={styles.ordersHeader}>
-        <Text style={styles.sectionTitle1}>Orders</Text>
-               <Text  
-               onPress={()=> navigation.navigate(ScreenNameEnum.AllOrder)}
-               style={styles.sectionTitle1}>Sell All</Text>
 
-      </View>
       {/* List */}
       <Animated.View
         style={{ flex: 1, transform: [{ translateX }], opacity: fade }}
       >
         <FlatList
-  data={filteredRequests.slice(-4)} // 👈 Sirf bottom 4 items
-
+          data={filteredRequests}
           style={{
             marginTop:12
           }}
@@ -293,7 +227,7 @@ successToast("Online")
   );
 };
 
-export default DeliveryHome;
+export default AllOrder;
 
 // ---------------- STYLES ----------------
 const styles = StyleSheet.create({
@@ -360,11 +294,6 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: "black",
      fontWeight: "700",
-  },
-    sectionTitle1: {
-    fontSize: 15,
-    color: "black",
-     fontWeight: "600",
   },
 
   tabs: {

@@ -1,12 +1,7 @@
 import {
   View,
   Text,
-  Image,
-  TouchableOpacity,
-  StyleSheet,
   ScrollView,
-  KeyboardAvoidingView,
-  ImageBackground,
 } from 'react-native';
 import React, { useState } from 'react';
 import {
@@ -14,15 +9,14 @@ import {
   Cursor,
   
 } from 'react-native-confirmation-code-field';
- import imageIndex from '../../../assets/imageIndex';
-import CustomButton from '../../../compoent/CustomButton';
+ import CustomButton from '../../../compoent/CustomButton';
 import StatusBarComponent from '../../../compoent/StatusBarCompoent';
  import { SafeAreaView } from 'react-native-safe-area-context';
  import { styles } from './style';
 import { useOtpVerification } from './useOTPVerification';
- import { hp } from '../../../utils/Constant';
-  import { color } from '../../../constant';
+   import { color } from '../../../constant';
 import CustomHeader from '../../../compoent/CustomHeader';
+import LoadingModal from '../../../utils/Loader';
 
 export default function OtpScreen() {
   const {
@@ -31,11 +25,13 @@ export default function OtpScreen() {
     errorMessage,
     ref,
     props,
+    timer,
     getCellOnLayoutHandler,
     handleChangeText,
     handleVerifyOTP,
     handleResendOTP,
-    navigation,
+    navigation, 
+    data
   } = useOtpVerification()
    return (
     <SafeAreaView
@@ -44,12 +40,12 @@ export default function OtpScreen() {
     >
                <StatusBarComponent />
                <CustomHeader label={"Back"}/>
-
+        <LoadingModal visible ={isLoading}/>
       <View style={styles.container}>
         <ScrollView showsVerticalScrollIndicator={false}>
           <View style={styles.headerSection}>
             <Text style={styles.txtHeading}>Enter the verification code</Text>
-            <Text style={styles.txtDes}>We sent you a 4-digit code to +91 8305611387
+            <Text style={styles.txtDes}>We sent you a 4-digit code to  {data?.code} {data?.mob}
             </Text>
            </View>
 
@@ -73,12 +69,32 @@ export default function OtpScreen() {
                 </View>
               )}
             />
-            {/* {errorMessage ? <Text style={styles.errorText}>{errorMessage}</Text> : null} */}
+            {errorMessage ? <Text style={styles.errorText}>{errorMessage}</Text> : null}
           </View>
-          <Text 
-          // onPress={()=>handleResendOTP()} 
-          style={[styles.txtDes, { textAlign: 'center' }]}>Don't received the OTP ? {""}<Text style={{ color: color.primary }}> RESEND OTP</Text>
+ <View style={{ alignItems: 'center', marginTop: 15 }}>
+      <Text style={styles.txtDes}>
+        Didn’t receive the OTP?
+        {' '}
+        {timer > 0 ? (
+          <Text style={{ color: 'gray' }}> Resend in 
+          
+          
+          <Text style={{
+            color:"#FFCC00"
+          }}>
+         {" "} {timer} {""} 
+ </Text>      
+     s</Text>
+        ) : (
+          <Text
+            onPress={handleResendOTP}
+            style={{ color: color.primary, fontWeight: 'bold' }}
+          >
+            {' '}RESEND OTP
           </Text>
+        )}
+      </Text>
+    </View>
         </ScrollView>
         {/* <Image source={imageIndex.otp} style={{ width: '80%', height: hp(45), alignSelf: 'center', marginBottom: 30 }} /> */}
 

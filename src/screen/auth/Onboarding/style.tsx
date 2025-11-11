@@ -62,7 +62,10 @@ export const styles = StyleSheet.create({
     marginHorizontal: 5,
   },
   footerButton: {
-    paddingHorizontal: 125,
-    marginBottom: Platform.OS === 'ios' ? 0 : 20,
-  },
+     marginBottom: Platform.OS === 'ios' ? 0 : 10,
+      justifyContent:"center" ,
+     alignItems:"center" ,
+     flex:1 ,
+     marginHorizontal:45
+   },
 });

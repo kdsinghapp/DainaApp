@@ -33,7 +33,7 @@ const CustomInput: React.FC<CustomInputProps> = ({
   date,
   rightIcon,
   placeholder,
-
+editable,
   ...rest
 }) => {
   const [hidePassword, setHidePassword] = useState(secureTextEntryToggle);
@@ -51,9 +51,11 @@ const CustomInput: React.FC<CustomInputProps> = ({
         <TextInput
         allowFontScaling={false}
  placeholder={placeholder}
+ editable={editable}
           style={styles.input}
           placeholderTextColor="#8F8F8F"
-          secureTextEntry={hidePassword}
+          secureTextEntry={hidePassword} 
+        
           {...rest}
         />
       }

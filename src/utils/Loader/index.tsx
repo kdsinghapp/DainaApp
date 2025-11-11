@@ -15,9 +15,9 @@ import font from '../../theme/font';
 const { width, height } = Dimensions.get('window');
 
 // Your theme color
-const THEME_COLOR = '#4CBCA6';
+const THEME_COLOR = '#FFCC00';
 
-const LoadingModal = ({ visible, message = "Loading..." }) => {
+const LoadingModal = ({ visible, message = "Loading..." }:any) => {
   // Animation values
   const spinValue = useRef(new Animated.Value(0)).current;
   const fadeValue = useRef(new Animated.Value(0)).current;
@@ -185,14 +185,14 @@ const LoadingModal = ({ visible, message = "Loading..." }) => {
             </View>
           </View>
           
-          <Text style={styles.message}>{message}</Text>
+          {/* <Text style={styles.message}>{message}</Text> */}
           
           {/* Progress dots */}
-          <View style={styles.dotsContainer}>
+          {/* <View style={styles.dotsContainer}>
             <Animated.View style={[styles.dot, { transform: [{ scale: dot1Scale }] }]} />
             <Animated.View style={[styles.dot, { transform: [{ scale: dot2Scale }] }]} />
             <Animated.View style={[styles.dot, { transform: [{ scale: dot3Scale }] }]} />
-          </View>
+          </View> */}
         </Animated.View>
       </View>
     </Modal>
@@ -207,20 +207,20 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   modalContainer: {
-    backgroundColor: 'white',
+    // backgroundColor: 'white',
     borderRadius: 20,
     padding: 30,
     alignItems: 'center',
     justifyContent: 'center',
     width: width * 0.7,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 10,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 15,
-    elevation: 10,
+    // shadowColor: '#000',
+    // shadowOffset: {
+    //   width: 0,
+    //   height: 10,
+    // },
+    // shadowOpacity: 0.25,
+    // shadowRadius: 15,
+    // elevation: 10,
   },
   spinnerContainer: {
     width: 80,

@@ -68,9 +68,8 @@ const OnlineSlideRight: React.FC<SlideButtonProps> = ({
 }}>
        <Text style={{
         color:"#FFCC00",
-        fontSize:17 ,
-        fontFamily:font.MonolithRegular
-       }}>online </Text>
+        fontSize:18 ,
+        }}>online </Text>
           </View>
          </View>
 
@@ -81,20 +80,21 @@ const OnlineSlideRight: React.FC<SlideButtonProps> = ({
         >
           <View style={{
             flexDirection:"row" ,
-            alignItems:"center"
+            alignItems:"center" ,
+            right:15
           }}>
           <Image source={imageIndex.go} 
           style={{
-            height:55,
-            width:55 ,
-            right:15
+            height:50,
+            width:50 ,
  
           }}
           />
           <Image source={imageIndex.rightaArrow} 
           style={{
-            height:30,
-            width:30 ,
+            height:22,
+            width:22 ,
+            left:8
  
           }}
           />
@@ -139,7 +139,7 @@ const styles = StyleSheet.create({
     borderRadius: 40,
     justifyContent: "center",
     alignItems: "center",
- 
+  
   },
   buttonText: {
     color: "#000",

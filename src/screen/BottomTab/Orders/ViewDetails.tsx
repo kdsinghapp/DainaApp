@@ -5,13 +5,16 @@ import {
   Pressable,
   ScrollView,
   StyleSheet,
-   Image
+   Image ,
+   TouchableOpacity
 } from "react-native";
 import StatusBarComponent from "../../../compoent/StatusBarCompoent";
 import CustomHeader from "../../../compoent/CustomHeader";
 import font from "../../../theme/font";
 import imageIndex from "../../../assets/imageIndex";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useNavigation, useRoute } from "@react-navigation/native";
+import ScreenNameEnum from "../../../routes/screenName.enum";
 
 type OrderStatus = "packaged" | "shipped" | "inTransit" | "delivered";
 
@@ -40,27 +43,35 @@ type TimelineItem = {
   done: boolean;
 };
 
-/** Props:
- *  route.params.order: Order
- *  navigation.goBack()
- */
-export default function ViewDetails({
-  route,
-  navigation,
-}: any) {
-  const order: Order = route?.params?.order ?? {
-    // fallback demo
-    id: "1",
-    trackingId: "TY9860036NM",
-    fromCity: "New York",
-    toCity: "Mumbai",
-    startDate: "Jan 20, 2023",
-    endDate: "Jan 21, 2023",
-    status: "packaged",
+ 
+export default function ViewDetails() {
+  const route:any = useRoute();
+  const { item } = route?.params || {};
+
+ 
+  const formatDate = (isoString: string) => {
+    if (!isoString) return "";
+    const date = new Date(isoString);
+    return date.toLocaleDateString("en-US", {
+      month: "short",
+      day: "2-digit",
+      year: "numeric",
+    });
+  };
+
+  const order: Order = {
+    id: item?.id ?? "1",
+    trackingId: item?.trackingId ?? "TY9860036NM",
+    fromCity: item?.pickupLocation ?? "Unknown",
+    toCity: item?.dropLocation ?? "Unknown",
+    startDate: formatDate(item?.pickupDate),
+    endDate: formatDate(item?.dropDate ?? new Date().toISOString()),
+    status: item?.status ?? "packaged",
   };
 
   const currentIdx = STATUS_STEPS.indexOf(order.status);
-  const progress = currentIdx / (STATUS_STEPS.length - 1);
+  const progress =
+    currentIdx >= 0 ? currentIdx / (STATUS_STEPS.length - 1) : 0;
 
   const timeline: TimelineItem[] = useMemo(() => {
     return [
@@ -78,7 +89,7 @@ export default function ViewDetails({
       },
       {
         key: "transit",
-        title: "Order in transit",
+        title: "Order in Transit",
         subtitle: "Reached at Jackline Tower, New York",
         done: currentIdx >= 2,
       },
@@ -90,23 +101,34 @@ export default function ViewDetails({
       },
     ];
   }, [currentIdx]);
-
+const navigation = useNavigation()
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "white" }}>
-          <StatusBarComponent />
-          <CustomHeader label={"Back"}/>
-       
+      <StatusBarComponent />
+      <CustomHeader label={"Back"} />
 
-      <ScrollView contentContainerStyle={{ paddingBottom: 32 , marginTop:11 }} showsVerticalScrollIndicator={false}>
-        {/* Compact order card (same style language as list screen) */}
-        <View style={styles.card}>
+      <ScrollView
+        contentContainerStyle={{ paddingBottom: 32, marginTop: 11 }}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Order Card */}
+        <TouchableOpacity style={styles.card} 
+          onPress={()=>{
+            navigation.navigate(ScreenNameEnum.CourierTrackingScreen ,{
+              item:item
+            })
+          }}
+        >
           <View style={styles.cardHeader}>
             <Text style={styles.muted}>Tracking ID:</Text>
             <Text style={styles.bold}>{order.trackingId}</Text>
           </View>
 
-          {/* slim progress bar with dots */}
-          <View style={styles.trackBase}>
+          {/* Progress Bar */}
+          <View style={styles.trackBase} 
+          
+        
+          >
             <View style={styles.trackLine} />
             <View style={[styles.trackFill, { width: `${progress * 100}%` }]} />
             {STATUS_STEPS.map((_, i) => (
@@ -121,25 +143,31 @@ export default function ViewDetails({
             ))}
           </View>
 
-          <View style={styles.row}>
+          {/* City Info */}
+          <View style={styles.row} 
+          
+          >
             <View style={styles.cityBlock}>
               <Text style={styles.date}>{order.startDate}</Text>
               <Text style={styles.city}>{order.fromCity}</Text>
             </View>
-
-            
 
             <View style={[styles.cityBlock, { alignItems: "flex-end" }]}>
               <Text style={styles.date}>{order.endDate}</Text>
               <Text style={styles.city}>{order.toCity}</Text>
             </View>
           </View>
-<View style={{
-    borderWidth:0.8 ,
-    marginTop:11,
-    borderColor:"#EDEFEE",
-    marginBottom:10
-}}/>
+
+          <View
+            style={{
+              borderWidth: 0.8,
+              marginTop: 11,
+              borderColor: "#EDEFEE",
+              marginBottom: 10,
+            }}
+          />
+
+          {/* Footer */}
           <View style={styles.footerRow}>
             <View
               style={[
@@ -160,11 +188,11 @@ export default function ViewDetails({
 
             <Text style={styles.viewDetails}>View Details</Text>
           </View>
-        </View>
+        </TouchableOpacity>
 
         {/* Timeline */}
         <Text style={styles.sectionTitle}>Tracking Package</Text>
-        <View style={styles.timelineWrap}>
+        {/* <View style={styles.timelineWrap}>
           {timeline.map((t, index) => (
             <TimelineRow
               key={t.key}
@@ -172,12 +200,11 @@ export default function ViewDetails({
               isLast={index === timeline.length - 1}
             />
           ))}
-        </View>
+        </View> */}
       </ScrollView>
     </SafeAreaView>
   );
 }
-
 /* ---------- Timeline Row ---------- */
 
 const TimelineRow = ({
@@ -242,8 +269,8 @@ const styles = StyleSheet.create({
     padding: 14,
     shadowOpacity: 0.05,
     shadowRadius: 8,
-    elevation:5,
-    shadowColor: "#000",
+     borderWidth: 1,
+    borderColor: "#eee",    shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
   },
   cardHeader: { flexDirection: "row", justifyContent: "space-between", marginBottom: 10 },

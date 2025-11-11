@@ -180,8 +180,8 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
 
-    // Android shadow
-    elevation: 3,
+     borderWidth: 1,
+    borderColor: "#eee",
 
   },
   input: {

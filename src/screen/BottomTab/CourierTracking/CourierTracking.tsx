@@ -8,17 +8,20 @@ import {
   Animated,
   Linking,
 } from "react-native";
-import MapView, { Marker } from "react-native-maps";
+import MapView, { Marker, Polyline } from "react-native-maps"; // <-- Added Polyline
 import StatusBarComponent from "../../../compoent/StatusBarCompoent";
 import CustomHeader from "../../../compoent/CustomHeader";
 import { SafeAreaView } from "react-native-safe-area-context";
 import imageIndex from "../../../assets/imageIndex";
 import font from "../../../theme/font";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useRoute } from "@react-navigation/native";
 import ScreenNameEnum from "../../../routes/screenName.enum";
 
 const CourierTrackingScreen = () => {
   const nav = useNavigation();
+  const rou: any = useRoute();
+  const { item } = rou.params || "";
+  console.log("item", item);
 
   // Animation ref
   const scaleAnim = useRef(new Animated.Value(1)).current;
@@ -42,11 +45,18 @@ const CourierTrackingScreen = () => {
 
   // Call function
   const handleCall = () => {
-    const phoneNumber = "tel:+911234567890"; // <- yaha apna courier ka number daalna
+    const phoneNumber = "tel:+911234567890"; // Courier number
     Linking.openURL(phoneNumber).catch((err) =>
       console.log("Error opening dialer:", err)
     );
   };
+
+  // Example route coordinates (replace with API data)
+  const routeCoordinates = [
+    { latitude: 28.6139, longitude: 77.209 }, // start
+    { latitude: 28.617, longitude: 77.215 }, // mid
+    { latitude: 28.620, longitude: 77.220 }, // end
+  ];
 
   return (
     <SafeAreaView style={styles.container}>
@@ -54,21 +64,49 @@ const CourierTrackingScreen = () => {
       <CustomHeader label={"Track Courier"} />
 
       {/* Map Section */}
-      <MapView
-        style={styles.map}
-        initialRegion={{
-          latitude: 28.6139,
-          longitude: 77.209,
-          latitudeDelta: 0.01,
-          longitudeDelta: 0.01,
-        }}
-      >
-        <Marker
-          coordinate={{ latitude: 28.6139, longitude: 77.209 }}
-          title="Courier"
-          description="Courier Location"
-        />
-      </MapView>
+  <MapView
+  style={styles.map}
+  initialRegion={{
+    latitude: 28.6139,
+    longitude: 77.209,
+    latitudeDelta: 0.02,
+    longitudeDelta: 0.02,
+  }}
+>
+  {/* Start Marker */}
+  <Marker
+    coordinate={{ latitude: 28.6139, longitude: 77.209 }}
+    title="Courier Start"
+    description="Courier Start Location"
+  >
+    <Image
+      source={imageIndex.Location} // your custom image
+      style={{ width: 40, height: 40 }} // size of marker
+      resizeMode="contain"
+    />
+  </Marker>
+
+  {/* End Marker */}
+  <Marker
+    coordinate={{ latitude: 28.620, longitude: 77.220 }}
+    title="Courier End"
+    description="Courier Destination"
+  >
+    <Image
+      source={imageIndex.deliver} // you can use a different image if needed
+      style={{ width: 40, height: 40 }}
+      resizeMode="contain"
+    />
+  </Marker>
+
+  {/* Polyline */}
+  <Polyline
+    coordinates={routeCoordinates}
+    strokeColor="#FFF7D9"
+    strokeWidth={4}
+  />
+</MapView>
+
 
       {/* Bottom Info Section */}
       <View style={styles.bottomCard}>
@@ -76,7 +114,7 @@ const CourierTrackingScreen = () => {
           Package Information
         </Text>
 
-        <View
+        {/* <View
           style={{
             flexDirection: "row",
             justifyContent: "space-between",
@@ -89,7 +127,7 @@ const CourierTrackingScreen = () => {
           <Text style={[styles.packageTitle, { color: "#878787" }]}>
             Package Weight
           </Text>
-        </View>
+        </View> */}
 
         <View
           style={{
@@ -165,7 +203,6 @@ const styles = StyleSheet.create({
     shadowColor: "#000",
     shadowOpacity: 0.1,
     shadowRadius: 6,
-    elevation: 5,
   },
   packageRow: {
     flexDirection: "row",

@@ -1,56 +1,45 @@
 import React from "react";
-import { View,Image, Text, TouchableOpacity, StyleSheet } from "react-native";
+import { View, Image, Text, TouchableOpacity, StyleSheet } from "react-native";
 import imageIndex from "../assets/imageIndex";
 import font from "../theme/font";
-// import Icon from "react-native-vector-icons/MaterialIcons";
-// import Ionicons from "react-native-vector-icons/Ionicons";
 
-const HomeHeaderBar = ({ location = "Wallace, Australia", onLocationPress, onNotificationPress, hasNotification = true }) => {
+const HomeHeaderBar = ({
+  location = "Wallace, Australia",
+  lable ="Current location" ,
+  style1,
+  onLocationPress,
+  onNotificationPress,
+  hasNotification = true,
+}: any) => {
   return (
     <View>
-        <Text style={{
-            color:"#878787",
-            fontSize:12,
-            paddingHorizontal: 5,
-             fontFamily:font.MonolithRegular
-        }}>Current location</Text>
+      <Text style={styles.tex}>Current location</Text>
 
-    <View style={styles.container}>
-        
-       <TouchableOpacity style={styles.locationContainer} onPress={onLocationPress}>
-      <Image source={imageIndex.location1} 
-      
-      style={{
-        height:22,
-        width:22
-      }}
-      />
+      <View style={styles.container}>
+        <TouchableOpacity
+          style={styles.locationContainer}
+          onPress={onLocationPress}
+          activeOpacity={0.7}
+        >
+          <Image source={imageIndex.location1} style={styles.iconSmall} />
+          <Text
+            style={[styles.locationText, style1]}
+            numberOfLines={1}           // restrict to single line
+            ellipsizeMode="tail"        // add "..." if too long
+          >
+            {location}
+          </Text>
+          <Image source={imageIndex.arrowqdown} style={styles.iconSmall} />
+        </TouchableOpacity>
 
-        <Text style={styles.locationText}>{location}</Text>
-        <Image  
-           
-      style={{
-        height:22,
-        width:22 ,
-       }}
-      
-        source={imageIndex.arrowqdown}/>
-
-      </TouchableOpacity>
-
-       <TouchableOpacity style={styles.notificationContainer} onPress={onNotificationPress}>
-        <Image source={imageIndex.Notification} 
-           
-      style={{
-        height:44,
-        width:44
-      }}
- 
-        
-        />
-        {/* {hasNotification && <View style={styles.badge} />} */}
-      </TouchableOpacity>
-    </View>
+        <TouchableOpacity
+          style={styles.notificationContainer}
+          onPress={onNotificationPress}
+        >
+          <Image source={imageIndex.Notification} style={styles.iconLarge} />
+          {/* {hasNotification && <View style={styles.badge} />} */}
+        </TouchableOpacity>
+      </View>
     </View>
   );
 };
@@ -60,34 +49,39 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    paddingHorizontal: 5,
-     backgroundColor: "#fff",
+    backgroundColor: "#fff",
   },
   locationContainer: {
     flexDirection: "row",
     alignItems: "center",
+    flex: 1,                     // allow text to shrink if needed
+    marginRight: 10,             // some spacing from notification
   },
   locationText: {
     fontSize: 15,
-     marginHorizontal: 5,
+    marginHorizontal: 5,
     color: "#000",
-    fontFamily:font.MonolithRegular
-
+    fontFamily: font.MonolithRegular,
+    flexShrink: 1,               // allow text to shrink
+  },
+  tex: {
+    color: "#878787",
+    fontSize: 12,
+    fontFamily: font.MonolithRegular,
   },
   notificationContainer: {
     position: "relative",
-    padding: 8,
-    borderRadius: 10,
- 
   },
   badge: {
-    position: "absolute",
-    top: 6,
-    right: 6,
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: "red",
+     
+  },
+  iconSmall: {
+    width: 22,
+    height: 22,
+  },
+  iconLarge: {
+    width: 44,
+    height: 44,
   },
 });
 

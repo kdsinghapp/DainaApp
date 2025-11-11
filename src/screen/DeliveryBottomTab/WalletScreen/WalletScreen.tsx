@@ -74,7 +74,9 @@ const WalletScreen = () => {
     <SafeAreaView style={styles.container}>
       <StatusBarComponent />
       <CustomHeader label="Wallet" />
-
+<View style={{
+  marginHorizontal:15
+}}>
       {/* Balance Card */}
       <View style={styles.balanceCard}>
         <Text style={styles.balanceText}>Your Available Balance</Text>
@@ -108,7 +110,7 @@ const WalletScreen = () => {
         keyExtractor={(item) => item.id}
         contentContainerStyle={{ paddingBottom: 20 }}
       />
-
+</View>
       {/* Custom Modal */}
       <Modal
         visible={isModalVisible}
@@ -159,7 +161,7 @@ const WalletScreen = () => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#fff", padding: 15 },
+  container: { flex: 1, backgroundColor: "#fff"  },
   balanceCard: {
     backgroundColor: "#FFCC00",
     padding: 20,
@@ -170,8 +172,7 @@ const styles = StyleSheet.create({
     shadowColor: "#000",
     shadowOpacity: 0.15,
     shadowRadius: 6,
-    elevation: 5,
-  },
+   },
   balanceText: {
     fontSize: 16,
     color: "#FFFFFF",

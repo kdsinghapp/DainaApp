@@ -7,8 +7,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { color } from '../../../constant';
  import ScreenNameEnum from '../../../routes/screenName.enum';
 import font from '../../../theme/font';
-import { FlatList } from 'react-native-gesture-handler';
-import svgIndex from '../../../assets/svgIndex';
+ import svgIndex from '../../../assets/svgIndex';
 import { get_tasksMainAll } from '../../../Api/apiRequest';
 import LoadingModal from '../../../utils/Loader';
 

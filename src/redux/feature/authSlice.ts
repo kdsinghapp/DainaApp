@@ -1,4 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 interface AuthState {
   isLoading: boolean;
@@ -6,12 +7,8 @@ interface AuthState {
   isSuccess: boolean;
   isLogin: boolean;
   isLogOut: boolean;
-  userData: any; // Consider typing this
+  userData: any;
   token: string | null;
-  forgotData: any;
-  betOption: any;
-  gameResult: any;
-  newbetOption: any;
 }
 
 const initialState: AuthState = {
@@ -22,10 +19,6 @@ const initialState: AuthState = {
   isLogOut: false,
   userData: null,
   token: null,
-  forgotData: null,
-  betOption: null,
-  gameResult: null,
-  newbetOption: null,
 };
 
 const AuthSlice = createSlice({
@@ -41,17 +34,22 @@ const AuthSlice = createSlice({
       state.userData = action.payload.userData;
       state.token = action.payload.token;
     },
+    restoreLogin(state, action: PayloadAction<{ userData: any; token: string }>) {
+      state.isLogin = true;
+      state.userData = action.payload.userData;
+      state.token = action.payload.token;
+    },
     logout(state) {
-      state.isLoading = false;
-      state.isSuccess = false;
-      state.isError = false;
       state.isLogin = false;
       state.isLogOut = true;
       state.userData = null;
       state.token = null;
+
+      // 🔥 Clear AsyncStorage on logout
+      AsyncStorage.removeItem('authData');
     },
   },
 });
 
-export const { loginSuccess, logout } = AuthSlice.actions;
+export const { loginSuccess, restoreLogin, logout } = AuthSlice.actions;
 export default AuthSlice.reducer;

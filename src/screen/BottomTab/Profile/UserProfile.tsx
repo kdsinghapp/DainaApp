@@ -1,5 +1,5 @@
 // ProfileScreen.tsx
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -16,6 +16,12 @@ import { useNavigation } from "@react-navigation/native";
 import StatusBarComponent from "../../../compoent/StatusBarCompoent";
 import LogoutModal from "../../../compoent/LogoutModal";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useDispatch, useSelector } from "react-redux";
+import { GetProfileApi, handleLogout } from "../../../Api/apiRequest";
+import { loginSuccess, logout } from "../../../redux/feature/authSlice";
+import LoadingModal from "../../../utils/Loader";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { TouchableHighlight } from "react-native";
  
 type Props = {
   onEditProfile?: () => void;
@@ -82,34 +88,60 @@ const ProfileScreen: React.FC<Props> = ({
 }) => {
   const na = useNavigation()
   const [Modal,setModal]= useState(false)
+      const [isLoading, setLoading] = useState(false);
+ 
+  const dispatch = useDispatch();
+    const isLogin:any = useSelector <any>((state) => state?.auth?.userData);
+console.log("isLogin",isLogin)
+    useEffect(() => {
+      getProfileApi();
+    }, []);
+  
+  const getProfileApi = async () => {
+    try {
+      const response = await GetProfileApi(setLoading);
+       if (response) {
+        console.log("response",response)
+        dispatch(loginSuccess({ userData: response}));
+       } 
+    } catch (error) {
+      setLoading(false)
+  
+     }
+  };
+    const handleLogout = () => {
+    dispatch(logout());
+    AsyncStorage.removeItem('authData');
+    na.replace(ScreenNameEnum.SPLASH_SCREEN); 
+  };
   return (
     <SafeAreaView style={styles.safe}>
       <StatusBarComponent/>
+       <LoadingModal visible ={isLoading}/>
       <ScrollView 
       showsVerticalScrollIndicator={false}
       contentContainerStyle={styles.container}>
         {/* Header */}
         <Text style={styles.title}>Profile</Text>
-
-        {/* Profile card */}
         <View style={styles.profileCard}>
           <View style={styles.avatarWrap}>
-            {user?.avatarUrl ? (
-              <Image source={{ uri: user.avatarUrl }} style={styles.avatar} />
+            {isLogin?.image ? (
+              <Image source={{ uri: isLogin?.image }} style={styles.avatar} />
             ) : (
-              <View style={[styles.avatar, styles.avatarFallback]}>
-                <Text style={[styles.avatarInitials,]}>
-                  {user?.name?.slice(0, 1) ?? "U"}
-                </Text>
-              </View>
+                            <Image source={{ uri: user.avatarUrl }} style={styles.avatar} />
             )}
-            <View style={styles.statusDot}>
+            <TouchableHighlight style={styles.statusDot}
+            
+             onPress={()=>{
+              na.navigate(ScreenNameEnum.EditProfile)
+           }}
+            >
               <Image source={imageIndex.eoditphots} style={{
                 height:22,
                 width:22
               }}/>
               {/* <Feather name="camera" size={12} color="#fff" /> */}
-            </View>
+            </TouchableHighlight>
           </View>
 
           <View style={{ flex: 1 }}>
@@ -117,11 +149,11 @@ const ProfileScreen: React.FC<Props> = ({
               color:"#FFCC00",
               fontFamily:font.MonolithRegular
 
-            }]}>{user?.name}</Text>
+            }]}>{isLogin?.firstName}</Text>
             <Text style={[styles.email,{
               color:"#9DB2BF" ,
               fontFamily:font.MonolithRegular
-            }]}>{user?.email}</Text>
+            }]}>{isLogin?.email}</Text>
           </View>
         </View>
 
@@ -189,16 +221,17 @@ const ProfileScreen: React.FC<Props> = ({
         >
           <Text style={styles.logoutText}>Logout</Text>
         </Pressable>
-        <LogoutModal
-        
-        
-        visible ={Modal}
-        
-      onLogout={()=>setModal(false)}
-      onCancel={()=>setModal(false)}
-        
-        
-        />
+       <LogoutModal
+  visible={Modal}
+  onLogout={async () => {
+    setModal(false);
+handleLogout()
+    // ✅ Call logout function
+    
+  }}
+  onCancel={() => setModal(false)}
+/>
+
       </ScrollView>
     </SafeAreaView>
   );

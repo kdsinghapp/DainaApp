@@ -1,5 +1,5 @@
 // ProfileScreen.tsx
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -17,6 +17,10 @@ import { useNavigation } from "@react-navigation/native";
 import StatusBarComponent from "../../../compoent/StatusBarCompoent";
 import LogoutModal from "../../../compoent/LogoutModal";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useDispatch, useSelector } from "react-redux";
+import { GetProfileApi } from "../../../Api/apiRequest";
+import { loginSuccess, logout } from "../../../redux/feature/authSlice";
+import AsyncStorage from "@react-native-async-storage/async-storage";
  
 type Props = {
   onEditProfile?: () => void;
@@ -61,7 +65,7 @@ const ListItem = ({
       <View style={[styles.iconWrap, secure && styles.secureIconWrap]}>
         {icon}
       </View>
-      <Text style={styles.rowLabel}>{label}</Text>
+      <Text style={styles.rowLabel}>{label} {"  "}</Text>
     </View>
     <Image source={imageIndex.right}
     
@@ -91,6 +95,35 @@ const DeliveryProfile: React.FC<Props> = ({
 }) => {
   const na = useNavigation()
   const [Modal,setModal]= useState(false)
+    const [isLoading, setLoading] = useState(false);
+ 
+  const dispatch = useDispatch();
+    const isLogin:any = useSelector <any>((state) => state?.auth?.userData);
+console.log("isLogin",isLogin)
+    useEffect(() => {
+      getProfileApi();
+    }, []);
+  
+  const getProfileApi = async () => {
+    try {
+      const response = await GetProfileApi(setLoading);
+       if (response) {
+        console.log("response",response)
+        dispatch(loginSuccess({ userData: response}));
+       } 
+    } catch (error) {
+      setLoading(false)
+  
+     }
+  };
+    const handleLogout = () => {
+         setModal(false);
+
+    dispatch(logout());
+    AsyncStorage.removeItem('authData');
+    na.replace(ScreenNameEnum.SPLASH_SCREEN); 
+  }; 
+  console.log("isLogin?.image",isLogin?.image)
   return (
     <SafeAreaView style={styles.safe}>
       <StatusBarComponent/>
@@ -108,16 +141,15 @@ const DeliveryProfile: React.FC<Props> = ({
        }}
         style={styles.profileCard}>
           <View style={styles.avatarWrap}>
-            {user?.avatarUrl ? (
-              <Image source={{ uri: user.avatarUrl }} style={styles.avatar} />
-            ) : (
-              <View style={[styles.avatar, styles.avatarFallback]}>
-                <Text style={[styles.avatarInitials,]}>
-                  {user?.name?.slice(0, 1) ?? "U"}
-                </Text>
-              </View>
-            )}
+            {isLogin?.image ? (
+                         <Image source={{ uri: isLogin?.image }} style={styles.avatar} />
+                       ) : (
+                                       <Image source={{ uri: user.avatarUrl }} style={styles.avatar} />
+                       )}
+              
             
+            
+       
           </View>
 
           <View style={{ flex: 1 }}>
@@ -125,11 +157,11 @@ const DeliveryProfile: React.FC<Props> = ({
               color:"#FFCC00",
               fontFamily:font.MonolithRegular
 
-            }]}>{user?.name}</Text>
+            }]}>{isLogin?.firstName}</Text>
             <Text style={[styles.email,{
               color:"#9DB2BF" ,
               fontFamily:font.MonolithRegular
-            }]}>{user?.email}</Text>
+            }]}>{isLogin?.email}</Text>
           </View>
           <Image source={imageIndex.right}
     
@@ -150,6 +182,20 @@ const DeliveryProfile: React.FC<Props> = ({
               na.navigate(ScreenNameEnum.EarningsScreen)
            }}
           />
+          <ListItem
+            icon={<Image source={imageIndex.document}
+            
+            style={{
+              height:38,
+              width:38,
+             }}
+            />}
+            label="Document Show"
+            onPress={()=>{
+              na.navigate(ScreenNameEnum.DocumentShow)
+           }}
+          />
+          
           <ItemDivider />
           <ListItem
             icon={<SvgIndex.Wallert  />}
@@ -196,14 +242,11 @@ const DeliveryProfile: React.FC<Props> = ({
         {/* Logout */}
  
         <LogoutModal
-        
-        
         visible ={Modal}
-        
-      onLogout={()=>setModal(false)}
-      onCancel={()=>setModal(false)}
-        
-        
+       onCancel={()=>setModal(false)}
+          onLogout={() => {
+            handleLogout()
+ }}
         />
       </ScrollView>
     </SafeAreaView>
@@ -215,7 +258,7 @@ const ItemDivider = () => <View style={styles.divider} />;
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: "white" },
   container: { padding: 16, paddingBottom: 28 },
-  title: { fontSize: 22, fontFamily:font.MonolithRegular, color: TEXT, marginBottom: 12 },
+  title: { fontSize: 22, color: TEXT, marginBottom: 12 },
   profileCard: {
     flexDirection: "row",
     alignItems: "center",
@@ -272,7 +315,7 @@ const styles = StyleSheet.create({
   secureIconWrap: {
     backgroundColor: "#FFF1C2",
   },
-  rowLabel: {marginLeft:15, fontSize: 15, color: TEXT ,fontFamily:font.MonolithRegular },
+  rowLabel: {marginLeft:15, fontSize: 15, color: TEXT ,},
   divider: {
     height: StyleSheet.hairlineWidth,
     backgroundColor: BORDER,

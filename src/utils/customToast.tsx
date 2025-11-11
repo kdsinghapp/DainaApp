@@ -6,8 +6,7 @@ import TextCompoent, { Size } from './Text';
 const toastConfig = {
   successResponse: ({text1}:any) => (
     <View style={styles.container}>
-      <TextCompoent 
-      
+      <TextCompoent
         style={styles.titleStyle}
         size={Size.Small}
         color={'#000'}

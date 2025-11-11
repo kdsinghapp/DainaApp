@@ -20,19 +20,21 @@ const { width, height } = Dimensions.get('window');
 
 const TripMap = () => {
 const [loading, setLoading] = useState(false)
-const route = useRoute()
-const item = route?.params?.item
+ const route:any = useRoute()
+const item = route?.params || ""
+console.log("item",item)
 console.log(item, "item in msp")
 const Submit = async () => {
-  const param = {
-    id: item?.user_id,
-    bookingId: item?.id,
-    status: "Done"
-  }
-  setLoading(true)
+    navigation.replace(ScreenNameEnum.DeliveryTabNavigator)
+
+  // const param = {
+  //   id: item?.user_id,
+  //   bookingId: item?.id,
+  //   status: "Done"
+  // }
+  // setLoading(true)
   // await ChangeTripStatusApi(param, setLoading)
-  navigation.navigate(ScreenNameEnum.DriverHome)
-  //  navigation.navigate(ScreenNameEnum.CaptureDoc) 
+   //  navigation.navigate(ScreenNameEnum.CaptureDoc) 
 }
 const origin = {
   latitude: parseFloat(item?.departure_lat) || 0,
@@ -177,9 +179,9 @@ return (
           <Image source={imageIndex.MessageBlack} style={styles.iconBtn} />
         </TouchableOpacity>
       </View>
-      {end &&
-        <CustomButton onPress={() => { Submit() }} title={"ss"} />
-      }
+      {/* {end && */}
+        <CustomButton onPress={Submit} title={"Finish"} />
+      {/* } */}
     </View>
 
     {/* <LocationPicker

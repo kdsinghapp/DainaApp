@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, {   useMemo, useState } from "react";
 import {
   View,
   Text,
@@ -14,6 +14,8 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import StatusBarComponent from "../../../compoent/StatusBarCompoent";
 import { useNavigation } from "@react-navigation/native";
 import ScreenNameEnum from "../../../routes/screenName.enum";
+ import LoadingModal from "../../../utils/Loader";
+import { useOrders } from "./useOrders";
 
 type OrderStatus = "packaged" | "shipped" | "inTransit" | "delivered";
 
@@ -33,75 +35,48 @@ const STATUS_STEPS: OrderStatus[] = [
   "inTransit",
   "delivered",
 ];
-
-// --- Sample data (replace with API response) ---
-const SAMPLE: Order[] = [
-  {
-    id: "1",
-    trackingId: "TY9860036NM",
-    fromCity: "New York",
-    toCity: "Mumbai",
-    startDate: "Jan 30, 2023",
-    endDate: "Jan 31, 2023",
-    status: "packaged",
-  },
-  {
-    id: "2",
-    trackingId: "TY9860036NM",
-    fromCity: "New York",
-    toCity: "Mumbai",
-    startDate: "Jan 30, 2023",
-    endDate: "Jan 31, 2023",
-    status: "shipped",
-  },
-  {
-    id: "3",
-    trackingId: "TY9860036NM",
-    fromCity: "New York",
-    toCity: "Mumbai",
-    startDate: "Jan 30, 2023",
-    endDate: "Jan 31, 2023",
-    status: "inTransit",
-  },
-  {
-    id: "4",
-    trackingId: "TY9860036NM",
-    fromCity: "New York",
-    toCity: "Mumbai",
-    startDate: "Jan 30, 2023",
-    endDate: "Jan 31, 2023",
-    status: "delivered",
-  },
-];
-
-export default function OrdersScreen() {
-  const [tab, setTab] = useState<"pending" | "complete">("pending");
+ export default function OrdersScreen() {
+const {
+     isLoading,
+  orderData, 
+} = useOrders()
+   const [tab, setTab] = useState<"pending" | "complete">("pending");
 const nava = useNavigation()
-  // Filter by tab
-  const data = useMemo(() => {
-    return SAMPLE.filter((o) =>
+   const data = useMemo(() => {
+    return orderData.filter((o) =>
       tab === "pending" ? o.status !== "delivered" : o.status === "delivered"
     );
   }, [tab]);
   const OrderCard = ({ order }: { order: Order }) => {
+    console.log("order",order)
+    const formatDate = (isoString: string) => {
+    const date = new Date(isoString);
+    return date.toLocaleDateString("en-US", {
+      month: "short", // "Jan"
+      day: "2-digit", // "31"
+      year: "numeric", // "2023"
+    });
+  };
     return (
       <TouchableOpacity style={styles.card} 
       
       onPress={()=>{
-        nava.navigate(ScreenNameEnum.ViewDetails)
+        nava.navigate(ScreenNameEnum.ViewDetails,{
+          item:order
+        })
       }}
       >
         <View style={styles.cardHeader}>
           <Text style={styles.trackingLabel}>Tracking ID:</Text>
-          <Text style={styles.trackingId}>{order.trackingId}</Text>
+          <Text style={styles.trackingId}>TY9860036NM</Text>
         </View>
   
         <ProgressTrack status={order.status} />
   
         <View style={styles.row}>
           <View style={styles.cityBlock}>
-            <Text style={styles.date}>{order.startDate}</Text>
-            <Text style={styles.city}>{order.fromCity}</Text>
+            <Text style={styles.date}>{formatDate(order.pickupDate)}</Text>
+            <Text style={styles.city}>{order?.pickupLocation}</Text>
           </View>
   
           <Pressable style={styles.playButton}>
@@ -114,8 +89,8 @@ const nava = useNavigation()
           </Pressable>
   
           <View style={[styles.cityBlock, { alignItems: "flex-end" }]}>
-            <Text style={styles.date}>{order.endDate}</Text>
-            <Text style={styles.city}>{order.toCity}</Text>
+            <Text style={styles.date}>{formatDate(order.pickupTime)}</Text>
+            <Text style={styles.city}>{order?.dropLocation}</Text>
           </View>
         </View>
   
@@ -131,6 +106,8 @@ const nava = useNavigation()
   return (
     <SafeAreaView style={styles.safe}>
       <StatusBarComponent/>
+                                              <LoadingModal visible ={isLoading}/>
+
       <View style={styles.container}>
         <Text style={styles.title}>Orders</Text>
 
@@ -150,19 +127,23 @@ const nava = useNavigation()
 
         <FlatList
           contentContainerStyle={{ paddingBottom: 24 ,marginTop:11 }}
-          data={data}
+          data={orderData}
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => <OrderCard order={item} />}
           ItemSeparatorComponent={() => <View style={{ height: 14 }} />}
           showsVerticalScrollIndicator={false}
+           ListEmptyComponent={() => (
+    <Text style={{ textAlign: 'center', marginTop: 20, color: 'gray' }}>
+      No orders found
+    </Text>
+  )}
         />
       </View>
     </SafeAreaView>
   );
 }
 
-/* -------------------- UI Pieces -------------------- */
-
+ 
 const SegmentedTab = ({
   label,
   active,
@@ -253,12 +234,13 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 14,
     marginBottom: 14,
-    elevation: 1, // For Android shadow
-    shadowColor: "#000", // For iOS shadow
+     shadowColor: "#000", // For iOS shadow
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.2,
     marginTop:11,
     shadowRadius: 1.41,
+        borderWidth: 1,
+    borderColor: "#eee",
   },
   tab: {
     flex: 1,

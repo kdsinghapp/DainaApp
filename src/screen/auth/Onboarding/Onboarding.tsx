@@ -69,7 +69,7 @@ const OnboardingScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
   };
 
   const handleSkip = () => {
-  navigation.navigate(ScreenNameEnum.SocialLogin);
+  navigation.navigate(ScreenNameEnum.ChooseRole);
   };
 
   const renderSlide = ({ item }: { item: Slide }) => (
@@ -129,16 +129,23 @@ const OnboardingScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
         scrollEventThrottle={16}
       />
       {currentIndex === slides.length - 1  ?  
-      <View style={{
-        marginBottom: Platform.OS === 'ios' ? 0 : 38, // iOS ke liye 30, Android ke liye 20
+      <View  style={{
+             marginBottom:15
+
       }}>
         <SlideButton 
         title="Continue" 
-        onSlideSuccess={() => navigation.navigate(ScreenNameEnum.SocialLogin)} 
+        onSlideSuccess={() => navigation.navigate(ScreenNameEnum.ChooseRole)} 
       />
      </View>
   :
-  <View style={styles.footerButton}>
+  <View style={{
+    width: "55%",
+    alignItems:"center",
+    justifyContent:"center",
+     alignSelf:"center",
+     marginBottom:15
+  }}>
             <CustomButton title={"Continue"} onPress={handleNextPress} />
   
             </View>

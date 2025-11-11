@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Image,
@@ -11,31 +11,54 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { launchCamera, launchImageLibrary } from "react-native-image-picker";
+import { useNavigation } from "@react-navigation/native";
+import { useDispatch, useSelector } from "react-redux";
+
 import StatusBarComponent from "../../../compoent/StatusBarCompoent";
 import CustomHeader from "../../../compoent/CustomHeader";
-import imageIndex from "../../../assets/imageIndex";
 import CustomInput from "../../../compoent/CustomInput";
 import CustomButton from "../../../compoent/CustomButton";
 import ImagePickerModal from "../../../compoent/ImagePickerModal";
-import LocationPermissionModal from "../../../compoent/LocationModal";
-import { useNavigation } from "@react-navigation/native";
+import imageIndex from "../../../assets/imageIndex";
+import { GetProfileApi, UpdateProfile } from "../../../Api/apiRequest";
+import { loginSuccess } from "../../../redux/feature/authSlice";
+import LoadingModal from "../../../utils/Loader";
 import ScreenNameEnum from "../../../routes/screenName.enum";
+import { errorToast } from "../../../utils/customToast";
 
 const ProfileSetup = () => {
-  const [fullName, setFullName] = useState("");
-  const [email, setEmail] = useState("");
-  const [phone, setPhone] = useState("");
-  const [address, setAddress] = useState("");
-  const [image, setImage] = useState<any>(imageIndex.prfile);
+  const navigation = useNavigation();
+  const userData: any = useSelector((state: any) => state.auth.userData);
+
+  const [fullName, setFullName] = useState(userData?.firstName || "");
+  const [email, setEmail] = useState(userData?.email || "");
+  const [address, setAddress] = useState(userData?.address || "");
+  const [image, setImage] = useState<any>(userData?.image || null);
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const [showModal, setShowModal] = useState(true);
-  const [location, setLocation] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+const dispatch = useDispatch();
+useEffect((()=>{
+  getProfileApi()
+  setFullName(userData?.firstName || "")
+    setEmail(userData?.email || "")
+    setAddress(userData?.address || "")
+setImage(userData?.image||"")
+ }),[userData?.firstName])
 
-
+const getProfileApi = async () => {
+  try {
+    const response = await GetProfileApi(setIsLoading);
+     if (response) {
+      dispatch(loginSuccess({ userData: response}));
+     } 
+  } catch (error) {
+ 
+   }
+};
   const pickImageFromGallery = () => {
     launchImageLibrary({ mediaType: "photo" }, (response) => {
       if (response.assets && response.assets.length > 0) {
-        setImage(response.assets[0].uri);
+        setImage(response.assets[0]);
         setIsModalVisible(false);
       }
     });
@@ -43,81 +66,119 @@ const ProfileSetup = () => {
 
   const takePhotoFromCamera = () => {
     launchCamera({ mediaType: "photo" }, (response) => {
-      if (response.assets && response.assets.length > 0) {
-        setImage(response.assets[0].uri);
+      if (response?.assets && response?.assets?.length > 0) {
+        setImage(response?.assets[0]);
         setIsModalVisible(false);
       }
     });
   };
-  const navigation = useNavigation()
 
-  const handleSave = () => {
-    navigation.navigate(ScreenNameEnum.DeliveryTabNavigator)
-    // navigation.navigate(ScreenNameEnum.TabNavigator)
-    // if (!fullName || !phone || !email || !address) {
-    //   Alert.alert("Error", "Please fill all the fields");
-    //   return;
-    // }
-    // // Save logic here
-    // Alert.alert("Success", "Profile updated successfully!");
-  };
+const handleSave = async () => {
+  try {
+    // ✅ Validation checks
+    if (!fullName?.trim()) {
+      errorToast("Please enter your full name.");
+       return;
+    }
+
+    if (!email?.trim()) {
+      errorToast("Please enter your email address.");
+       return;
+    }
+
+    if (!address?.trim()) {
+      errorToast("Please enter your address.");
+       return;
+    }
+
+    if (!image) {
+      errorToast("Please upload your profile image.");
+       return;
+    }
+
+    // ✅ Prepare params for API
+    const params = {
+      username: fullName,
+      email: email,
+      address: address,
+      imagePrfoile: image, // full object with uri, type, name
+    };
+
+    const response = await UpdateProfile(params, setIsLoading);
+    if (response) {
+      await getProfileApi();
+
+      if (userData?.type === "Delivery") {
+        navigation.navigate(ScreenNameEnum.UploadDocumentsScreen);
+      } else {
+        navigation.navigate(ScreenNameEnum.TabNavigator);
+      }
+    }
+  } catch (error) {
+    console.error("Error while saving profile:", error);
+   } finally {
+    setIsLoading(false);
+  }
+};
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: "white" }}>
+    <SafeAreaView style={styles.safeArea}>
       <StatusBarComponent />
-      <CustomHeader  label="Back"/>
+      <CustomHeader label="Profile Setup" />
+                                              <LoadingModal visible ={isLoading}/>
+
+
       <KeyboardAvoidingView
-        style={{ flex: 1 }}
+      style={{ flex: 1 }}
         behavior={Platform.OS === "ios" ? "padding" : undefined}
-      >
-        <ScrollView contentContainerStyle={styles.container}>
+        keyboardVerticalOffset={Platform.OS === "ios" ? 100 : 0} // adjust offset if needed
+
+       >
+        <ScrollView contentContainerStyle={styles.container}
+        
+        >
           <View style={styles.profileContainer}>
-           
             <Image
-                source={imageIndex.prfile}
-                style={{ height: 100, width: 100 }}
-                resizeMode="contain"
-              />
-           <TouchableOpacity
-              style={styles.editIcon}
+              source={image ? { uri: image.uri || image } : imageIndex.prfile}
+              style={styles.profileImage}
+              resizeMode="cover"
+            />
+
+            {/* Edit Icon */}
+            <TouchableOpacity
+              style={styles.editIconContainer}
               onPress={() => setIsModalVisible(true)}
             >
               <Image
-                source={imageIndex.edit1}
-                style={{ height: 33, width: 33 }}
+                source={imageIndex.eoditphots}
+                style={styles.editIcon}
                 resizeMode="contain"
               />
             </TouchableOpacity>
 
-            <View style={{ marginHorizontal: 15,  }}>
+            <View style={styles.inputContainer}>
               <CustomInput
                 placeholder="Full Name"
                 value={fullName}
                 onChangeText={setFullName}
-              />
-              <CustomInput
-                placeholder="Phone Number"
-                value={phone}
-                onChangeText={setPhone}
-                keyboardType="phone-pad"
+                leftIcon={<Image source={imageIndex.profiel} style={styles.icon} />}
               />
               <CustomInput
                 placeholder="Email"
                 value={email}
                 onChangeText={setEmail}
-                keyboardType="email-address"
+                leftIcon={<Image source={imageIndex.mess} style={styles.icon} />}
               />
               <CustomInput
                 placeholder="Address"
                 value={address}
                 onChangeText={setAddress}
+                leftIcon={<Image source={imageIndex.location1} style={styles.icon} />}
               />
             </View>
           </View>
 
-       
-
-          {/* Use the reusable ImagePickerModal component */}
+          {/* Image Picker Modal */}
           <ImagePickerModal
             modalVisible={isModalVisible}
             setModalVisible={setIsModalVisible}
@@ -125,26 +186,20 @@ const ProfileSetup = () => {
             takePhotoFromCamera={takePhotoFromCamera}
           />
         </ScrollView>
-        
       </KeyboardAvoidingView>
-      <View             style={{ marginBottom: 30,  marginHorizontal:15 }}
-      >
-      <CustomButton
-            title="Save & Continue"
-            onPress={handleSave}
-           />
-                <LocationPermissionModal
-        visible={showModal}
-        onClose={() => setShowModal(false)}
-        onLocationGranted={(pos) => setLocation(pos)}
-      />
 
-          </View>
+      <View style={styles.buttonContainer}>
+        <CustomButton title="Update" onPress={handleSave} loading={isLoading} />
+      </View>
     </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: "white",
+  },
   container: {
     alignItems: "center",
     paddingVertical: 20,
@@ -152,21 +207,37 @@ const styles = StyleSheet.create({
   profileContainer: {
     alignItems: "center",
     marginTop: 20,
-   },
+    position: "relative", // needed for absolute edit icon
+  },
   profileImage: {
-    width: 130,
-    height: 130,
-    borderRadius: 65,
-    backgroundColor: "#f0f0f0",
-    marginBottom: 10,
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+  },
+  editIconContainer: {
+    position: "relative",
+    bottom: 20,
+    right: 0,
+     padding: 5,
+     left:16
+  
   },
   editIcon: {
-    position: "relative",
-    bottom: 30,
-    right: 0,
-    padding: 7,
-    borderRadius: 15,
-   },
+    width: 33,
+    height: 33,
+  },
+  inputContainer: {
+    marginTop: 20,
+    width: "90%",
+  },
+  icon: {
+    width: 18,
+    height: 18,
+  },
+  buttonContainer: {
+    marginBottom: 30,
+    marginHorizontal: 15,
+  },
 });
 
 export default ProfileSetup;

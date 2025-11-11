@@ -27,7 +27,12 @@ import WalletScreen from "../screen/DeliveryBottomTab/WalletScreen/WalletScreen"
 import EarningsScreen from "../screen/DeliveryBottomTab/EarningsScreen/EarningsScreen";
 import HelpSupport from "../screen/DeliveryBottomTab/HelpSupport/HelpSupport";
 import NotificationsSetting from "../screen/DeliveryBottomTab/NotificationsSetting/NotificationsSetting";
- const _routes: any = {
+import ParcelDetails from "../screen/DeliveryBottomTab/ParcelDetails/ParcelDetails";
+import VehicleSetupScreen from "../screen/auth/VehicleSetup/VehicleSetupScreen";
+import ChooseRole from "../screen/auth/ChooseRole/ChooseRole";
+import AllOrder from "../screen/DeliveryBottomTab/Delivery/DeliveryHome/AllOrder";
+import RequestLoading from "../screen/BottomTab/DashBoard/RequestLoading";
+  const _routes: any = {
   REGISTRATION_ROUTE: [
     {
       name: ScreenNameEnum.SPLASH_SCREEN,
@@ -38,12 +43,24 @@ import NotificationsSetting from "../screen/DeliveryBottomTab/NotificationsSetti
       Component: Sinup,
     },
     {
+      name: ScreenNameEnum.ChooseRole,
+      Component: ChooseRole,
+    },
+    {
       name: ScreenNameEnum.WalletScreen,
       Component: WalletScreen,
     },
     {
       name: ScreenNameEnum.NotificationsSetting,
       Component: NotificationsSetting,
+    },
+       {
+      name: ScreenNameEnum.PickupLocation,
+      Component: PickupFromLocation,
+    },
+    {
+      name: ScreenNameEnum.VehicleSetupScreen,
+      Component: VehicleSetupScreen,
     },
     {
       name: ScreenNameEnum.HelpSupport,
@@ -154,6 +171,23 @@ import NotificationsSetting from "../screen/DeliveryBottomTab/NotificationsSetti
       name: ScreenNameEnum.TripMap,
       Component: TripMap,
     },
+    
+     {
+      name: ScreenNameEnum.ParcelDetails,
+      Component: ParcelDetails,
+    },
+     {
+      name: ScreenNameEnum.AllOrder,
+      Component: AllOrder,
+    },
+     {
+      name: ScreenNameEnum.RequestLoading,
+      Component: RequestLoading,
+    },
+    //    {
+    //   name: ScreenNameEnum.DocumentShow,
+    //   Component: DocumentShow,
+    // },
     
   ],
 

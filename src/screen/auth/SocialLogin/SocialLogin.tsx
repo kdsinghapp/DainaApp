@@ -58,7 +58,8 @@ const SocialLogin = () => {
             resizeMode="contain"
           />
         }
-       onPress={handleGoogleLogin}
+      //  onPress={handleGoogleLogin}
+      onPress={()=>navigation.navigate(ScreenNameEnum.PhoneLogin)}
 
           // onPress={() => navigation.navigate(ScreenNameEnum.GeneralInfo)}
         

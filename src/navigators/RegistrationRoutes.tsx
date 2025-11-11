@@ -1,5 +1,4 @@
-import 'react-native-gesture-handler';
-import React from 'react';
+ import React from 'react';
 import { createNativeStackNavigator, NativeStackNavigationOptions } from '@react-navigation/native-stack';
 import _routes from '../routes/routes';
 import ScreenNameEnum from '../routes/screenName.enum';

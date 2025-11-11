@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -14,36 +14,39 @@ import CustomButton from "../../../compoent/CustomButton";
 import HomeHeaderBar from "../../../compoent/HomeHeaderBar";
 import StatusBarComponent from "../../../compoent/StatusBarCompoent";
 import ScreenNameEnum from "../../../routes/screenName.enum";
-import { useNavigation } from "@react-navigation/native";
+ import AddressModalInput from "../../../compoent/AutocompleteData";
+import useDashboard from "./useDashboard";
+import CurrentLocation from "../../../CurrentLocation";
+import LoadingModal from "../../../utils/Loader";
  
 const ShippingScreen = () => {
-  const parcels = [
-    {
-      id: "5R9G87R",
-      date: "14 May 2023",
-      from: "1234 Elm Street Springfield, IL 62701",
-      to: "5678 Maple Avenue Seattle, WA 98101",
-      status: "Delivered",
-      statusColor: "#4CAF50",
-      iconBg: "#E8F5E9",
-      icon: "cube-outline",
-    },
-    
-    
-  ];
-const navigation = useNavigation()
+   
+
+  const { 
+     navigation ,
+     isLoading,
+     locationRef,
+     currentlocation,
+    address, setAddress , 
+    location, setLocation,
+    locationModal, setlocationModal}= useDashboard()
+
   return (
     <SafeAreaView style={styles.container}>
         <StatusBarComponent/>
-      {/* Current location */}
-      <HomeHeaderBar
-      location="Wallace, Australia"
-      onLocationPress={() => console.log("Change location")}
+                                        <LoadingModal visible ={isLoading}/>
+
+              <CurrentLocation ref={locationRef} />
+
+        <HomeHeaderBar
+       location= { currentlocation  || address} 
+      onLocationPress={() => setlocationModal(true)}
       onNotificationPress={() => console.log("Notifications clicked")}
       hasNotification={true}
     />
-      <TouchableOpacity style={styles.inputBox} 
-      onPress={()=> navigation.navigate(ScreenNameEnum.PickupFromLocation)}
+
+      {/* <TouchableOpacity style={styles.inputBox} 
+      onPress={()=> navigation.navigate(ScreenNameEnum.PickupLocation)}
       >
         <Text style={{ color: "black" ,fontSize:14, fontFamily:font.MonolithRegular}}>Enter Pickup Location</Text>
       <Image source={imageIndex.Next} 
@@ -52,13 +55,13 @@ const navigation = useNavigation()
         width:20
       }}
       />
-       </TouchableOpacity>
+       </TouchableOpacity> */}
 
   <View style={{
     marginTop:11 ,marginBottom:5
   }}>
       <CustomButton title={"Create Parcel"} 
-      onPress={()=> navigation.navigate(ScreenNameEnum.OfferOR)}
+      onPress={()=> navigation.navigate(ScreenNameEnum.PickupFromLocation)}
       />
       </View>
       {/* Shipping History */} 
@@ -82,7 +85,7 @@ const navigation = useNavigation()
       </View>
 
       <ScrollView showsVerticalScrollIndicator={false}>
-        {parcels.map((item, index) => (
+        {[].map((item, index) => (
           <View key={index} style={styles.card}>
              <View style={styles.cardTop}>
                 
@@ -147,6 +150,14 @@ const navigation = useNavigation()
           </View>
         ))}
       </ScrollView>
+      <AddressModalInput
+        value={address}
+        modalVisible ={locationModal}       
+      setModalVisible ={()=>setlocationModal(false)}
+        onChange={setAddress}
+        onSelect={(loc) => setLocation(loc)}
+        placeholder="Select your delivery address"
+      />
     </SafeAreaView>
   );
 };
@@ -174,8 +185,8 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     padding: 17,
     marginBottom: 15,
-    borderWidth: 1,
-    borderColor: "white",
+     borderWidth: 1,
+    borderColor: "#eee",
     marginHorizontal: 2,
     marginTop:11,
     // iOS shadow
@@ -184,7 +195,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.05,
     shadowRadius: 6,
     // Android shadow
-    elevation: 2, 
+  
 
     flexDirection:"row" ,
     justifyContent:"space-between"
@@ -222,8 +233,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.05,
     shadowRadius: 6,
     // Android shadow
-    elevation: 1,
-    
+     
   },
   cardTop: {
     flexDirection: "row",

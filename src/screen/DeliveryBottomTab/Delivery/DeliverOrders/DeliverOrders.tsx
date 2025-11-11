@@ -8,16 +8,15 @@ import {
   Pressable,
   Animated,
   Easing,
+  TouchableOpacity,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
 import StatusBarComponent from "../../../../compoent/StatusBarCompoent";
-import HomeHeaderBar from "../../../../compoent/HomeHeaderBar";
-import imageIndex from "../../../../assets/imageIndex";
+ import imageIndex from "../../../../assets/imageIndex";
 import font from "../../../../theme/font";
-import OnlineSlideRight from "../../../../compoent/OnlineSlideRight";
-import { successToast } from "../../../../utils/customToast";
-
+import ScreenNameEnum from "../../../../routes/screenName.enum";
+  
 type OrderStatus = "Pending" | "Completed" | "Canceled";
 type Order = {
   id: string;
@@ -37,7 +36,7 @@ const STATUS_STYLES: Record<
   { bg: string; text: string; label: string }
 > = {
   Pending:   { bg: "#FFF4E5", text: "#C26B00", label: "Pending" },
-  Completed: { bg: "#EAF8EE", text: "#2E7D32", label: "Completed" },
+  Completed: { bg: "#EAF8EE", text: "#00CE9A", label: "Completed" },
   Canceled:  { bg: "#FDECEC", text: "#D32F2F", label: "Canceled" },
 };
 
@@ -139,12 +138,25 @@ const DeliveryHome = () => {
   }, [activeTab]);
   const translateX = listSlide.interpolate({ inputRange: [0, 1], outputRange: [30, 0] });
   const fade = listSlide.interpolate({ inputRange: [0, 1], outputRange: [0.2, 1] });
-
+const navgation = useNavigation()
   const renderItem = ({ item }: { item: Order }) => {
     const st = STATUS_STYLES[item.status];
+    console.log
     return (
-      <View style={styles.card}>
+      <TouchableOpacity style={styles.card} 
+      
+      
+  onPress={() => {
+    if (item.status == "Pending") {
+      navigation.navigate(ScreenNameEnum.ParcelDetails, {
+        item: item,
+      });
+    }
+  }}
+
+      >
         {/* Top row: avatar, name/phone, status pill, code */}
+        
         <View style={styles.cardTop}>
           <Image
             source={
@@ -170,9 +182,8 @@ const DeliveryHome = () => {
             </Text>
           </View>
         </View>
-
-        {/* Code row */}
-        <Text style={styles.code} numberOfLines={1}>
+ 
+         <Text style={styles.code} numberOfLines={1}>
           {item.code}
         </Text>
 
@@ -182,7 +193,7 @@ const DeliveryHome = () => {
         <View style={styles.stopsRow}>
           {/* timeline dots/line image (replace with your own if needed) */}
           <Image
-            source={imageIndex?.Vector || { uri: "" }}
+            source={imageIndex?.Dots || { uri: "" }}
             style={{ width: 12, height: 88, marginRight: 10 }}
             resizeMode="contain"
           />
@@ -201,7 +212,7 @@ const DeliveryHome = () => {
             </Text>
           </View>
         </View>
-      </View>
+      </TouchableOpacity>
     );
   };
 
@@ -276,8 +287,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: "#000",
     fontWeight: "700",
-    fontFamily: font.MonolithRegular,
-  },
+   },
 
   /* summary cards */
   summaryRow: {
@@ -316,11 +326,10 @@ const styles = StyleSheet.create({
   tabs: {
     flexDirection: "row",
     backgroundColor: "#F5F5F5",
-    padding: 4,
-    borderRadius: 12,
+    padding: 10,
+    borderRadius: 20,
     marginBottom: 12,
-    height: 45,
-    alignItems: "center",
+     alignItems: "center",
     marginTop:12
   },
   tab: {
@@ -337,14 +346,12 @@ const styles = StyleSheet.create({
   tabText: {
     fontSize: 13,
     color: "#1C1B1B",
-    fontFamily: font.MonolithRegular,
-  },
+   },
   tabTextActive: {
     color: "#FFF",
     fontWeight: "700",
     fontSize: 15,
-    fontFamily: font.MonolithRegular,
-  },
+   },
 
   /* cards */
   card: {
@@ -352,13 +359,14 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     padding: 16,
     marginBottom: 16,
-    borderWidth: 1,
-    borderColor: "#EEEEEE",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 6,
-    elevation: 1,
+  borderColor: "#eee",
+  borderWidth: 1,
+
+  // ✅ iOS shadow
+  shadowColor: "#000",
+  shadowOffset: { width: 0, height: 0 },
+  shadowOpacity: 0.1,
+  shadowRadius: 6,
   },
   cardTop: {
     flexDirection: "row",
@@ -372,14 +380,13 @@ const styles = StyleSheet.create({
   },
   name: {
     fontSize: 15,
-    color: "#0F172A",
+    color: "black",
     fontWeight: "700",
-    fontFamily: font.MonolithRegular,
-  },
+   },
   phone: {
     marginTop: 2,
     fontSize: 13,
-    color: "#7C8A99",
+    color: "#9DB2BF",
     fontFamily: font.MonolithRegular,
   },
   statusPill: {
@@ -396,34 +403,36 @@ const styles = StyleSheet.create({
     fontFamily: font.MonolithRegular,
   },
   code: {
-    marginTop: 8,
-    marginLeft: 52, // align under name (40 avatar + 12 gap)
+     marginLeft: 52, // align under name (40 avatar + 12 gap)
     fontSize: 12,
     color: "#9AA4AF",
     fontFamily: font.MonolithRegular,
   },
 
   splitter: {
-    height: 10,
-  },
+     borderWidth:0.5,
+     borderColor:"#D9D9D9",
+     marginTop:10 ,
+     marginBottom:5
+   },
 
   stopsRow: {
     flexDirection: "row",
     alignItems: "flex-start",
-    marginTop: 8,
+    marginTop: 20,
     marginLeft: 8,
   },
   stopLabel: {
-    fontSize: 12,
-    color: "#A3A9B3",
-    fontFamily: font.MonolithRegular,
-  },
+    fontSize: 13,
+    color: "#3B4051",
+    fontWeight:"500"
+   },
   stopValue: {
-    fontSize: 14,
-    color: "#6B7B8C",
+    fontSize: 13,
+    color: "#808080",
     marginTop: 4,
     lineHeight: 20,
-    fontFamily: font.MonolithRegular,
+    fontWeight:"500"
   },
 
   emptyText: {

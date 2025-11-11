@@ -2,64 +2,91 @@
 
 import { base_url } from './index';
 import ScreenNameEnum from '../routes/screenName.enum';
-import { loginSuccess } from '../redux/feature/authSlice';
+import { loginSuccess, logout } from '../redux/feature/authSlice';
 import { errorToast, successToast } from '../utils/customToast';
  import AsyncStorage from '@react-native-async-storage/async-storage';
  import { Toast } from '../utils/Toast';
 import { color } from '../constant';
+ const handleLogout = async (dispatch: any) => {
+  try {
+     dispatch(logout());    // reset Redux state
+   } catch (error) {
+    console.error('Error during logout:', error);
+  }
+};
+
+ const saveAuthData = async (userData:any, token:any) => {
+  try {
+    await AsyncStorage.setItem('authData', JSON.stringify({ userData, token }));
+    console.log('Auth data saved successfully');
+  } catch (error) {
+    console.error('Error saving auth data:', error);
+  }
+};
+ const getAuthData = async () => {
+  try {
+    const jsonValue = await AsyncStorage.getItem('authData');
+    return jsonValue != null ? JSON.parse(jsonValue) : null;
+  } catch (error) {
+    console.error('Error reading auth data:', error);
+    return null;
+  }
+};
+
 const LogiApi = async (
   param: any,
   setLoading: (loading: boolean) => void,
-  dispatch: any
 ) => {
   setLoading(true);
 
   try {
-    const body = {
-      email: param?.email,
-      full_name: param?.full_name
-    };
+    // ✅ Create FormData object
+    const formdata = new FormData();
+    formdata.append('countryCode', param?.code || '');
+    formdata.append('phoneNumber', param?.phone || '');
+    formdata.append('Type', param?.type || '');
 
-    const response = await fetch(`https://server-php-8-3.technorizen.com/chewbe/api/auth/google`, {
+    console.log('FormData:', {
+      countryCode: param?.code,
+      phoneNumber: param?.phone,
+      Type: param?.type,
+    });
+
+    // ✅ Send FormData instead of JSON
+    const response = await fetch(`${base_url}/register`, {
       method: 'POST',
       headers: {
         Accept: 'application/json',
-        'Content-Type': 'application/json', // Important
+        // ❌ Do NOT set Content-Type manually for FormData
+        // The browser/react-native will handle the correct boundary automatically
       },
-      body: JSON.stringify(body),
+      body: formdata,
     });
 
     const textResponse = await response.text();
 
+    // ✅ Try parsing response safely
     let parsedResponse: any;
     try {
       parsedResponse = JSON.parse(textResponse);
-      console.log("parsedResponse", parsedResponse);
     } catch (error) {
       errorToast('Invalid server response');
       return;
-    }    
-    if (parsedResponse.status == '1') {
-      const token = parsedResponse.data?.token;
-      const userData = parsedResponse.data;
-       if (token) {
-        await AsyncStorage.setItem('token', token);
-        dispatch(loginSuccess({ userData, token }));
-        param.navigation.reset({
-          index: 0,
-          routes: [{ name: ScreenNameEnum.GeneralInfo }],
-        });
-        successToast(parsedResponse?.message)
-        return parsedResponse;
-      } else {
-        errorToast('Token not received');
-      }
-      // Handle success (e.g., save token, navigate)
-    } else {
-      errorToast('Login failed');
     }
 
-    return parsedResponse;
+    // ✅ Handle API response
+    if (parsedResponse?.status === 1) {
+      successToast(parsedResponse.message);
+      param.navigation.navigate(ScreenNameEnum.OtpScreen, {
+        code: param?.code,
+        phone: param?.phone,
+      });
+      return parsedResponse;
+    } else {
+      errorToast(parsedResponse.message);
+      return parsedResponse;
+    }
+
   } catch (error) {
     console.error('Login error:', error);
     errorToast('Network error. Please try again.');
@@ -68,497 +95,166 @@ const LogiApi = async (
   }
 };
 
+const Verifyotp = async (param: any, setLoading: any, dispatch: any) => {
+  setLoading(true);
 
-  
-  const Signupupdate = async (
-    param: any,
-    setLoading: (loading: boolean) => void,
-    dispatch: any
-  ) => {
-    const dateObj = new Date(param.dob);
-    const isoDate = dateObj.toISOString();
-  
-    try {
-      setLoading(true);
-  
-      const myHeaders = new Headers();
-      myHeaders.append('Accept', 'application/json');
-  
-      const formdata = new FormData();
-      formdata.append('user_id', param.id);
-  
-      if (param.gender) {
-        formdata.append('gender', param.gender);
-      }
-  
-      if (param.dob) {
-        formdata.append('dob', isoDate);
-      }
-  
-      if (param.diabetes) {
-        formdata.append('diabetes', param.diabetes);
-      }
-  
-      if (param.selectedType1) {
-        formdata.append('body_type', param.selectedType1);
-      }
-  
-      if (param.selectedType2) {
-        formdata.append('sleep', param.selectedType2);
-      }
-  
-      if (param.selectedType3) {
-        formdata.append('exercise_type', param.selectedType3);
-      }
-  
-      if (param.weight) {
-        formdata.append('weight', param.weight);
-      }
-  
-      if (param.height) {
-        formdata.append('height', param.height);
-      }
-      const requestOptions = {
-        method: 'POST',
-        headers: myHeaders,
-        body: formdata,
-      };
-  
-      const response = await fetch(`${base_url}/common/signup_update`, requestOptions);
-      const textResponse = await response.text();
-      const parsedResponse = JSON.parse(textResponse);
-  
-      if (parsedResponse.status === '1') {
-        const token = parsedResponse.data?.token;
-        const userData = parsedResponse.data;
-         if (token) {
-          await AsyncStorage.setItem('token', token);
-          dispatch(loginSuccess({ userData, token }));
-        }
-  
-        successToast(parsedResponse.message);
-        Toast(parsedResponse?.message, '#4CBCA6', 10); // Blue snackbar with margin
-
-        param.navigation.reset({
-          index: 0,
-          routes: [{ name: ScreenNameEnum.FinishAccount }],
-        });
-  
-        return parsedResponse;
-      } else {
-        errorToast(parsedResponse.message);
-        return parsedResponse;
-      }
-    } catch (error) {
-      console.error("Signupupdate error:", error);
-      errorToast("Something went wrong. Please try again.");
-      return null;
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const UpdateProfile = async (
-    param: any,
-    setLoading: (loading: boolean) => void,
-   ) => {
-    try {
-      setLoading(true);
-      const token = await AsyncStorage.getItem('token');
-      const formdata = new FormData();
-      // full_name
-      if (param.gender) formdata.append('gender', param.gender);
-      if (param.username) formdata.append('full_name', param.username);
-   if (param.dob) formdata.append('dob', param.dob);
-   if (param.sleep) formdata.append('sleep', param.sleep);
-
-      if (param.diabetes) formdata.append('diabetes', param.diabetes);
-      if (param.bodyType) formdata.append('body_type', param.bodyType);
-      if (param.activity_level) formdata.append('activity_level', param.activity_level);
-      if (param.measurement_system) formdata.append('measurement_system', param.measurement_system);
-      if (param.selectedType3) formdata.append('exercise_type', param.selectedType3);
-      if (param.weight) formdata.append('weight', param.weight);
-      if (param.height) formdata.append('height', param.height);
- 
-       if (param.imagePrfoile) {
-        formdata.append('image', {
-          uri:param.imagePrfoile.uri,
-          name: "profile.jpg",
-          type: "image/jpeg",
-        } as any); // Cast as any for RN FormData
-      }
-  
-      const myHeaders = new Headers();
-      myHeaders.append('Accept', 'application/json');
-  
-      // ✅ Include token if available
-      if (token) {
-        myHeaders.append('Authorization', `Bearer ${token}`);
-      }
-  
-      console.log("FormData to send:", formdata);
-  
-      const requestOptions: RequestInit = {
-        method: 'POST',
-        headers: myHeaders,
-        body: formdata,
-      };
-  
-      const response = await fetch(`${base_url}/auth/update-profile`, requestOptions);
-      const textResponse = await response.text();
-  
-      let parsedResponse;
-      try {
-        parsedResponse = JSON.parse(textResponse);
-      } catch (jsonError) {
-         throw new Error("Invalid server response");
-      }
-      if (parsedResponse.status === '1') {
-          Toast(parsedResponse?.message, color.primary, 10); // Blue snackbar with margin
-        return parsedResponse;
-      } else {
-         Toast(parsedResponse?.message,color.primary, 10); // Blue snackbar with margin
-        return parsedResponse;
-      }
-    } catch (error) {
-       errorToast("Something went wrong. Please try again.");
-      return null;
-    } finally {
-      setLoading(false);
-    }
-  };
-  
-    
-    const Get_post_Api = async (
-     setLoading: (loading: boolean) => void
-  ): Promise<any | null> => {
-    setLoading(true);
-    const token = await AsyncStorage.getItem('token');
-     try {
-      const requestOptions = {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-      };
-  
-      const response = await fetch(`${base_url}/auth/get-profile`, requestOptions);
-      const responseData = await response.json();
-      console.log("responseData",responseData)
-      if (responseData.status === "1") {
-         return responseData;
-      } else {
-        Toast(responseData.error || "Something went wrong", color.red, 10); // Blue snackbar with margin
-         return null;
-      }
-    } catch (error) {
-      console.error("API call error:", error);
-      errorToast("Network error");
-      return null;
-    } finally {
-      setLoading(false);
-    }
-  };
-  
- ;
-
- 
-
- 
-const GethelpApi = async (
-    setLoading,
-) => {
-    try {
-        setLoading(true)
-
-        const requestOptions = {
-            method: "GET",
-        };
-        const respons = await fetch(`${base_url}/common/get_help`, requestOptions)
-            .then((response) => response.text())
-            .then((res) => {
-                const response = JSON.parse(res);
-                if (response.status == '1') {
-                    setLoading(false)
-                    return response
-                } else {
-                    setLoading(false)
-                    Toast(response.error, color.red, 10); // Blue snackbar with margin
- 
-                    return response
-                }
-            })
-            .catch((error) =>
-              
-                console.error(error));
-                setLoading(false)
-
-        return respons
-    } catch (error) {
-        setLoading(false)
-        errorToast(
-            'Network error',
-        );
-    }
-};
-const Getphysicaldata = async (
-    setLoading,
-) => {
-    try {
-        setLoading(true)
-
-        const requestOptions = {
-            method: "GET",
-        };
-        const respons = await fetch(`${base_url}/common/get_physical_data`, requestOptions)
-            .then((response) => response.text())
-            .then((res) => {
-                const response = JSON.parse(res);
-                if (response.status == '1') {
-                    setLoading(false)
-                    return response
-                } else {
-                    setLoading(false)
-                    Toast(response.error, color.red, 10); // Blue snackbar with margin
- 
-                    return response
-                }
-            })
-            .catch((error) =>
-              
-                console.error(error));
-                setLoading(false)
-
-        return respons
-    } catch (error) {
-        setLoading(false)
-        errorToast(
-            'Network error',
-        );
-    }
-};
-const get_tasksMainAll = async (
-  setLoading,
-) => {
   try {
-      setLoading(true)
+    // ✅ Create FormData
+    const formdata = new FormData();
+    formdata.append('countryCode', param?.code || '');
+    formdata.append('phoneNumber', param?.phone || '');
+    formdata.append('otp', param?.otp || '');
+        // formdata.append('otp', "9999" || '');
 
-      const requestOptions = {
-          method: "GET",
-      };
-      const respons = await fetch(`${base_url}/common/get_tasks`, requestOptions)
-          .then((response) => response.text())
-          .then((res) => {
-              const response = JSON.parse(res);
-              if (response.status == '1') {
-                  setLoading(false)
-                  return response
-              } else {
-                  setLoading(false)
-                  Toast(response.error, color.red, 10); // Blue snackbar with margin
-
-                  return response
-              }
-          })
-          .catch((error) =>
-            
-              console.error(error));
-              setLoading(false)
-
-      return respons
-  } catch (error) {
-      setLoading(false)
-      errorToast(
-          'Network error',
-      );
-  }
-};
-
-const GetPurchaseplan = async (setLoading:any) => {
-  try {
-    setLoading(true);
-
-    const response = await fetch(`${base_url}/common/get_purchase_plan`, {
-      method: "GET",
+    const response = await fetch(`${base_url}/verify-otp`, {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+       },
+      body: formdata,
     });
 
-    const res = await response.json();
- 
-    if (res.status === "1") {
-      return res; // success
-    } else {
-      Toast(res.error || "Something went wrong", color.red, 10);
-      return res;
+    const textResponse = await response.text();
+    let parsedResponse: any;
+    try {
+      parsedResponse = JSON.parse(textResponse);
+    } catch (error) {
+      errorToast('Invalid server response');
+      return;
     }
-  } catch (error) {
-    console.error("Network Error:", error);
-    errorToast("Network error");
-    return null;
+    if (parsedResponse?.status === 1) {
+      successToast(parsedResponse?.message);
+      await AsyncStorage.setItem('token', parsedResponse?.token);
+      dispatch(loginSuccess({ userData: parsedResponse, token: parsedResponse?.token }));
+       await saveAuthData(parsedResponse, parsedResponse?.token);
+      //  if(parsedResponse?.type === "Delivery"){
+      //   param.navigation.navigate(ScreenNameEnum.DeliveryTabNavigator);
+      //  }else{
+      //   param.navigation.navigate(ScreenNameEnum.TabNavigator);
+      //  }
+         param.navigation.navigate(ScreenNameEnum.ProfileSetup);
+     
+     } else {
+      errorToast(parsedResponse?.message);
+    }
+
+  } catch (error: any) {
+    console.error('Login error:', error);
+    errorToast('Network error. Please try again.');
   } finally {
     setLoading(false);
   }
 };
 
-const Get_health = async (
-    setLoading,
-) => {
-    try {
-        setLoading(true)
-
-        const requestOptions = {
-            method: "GET",
-        };
-        const respons = await fetch(`${base_url}/common/get_health`, requestOptions)
-            .then((response) => response.text())
-            .then((res) => {
-                const response = JSON.parse(res);
-                if (response.status == '1') {
-                    setLoading(false)
-                    return response
-                } else {
-                    setLoading(false)
-                    Toast(response.error, color.red, 10); // Blue snackbar with margin
- 
-                    return response
-                }
-            })
-            .catch((error) =>
-              
-                console.error(error));
-                setLoading(false)
-
-        return respons
-    } catch (error) {
-        setLoading(false)
-        errorToast(
-            'Network error',
-        );
-    }
-};
-const getAddPhysicalData = async (userId, setLoading) => {
+const Resend_otp = async (param: any, setLoading: any) => {
+  setLoading(true);
   try {
-    setLoading(true);
+    // ✅ Create FormData
+    const formdata = new FormData();
+    formdata.append('countryCode', param?.code || '');
+    formdata.append('phoneNumber', param?.phone || '');
 
-    const url = `${base_url}/common/get_add_physical_data`;
-
-    const formData = new FormData();
-    formData.append('user_id', userId);
-
-    const response = await fetch(url, {
-      method: 'POST',
-      body: formData,
+    console.log('FormData:', {
+      countryCode: param?.code,
+      phoneNumber: param?.phone,
     });
 
-    const resText = await response.text();
-    const resJson = JSON.parse(resText);
+    // ✅ Send FormData
+    const response = await fetch(`${base_url}/resend-otp`, {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        // ❌ Do NOT set Content-Type manually for FormData
+      },
+      body: formdata,
+    });
 
-    setLoading(false);
+    const textResponse = await response.text();
 
-    if (resJson.status === '1') {
-      return resJson;
-    } else {
-      Toast(resJson.error, color.red, 10);
-      return resJson;
+    // ✅ Parse safely
+    let parsedResponse: any;
+    try {
+      parsedResponse = JSON.parse(textResponse);
+    } catch (error) {
+      errorToast('Invalid server response');
+      return;
     }
-  } catch (error) {
-    console.error("Network error:", error);
+
+    console.log('parsedResponse', parsedResponse);
+
+    // ✅ Handle response
+    if (parsedResponse?.status === 1) {
+      successToast(parsedResponse?.message);
+    } else {
+      errorToast(parsedResponse?.message);
+    }
+
+  } catch (error: any) {
+    console.error('Resend OTP error:', error);
+    errorToast('Network error. Please try again.');
+  } finally {
     setLoading(false);
-    errorToast('Network error');
   }
 };
 
-
-const Getcontactinfo = async (
-  setLoading,
-) => {
-  try {
-      setLoading(true)
-
-      const requestOptions = {
-          method: "GET",
-      };
-      const respons = await fetch(`${base_url}/common/get_contact_info`, requestOptions)
-          .then((response) => response.text())
-          .then((res) => {
-              const response = JSON.parse(res);
-              if (response.status == '1') {
-                  setLoading(false)
-                  return response
-              } else {
-                  setLoading(false)
-                  Toast(response.error, color.red, 10); // Blue snackbar with margin
-
-                  return response
-              }
-          })
-          .catch((error) =>
-              console.error(error));
-      return respons
-  } catch (error) {
-      setLoading(false)
-      errorToast(
-          'Network error',
-      );
-  }
-}; 
-
-
-
-
-
-
-
-const Add_physical_data = async (
+ const UpdateProfile = async (
   param: any,
-  setLoading: (loading: boolean) => void,
+  setLoading: (loading: boolean) => void
 ) => {
   try {
     setLoading(true);
-    const token = await AsyncStorage.getItem('token');
+
+    const token = await AsyncStorage.getItem("token");
+
     const formdata = new FormData();
-    // Validate required parameters
-    if (!param?.useid || !param?.phyid) {
-      errorToast("Missing user_id or physical_id");
-      return null;
+
+    if (param.username) formdata.append("firstName", param.username);
+    if (param.email) formdata.append("email", param.email);
+    if (param.address) formdata.append("address", param.address);
+
+    // ✅ Append image only if exists
+    if (param.imagePrfoile && param.imagePrfoile.uri) {
+      const fileName = param.imagePrfoile.fileName || "profile.jpg";
+      const fileType = param.imagePrfoile.type || "image/jpeg";
+
+      formdata.append("imageFile", {
+        uri: param.imagePrfoile.uri,
+        name: fileName,
+        type: fileType,
+      });
     }
-     formdata.append('user_id', param?.useid);
-    formdata.append('physical_id', param?.phyid);
-    formdata.append('data', param?.data);  // Replace '44' with dynamic value if needed
 
-    const myHeaders = new Headers();
-    myHeaders.append('Accept', 'application/json');
-
-    // ✅ Uncomment if Authorization is needed
-    if (token) {
-      myHeaders.append('Authorization', `Bearer ${token}`);
-    }
-
-    const requestOptions: RequestInit = {
-      method: 'POST',
-      headers: myHeaders,
-      body: formdata,
+    // ✅ Do NOT manually set 'Content-Type' header
+    const headers: any = {
+      Accept: "application/json",
+      Authorization: `Bearer ${token}`,
     };
 
-    const response = await fetch(`${base_url}/common/add_physical_data`, requestOptions);
-    const textResponse = await response.text();
+    // ✅ Use POST (most servers expect POST for FormData upload)
+    const response = await fetch(`${base_url}/setup-profile`, {
+      method: "POST",
+      headers,
+      body: formdata,
+    });
 
+    const textResponse = await response.text();
     let parsedResponse;
+
     try {
       parsedResponse = JSON.parse(textResponse);
-    } catch (jsonError) {
+    } catch {
       throw new Error("Invalid server response");
     }
-    if (parsedResponse.status == '1') {
-      Toast(parsedResponse?.message, color.primary, 30);
+
+    if (parsedResponse.status == "1") {
+      successToast(parsedResponse.message);
       return parsedResponse;
     } else {
-      Toast(parsedResponse?.message, color.primary, 10);
+      errorToast(parsedResponse.message);
       return parsedResponse;
     }
-
   } catch (error) {
-    console.error("Error in Add_physical_data:", error);
+    console.error("UpdateProfile error:", error);
     errorToast("Something went wrong. Please try again.");
     return null;
   } finally {
@@ -566,150 +262,172 @@ const Add_physical_data = async (
   }
 };
 
-const Getcategories = async (setLoading, categoryType) => {
+  
+    
+const GetProfileApi = async (
+  setLoading: (loading: boolean) => void
+): Promise<any | null> => {
+  setLoading(true);
+  const token = await AsyncStorage.getItem('token');
+  console.log("token", token);
   try {
-    setLoading(true);
+    const response = await fetch(`${base_url}/setup-profile`, {
+      method: 'GET',  // agar get ho toh GET use karna
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+    });
 
-    const requestOptions = {
-      method: "GET",
-    };
+    const responseData = await response.json();
+    console.log("responseData", responseData);
 
-    const response = await fetch(
-      `${base_url}/common/get_categories?category_type=${categoryType}`,
-      requestOptions
-    );
-
-    const result = await response.json();
-
-    setLoading(false);
-
-    if (result.status === "1") {
-      return result; // Success response
+    if (responseData.status === "1" || responseData.status === 1) {
+      return responseData;
     } else {
-      Toast(result.error || "Something went wrong", color.red, 10);
-      return result; // Failure response bhi return karte hain
+      Toast(responseData.error || responseData.message || "Something went wrong", color.red, 10);
+      return null;
     }
   } catch (error) {
-    setLoading(false);
+    console.error("API call error:", error);
     errorToast("Network error");
-    console.error("GetCategories Error:", error);
     return null;
+  } finally {
+    setLoading(false);
+  }
+};
+
+ 
+ const Privacypolicy = async (setLoading: any) => {
+  setLoading(true);
+  try {
+    const response = await fetch(`${base_url}/privacy-policy`, {
+      method: 'GET',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+    });
+
+    const textResponse = await response.text();
+    const parsedResponse = JSON.parse(textResponse);
+
+    console.log("parsedResponse", parsedResponse);
+
+    if (parsedResponse?.status === 1) {
+      successToast(parsedResponse?.message);
+      return parsedResponse; // ✅ Return the data
+    } else {
+      errorToast(parsedResponse?.message);
+      return null; // Optional: return null on failure
+    }
+
+  } catch (error: any) {
+    console.error('Privacy Policy error:', error);
+    errorToast(error.message);
+    return null;
+  } finally {
+    setLoading(false);
   }
 };
 
 
+ const Termsconditions = async (setLoading: any) => {
+  setLoading(true);
+  try {
+    const response = await fetch(`${base_url}/terms-and-conditions`, {
+      method: 'GET',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+    });
 
- 
-const GetsubcategorCategory_id = async (
-  category_id:any,
-  // setLoading: (loading: boolean) => void,
+    const textResponse = await response.text();
+    const parsedResponse = JSON.parse(textResponse);
+
+    console.log("parsedResponse", parsedResponse);
+
+    if (parsedResponse?.status === 1) {
+      successToast(parsedResponse?.message);
+      return parsedResponse; // ✅ Return the data
+    } else {
+      errorToast(parsedResponse?.message);
+      return null; // Optional: return null on failure
+    }
+
+  } catch (error: any) {
+    console.error('Privacy Policy error:', error);
+    errorToast(error.message);
+    return null;
+  } finally {
+    setLoading(false);
+  }
+};
+
+
+ const DeliveryUploadDocument = async (
+  param: any,
+  setLoading: (loading: boolean) => void
 ) => {
   try {
-    // setLoading(true);
+    setLoading(true);
+    const token = await AsyncStorage.getItem("token");
+
     const formdata = new FormData();
-    formdata.append("category_id", category_id);
- 
-    const myHeaders = new Headers();
-    myHeaders.append("Accept", "application/json");
 
- 
-    const requestOptions: RequestInit = {
-      method: "POST",
-      headers: myHeaders,
-      body: formdata,
-    };
-
-    const response = await fetch(
-      `${base_url}/common/get_sub_category_by_category_id`,
-      requestOptions
-    );
-
-    // ✅ Parse response
-    const textResponse = await response.text();
-    let parsedResponse;
-    try {
-      parsedResponse = JSON.parse(textResponse);
-    } catch (err) {
-      throw new Error("Invalid server response. Please try again later.");
+    if (param.drivingLicense?.uri) {
+      formdata.append("drivingLicense", {
+        uri: param.drivingLicense.uri,
+        name: param.drivingLicense.name || "license.jpg",
+        type: param.drivingLicense.type || "image/jpeg",
+      });
     }
 
- 
-    if (parsedResponse?.status === "1") {
-       return parsedResponse?.data ?? [];
-    } else {
-       return [];
+    if (param.idDocument?.uri) {
+      formdata.append("idDocument", {
+        uri: param.idDocument.uri,
+        name: param.idDocument.name || "id.jpg",
+        type: param.idDocument.type || "image/jpeg",
+      });
     }
-  } catch (error: any) {
-    console.error("Error in GetsubcategorCategory_id:", error);
-    errorToast(error.message || "Something went wrong. Please try again.");
-    return [];
-  } finally {
-   }
-};
 
-
-
-const AddMealRequest = async (
-  param: any,
-  setLoading: (loading: boolean) => void,
- ) => {
-  try {
-    setLoading(true);
-    const token = await AsyncStorage.getItem('token');
-     const formdata = new FormData();
-     if (param.user_id) formdata.append('user_id', param.user_id);
-    if (param.name) formdata.append('name', param.name);
-    if (param.date) formdata.append('date', param.date);
-    if (param.mealrequests) formdata.append('meal_requests', param.mealrequests);
-   if (param.utensil_type) formdata.append('utensil_type', param.utensil_type);
-      if (param.img) {
-      formdata.append('image', {
-        uri:param.img.uri,
+    if (param.vehiclePapers?.uri) {
+      formdata.append("vehiclePapers", {
+        uri: param.vehiclePapers.uri,
         name: "profile.jpg",
-        type: "image/jpeg",
-      } as any); // Cast as any for RN FormData
-    }
-    formdata.append('type',param?.type);
-    
-     const myHeaders = new Headers();
-    myHeaders.append('Accept', 'application/json');
-
-  
-    if (token) {
-      myHeaders.append('Authorization', `Bearer ${token}`);
+        type:"image/jpeg",
+      });
     }
 
- 
-    const requestOptions: RequestInit = {
-      method: 'POST',
-      headers: myHeaders,
-      body: formdata,
+    const headers = {
+      Accept: "application/json",
+      Authorization: `Bearer ${token}`,
     };
-console.log("Sss",formdata)
-    const response = await fetch(`${base_url}/common/add_meal_request`, requestOptions);
-    const textResponse = await response.text();
 
+    const response = await fetch(`${base_url}/upload-document`, {
+      method: "POST",
+      headers,
+      body: formdata,
+    });
+
+    const textResponse = await response.text();
     let parsedResponse;
+
     try {
       parsedResponse = JSON.parse(textResponse);
-     } catch (jsonError) {
-       throw new Error("Invalid server response");
+    } catch {
+      throw new Error("Invalid server response");
     }
-    console.log("parsedResponse",parsedResponse)
-    if (parsedResponse?.status == '1') {
-      successToast(
-        parsedResponse?.message || "Success", 
-      
-      );
-      return parsedResponse;
-    } else {
-      errorToast(parsedResponse?.message || "Something went wrong")
-      
-      return parsedResponse;
-    }
-    
+    console.log("parsedResponse", parsedResponse);
+    if (parsedResponse.status == "1") {
+      successToast(parsedResponse.message);
+    }  
+
+    return parsedResponse;
   } catch (error) {
-     errorToast("Something went wrong. Please try again.");
+    console.error("DeliveryUploadDocument error:", error);
+    errorToast("Something went wrong. Please try again.");
     return null;
   } finally {
     setLoading(false);
@@ -717,89 +435,270 @@ console.log("Sss",formdata)
 };
 
 
-
-
-const VideoUplodApi = async (
+ const DeliveryVehicleDocument = async (
   param: any,
-  setLoading: (loading: boolean) => void,
- ) => {
+  setLoading: (loading: boolean) => void
+) => {
   try {
     setLoading(true);
-    const token = await AsyncStorage.getItem('token');
-     const formdata = new FormData();
-     if (param.meal_id) formdata.append('meal_id',param.meal_id);
-     formdata.append('utensil_type',"utensil_type");
-     
-      if (param.typeVideo) {
-      formdata.append('video', {
-        uri:param.typeVideo,
-        name: 'video.mp4', // You can use actual file name if available
-        type: 'video/mp4', // Change this according to your file type
-      } as any); // Cast as any for RN FormData
-    }
-     
-     const myHeaders = new Headers();
-    myHeaders.append('Accept', 'application/json');
+    const token = await AsyncStorage.getItem("token");
 
-  
-    if (token) {
-      myHeaders.append('Authorization', `Bearer ${token}`);
+    const formdata = new FormData();
+
+    if (param.vehicleType) {
+      formdata.append("vehicleType", param.vehicleType);
     }
 
- 
-    const requestOptions: RequestInit = {
-      method: 'POST',
-      headers: myHeaders,
-      body: formdata,
+    if (param.vehicleNumber) {
+      formdata.append("vehicleNumber", param.vehicleNumber);
+    }
+
+    if (param.vehicleRegistration?.uri) {
+      formdata.append("vehicleRegistration", {
+        uri: param.vehicleRegistration.uri,
+        name: param.vehicleRegistration.name || "vehicle_registration.jpg",
+        type: param.vehicleRegistration.type || "image/jpeg",
+      });
+    }
+    const headers = {
+      Accept: "application/json",
+      Authorization: `Bearer ${token}`,
     };
-console.log("Sss",formdata)
-    const response = await fetch(`${base_url}/common/add_meal_video`, requestOptions);
-    const textResponse = await response.text();
 
+    const response = await fetch(`${base_url}/vehicle-setup`, {
+      method: "POST",
+      headers,
+      body: formdata,
+    });
+
+    const textResponse = await response.text();
     let parsedResponse;
+
     try {
       parsedResponse = JSON.parse(textResponse);
-     } catch (jsonError) {
-       throw new Error("Invalid server response");
+    } catch {
+      throw new Error("Invalid server response");
     }
-    console.log("parsedResponse",parsedResponse)
-    if (parsedResponse?.status == '1') {
-      successToast(
-        parsedResponse?.message || "Success", 
-      
-      );
-      return parsedResponse;
+
+    console.log("Vehicle Upload Response:", parsedResponse);
+
+    if (parsedResponse.status == "1") {
+      successToast(parsedResponse.message || "Document uploaded successfully!");
     } else {
-      errorToast(parsedResponse?.message || "Something went wrong")
-      
-      return parsedResponse;
+      errorToast(parsedResponse.message || "Upload failed.");
     }
-    
+
+    return parsedResponse;
   } catch (error) {
-     errorToast("Something went wrong. Please try again.");
+    console.error("DeliveryVehicleDocument error:", error);
+    errorToast("Something went wrong. Please try again.");
     return null;
   } finally {
     setLoading(false);
   }
 };
-export {
-  Getcontactinfo,
-   
-    Get_post_Api,  
-   LogiApi,  
-  Signupupdate
-,
-GethelpApi ,
-Get_health,
-UpdateProfile ,
-Getphysicaldata ,
-Add_physical_data ,
-getAddPhysicalData ,
-GetPurchaseplan ,
-get_tasksMainAll ,
-Getcategories ,
-GetsubcategorCategory_id ,
-AddMealRequest ,
-VideoUplodApi
 
+const GetuploadDocument = async (
+  setLoading: (loading: boolean) => void
+): Promise<any | null> => {
+  setLoading(true);
+  const token = await AsyncStorage.getItem('token');
+  console.log("token", token);
+  try {
+    const response = await fetch(`${base_url}/upload-document`, {
+      method: 'GET',  // agar get ho toh GET use karna
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+
+    const responseData = await response.json();
+    console.log("responseData", responseData);
+
+    if (responseData.status === "1" || responseData.status === 1) {
+      return responseData;
+    } else {
+      Toast(responseData.error || responseData.message || "Something went wrong", color.red, 10);
+      return null;
+    }
+  } catch (error) {
+    console.error("API call error:", error);
+    errorToast("Network error");
+    return null;
+  } finally {
+    setLoading(false);
+  }
+};
+const AddParcelApi = async (param: any, setLoading: (loading: boolean) => void) => {
+  try {
+    setLoading(true);
+    const token = await AsyncStorage.getItem("token");
+    const formdata = new FormData();
+    if (param?.image && param?.image?.uri) {
+      const fileName = param.image.fileName || "profile.jpg";
+      const fileType = param.image.type || "image/jpeg";
+      formdata.append("imageFile", {
+        uri: param.image.uri,
+        name: fileName,
+        type: fileType,
+      });
+    }
+    if (param?.pickupLocation) formdata.append("pickupLocation", param.pickupLocation);
+    if (param?.dropLocation) formdata.append("dropLocation", param.dropLocation);
+// image
+    if (param?.pickupLat?.latitude) formdata.append("pickupLocationLat", param.pickupLat.latitude);
+    if (param?.pickupLat?.longitude) formdata.append("pickupLocationLon", param.pickupLat.longitude);
+ if (param?.droplat?.latitude) formdata.append("dropLocationLat", param.droplat.latitude);
+    if (param?.droplat.longitude) formdata.append("dropLocationLon", param.droplat.longitude);
+    if (param.shipmentType) formdata.append("shipmentType", param.shipmentType);
+    if (param.senderName) formdata.append("senderName", param.senderName);
+    if (param.senderMobile) formdata.append("senderMobile", param.senderMobile);
+    if (param.senderAddress) formdata.append("senderAddress", param.senderAddress);
+    if (param.pickupDate) {
+       formdata.append("pickupDate", param.pickupDate instanceof Date ? param.pickupDate.toISOString() : param.pickupDate);
+    }
+    if (param.pickupTime) {
+      formdata.append("pickupTime", param.pickupTime instanceof Date ? param.pickupTime.toISOString() : param.pickupTime);
+    }
+    if (param.consignmentType) formdata.append("consignmentType", param.consignmentType);
+    if (param.packageSize) formdata.append("packageSize", param.packageSize);
+    if (param.deliveryType) formdata.append("deliveryType", param.deliveryType);
+    if (param.price) formdata.append("price", param.price);
+
+    if (param.receiverName) formdata.append("receiverName", param.receiverName);
+    if (param.receiverMobile) formdata.append("receiverMobileNumber", param.receiverMobile);
+    if (param.receiverAddress) formdata.append("receiverAddress", param.receiverAddress);
+    if (param.extraMessage) formdata.append("message", param.extraMessage);
+
+    if (param.pickupLat) formdata.append("pickupLat", param.pickupLat.toString());
+     if (param.droplat) formdata.append("droplat", param.droplat.toString());
+
+    const headers: any = {
+      Accept: "application/json",
+      Authorization: `Bearer ${token}`,
+    };
+
+    const response = await fetch(`${base_url}/parcel-details`, {
+      method: "POST",
+      headers,
+      body: formdata,
+    });
+
+    const textResponse = await response.text();
+    let parsedResponse;
+
+    try {
+      parsedResponse = JSON.parse(textResponse);
+    } catch {
+      throw new Error("Invalid server response");
+    }
+     if (parsedResponse.status == "1") {
+      successToast(parsedResponse.message);
+      return parsedResponse;
+    } else {
+      errorToast(parsedResponse.message);
+      return parsedResponse;
+    }
+  } catch (error) {
+    console.error("AddParcelApi error:", error);
+    errorToast("Something went wrong. Please try again.");
+    return null;
+  } finally {
+    setLoading(false);
+  }
+};
+
+
+
+
+    
+const Parceldetails = async (
+  setLoading: (loading: boolean) => void
+): Promise<any | null> => {
+  setLoading(true);
+  const token = await AsyncStorage.getItem('token');
+  console.log("token", token);
+  try {
+    const response = await fetch(`${base_url}/parcel-details`, {
+      method: 'GET',  // agar get ho toh GET use karna
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+
+    const responseData = await response.json();
+    console.log("responseData", responseData);
+
+    if (responseData.status === "1" || responseData.status === 1) {
+      return responseData;
+    } else {
+      Toast(responseData.error || responseData.message || "Something went wrong", color.red, 10);
+      return null;
+    }
+  } catch (error) {
+    console.error("API call error:", error);
+    errorToast("Network error");
+    return null;
+  } finally {
+    setLoading(false);
+  }
+};
+
+
+
+
+
+    
+const DeliveryAvailableRequests = async (
+  setLoading: (loading: boolean) => void
+): Promise<any | null> => {
+  setLoading(true);
+  const token = await AsyncStorage.getItem('token');
+  console.log("token", token);
+  try {
+    const response = await fetch(`${base_url}/delivery/available-requests`, {
+      method: 'GET',  // agar get ho toh GET use karna
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+
+    const responseData = await response.json();
+    console.log("responseData", responseData);
+
+    if (responseData.status === "1" || responseData.status === 1) {
+      return responseData;
+    } else {
+      Toast(responseData.error || responseData.message || "Something went wrong", color.red, 10);
+      return null;
+    }
+  } catch (error) {
+    console.error("API call error:", error);
+    errorToast("Network error");
+    return null;
+  } finally {
+    setLoading(false);
+  }
+};
+
+ export {
+  LogiApi,  
+   Verifyotp,
+handleLogout,
+getAuthData,
+Termsconditions,
+saveAuthData,
+Resend_otp,
+     GetProfileApi,  
+ Privacypolicy,
+UpdateProfile ,
+DeliveryUploadDocument,
+DeliveryVehicleDocument,
+GetuploadDocument,
+AddParcelApi,
+Parceldetails ,
+DeliveryAvailableRequests
 }  
