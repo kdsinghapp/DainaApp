@@ -20,10 +20,6 @@
 		@"RNCSlider": NSClassFromString(@"RNCSliderComponentView"), // @react-native-community/slider
 		@"RNGoogleSignInButton": NSClassFromString(@"RNGoogleSignInButtonComponentView"), // @react-native-google-signin/google-signin
 		@"RNGestureHandlerButton": NSClassFromString(@"RNGestureHandlerButtonComponentView"), // react-native-gesture-handler
-		@"RNMapsGoogleMapView": NSClassFromString(@"RNMapsGoogleMapView"), // react-native-maps
-		@"RNMapsGooglePolygon": NSClassFromString(@"RNMapsGooglePolygonView"), // react-native-maps
-		@"RNMapsMapView": NSClassFromString(@"RNMapsMapView"), // react-native-maps
-		@"RNMapsMarker": NSClassFromString(@"RNMapsMarkerView"), // react-native-maps
 		@"RNCSafeAreaProvider": NSClassFromString(@"RNCSafeAreaProviderComponentView"), // react-native-safe-area-context
 		@"RNCSafeAreaView": NSClassFromString(@"RNCSafeAreaViewComponentView"), // react-native-safe-area-context
 		@"RNSStackScreen": NSClassFromString(@"RNSStackScreenComponentView"), // react-native-screens

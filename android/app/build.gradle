@@ -78,9 +78,9 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdk rootProject.ext.compileSdkVersion
 
-    namespace "dev.ingenius.chewbe"
+    namespace "com.DainaApp"
     defaultConfig {
-               applicationId "dev.ingenius.chewbe"
+               applicationId "com.DainaApp"
         minSdkVersion 26              // already fine
         targetSdkVersion 35           // <--- updated
         versionCode 1

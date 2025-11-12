@@ -1,4 +1,4 @@
-package dev.ingenius.chewbe
+package com.DainaApp
 
 import com.facebook.react.ReactActivity
 import com.facebook.react.ReactActivityDelegate

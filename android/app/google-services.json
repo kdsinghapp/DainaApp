@@ -9,7 +9,7 @@
       "client_info": {
         "mobilesdk_app_id": "1:996226020296:android:d0d75cb5024cc63823c6fd",
         "android_client_info": {
-          "package_name": "dev.ingenius.chewbe"
+          "package_name": "com.DainaApp"
         }
       },
       "oauth_client": [
@@ -17,7 +17,7 @@
           "client_id": "996226020296-aauv5rdf598nlsi917i7o95vp04rqltv.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "dev.ingenius.chewbe",
+            "package_name": "com.DainaApp",
             "certificate_hash": "6d45fdf14ba9674f9bed8c8e3be8b8cd68980f0d"
           }
         },
@@ -42,7 +42,7 @@
               "client_id": "996226020296-137gljjh0qa6i4734qj5o8lb868jd31s.apps.googleusercontent.com",
               "client_type": 2,
               "ios_info": {
-                "bundle_id": "dev.ingenius.chewbe"
+                "bundle_id": "com.DainaApp"
               }
             }
           ]
