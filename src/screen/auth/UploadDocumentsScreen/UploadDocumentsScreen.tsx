@@ -25,7 +25,7 @@ const UploadDocumentsScreen = () => {
   const [vehicleDoc, setVehicleDoc] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  const navigation = useNavigation();
+  const navigation:any = useNavigation();
 
   // ✅ File picker
   const pickDocument = async (type: string) => {

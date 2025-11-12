@@ -529,6 +529,11 @@
 			<key>isShown</key>
 			<false/>
 		</dict>
+		<key>react-native-document-picker.xcscheme</key>
+		<dict>
+			<key>isShown</key>
+			<false/>
+		</dict>
 		<key>react-native-geolocation.xcscheme</key>
 		<dict>
 			<key>isShown</key>
@@ -540,6 +545,11 @@
 			<false/>
 		</dict>
 		<key>react-native-image-picker.xcscheme</key>
+		<dict>
+			<key>isShown</key>
+			<false/>
+		</dict>
+		<key>react-native-maps.xcscheme</key>
 		<dict>
 			<key>isShown</key>
 			<false/>

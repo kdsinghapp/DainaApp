@@ -60,6 +60,8 @@
 #import "RNCGeolocationSpecJSI.h"
 #import "RNDateTimePickerCGen/RNDateTimePickerCGen.h"
 #import "RNDateTimePickerCGenJSI.h"
+#import "rndocumentpickerCGen/rndocumentpickerCGen.h"
+#import "rndocumentpickerCGenJSI.h"
 #import "rngesturehandler_codegen/rngesturehandler_codegen.h"
 #import "rngesturehandler_codegenJSI.h"
 #import "RNGoogleSignInCGen/RNGoogleSignInCGen.h"
