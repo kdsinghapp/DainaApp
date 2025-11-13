@@ -22,16 +22,7 @@ import { successToast } from "../../../../utils/customToast";
 import { useDeliveryHome } from "./useDeliveryHome";
 import LoadingModal from "../../../../utils/Loader";
  
-type Parcel = {
-  id: string;
-  date: string;
-  from: string;
-  to: string;
-  status: "Pending" | "Delivered" | "Canceled";
-  statusColor: string;
-  iconBg: string;
-  icon?: string;
-};
+ 
 
 const TABS = ["Pending", "Complete", "Canceled"] as const;
 
@@ -141,7 +132,7 @@ successToast("Online")
               fontSize: 18,
               fontWeight: "bold",
               marginTop:5
-        }}>7.72€</Text>
+        }}>00.€</Text>
       </View>
 
       {/* Rides */}
@@ -157,7 +148,7 @@ successToast("Online")
               fontSize: 18,
               fontWeight: "bold",
               marginTop:5
-        }}>12</Text>
+        }}>0</Text>
       </View>
     </View>
 
@@ -198,7 +189,8 @@ successToast("Online")
         style={{ flex: 1, transform: [{ translateX }], opacity: fade }}
       >
         <FlatList
-  data={filteredRequests.slice(-4)} // 👈 Sirf bottom 4 items
+  data={filteredRequests} // 👈 Sirf bottom 4 items
+  // data={filteredRequests.slice(-4)} // 👈 Sirf bottom 4 items
 
           style={{
             marginTop:12

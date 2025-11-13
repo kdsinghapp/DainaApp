@@ -186,8 +186,8 @@ console.log("isLogin",isLogin)
             icon={<Image source={imageIndex.document}
             
             style={{
-              height:38,
-              width:38,
+              height:34,
+              width:34,
              }}
             />}
             label="Document Show"

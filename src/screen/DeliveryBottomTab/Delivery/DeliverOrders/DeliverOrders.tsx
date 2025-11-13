@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useState, useEffect } from "react";
+import React, { useMemo, useRef, useState, useEffect, useCallback } from "react";
 import {
   View,
   Text,
@@ -11,11 +11,15 @@ import {
   TouchableOpacity,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useNavigation } from "@react-navigation/native";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import StatusBarComponent from "../../../../compoent/StatusBarCompoent";
  import imageIndex from "../../../../assets/imageIndex";
 import font from "../../../../theme/font";
 import ScreenNameEnum from "../../../../routes/screenName.enum";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import axios from "axios";
+import { base_url } from "../../../../Api";
+import LoadingModal from "../../../../utils/Loader";
   
 type OrderStatus = "Pending" | "Completed" | "Canceled";
 type Order = {
@@ -39,66 +43,13 @@ const STATUS_STYLES: Record<
   Completed: { bg: "#EAF8EE", text: "#00CE9A", label: "Completed" },
   Canceled:  { bg: "#FDECEC", text: "#D32F2F", label: "Canceled" },
 };
-
-const ordersSeed: Order[] = [
-  {
-    id: "1",
-    name: "Brandon Gouse",
-    phone: "487 315 3576",
-    code: "HSW 4736 XK",
-    status: "Completed",
-    pickup:
-      "Sapphire House, 402 A, B, C, Sapna Sangeeta Road, Indore, Madhya Pradesh 452014",
-    drop:
-      "Shivamprui Colony, Indore, Madhya Pradesh 452014",
-    avatar:
-      "https://i.pravatar.cc/150?img=12",
-  },
-  {
-    id: "2",
-    name: "Ann Culhane",
-    phone: "072 579 6968",
-    code: "HSW 4736 XK",
-    status: "Completed",
-    pickup:
-      "Sapphire House, 402 A, B, C, Sapna Sangeeta Road, Indore, Madhya Pradesh 452014",
-    drop:
-      "Shivamprui Colony, Indore, Madhya Pradesh 452014",
-    avatar:
-      "https://i.pravatar.cc/150?img=32",
-  },
-  {
-    id: "3",
-    name: "Lydia Rosser",
-    phone: "206 890 6572",
-    code: "HSW 4736 XK",
-    status: "Pending",
-    pickup:
-      "Sapphire House, 402 A, B, C, Sapna Sangeeta Road, Indore, Madhya Pradesh 452014",
-    drop:
-      "Shivamprui Colony, Indore, Madhya Pradesh 452014",
-    avatar:
-      "https://i.pravatar.cc/150?img=5",
-  },
-  {
-    id: "4",
-    name: "Jon Parker",
-    phone: "303 444 2011",
-    code: "HSW 4736 XK",
-    status: "Canceled",
-    pickup:
-      "21 Bridge Ave, NY 10001",
-    drop:
-      "9 Pine Rd, WA 98001",
-    avatar: "https://i.pravatar.cc/150?img=47",
-  },
-];
+ 
 
 const DeliveryHome = () => {
   const navigation = useNavigation();
-
-  // online pill (optional, kept from your version)
-  const [isOnline, setIsOnline] = useState(false);
+const [ordersSeed,setordersSeed] = useState([])
+   const [isOnline, setIsOnline] = useState(false);
+   const [isLoading, setisLoading] = useState(false);
   const pillX = useRef(new Animated.Value(0)).current;
   useEffect(() => {
     Animated.timing(pillX, {
@@ -115,16 +66,7 @@ const DeliveryHome = () => {
 
   // tabs + filter
   const [activeTab, setActiveTab] = useState<(typeof TABS)[number]>("Pending");
-  const filtered: Order[] = useMemo(() => {
-    if (activeTab === "Complete") {
-      return ordersSeed.filter((o) => o.status === "Completed");
-    }
-    if (activeTab === "Canceled") {
-      return ordersSeed.filter((o) => o.status === "Canceled");
-    }
-    return ordersSeed.filter((o) => o.status === "Pending");
-  }, [activeTab]);
-
+ 
   // list enter animation on tab change
   const listSlide = useRef(new Animated.Value(0)).current;
   useEffect(() => {
@@ -138,11 +80,47 @@ const DeliveryHome = () => {
   }, [activeTab]);
   const translateX = listSlide.interpolate({ inputRange: [0, 1], outputRange: [30, 0] });
   const fade = listSlide.interpolate({ inputRange: [0, 1], outputRange: [0.2, 1] });
-const navgation = useNavigation()
+   useFocusEffect(
+    useCallback(() => {
+      fetchAvailableRequests();
+    }, [])
+  );
+   const fetchAvailableRequests = async () => {
+    setisLoading(true)
+    try {
+       const token = await AsyncStorage.getItem('token');
+      if (!token) {
+         return;
+      }
+      const response = await axios.get(
+        `${base_url}/delivery/my-offers`,
+         {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            Accept: 'application/json',
+          },
+        },
+      );
+       if (response?.data?.status == 1) {
+            setisLoading(false)
+       setordersSeed(response?.data?.offers)
+ } else {
+              setisLoading(false)
+
+        }
+    } catch (error) {
+                  setisLoading(false)
+
+      console.error('Error fetching available requests:', error?.response?.data || error?.message);
+     } finally {
+                  setisLoading(false)
+
+     }
+  };
+
   const renderItem = ({ item }: { item: Order }) => {
-    const st = STATUS_STYLES[item.status];
-    console.log
-    return (
+     const st = STATUS_STYLES[item.status];
+     return (
       <TouchableOpacity style={styles.card} 
       
       
@@ -155,36 +133,52 @@ const navgation = useNavigation()
   }}
 
       >
-        {/* Top row: avatar, name/phone, status pill, code */}
-        
+         
         <View style={styles.cardTop}>
           <Image
             source={
-              item.avatar
-                ? { uri: item.avatar }
-                : imageIndex?.avatar || { uri: "" }
+              item.user.image
+                ? { uri: item.user.image }
+                : imageIndex?.userLogo || { uri: "" }
             }
             style={styles.avatar}
           />
 
           <View style={{ flex: 1 }}>
             <Text style={styles.name} numberOfLines={1}>
-              {item.name}
+              {item?.user?.firstName}
             </Text>
             <Text style={styles.phone} numberOfLines={1}>
-              {item.phone}
+              {item?.user?.phone}
             </Text>
           </View>
 
-          <View style={[styles.statusPill, { backgroundColor: st.bg }]}>
-            <Text style={[styles.statusPillText, { color: st.text }]}>
-              {st.label}
-            </Text>
-          </View>
+           <Text
+  style={[
+    styles.code,
+    {
+      textTransform: "capitalize",
+      fontSize:15,
+      fontFamily:font.TrialMedium,
+      color:
+        item.status === "pending"
+          ? "orange"
+          : item.status === "accepted"
+          ? "green"
+          : item.status === "complete"
+          ? "blue"
+          : "black",  
+    },
+  ]}
+>
+  {item.status}
+</Text>
+
+
         </View>
  
          <Text style={styles.code} numberOfLines={1}>
-          {item.code}
+          {item.trackingId}
         </Text>
 
         {/* Pickup / Drop block */}
@@ -201,14 +195,14 @@ const navgation = useNavigation()
           <View style={{ flex: 1 }}>
             <Text style={styles.stopLabel}>Pickup Location</Text>
             <Text style={styles.stopValue} numberOfLines={2}>
-              {item.pickup}
+              {item?.parcel?.pickupLocation}
             </Text>
 
             <Text style={[styles.stopLabel, { marginTop: 10 }]}>
               Drop Location
             </Text>
             <Text style={styles.stopValue} numberOfLines={2}>
-              {item.drop}
+              {item?.parcel?.dropLocation}
             </Text>
           </View>
         </View>
@@ -219,6 +213,8 @@ const navgation = useNavigation()
   return (
     <SafeAreaView style={styles.container}>
       <StatusBarComponent />
+                                             <LoadingModal visible ={isLoading}/>  
+
       <View style={styles.ordersHeader}>
         <Text style={styles.sectionTitle}>Orders</Text>
         <Image
@@ -249,7 +245,7 @@ const navgation = useNavigation()
       {/* List */}
       <Animated.View style={{ flex: 1, transform: [{ translateX }], opacity: fade }}>
         <FlatList
-          data={filtered}
+          data={ordersSeed}
           style={{
             marginTop:10
           }}

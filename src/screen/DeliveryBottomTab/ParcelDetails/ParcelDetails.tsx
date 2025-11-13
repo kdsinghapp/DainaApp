@@ -1,5 +1,5 @@
-import React  from "react";
-import { View, Text, StyleSheet, ImageBackground, TextInput, ScrollView, Image, Alert } from "react-native";
+import React, { useState }  from "react";
+import { View, Text, StyleSheet, ImageBackground, TextInput, ScrollView, Image, Alert, ActivityIndicator } from "react-native";
 import imageIndex from "../../../assets/imageIndex";
 import StatusBarComponent from "../../../compoent/StatusBarCompoent";
 import CustomHeader from "../../../compoent/CustomHeader";
@@ -10,15 +10,20 @@ import font from "../../../theme/font";
  
 const ParcelDetails = () => {
  const {  
-     isLoading,
-     
+         isLoading,
+    setIsLoading,
+    requests,
+    setRequests,
 item,
-     // API function
-     fullImageUrl ,
+navigation,
+     makeOffer,
+    fullImageUrl ,
     handleSendOffer ,
     amount, setAmount ,
-    message, setMessage
+    message, setMessage ,
+    imgloading, setImgloading
     } = useParcelDetails()
+
   return (
     <View style={styles.container}>
       <StatusBarComponent />
@@ -28,7 +33,19 @@ item,
           source={{ uri: fullImageUrl }}
           style={styles.backgroundImage}
           resizeMode="cover"
+         onLoadStart={() => setImgloading(true)}
+        onLoadEnd={() => setImgloading(false)}
         >
+          {imgloading && (
+          <View style={{
+              ...StyleSheet.absoluteFillObject,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.3)', // optional dim effect
+          }}>
+            <ActivityIndicator size="large" color="#fff" />
+          </View>
+        )}
           <CustomHeader label="Details" />
         </ImageBackground>
       ) : (

@@ -32,6 +32,7 @@ import VehicleSetupScreen from "../screen/auth/VehicleSetup/VehicleSetupScreen";
 import ChooseRole from "../screen/auth/ChooseRole/ChooseRole";
 import AllOrder from "../screen/DeliveryBottomTab/Delivery/DeliveryHome/AllOrder";
 import RequestLoading from "../screen/BottomTab/DashBoard/RequestLoading";
+import DocumentShow from "../screen/auth/DocumentShow/DocumentShow";
   const _routes: any = {
   REGISTRATION_ROUTE: [
     {
@@ -69,6 +70,12 @@ import RequestLoading from "../screen/BottomTab/DashBoard/RequestLoading";
     {
       name: ScreenNameEnum.EarningsScreen,
       Component: EarningsScreen,
+    },
+
+    
+    {
+      name: ScreenNameEnum.DocumentShow,
+      Component: DocumentShow,
     },
 
     

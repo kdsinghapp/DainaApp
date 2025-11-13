@@ -11,6 +11,8 @@ export const useParcelDetails = () => {
   const [requests, setRequests] = useState([]);
     const  rout:any = useRoute()
       const [amount, setAmount] = useState("");
+            const [imgloading, setImgloading] = useState(true);
+
   const [message, setMessage] = useState("");
     const {item} = rout?.params || "" 
      const navigation = useNavigation()
@@ -44,11 +46,9 @@ export const useParcelDetails = () => {
       }
     );
 
-    console.log('Offer response:', response.data);
-
+ 
     if (response?.data?.status === 1) {
-      console.log('Offer made successfully:', response.data);
-      return { success: true, data: response.data };
+       return { success: true, data: response.data };
     } else {
       console.warn(response?.data?.message || 'Failed to make offer');
       return {
@@ -89,39 +89,30 @@ export const useParcelDetails = () => {
       Alert.alert("Error", "Please enter a valid amount");
       return;
     }
-     const result:any = await makeOffer(item.id, amountValue, message.trim());
-    
-    if (result.status == 1) {
-      successToast(result?.message)
+     const result:any = await makeOffer(item?.id, amountValue, message.trim());
+    console.log("result",result)
+    if (result?.data?.status == 1) {
+      successToast(result?.data?.message)
       navigation.goBack()
-      // Alert.alert("Success", "Offer sent successfully!", [
-      //   {
-      //     text: "OK",
-      //     onPress: () => {
-      //       navigation.navigate(ScreenNameEnum.TripMap);
-      //     }
-      //   }
-      // ]);
+      
     } else {
-      errorToast(result?.message)
-       navigation.goBack()
+        navigation.goBack()
      }
   };
 
   return {
-    // States
-    isLoading,
+     isLoading,
     setIsLoading,
     requests,
     setRequests,
 item,
 navigation,
-    // API function
-    makeOffer,
+     makeOffer,
     fullImageUrl ,
     handleSendOffer ,
     amount, setAmount ,
-    message, setMessage
+    message, setMessage ,
+    imgloading, setImgloading
   };
 };
 

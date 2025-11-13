@@ -136,7 +136,7 @@ const navagtaion = useNavigation()
       </View>
 
       <FlatList
-        data={data} 
+        data={[]} 
         style={{
           marginTop:15
         }}

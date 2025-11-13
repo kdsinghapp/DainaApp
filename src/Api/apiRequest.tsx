@@ -1,5 +1,4 @@
 
-
 import { base_url } from './index';
 import ScreenNameEnum from '../routes/screenName.enum';
 import { loginSuccess, logout } from '../redux/feature/authSlice';

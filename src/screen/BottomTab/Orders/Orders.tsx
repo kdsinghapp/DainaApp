@@ -48,8 +48,7 @@ const nava = useNavigation()
     );
   }, [tab]);
   const OrderCard = ({ order }: { order: Order }) => {
-    console.log("order",order)
-    const formatDate = (isoString: string) => {
+     const formatDate = (isoString: string) => {
     const date = new Date(isoString);
     return date.toLocaleDateString("en-US", {
       month: "short", // "Jan"

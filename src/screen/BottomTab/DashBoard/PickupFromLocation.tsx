@@ -205,8 +205,7 @@ const handleSubmit = async () => {
     const response = await AddParcelApi(formDataObj, setIsLoading);
  
     if (response && response.status == "1") {
-      console.log("response",response)
-       navgatoon.navigate(ScreenNameEnum.RequestLoading,{
+        navgatoon.navigate(ScreenNameEnum.RequestLoading,{
         parcelId: response,
        })
       successToast("Pickup request submitted successfully!");

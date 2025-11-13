@@ -43,6 +43,8 @@ const Splash: React.FC = () => {
             navigation.replace(ScreenNameEnum.DeliveryTabNavigator);
           } else {
             navigation.replace(ScreenNameEnum.TabNavigator);
+            // navigation.replace(ScreenNameEnum.RequestLoading);
+            // navigation.replace(ScreenNameEnum.RequestLoading);
           }
         } else {
           navigation.replace(ScreenNameEnum.OnboardingScreen);

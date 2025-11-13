@@ -56,6 +56,7 @@
     "react-native-worklets-core": "^1.3.3",
     "react-redux": "^9.2.0",
     "redux-persist": "^6.0.0",
+    "socket.io-client": "^4.8.1",
     "victory-native": "^41.19.3"
   },
   "devDependencies": {

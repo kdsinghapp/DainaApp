@@ -5,41 +5,52 @@ import StatusBarComponent from "../../../compoent/StatusBarCompoent";
 import CustomHeader from "../../../compoent/CustomHeader";
 import font from "../../../theme/font";
 import CounterOfferModal from "../../../compoent/MakeCounterModal";
-import CourierTrackingScreen from "../CourierTracking/CourierTracking";
-import TrackCourierModal from "../../../compoent/TrackCourierModal";
+ import TrackCourierModal from "../../../compoent/TrackCourierModal";
 import { useNavigation } from "@react-navigation/native";
 import ScreenNameEnum from "../../../routes/screenName.enum";
+import { useOfferOR } from "./useOfferOR";
+import LoadingModal from "../../../utils/Loader";
 
-const offersData = [
-  { id: "1", carrier: "Cesar Baptista", offer: "₹1900" },
-  { id: "2", carrier: "Maria Baptista", offer: "₹1900" },
-  { id: "3", carrier: "Alison Phelps", offer: "₹1900" },
-  { id: "4", carrier: "Hanna Passquilanda Arcand", offer: "₹1900" },
-];
-
+ 
 
 
 export default function OfferOR() {
     const [Open,setOpen]= useState(false)
-    const [trackerModal,settrackerModal]= useState(false)
-    const OfferCard = ({ carrier, offer }) => {
-        return (
+    const [trackerModal,settrackerModal]= useState(false) 
+const {      
+    isLoading,
+    offerData,
+    location,
+    setLocation,
+ onAccept,
+} =useOfferOR()
+
+    const OfferCard = ({ item }) => {
+      console.log("item",item)
+         return (
           <View style={styles.card}>
             <Text style={styles.carrierText}>Carrier : <Text style={[styles.bold,{
                       color:"#878787" ,
                       fontFamily:font.MonolithRegular
       
       
-            }]}>{carrier}</Text></Text>
-            <Text style={styles.offerText}>Offer : <Text style={[styles.bold,{
+            }]}>{item?.deliveryUser?.name}</Text></Text>
+            <Text style={styles.offerText}>Offer Price : <Text style={[styles.bold,{
               color:"#878787",
               fontFamily:font.MonolithRegular
       
-            }]}>{offer}</Text></Text>
+            }]}>{item?.amount}</Text>
+            
+            </Text>
+            <Text style={styles.offerText}>Message : <Text style={[styles.bold,{
+              color:"#878787",
+              fontFamily:font.MonolithRegular ,
+       
+            }]}>{item?.message}</Text></Text>
       
             <View style={styles.buttonRow}>
               <TouchableOpacity style={[styles.button, styles.acceptBtn]} 
-              onPress={()=>setOpen(true)}
+              onPress={()=>onAccept(item?.offerId)}
               >
                 <Text style={styles.acceptText}>ACCEPT</Text>
               </TouchableOpacity>
@@ -60,21 +71,22 @@ export default function OfferOR() {
   return (
     <SafeAreaView style={styles.container}>
         <StatusBarComponent/>
+          <LoadingModal visible ={isLoading}/>
         <CustomHeader label={"Back"}/>
 <View style={{
     marginHorizontal:15
 }}>
       <Text style={styles.header}>OFFERS FOR YOUR AD</Text>
-      <Text style={styles.subHeader}>Your Ad: 10 Boxes | 20 Kg | ₹2000 Proposed</Text>
+      {/* <Text style={styles.subHeader}>Your Ad: 10 Boxes | 20 Kg | ₹2000 Proposed</Text> */}
 
       <FlatList
       style={{
         marginTop:20
       }}
-        data={offersData}
+        data={offerData}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
-          <OfferCard carrier={item.carrier} offer={item.offer} />
+          <OfferCard item={item}   />
         )}
         showsVerticalScrollIndicator={false}
       />
@@ -144,9 +156,10 @@ const styles = StyleSheet.create({
     shadowColor: "#000",
     shadowOpacity: 0.05,
     shadowRadius: 5,
-    elevation: 2,
-    marginHorizontal:2,
-    marginTop:5
+     marginHorizontal:2,
+    marginTop:5 ,
+    borderColor:"#9DB2BF",
+    borderWidth:0.7
   },
   carrierText: {
     fontSize: 14,

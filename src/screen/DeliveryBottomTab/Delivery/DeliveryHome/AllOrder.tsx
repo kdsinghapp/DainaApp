@@ -45,8 +45,7 @@ const AllOrder = () => {
   const [activeTab, setActiveTab] = useState<(typeof TABS)[number]>("Pending");
   const [isOnline, setIsOnline] = useState(false);
 
- console.log("requests --- ",requests)
-
+ 
    const pillX = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
