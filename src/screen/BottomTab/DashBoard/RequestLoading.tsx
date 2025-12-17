@@ -14,6 +14,7 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import StatusBarComponent from '../../../compoent/StatusBarCompoent';
 import imageIndex from '../../../assets/imageIndex';
 import ScreenNameEnum from '../../../routes/screenName.enum';
+import font from '../../../theme/font';
 
 const RequestLoading = () => {
   const spinValue = useRef(new Animated.Value(0)).current;
@@ -22,70 +23,57 @@ const RequestLoading = () => {
   const [driverStatus, setDriverStatus] = useState('Waiting for driver confirmation');
   const [isConnected, setIsConnected] = useState(false);
   const socketRef = useRef<Socket | null>(null);
-  const  route:any = useRoute()
-  const {parcelId} = route?.params || ""
-   const navigation = useNavigation()
-//   useEffect(() => {
-//     const timer = setTimeout(() => {
-//         navigation.navigate(ScreenNameEnum.OfferOR, {
-//             Parcelid: parcelId?.parcel?.id
-//         }); // स्क्रीन का नाम वही रखें जो navigator में है
-//     }, 60000); // 60000 मिलीसेकंड = 1 मिनट
-
-//     // Cleanup
-//     return () => clearTimeout(timer);
-// }, []);
+  const route: any = useRoute()
+  const { parcelId } = route?.params || ""
+  const navigation:any = useNavigation()
 
 
-const connectSocket = (token: string, ) => {
-  return new Promise<void>((resolve, reject) => {
-    try {
-const wsUrl = `wss://aitechnotech.in/DAINA/ws/parcel/${parcelId?.parcel?.id}?token=${token}`;
-       const ws = new WebSocket(wsUrl);
-      ws.onopen = () => {
-        console.log('✅ WebSocket connected');
-        setIsConnected(true);
-        socketRef.current = ws;
-        resolve();
-      };
-
-      ws.onmessage = (event) => {
-        try {
-          const data = JSON.parse(event.data);
-           if(data?.type == "offers_update"){
- navigation.navigate(ScreenNameEnum.OfferOR, {
-            Parcelid: data?.offers
-        });
+  const connectSocket = (token: string,) => {
+    return new Promise<void>((resolve, reject) => {
+      try {
+        const wsUrl = `wss://aitechnotech.in/DAINA/ws/parcel/${parcelId?.parcel?.id}?token=${token}&role=user`;
+        const ws = new WebSocket(wsUrl);
+        ws.onopen = () => {
+          setIsConnected(true);
+          socketRef.current = ws;
+          resolve();
+        };
+        ws.onmessage = (event) => {
+          try {
+            const data = JSON.parse(event.data);
+            if (data?.type == "offers_update") {
+              navigation.navigate(ScreenNameEnum.OfferOR, {
+                Parcelid: data?.offers,
+                id: parcelId
+              });
+            }
+            if (data?.status) {
+              setDriverStatus(data.status);
+            }
+          } catch (e) {
+            console.warn('Failed to parse message:', e);
           }
-          if (data?.status) {
-            setDriverStatus(data.status);
-          }
-        } catch (e) {
-          console.warn('Failed to parse message:', e);
-        }
-      };
+        };
+        ws.onerror = (error) => {
+          console.error('❌ WebSocket error:', error);
+          setIsConnected(false);
+          reject(error);
+        };
 
-      ws.onerror = (error) => {
-        console.error('❌ WebSocket error:', error);
-        setIsConnected(false);
+        ws.onclose = (event) => {
+          console.log('⚠️ WebSocket closed:', event.reason);
+          setIsConnected(false);
+        };
+      } catch (error) {
+        console.log('⚠️ error closed:', error);
+
         reject(error);
-      };
-
-      ws.onclose = (event) => {
-        console.log('⚠️ WebSocket closed:', event.reason);
-        setIsConnected(false);
-      };
-    } catch (error) {
-              console.log('⚠️ error closed:', error);
-
-      reject(error);
-    }
-  });
-};
+      }
+    });
+  };
 
 
-  // ✅ Animations
-  useEffect(() => {
+   useEffect(() => {
     Animated.loop(
       Animated.timing(spinValue, {
         toValue: 1,
@@ -119,23 +107,14 @@ const wsUrl = `wss://aitechnotech.in/DAINA/ws/parcel/${parcelId?.parcel?.id}?tok
     ).start();
   }, []);
 
-  // ✅ Initialize socket connection
-  useEffect(() => {
+   useEffect(() => {
     const init = async () => {
       try {
         const token = await AsyncStorage.getItem('token');
         if (!token) {
-          console.log('❌ No token found in storage');
-          return;
+           return;
         }
-        // if (!parcelId) {
-        //   console.log('❌ No parcel ID found');
-        //   return;
-        // }
-
         await connectSocket(token);
-
-        // ✅ Listen for parcel updates
         socketRef.current?.on('parcelStatusUpdate', (data: any) => {
           console.log('📦 Parcel status update:', data);
           if (data?.status) {
@@ -255,12 +234,12 @@ const styles = StyleSheet.create({
   },
   textContainer: { alignItems: 'center', marginBottom: 32 },
   loadingTitle: {
-    fontSize: 28,
-    fontWeight: '700',
+    fontSize: 20,
     color: 'white',
     marginBottom: 12,
     textAlign: 'center',
     letterSpacing: -0.5,
+    fontFamily: font.MonolithRegular
   },
   driverStatus: { color: 'white', marginTop: 8, fontSize: 16 },
   statusContainer: {

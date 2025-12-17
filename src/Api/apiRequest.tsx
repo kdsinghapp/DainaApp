@@ -121,7 +121,7 @@ const Verifyotp = async (param: any, setLoading: any, dispatch: any) => {
       errorToast('Invalid server response');
       return;
     }
-    if (parsedResponse?.status === 1) {
+    if (parsedResponse?.status == 1) {
       successToast(parsedResponse?.message);
       await AsyncStorage.setItem('token', parsedResponse?.token);
       dispatch(loginSuccess({ userData: parsedResponse, token: parsedResponse?.token }));
@@ -617,8 +617,7 @@ const Parceldetails = async (
 ): Promise<any | null> => {
   setLoading(true);
   const token = await AsyncStorage.getItem('token');
-  console.log("token", token);
-  try {
+   try {
     const response = await fetch(`${base_url}/parcel-details`, {
       method: 'GET',  // agar get ho toh GET use karna
       headers: {
@@ -630,7 +629,7 @@ const Parceldetails = async (
     const responseData = await response.json();
     console.log("responseData", responseData);
 
-    if (responseData.status === "1" || responseData.status === 1) {
+    if (responseData.status == "1" || responseData.status == 1) {
       return responseData;
     } else {
       Toast(responseData.error || responseData.message || "Something went wrong", color.red, 10);
@@ -655,8 +654,7 @@ const DeliveryAvailableRequests = async (
 ): Promise<any | null> => {
   setLoading(true);
   const token = await AsyncStorage.getItem('token');
-  console.log("token", token);
-  try {
+   try {
     const response = await fetch(`${base_url}/delivery/available-requests`, {
       method: 'GET',  // agar get ho toh GET use karna
       headers: {
@@ -675,8 +673,7 @@ const DeliveryAvailableRequests = async (
       return null;
     }
   } catch (error) {
-    console.error("API call error:", error);
-    errorToast("Network error");
+     errorToast("Network error");
     return null;
   } finally {
     setLoading(false);

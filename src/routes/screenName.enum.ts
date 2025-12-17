@@ -10,6 +10,7 @@ enum ScreenNameEnum {
   DeliveryHome="DeliveryHome",
   AllOrder="AllOrder",
   RequestLoading="RequestLoading",
+  DeliveryRequest="DeliveryRequest",
   ChooseRole="ChooseRole",
   AddressScreen="AddressScreen",
   DeliveryTabNavigator="DeliveryTabNavigator",

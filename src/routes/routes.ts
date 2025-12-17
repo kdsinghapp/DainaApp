@@ -33,6 +33,7 @@ import ChooseRole from "../screen/auth/ChooseRole/ChooseRole";
 import AllOrder from "../screen/DeliveryBottomTab/Delivery/DeliveryHome/AllOrder";
 import RequestLoading from "../screen/BottomTab/DashBoard/RequestLoading";
 import DocumentShow from "../screen/auth/DocumentShow/DocumentShow";
+import DeliveryRequest from "../screen/DeliveryBottomTab/Delivery/DeliveryHome/DeliveryRequest";
   const _routes: any = {
   REGISTRATION_ROUTE: [
     {
@@ -163,6 +164,11 @@ import DocumentShow from "../screen/auth/DocumentShow/DocumentShow";
      {
       name: ScreenNameEnum.OfferOR,
       Component: OfferOR,
+    },
+  
+     {
+      name: ScreenNameEnum.DeliveryRequest,
+      Component: DeliveryRequest,
     },
     
      {

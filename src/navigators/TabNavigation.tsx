@@ -1,29 +1,24 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { Text, Platform, View, Image } from 'react-native';
+import { Text, Platform,   Image } from 'react-native';
  import ScreenNameEnum from '../routes/screenName.enum';
 import HomeStack from './HomeStack';
 import font from '../theme/font';
 import SvgIndex from '../assets/svgIndex';
  import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import MyTrack from '../screen/BottomTab/Track/MyTrack';
-import Orders from '../screen/BottomTab/Orders/Orders';
+ import Orders from '../screen/BottomTab/Orders/Orders';
 import Inbox from '../screen/BottomTab/Inbox/Inbox';
 import UserProfile from '../screen/BottomTab/Profile/UserProfile';
  
 const Tab = createBottomTabNavigator();
 
-const TAB_CONFIG = {
+const TAB_CONFIG:any = {
   [ScreenNameEnum.HomeStack]: {
     label: 'Home',
     iconActive: SvgIndex.HomeAtive, 
     iconInactive: SvgIndex.Home, 
   },
-  // MyTrack: {
-  //   label: 'Track',
-  //   iconActive: SvgIndex.Box, 
-  //   iconInactive: SvgIndex.Box1,
-  // },
+ 
   Orders: {
     label: 'Orders',
     iconActive: SvgIndex.Box, 

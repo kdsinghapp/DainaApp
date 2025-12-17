@@ -11,9 +11,9 @@ export interface ApiRequest {
 }
 
 export const base_url = 'https://aitechnotech.in/DAINA/api';
+export const WebSocket_Url =`wss://aitechnotech.in/DAINA/ws`
 export const image_url = 'https://server-php-8-3.technorizen.com/Stelia/api/';
 export const GoogleClientId = '43208932533-6ktmlm2uusaqdgv42pj9u94eq9q6q8h7.apps.googleusercontent.com';
-
  
 export const callMultipleApis = async (requests: ApiRequest[]) => {
   try {

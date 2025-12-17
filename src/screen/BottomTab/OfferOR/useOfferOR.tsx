@@ -10,56 +10,46 @@ export const useOfferOR = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [offerData, setOfferData] = useState([]);
 const rou:any = useRoute()
-const  {Parcelid}= rou?.params || ""
+const  {Parcelid,id}= rou?.params || ""
    useEffect(() => {
     fetchOffers();
   }, []);
 const navgation = useNavigation()
   const fetchOffers = async () => {
-            setOfferData(Parcelid || []);
-
-    // try {
-    //   setIsLoading(true);
-    //   const token = await AsyncStorage.getItem('token');
-
-    //   const response = await fetch(`${base_url}/offers/${Parcelid}`, {
-    //     method: 'GET',
-    //     headers: {
-    //       'Content-Type': 'application/json',
-    //       Authorization: `Bearer ${token}`,
-    //     },
-    //   });
-
-    //   const result = await response.json();
- 
-    //   if (result.status === 1 || result.success === true) {
-    //     setOfferData(result?.Parcelid || []);
-    //   } else {
-    //     console.log('Failed to fetch offers:', result.message);
-    //   }
-    // } catch (err) {
-    //   console.log('Error fetching offers:', err);
-    // } finally {
-    //   setIsLoading(false);
-    // }
+            // setOfferData(Parcelid || []);
+    try {
+      setIsLoading(true);
+      const token = await AsyncStorage.getItem('token');
+      const response = await fetch(`${base_url}/offers/${id?.parcel.id}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      const result = await response.json();
+      if (result.status == 1 || result.success === true) {
+         setOfferData(result?.offers || []);
+        setIsLoading(false)
+       }  
+    } catch (err) {
+      console.log('Error fetching offers:', err);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
 
 const onAccept = async (id:any) => {
   try {
-    console.log("Offer ID:", id);
-
+ 
     const token = await AsyncStorage.getItem('token');
     if (!token) {
       console.warn("No token found");
       return;
     }
-
     const apiUrl = `https://aitechnotech.in/DAINA/api/offers/${id}/accept`;
-
-    console.log("Calling API:", apiUrl);
-
-    const response = await fetch(apiUrl, {
+     const response = await fetch(apiUrl, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${token}`, // include Bearer if API expects it
@@ -69,8 +59,7 @@ const onAccept = async (id:any) => {
     });
 
     const result = await response.json();
-    console.log("API Response:", result);
-
+ 
     if (response.ok) {
       successToast("Offer accepted successfully!") ,
                     navgation.replace(ScreenNameEnum.TabNavigator);
@@ -94,6 +83,7 @@ const onAccept = async (id:any) => {
     setLocation,
     // Functions
     fetchOffers, 
-    onAccept
+    onAccept ,
+    navgation
   };
 };

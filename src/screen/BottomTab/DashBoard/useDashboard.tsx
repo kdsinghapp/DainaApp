@@ -14,6 +14,7 @@ const useDashboard = () => {
   const [currentlocation, setcurrentlocation] = useState(null);
     const [isLoading, setLoading] = useState(false);
 const dispatch = useDispatch();
+ const locationRef:any = useRef();
 
   useEffect(()=>{
     handleGetLocation()
@@ -36,7 +37,6 @@ const getProfileApi = async () => {
 };
 
 
- const locationRef:any = useRef();
 
   const handleGetLocation = async () => {
     const data = await locationRef?.current?.fetchLocation();

@@ -72,13 +72,6 @@ const ListItem = ({
 );
 
 const ProfileScreen: React.FC<Props> = ({
-  onEditProfile,
-  onAddress,
-  onOrders,
-  onChangePassword,
-  onPrivacyPolicy,
-  onTerms,
-  onLogout,
   user = {
     name: "Marcus Aminoff",
     email: "marcus.aminoff@gmail.com",
@@ -86,14 +79,13 @@ const ProfileScreen: React.FC<Props> = ({
       "https://images.unsplash.com/photo-1607746882042-944635dfe10e?q=80&w=256&auto=format&fit=crop",
   },
 }) => {
-  const na = useNavigation()
+  const navigation:any = useNavigation()
   const [Modal,setModal]= useState(false)
       const [isLoading, setLoading] = useState(false);
  
   const dispatch = useDispatch();
     const isLogin:any = useSelector <any>((state) => state?.auth?.userData);
-console.log("isLogin",isLogin)
-    useEffect(() => {
+     useEffect(() => {
       getProfileApi();
     }, []);
   
@@ -101,8 +93,7 @@ console.log("isLogin",isLogin)
     try {
       const response = await GetProfileApi(setLoading);
        if (response) {
-        console.log("response",response)
-        dispatch(loginSuccess({ userData: response}));
+         dispatch(loginSuccess({ userData: response}));
        } 
     } catch (error) {
       setLoading(false)
@@ -112,7 +103,7 @@ console.log("isLogin",isLogin)
     const handleLogout = () => {
     dispatch(logout());
     AsyncStorage.removeItem('authData');
-    na.replace(ScreenNameEnum.SPLASH_SCREEN); 
+    navigation.replace(ScreenNameEnum.SPLASH_SCREEN); 
   };
   return (
     <SafeAreaView style={styles.safe}>
@@ -133,7 +124,7 @@ console.log("isLogin",isLogin)
             <TouchableHighlight style={styles.statusDot}
             
              onPress={()=>{
-              na.navigate(ScreenNameEnum.EditProfile)
+              navigation.navigate(ScreenNameEnum.EditProfile)
            }}
             >
               <Image source={imageIndex.eoditphots} style={{
@@ -163,7 +154,7 @@ console.log("isLogin",isLogin)
             icon={<SvgIndex.Edit   />}
             label="Edit Profile"
             onPress={()=>{
-              na.navigate(ScreenNameEnum.EditProfile)
+              navigation.navigate(ScreenNameEnum.EditProfile)
            }}
           />
           <ItemDivider />
@@ -179,14 +170,14 @@ console.log("isLogin",isLogin)
             icon={<SvgIndex.Box  />}
             label="My Orders"
             onPress={()=>{
-              na.navigate(ScreenNameEnum.OrdersPrfile)
+              navigation.navigate(ScreenNameEnum.OrdersPrfile)
            }}          />
           <ItemDivider />
           <ListItem
             icon={<SvgIndex.Lockss  />}
             label="Change Password"
              onPress={()=>{
-              na.navigate(ScreenNameEnum.changePassword)
+              navigation.navigate(ScreenNameEnum.changePassword)
            }}
             
             secure
@@ -196,7 +187,7 @@ console.log("isLogin",isLogin)
             icon={<SvgIndex.Privacy />}
             label="Privacy Policy"
             onPress={()=>{
-               na.navigate(ScreenNameEnum.PrivacyPolicy)
+               navigation.navigate(ScreenNameEnum.PrivacyPolicy)
             }}
           />
           <ItemDivider />
@@ -204,7 +195,7 @@ console.log("isLogin",isLogin)
             icon={<SvgIndex.Terms   />}
             label="Terms and Conditions"
             onPress={()=>{
-              na.navigate(ScreenNameEnum.LegalPoliciesScreen)
+              navigation.navigate(ScreenNameEnum.LegalPoliciesScreen)
              }}          />
         </View>
 

@@ -103,7 +103,7 @@ const PickupFromLocation = () => {
       case "senderName":
       case "receiverName":
         if (!value.trim()) error = "This field is required";
-        else if (value.trim().length < 2) error = "Name must be at least 2 characters";
+        else if (value.trim().length < 1) error = "Name must be at least 1 characters";
         break;
       
       case "senderMobile":
@@ -511,7 +511,6 @@ const handleSubmit = async () => {
 
         {/* Receiver Details */}
         <Text style={styles.sectionTitle}>Receiver Details</Text>
-        
         <TextInput 
           style={[styles.input, errors.receiverName ? styles.inputError : null]}  
           placeholderTextColor={"#ADA4A5"}

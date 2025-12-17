@@ -63,8 +63,7 @@ export const styles = StyleSheet.create({
      justifyContent: 'center',
   },
   cellWrapper: {
-    mmarginStart: -1,
-    borderRadius: 30,
+     borderRadius: 30,
     alignItems: 'center',      // center horizontally
     justifyContent: 'center',  // center vertically
   
