@@ -1,4 +1,4 @@
-import { StyleSheet } from "react-native";
+import { Platform, StyleSheet } from "react-native";
 import { hp } from "../../../utils/Constant";
 import { color,   } from "../../../constant";
 import font from "../../../theme/font";
@@ -63,19 +63,22 @@ export const styles = StyleSheet.create({
      justifyContent: 'center',
   },
   cellWrapper: {
-     borderRadius: 30,
-    alignItems: 'center',      // center horizontally
-    justifyContent: 'center',  // center vertically
+  width: 60,
+  height: 60,
+  borderRadius: 30,
+  alignItems: 'center',
+  justifyContent: 'center',
   
   },
   cell: {
     width: 60,
   height: 60,
   fontSize: 24,
-  lineHeight: 60,            // match the height for vertical centering
+  lineHeight: Platform.OS === 'ios' ? 58 : 65,           // match the height for vertical centering
   borderWidth: 1.5,
   borderColor: '#E9E9E9',
   textAlign: 'center',
+  textAlignVertical: 'center',
   color: '#000',
   borderRadius: 30,
   includeFontPadding: false,  // remove extra padding for Android

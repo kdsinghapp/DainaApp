@@ -1,45 +1,46 @@
 import React from 'react';
-import {Image, StyleSheet, View} from 'react-native';
+import {StyleSheet, View} from 'react-native';
 import Toast from 'react-native-toast-message';
-import TextCompoent, { Size } from './Text';
- 
+import TextCompoent, {Size} from './Text';
+
 const toastConfig = {
-  successResponse: ({text1}:any) => (
-    <View style={styles.container}>
+  successResponse: ({text1}: any) => (
+    <View style={styles.successContainer}>
       <TextCompoent
-        style={styles.titleStyle}
+        style={styles.textStyle}
         size={Size.Small}
-        color={'#000'}
+        color={'black'}
         fontWeight="700">
         {text1}
       </TextCompoent>
     </View>
   ),
-  errorResponse: ({text1} : any) => (
+  errorResponse: ({text1}: any) => (
     <View style={styles.errorContainer}>
       <TextCompoent
-        fontWeight="700"
-        style={styles.titleStyle}
+        style={styles.textStyle}
         size={Size.Small}
-        color={'#fff'}>
+        color={'#f30e0eff'}
+        fontWeight="700">
         {text1}
       </TextCompoent>
     </View>
   ),
-  normalResponse: ({text1}:any) => (
+  normalResponse: ({text1}: any) => (
     <View style={styles.normalContainer}>
       <TextCompoent
-        fontWeight="700"
-        style={styles.titleStyle}
+        style={styles.textStyle}
         size={Size.Small}
-        color={'#000'}>
+        color={'#0c0c0c'}
+        fontWeight="700">
         {text1}
       </TextCompoent>
     </View>
   ),
 };
 
-export const successToast = (message, time = 2000) => {
+// Toast functions
+export const successToast = (message: string, time = 2000) => {
   Toast.show({
     type: 'successResponse',
     text1: message,
@@ -49,7 +50,7 @@ export const successToast = (message, time = 2000) => {
   });
 };
 
-export const errorToast = (message, time = 2000,position = 'top') => {
+export const errorToast = (message: string, time = 2000, position = 'top') => {
   Toast.show({
     type: 'errorResponse',
     text1: message,
@@ -58,7 +59,8 @@ export const errorToast = (message, time = 2000,position = 'top') => {
     topOffset: 50,
   });
 };
-export const normalToast = (message, time = 2000) => {
+
+export const normalToast = (message: string, time = 2000) => {
   Toast.show({
     type: 'normalResponse',
     text1: message,
@@ -69,69 +71,68 @@ export const normalToast = (message, time = 2000) => {
 };
 
 export default toastConfig;
-
 const styles = StyleSheet.create({
-  titleStyle: {
-    marginLeft: 15,
+  textStyle: {
+    marginLeft: 10,
+    fontSize: 14,
+    lineHeight: 18,
   },
-  iconStyle: {
-    width: 25,
-    height: 25,
+
+  // ✅ SUCCESS
+  successContainer: {
+    minHeight: 51,
+    width: '92%',
+    backgroundColor: '#E6F8EC',
+    borderRadius: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    borderLeftWidth: 6,
+    borderLeftColor: '#22C55E',
+
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.15,
+    shadowRadius: 6,
+    elevation: 4,
   },
-  errorIconStyle: {
-    width: 17,
-    height: 17,
-  },
+
+  // ❌ ERROR
   errorContainer: {
-    height: 55,
-    width: '93%',
-    backgroundColor: '#990707',
-    borderRadius: 10,
+    minHeight: 55,
+    width: '92%',
+    backgroundColor: '#FEE2E2',
+    borderRadius: 12,
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 5,
-    shadowColor: 'gray',
-    shadowOffset: {
-      height: 1,
-      width: 0,
-    },
-    shadowOpacity: 0.35,
+    paddingHorizontal: 16,
+    borderLeftWidth: 6,
+    borderLeftColor: '#EF4444',
+
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.15,
     shadowRadius: 6,
+    elevation: 4,
   },
-  container: {
-    height: 55,
-    width: '93%',
-    backgroundColor: '#fff',
-    borderRadius: 10,
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 5,
-    borderLeftWidth: 10,
-    borderLeftColor: '#51B732',
-    shadowColor: '#51B732',
-    shadowOffset: {
-      height: 1,
-      width: 0,
-    },
-    shadowOpacity: 0.35,
-    shadowRadius: 6,
-  },
+
+  // ℹ️ NORMAL
   normalContainer: {
-    height: 55,
-    width: '93%',
-    backgroundColor: '#fff',
-    borderRadius: 10,
+    minHeight: 48,
+    width: '92%',
+    backgroundColor: '#F3F4F6',
+    borderRadius: 12,
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 5,
-    borderLeftWidth: 10,
-    borderLeftColor: '#4D3DB5',
-    shadowColor: 'gray',
-    shadowOffset: {
-      height: 1,
-      width: 0,
-    },
-    shadowOpacity: 0.35,
+    paddingHorizontal: 16,
+    borderLeftWidth: 6,
+    borderLeftColor: '#6B7280',
+
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.15,
     shadowRadius: 6,
+    elevation: 4,
   },
 });
+

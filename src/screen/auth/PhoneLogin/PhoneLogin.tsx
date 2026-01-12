@@ -17,12 +17,13 @@ import LoadingModal from "../../../utils/Loader";
 
 const PhoneLogin = () => {
       //  const [phoneNumber, setPhoneNumber] = useState("");  
+      // deliver
+  // const [phoneNumber, setPhoneNumber] = useState("96084084307");  
+  
     const [phoneNumber, setPhoneNumber] = useState("707709890");  
     // user
-//  const [phoneNumber, setPhoneNumber] = useState("9098978745");  
-  // delver†›₹†
- // 
-    // const [phoneNumber, setPhoneNumber] = useState("");
+
+   
   const [countryCode, setCountryCode] = useState("IN");
   const [callingCode, setCallingCode] = useState("+91");
   const [loading, setLoading] = useState(false);

@@ -5,7 +5,7 @@ export const Size = {
   XXXSmall: 12,
   XXSmall: 14,
   XSmall: 16,
-  Small: 16,
+  Small: 15,
   Medium: 20,
   Large: 24,
   XLarge: 28,

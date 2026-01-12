@@ -1342,7 +1342,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - react-native-maps (1.13.0):
+  - react-native-maps (1.15.6):
     - React-Core
   - react-native-netinfo (11.4.1):
     - React-Core
@@ -1856,7 +1856,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - RNPermissions (5.4.2):
+  - RNPermissions (5.4.4):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -2471,7 +2471,7 @@ SPEC CHECKSUMS:
   react-native-document-picker: b4e2c1b98cca7421f6e1534ed1775a1557757eeb
   react-native-geolocation: 66ddfd59066bb9365d0899967adc0a2cf2d0e6b2
   react-native-image-picker: 84b261e109faa7312bca59f1f65c8f2b22865496
-  react-native-maps: 85da55259d35bd50b5161d2ec0ee153d454158cc
+  react-native-maps: 622489184d305713b2f576b0cad1375ac75e62a6
   react-native-netinfo: cec9c4e86083cb5b6aba0e0711f563e2fbbff187
   react-native-render-html: 5afc4751f1a98621b3009432ef84c47019dcb2bd
   react-native-safe-area-context: 3ca252db05d82ea67f6d178fbd289ff832f5681b
@@ -2511,7 +2511,7 @@ SPEC CHECKSUMS:
   RNFastImage: 462a183c4b0b6b26fdfd639e1ed6ba37536c3b87
   RNGestureHandler: 40441ef32129430d603720d61845c4e3084cc70b
   RNGoogleSignin: a6fda355562bea2ec97f678fe7879fd1b10902f7
-  RNPermissions: a2c64017c1fa2d7d15af5cb5cc4c80e68205c86f
+  RNPermissions: c54b43739c184ef81b221e6e3ece3e757d552cee
   RNReactNativeHapticFeedback: 66c6b0cf19f5d9dae8be36b2336e1fe2a2e42566
   RNReanimated: 4f414b5e58e4249329d58839a2b613c480567805
   RNScreens: 21653ad95ea24514c81076a7af524705cd0edc21

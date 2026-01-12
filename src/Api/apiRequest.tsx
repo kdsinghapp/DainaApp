@@ -314,7 +314,7 @@ const GetProfileApi = async (
     console.log("parsedResponse", parsedResponse);
 
     if (parsedResponse?.status === 1) {
-      successToast(parsedResponse?.message);
+      // successToast(parsedResponse?.message);
       return parsedResponse; // ✅ Return the data
     } else {
       errorToast(parsedResponse?.message);

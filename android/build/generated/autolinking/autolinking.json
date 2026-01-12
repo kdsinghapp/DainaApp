@@ -313,7 +313,7 @@
       "platforms": {
         "ios": {
           "podspecPath": "/Users/technorizen/Desktop/aman/september-2025/DainaApp/node_modules/react-native-maps/react-native-maps.podspec",
-          "version": "1.13.0",
+          "version": "1.15.6",
           "configurations": [],
           "scriptPhases": []
         },
@@ -337,7 +337,7 @@
       "platforms": {
         "ios": {
           "podspecPath": "/Users/technorizen/Desktop/aman/september-2025/DainaApp/node_modules/react-native-permissions/RNPermissions.podspec",
-          "version": "5.4.2",
+          "version": "5.4.4",
           "configurations": [],
           "scriptPhases": []
         },

@@ -3,7 +3,7 @@ import {
   Text,
   ScrollView,
 } from 'react-native';
-import React, { useState } from 'react';
+import React  from 'react';
 import {
   CodeField,
   Cursor,

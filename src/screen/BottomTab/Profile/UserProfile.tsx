@@ -162,7 +162,7 @@ const ProfileScreen: React.FC<Props> = ({
             icon={<SvgIndex.Edit   />}
             label="My Address"
             onPress={()=>{
-              na.navigate(ScreenNameEnum.AddressScreen)
+              navigation.navigate(ScreenNameEnum.AddressScreen)
            }}
           />
           <ItemDivider />

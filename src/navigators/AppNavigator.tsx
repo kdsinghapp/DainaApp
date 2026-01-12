@@ -8,7 +8,9 @@ import { persistor, store } from '../redux/store';
 import NetworkStatusModal from '../compoent/NetworkStatusModal';
 import Toast from 'react-native-toast-message';
 import toastConfig from '../utils/customToast';
- 
+ import { GestureHandlerRootView } from 'react-native-gesture-handler';
+
+import 'react-native-reanimated';
 
 const AppNavigator: React.FC = () => {
   const [isConnected, setIsConnected] = useState<boolean>(true);
@@ -25,6 +27,8 @@ const AppNavigator: React.FC = () => {
   return (
     <Provider store={store}>
       <PersistGate loading={null} persistor={persistor}>
+            <GestureHandlerRootView  >
+
              <NavigationContainer>
                <NetworkStatusModal
                 modalVisible={!isConnected}
@@ -35,6 +39,8 @@ const AppNavigator: React.FC = () => {
                                         <Toast config={toastConfig} />
 
              </NavigationContainer>
+                 </GestureHandlerRootView>
+
         </PersistGate>
     </Provider>
   );

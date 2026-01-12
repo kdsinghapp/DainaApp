@@ -6,7 +6,7 @@ import { TextInput } from 'react-native';
 import 'react-native-reanimated';
 // "react-native-maps": "^1.26.14",
 // 
-
+ 
 LogBox.ignoreAllLogs(); 
 (Text as any).defaultProps = (Text as any).defaultProps || {};
 
