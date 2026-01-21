@@ -11,8 +11,7 @@ import UploadDocumentsScreen from "../screen/auth/UploadDocumentsScreen/UploadDo
 import PhoneLogin from "../screen/auth/PhoneLogin/PhoneLogin";
 import OtpScreen from "../screen/auth/OTPScreen/OtpScreen";
 import ProfileSetup from "../screen/auth/ProfileSetup/ProfileSetup";
-import PickupFromLocation from "../screen/BottomTab/DashBoard/PickupFromLocation";
-import OfferOR from "../screen/BottomTab/OfferOR/OfferOR";
+ import OfferOR from "../screen/BottomTab/OfferOR/OfferOR";
 import ViewDetails from "../screen/BottomTab/Orders/ViewDetails";
 import LegalPoliciesScreen from "../screen/Profile/LegalPoliciesScreen";
 import PrivacyPolicy from "../screen/Profile/PrivacyPolicy";
@@ -31,9 +30,12 @@ import ParcelDetails from "../screen/DeliveryBottomTab/ParcelDetails/ParcelDetai
 import VehicleSetupScreen from "../screen/auth/VehicleSetup/VehicleSetupScreen";
 import ChooseRole from "../screen/auth/ChooseRole/ChooseRole";
 import AllOrder from "../screen/DeliveryBottomTab/Delivery/DeliveryHome/AllOrder";
-import RequestLoading from "../screen/BottomTab/DashBoard/RequestLoading";
+import RequestLoading from "../screen/BottomTab/DashBoard/RequestSend/RequestLoading";
 import DocumentShow from "../screen/auth/DocumentShow/DocumentShow";
 import DeliveryRequest from "../screen/DeliveryBottomTab/Delivery/DeliveryHome/DeliveryRequest";
+import PickupLocationRapido from "../screen/BottomTab/PickupLocationRapido/PickupLocationRapido";
+import CreateParcelFrom from "../screen/BottomTab/DashBoard/CreateParcel/CreateParcelFrom";
+import NearbyDriversMap from "../screen/BottomTab/NearbyDriversMap/NearbyDriversMap";
   const _routes: any = {
   REGISTRATION_ROUTE: [
     {
@@ -57,8 +59,8 @@ import DeliveryRequest from "../screen/DeliveryBottomTab/Delivery/DeliveryHome/D
       Component: NotificationsSetting,
     },
        {
-      name: ScreenNameEnum.PickupLocation,
-      Component: PickupFromLocation,
+      name: ScreenNameEnum.CreateParcelFrom,
+      Component: CreateParcelFrom,
     },
     {
       name: ScreenNameEnum.VehicleSetupScreen,
@@ -77,6 +79,13 @@ import DeliveryRequest from "../screen/DeliveryBottomTab/Delivery/DeliveryHome/D
     {
       name: ScreenNameEnum.DocumentShow,
       Component: DocumentShow,
+    },
+
+    
+    
+    {
+      name: ScreenNameEnum.NearbyDriversMap,
+      Component: NearbyDriversMap,
     },
 
     
@@ -149,6 +158,10 @@ import DeliveryRequest from "../screen/DeliveryBottomTab/Delivery/DeliveryHome/D
       name: ScreenNameEnum.LegalPoliciesScreen,
       Component: LegalPoliciesScreen,
     },
+       {
+      name: ScreenNameEnum.PickupLocationRapido,
+      Component: PickupLocationRapido,
+    },
  
        {
       name: ScreenNameEnum.ViewDetails,
@@ -173,7 +186,7 @@ import DeliveryRequest from "../screen/DeliveryBottomTab/Delivery/DeliveryHome/D
     
      {
       name: ScreenNameEnum.PickupFromLocation,
-      Component: PickupFromLocation,
+      Component: CreateParcelFrom,
     },
      {
       name: ScreenNameEnum.DeliveryTabNavigator,

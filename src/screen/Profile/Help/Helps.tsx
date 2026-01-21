@@ -11,10 +11,8 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import CustomHeader from '../../../compoent/CustomHeader';
-import imageIndex from '../../../assets/imageIndex';
  import { styles } from './style';
  import useHelp from './useHelp';
-import EmptyListMessage from '../../../compoent/EmptyListMessage';
 import { color } from '../../../constant';
 import SvgIndex from '../../../assets/svgIndex';
 import CustomLoader from '../../../compoent/CustomLoader';

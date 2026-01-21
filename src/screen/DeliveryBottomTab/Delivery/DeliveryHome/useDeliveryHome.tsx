@@ -22,6 +22,7 @@ export const useDeliveryHome = () => {
   const [isConnected, setIsConnected] = useState(false);
   const socketRef = useRef<Socket | null>(null);
   const fetchAvailableRequests = async () => {
+    console.log("dddd")
     try {
       setIsLoading(true);
 
@@ -39,11 +40,12 @@ export const useDeliveryHome = () => {
       //     { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 },
       //   );
       // });
+    console.log("12222")
 
       // const lat = position?.coords?.latitude;
       // const lon = position?.coords?.longitude;
       const response = await axios.get(
-        `${base_url}/delivery/available-requests?lat=${"22.7007"}&lon=${"75.8690"}`,
+        `${base_url}/delivery/available-requests?lat=${"22.699"}&lon=${"75.867"}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -51,8 +53,10 @@ export const useDeliveryHome = () => {
           },
         },
       );
+        console.log("response?.data",response?.data)
 
       if (response?.data?.status == 1) {
+        console.log("response?.data",response?.data)
         successToast(response?.data.message)
         const validRequests = response?.data?.requests?.filter(
           (item) => item?.trackingId !== null && item?.trackingId !== "",
@@ -68,6 +72,7 @@ export const useDeliveryHome = () => {
       );
       setRequests([]);
     } finally {
+      
       setIsLoading(false);
     }
   };
@@ -76,6 +81,7 @@ export const useDeliveryHome = () => {
   // ✅ Auto-fetch when hook initializes
   useFocusEffect(
     useCallback(() => {
+      console.log("kopji")
       fetchAvailableRequests();
     }, [])
   );

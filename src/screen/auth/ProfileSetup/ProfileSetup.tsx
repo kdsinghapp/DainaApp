@@ -56,7 +56,9 @@ const getProfileApi = async () => {
    }
 };
   const pickImageFromGallery = () => {
-    launchImageLibrary({ mediaType: "photo" }, (response) => {
+    launchImageLibrary({ mediaType: "photo", quality: 0.4
+      
+     }, (response) => {
       if (response.assets && response.assets.length > 0) {
         setImage(response.assets[0]);
         setIsModalVisible(false);
@@ -65,7 +67,7 @@ const getProfileApi = async () => {
   };
 
   const takePhotoFromCamera = () => {
-    launchCamera({ mediaType: "photo" }, (response) => {
+    launchCamera({ mediaType: "photo" ,quality: 0.4}, (response) => {
       if (response?.assets && response?.assets?.length > 0) {
         setImage(response?.assets[0]);
         setIsModalVisible(false);
@@ -80,11 +82,18 @@ const handleSave = async () => {
       errorToast("Please enter your full name.");
        return;
     }
+  if (!email || !email.trim()) {
+  errorToast("Please enter your email address.");
+  return;
+}
+const emailRegex =
+  /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-    if (!email?.trim()) {
-      errorToast("Please enter your email address.");
-       return;
-    }
+if (!emailRegex.test(email.trim())) {
+  errorToast("Please enter a valid email address.");
+  return;
+}
+
 
     if (!address?.trim()) {
       errorToast("Please enter your address.");

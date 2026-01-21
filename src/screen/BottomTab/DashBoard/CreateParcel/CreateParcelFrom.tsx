@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -11,23 +11,25 @@ import {
   Platform,
 } from "react-native";
 import DateTimePicker from "@react-native-community/datetimepicker";
-import CustomDropdown from "../../../compoent/CustomDropdown";
+ import { useNavigation , useFocusEffect } from "@react-navigation/native";
+ import { launchCamera, launchImageLibrary } from "react-native-image-picker";
+  import AsyncStorage from "@react-native-async-storage/async-storage";
+import font from "../../../../theme/font";
+import ImagePickerModal from "../../../../compoent/ImagePickerModal";
+import AddressModalInput from "../../../../compoent/AutocompleteData";
+import CustomButton from "../../../../compoent/CustomButton";
+import imageIndex from "../../../../assets/imageIndex";
+import CustomDropdown from "../../../../compoent/CustomDropdown";
+import ScreenNameEnum from "../../../../routes/screenName.enum";
+import StatusBarComponent from "../../../../compoent/StatusBarCompoent";
+import CustomHeader from "../../../../compoent/CustomHeader";
+import LoadingModal from "../../../../utils/Loader";
 import { SafeAreaView } from "react-native-safe-area-context";
-import StatusBarComponent from "../../../compoent/StatusBarCompoent";
-import CustomHeader from "../../../compoent/CustomHeader";
-import font from "../../../theme/font";
-import CustomButton from "../../../compoent/CustomButton";
-import AddressModalInput from "../../../compoent/AutocompleteData";
-import { errorToast, successToast } from "../../../utils/customToast";
-import LoadingModal from "../../../utils/Loader";
-import { AddParcelApi } from "../../../Api/apiRequest";
-import { useNavigation } from "@react-navigation/native";
-import imageIndex from "../../../assets/imageIndex";
-import { launchCamera, launchImageLibrary } from "react-native-image-picker";
-import ImagePickerModal from "../../../compoent/ImagePickerModal";
-import ScreenNameEnum from "../../../routes/screenName.enum";
+import { AddParcelApi } from "../../../../Api/apiRequest";
+import { styles } from "./style";
+import { errorToast, successToast } from "../../../../utils/customToast";
  
-const PickupFromLocation = () => {
+const CreateParcelFrom = () => {
   const navgatoon = useNavigation()
   const [pickupDate, setPickupDate] = useState<Date | null>(null);
   const [pickupTime, setPickupTime] = useState<Date | null>(null);
@@ -40,16 +42,15 @@ const PickupFromLocation = () => {
   const [pickupLat, setpickupLat] = useState<{ latitude: number; longitude: number } | null>(null);
   const [droplat, sedroplat] = useState<{ latitude: number; longitude: number } | null>(null);
   const [dropLocation, setDropLocation] = useState("");
-  const [pickupModal, setPickupModal] = useState(false);
-  const [dropModal, setDropModal] = useState(false);
-  const [senderName, setSenderName] = useState("");
-  const [senderMobile, setSenderMobile] = useState("");
-  const [senderAddress, setSenderAddress] = useState("");
-  const [receiverName, setReceiverName] = useState("");
-  const [receiverMobile, setReceiverMobile] = useState("");
-  const [receiverAddress, setReceiverAddress] = useState("");
-  const [extraMessage, setExtraMessage] = useState("");
-  const [price, setPrice] = useState("");
+   const [dropModal, setDropModal] = useState(false);
+  const [senderName, setSenderName] = useState("aj");
+  const [senderMobile, setSenderMobile] = useState("9876543211");
+  const [senderAddress, setSenderAddress] = useState("indore mp ");
+  const [receiverName, setReceiverName] = useState("ghovid");
+  const [receiverMobile, setReceiverMobile] = useState("6476543211");
+  const [receiverAddress, setReceiverAddress] = useState("indias");
+  const [extraMessage, setExtraMessage] = useState("eee");
+  const [price, setPrice] = useState("11");
   const [isLoading, setIsLoading] = useState(false);
   const [image, setImage] = useState<any>();
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -96,46 +97,53 @@ const PickupFromLocation = () => {
   const [packageSize, setPackageSize] = useState("500-1000");
 
   // Validation functions
-  const validateField = (fieldName: string, value: string) => {
+  const validateField = (fieldName: string, value: any): boolean => {
     let error = "";
 
     switch (fieldName) {
       case "senderName":
       case "receiverName":
         if (!value.trim()) error = "This field is required";
-        else if (value.trim().length < 1) error = "Name must be at least 1 characters";
-        break;
-      
+       
       case "senderMobile":
       case "receiverMobile":
         if (!value.trim()) error = "Mobile number is required";
-        // else if (!/^\d{10}$/.test(value.replace(/\D/g, ''))) error = "Enter a valid 10-digit mobile number";
-        break;
+         break;
       
       case "senderAddress":
       case "receiverAddress":
-      case "pickupLocation":
-      case "dropLocation":
         if (!value.trim()) error = "This field is required";
+         break;
+      
+      case "pickupLocation":
+        if (!value || !value.address) error = "Pickup location is required";
+        break;
+      
+      case "dropLocation":
+        if (!value.trim()) error = "Drop location is required";
         break;
       
       case "price":
         if (!value.trim()) error = "Price is required";
-        else if (isNaN(Number(value)) || Number(value) <= 0) error = "Enter a valid price";
-        break;
+         break;
       
       case "shipmentType":
       case "consignmentType":
       case "deliveryType":
-        if (!value) error = "Please select an option";
+        if (!value.trim()) error = "Please select an option";
         break;
       
       case "pickupDate":
         if (!value) error = "Pickup date is required";
+        else if (value < new Date()) error = "Pickup date cannot be in the past";
         break;
       
       case "pickupTime":
         if (!value) error = "Pickup time is required";
+        break;
+      
+      case "image":
+        if (!value) error = "Please add a parcel image";
         break;
       
       default:
@@ -145,6 +153,7 @@ const PickupFromLocation = () => {
     setErrors(prev => ({ ...prev, [fieldName]: error }));
     return error === "";
   };
+
 
   const validateForm = () => {
     const fieldsToValidate = {
@@ -201,13 +210,16 @@ const handleSubmit = async () => {
       dropLocation ,
       image
     };
- 
-    const response = await AddParcelApi(formDataObj, setIsLoading);
+     const response = await AddParcelApi(formDataObj, setIsLoading);
  
     if (response && response.status == "1") {
-        navgatoon.navigate(ScreenNameEnum.RequestLoading,{
+        navgatoon.replace(ScreenNameEnum.NearbyDriversMap,{
         parcelId: response,
+        pickupLocation:pickupLocation?.address
        })
+      //   navgatoon.replace(ScreenNameEnum.RequestLoading,{
+      //   parcelId: response,
+      //  })
       successToast("Pickup request submitted successfully!");
     }
   } else {
@@ -288,10 +300,10 @@ const handleSubmit = async () => {
 
     if (type === 'pickup') {
       // setPickupLocation(item.address || item.name || "Pickup Location");
-      setpickupLat({
-        latitude: item.latitude,
-        longitude: item.longitude,
-      });
+      // setpickupLat({
+      //   latitude: item.latitude,
+      //   longitude: item.longitude,
+      // });
     } else {
       // setDropLocation(item.address || item.name || "Drop Location");
       sedroplat({
@@ -308,13 +320,46 @@ const handleSubmit = async () => {
       }
     });
   };
+
+  useFocusEffect(
+    useCallback(() => {
+      const fetchPickupLocation = async () => {
+        try {
+          setIsLoading(true);
+          const storedLocation = await AsyncStorage.getItem('pickupLocation');
+          if (storedLocation) {
+            const location1 = JSON.parse(storedLocation);
+            setPickupLocation(location1);
+            console.log("Fetched pickup location:", location1);
+            setpickupLat({
+              latitude: location1.latitude,
+              longitude: location1.longitude,
+            });
+
+            console.log('Fetched pickup location:', location1.address);
+          }
+        } catch (error) {
+          console.error('Error fetching pickup location:', error);
+        } finally {
+          setIsLoading(false);
+        }
+      };
+
+      fetchPickupLocation();
+    }, [])
+  );
+
+
+ 
+
   return (
     <SafeAreaView style={{
       flex: 1,
       backgroundColor: "white"
     }}>
       <StatusBarComponent />
-      <CustomHeader label={"Create Parcel"} />
+      <CustomHeader label={"Create Parcel"}
+       />
                                         <LoadingModal visible ={isLoading}/>
 
       <ScrollView 
@@ -325,16 +370,20 @@ const handleSubmit = async () => {
         <Text style={styles.sectionTitle}>Pickup & Drop</Text>
         
         <TouchableOpacity 
-          onPress={() => setPickupModal(true)}
+           onPress={()=>
+
+            navgatoon.navigate(ScreenNameEnum.PickupLocationRapido)
+          }
+           
           style={[styles.input, errors.pickupLocation ? styles.inputError : null]}
         >
           <Text style={{
-            color: pickupLocation ? "black" : "#ADA4A5",
+            color: pickupLocation?.address ? "black" : "#ADA4A5",
             fontSize: 15,
             fontFamily: font.MonolithRegular ,
             flex:1
           }}>
-            {pickupLocation ? pickupLocation : "Add Pickup Location"}
+            {pickupLocation ? pickupLocation?.address : "Add Pickup Location"}
           </Text>
            <Image style={{
             height:22,
@@ -610,7 +659,7 @@ style={{
           <CustomButton title={"Send Request"} onPress={handleSubmit} />
         </View>
       </ScrollView>
-
+{/* 
       <AddressModalInput
         value={pickupLocation}
         modalVisible={pickupModal}
@@ -618,7 +667,7 @@ style={{
         onChange={setPickupLocation}
         onSelect={(item: any) => handleLocationSelect('pickup', item)}
         placeholder="Select Pickup Address"
-      />
+      /> */}
       <AddressModalInput
         value={dropLocation}
         modalVisible={dropModal}
@@ -638,93 +687,6 @@ style={{
 };
 
  
+ 
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-     backgroundColor: "#fff",
-     marginHorizontal:15
-  },
-  sectionTitle: {
-    fontSize: 16,
-     marginTop: 20,
-    marginBottom: 10,
-    color: "black",
-    fontFamily:font.MonolithRegular
-  },
-  input: {
-    height: 55,
-    borderWidth: 1.5,
-    borderColor: "#F0F0F0",
-    borderRadius: 15,
-    paddingHorizontal: 15,
-    backgroundColor: "#fff",
-    marginBottom: 15,
-    justifyContent: "space-between",
-    color:"black" ,
-    fontFamily:font.MonolithRegular,
-    fontSize:15 ,
-    flexDirection:"row",
-    alignItems:"center",
-    
-  },
-  placeholderText: {
-    color: "#ADA4A5",
-    fontSize: 15,
-    fontFamily:font.MonolithRegular
-  },
-  packageRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginBottom: 20,
-  },
-  packageBox: {
-    width: "30%",
-    paddingVertical: 40,
-    borderWidth: 1.5,
-    borderRadius: 20,
-    borderColor: "#EAEAEA",
-    justifyContent: "center",
-    alignItems: "center",
-    marginTop:11,
-  },
-  packageText: {
-    fontSize: 14,
-    color: "#333",
-    fontFamily:font.MonolithRegular,
-
-  },
-  selectedBox: {
-    borderColor: "#FFD600",
-    backgroundColor: "#FFFBE6",
-  },
-  selectedText: {
-    color: "#FFD600",
-    fontWeight: "600",
-  },
-  submitBtn: {
-    marginTop: 30,
-    backgroundColor: "#FFD600",
-    borderRadius: 15,
-    paddingVertical: 15,
-    alignItems: "center",
-  },
-  submitText: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#000",
-  },
-  inputError: {
-    borderColor: 'red',
-    borderWidth: 1,
-  },
-  errorText: {
-    color: 'red',
-    fontSize: 12,
-    marginTop: 4,
-    marginBottom: 8,
-    fontFamily: font.MonolithRegular,
-  },
-});
-
-export default PickupFromLocation;
+export default CreateParcelFrom;

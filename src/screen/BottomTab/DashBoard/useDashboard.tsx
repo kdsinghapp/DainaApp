@@ -4,6 +4,7 @@ import { Alert } from 'react-native';
 import { useDispatch } from 'react-redux';
 import { GetProfileApi } from '../../../Api/apiRequest';
 import { loginSuccess } from '../../../redux/feature/authSlice';
+import AsyncStorage from '@react-native-async-storage/async-storage';
  
 
 const useDashboard = () => {
@@ -35,19 +36,38 @@ const getProfileApi = async () => {
 
    }
 };
-
-
-
-  const handleGetLocation = async () => {
-    const data = await locationRef?.current?.fetchLocation();
+// Inside your component
+const [pickupLocation, setPickupLocation] = useState(null);
+const [pickupLat, setPickupLat] = useState(null);
+const [currentLocation, setCurrentLocation] = useState('');
  
+
+
+const handleGetLocation = async () => {
+  try {
+    const data = await locationRef?.current?.fetchLocation();
     if (data.error) {
       Alert.alert('Error', data.error);
     } else {
-        console.log("data",data)
-        setcurrentlocation(data?.address)
-     }
-  };
+      // Store in AsyncStorage
+      await AsyncStorage.setItem('pickupLocation', JSON.stringify(data));
+setcurrentlocation(data?.address)
+      // Update state
+      setCurrentLocation(data.address);
+      setPickupLocation(data);
+      setPickupLat({
+        latitude: data.region.latitude,
+        longitude: data.region.longitude,
+      });
+
+      console.log('Stored and set location:', data);
+    }
+  } catch (error) {
+    console.error('Error getting location:', error);
+  }
+};
+
+
  
   return {
  

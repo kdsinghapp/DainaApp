@@ -186,3 +186,7 @@ export default Splash;
 //   container: { flex: 1 },
 //   map: { flex: 1 },
 // });
+
+
+
+

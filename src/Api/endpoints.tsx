@@ -3,12 +3,6 @@ export const endpointCustomer = {
   
   SignUp:"Register" ,
   LoginApi:"Login",
-
-
-
-
-
-
   verifyotp:"/bikedoctor/dealerAuth/verifyotp" ,
   resendOtp2:"/bikedoctor/dealerAuth/resendOtp",
   addDealer:"/bikedoctor/dealer/editDealer",

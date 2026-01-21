@@ -530,7 +530,10 @@ const GetuploadDocument = async (
   }
 };
 const AddParcelApi = async (param: any, setLoading: (loading: boolean) => void) => {
-  try {
+  console.log("AddParcelApi param:", param.pickupLocation?.latitude);
+  console.log("aaaaaa param:", param.pickupLocation?.address);
+  console.log("longitude param:", param.pickupLocation?.longitude);
+   try {
     setLoading(true);
     const token = await AsyncStorage.getItem("token");
     const formdata = new FormData();
@@ -543,16 +546,16 @@ const AddParcelApi = async (param: any, setLoading: (loading: boolean) => void) 
         type: fileType,
       });
     }
-    if (param?.pickupLocation) formdata.append("pickupLocation", param.pickupLocation);
+    if (param?.pickupLocation) formdata.append("pickupLocation", param.pickupLocation?.address);
     if (param?.dropLocation) formdata.append("dropLocation", param.dropLocation);
-// image
-    if (param?.pickupLat?.latitude) formdata.append("pickupLocationLat", param.pickupLat.latitude);
-    if (param?.pickupLat?.longitude) formdata.append("pickupLocationLon", param.pickupLat.longitude);
+    // image
+    if (param?.pickupLat?.latitude) formdata.append("pickupLocationLat", param.pickupLocation?.longitude);
+    if (param?.pickupLat?.longitude) formdata.append("pickupLocationLon", param.pickupLocation?.latitude);
  if (param?.droplat?.latitude) formdata.append("dropLocationLat", param.droplat.latitude);
     if (param?.droplat.longitude) formdata.append("dropLocationLon", param.droplat.longitude);
     if (param.shipmentType) formdata.append("shipmentType", param.shipmentType);
     if (param.senderName) formdata.append("senderName", param.senderName);
-    if (param.senderMobile) formdata.append("senderMobile", param.senderMobile);
+    if (param.senderMobile) formdata.append("senderMobileNumber", param.senderMobile);
     if (param.senderAddress) formdata.append("senderAddress", param.senderAddress);
     if (param.pickupDate) {
        formdata.append("pickupDate", param.pickupDate instanceof Date ? param.pickupDate.toISOString() : param.pickupDate);
@@ -572,7 +575,7 @@ const AddParcelApi = async (param: any, setLoading: (loading: boolean) => void) 
 
     if (param.pickupLat) formdata.append("pickupLat", param.pickupLat.toString());
      if (param.droplat) formdata.append("droplat", param.droplat.toString());
-
+console.log("FormData:", formdata);
     const headers: any = {
       Accept: "application/json",
       Authorization: `Bearer ${token}`,
@@ -586,8 +589,7 @@ const AddParcelApi = async (param: any, setLoading: (loading: boolean) => void) 
 
     const textResponse = await response.text();
     let parsedResponse;
-
-    try {
+     try {
       parsedResponse = JSON.parse(textResponse);
     } catch {
       throw new Error("Invalid server response");

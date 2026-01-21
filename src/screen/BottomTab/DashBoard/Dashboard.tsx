@@ -1,10 +1,9 @@
-import React, { useState } from "react";
+import React from "react";
 import {
   View,
   Text,
   StyleSheet,
-  TouchableOpacity,
-  ScrollView,
+   ScrollView,
   Image
  } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -40,7 +39,7 @@ const ShippingScreen = () => {
 
         <HomeHeaderBar
        location= { currentlocation  || address} 
-      onLocationPress={() => setlocationModal(true)}
+      // onLocationPress={() => setlocationModal(true)}
       onNotificationPress={() => console.log("Notifications clicked")}
       hasNotification={true}
     />
@@ -61,7 +60,7 @@ const ShippingScreen = () => {
     marginTop:11 ,marginBottom:5
   }}>
       <CustomButton title={"Create Parcel"} 
-      onPress={()=> navigation.navigate(ScreenNameEnum.PickupFromLocation)}
+      onPress={()=> navigation.navigate(ScreenNameEnum.CreateParcelFrom)}
       />
       </View>
       {/* Shipping History */} 

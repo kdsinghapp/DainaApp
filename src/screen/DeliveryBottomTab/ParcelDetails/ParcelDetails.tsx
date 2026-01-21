@@ -13,6 +13,7 @@ const ParcelDetails = () => {
          isLoading,
     setIsLoading,
     requests,
+    Phone, setPhoneNumber,
     setRequests,
 item,
 navigation,
@@ -129,6 +130,7 @@ navigation,
           </View>
 
           {/* Amount Input */}
+          
           <View style={styles.inputContainer1}>
             <Text style={[styles.label, { marginLeft: 12 }]}>Amount</Text>
             <TextInput

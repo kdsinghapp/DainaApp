@@ -11,6 +11,8 @@ import ScreenNameEnum from "../../../routes/screenName.enum";
 import { useOfferOR } from "./useOfferOR";
 import LoadingModal from "../../../utils/Loader";
 import { styles } from "./style";
+import { Image } from "react-native";
+import imageIndex from "../../../assets/imageIndex";
 
 
 
@@ -30,12 +32,29 @@ export default function OfferOR() {
   const OfferCard = ({ item }: any) => {
     return (
       <View style={styles.card}>
+        <View style={{
+          flexDirection:"row" ,
+          justifyContent:"space-between"
+        }}>
         <Text style={styles.carrierText}>Carrier : <Text style={[styles.bold, {
           color: "#878787",
           fontFamily: font.MonolithRegular
 
 
         }]}>{item?.deliveryUser?.name}</Text></Text>
+ <TouchableOpacity>
+
+  <Image source={imageIndex.Calls} 
+  
+  style={{
+    height:25,
+    width:25,
+
+  }}
+  />
+ </TouchableOpacity>
+
+        </View>
         <Text style={styles.offerText}>Offer Price : <Text style={[styles.bold, {
           color: "#878787",
           fontFamily: font.MonolithRegular
@@ -48,6 +67,11 @@ export default function OfferOR() {
           fontFamily: font.MonolithRegular,
 
         }]}>{item?.message}</Text></Text>
+        <Text style={styles.offerText}>Phone : <Text style={[styles.bold, {
+          color: "#878787",
+          fontFamily: font.MonolithRegular,
+
+        }]}>95350599308</Text></Text>
 
         <View style={styles.buttonRow}>
           <TouchableOpacity style={[styles.button, styles.acceptBtn]}
@@ -59,6 +83,7 @@ export default function OfferOR() {
           <TouchableOpacity style={[styles.button, styles.counterBtn]}>
             <Text style={styles.counterText}>COUNTER OFFER</Text>
           </TouchableOpacity>
+ 
 
           <TouchableOpacity style={[styles.button, styles.chatBtn]}>
             <Text style={styles.chatText}>CHAT</Text>

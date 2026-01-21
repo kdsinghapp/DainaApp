@@ -44,7 +44,7 @@ const getProfileApi = async () => {
    }
 };
   const pickImageFromGallery = () => {
-    launchImageLibrary({ mediaType: "photo" }, (response) => {
+    launchImageLibrary({ mediaType: "photo" ,quality: 0.5}, (response) => {
       if (response.assets && response.assets.length > 0) {
         setImage(response.assets[0]);
         setIsModalVisible(false);
@@ -53,7 +53,7 @@ const getProfileApi = async () => {
   };
 
   const takePhotoFromCamera = () => {
-    launchCamera({ mediaType: "photo" }, (response) => {
+    launchCamera({ mediaType: "photo",quality: 0.5 }, (response) => {
       if (response.assets && response.assets.length > 0) {
         setImage(response.assets[0]);
         setIsModalVisible(false);

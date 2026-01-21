@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text,   Image, ImageBackground } from 'react-native';
- import { styles } from './useSocialLogin';
+ import { styles } from './style';
 import imageIndex from '../../../assets/imageIndex';
 import CustomButton from '../../../compoent/CustomButton';
  import ScreenNameEnum from '../../../routes/screenName.enum';

@@ -2,8 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useBlurOnFulfill, useClearByFocusCell } from 'react-native-confirmation-code-field';
  import { useDispatch } from 'react-redux';
-import ScreenNameEnum from '../../../routes/screenName.enum';
-import { Resend_otp, Verifyotp } from '../../../Api/apiRequest';
+ import { Resend_otp, Verifyotp } from '../../../Api/apiRequest';
 
 export const useOtpVerification = (cellCount: number = 4) => {
   const navigation = useNavigation();

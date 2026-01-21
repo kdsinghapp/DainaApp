@@ -11,6 +11,7 @@ export const useParcelDetails = () => {
   const [requests, setRequests] = useState([]);
     const  rout:any = useRoute()
       const [amount, setAmount] = useState("");
+      const [Phone, setPhoneNumber] = useState("");
             const [imgloading, setImgloading] = useState(true);
 
   const [message, setMessage] = useState("");
@@ -27,13 +28,12 @@ export const useParcelDetails = () => {
       setIsLoading(false);
       return { success: false, message: 'No token found' };
     }
-
     // ✅ Correct field names based on backend validation
     const formData = new FormData();
     formData.append('parcelId', item?.id);  // changed here ✅
     formData.append('amount', amount);
     formData.append('message', message);
-
+    //  formData.append('phoneCall', Phone);
     const response = await axios.post(
       `${base_url}/delivery/make-offer`,
       formData,
@@ -112,7 +112,8 @@ navigation,
     handleSendOffer ,
     amount, setAmount ,
     message, setMessage ,
-    imgloading, setImgloading
+    imgloading, setImgloading ,
+    Phone, setPhoneNumber
   };
 };
 
