@@ -1,6 +1,0 @@
-module Pods_ChewbeApp {
-  umbrella header "Pods-ChewbeApp-umbrella.h"
-
-  export *
-  module * { export * }
-}
