@@ -6,6 +6,7 @@ import { errorToast, successToast } from '../utils/customToast';
  import AsyncStorage from '@react-native-async-storage/async-storage';
  import { Toast } from '../utils/Toast';
 import { color } from '../constant';
+import axios from 'axios';
  const handleLogout = async (dispatch: any) => {
   try {
      dispatch(logout());    // reset Redux state
@@ -126,12 +127,13 @@ const Verifyotp = async (param: any, setLoading: any, dispatch: any) => {
       await AsyncStorage.setItem('token', parsedResponse?.token);
       dispatch(loginSuccess({ userData: parsedResponse, token: parsedResponse?.token }));
        await saveAuthData(parsedResponse, parsedResponse?.token);
-      //  if(parsedResponse?.type === "Delivery"){
-      //   param.navigation.navigate(ScreenNameEnum.DeliveryTabNavigator);
-      //  }else{
-      //   param.navigation.navigate(ScreenNameEnum.TabNavigator);
-      //  }
-         param.navigation.navigate(ScreenNameEnum.ProfileSetup);
+       if(parsedResponse?.type === "Delivery"){
+        param.navigation.navigate(ScreenNameEnum.DeliveryTabNavigator);
+       }else{
+        param.navigation.navigate(ScreenNameEnum.TabNavigator);
+       }
+      // console.log(first)
+        //  param.navigation.navigate(ScreenNameEnum.ProfileSetup);
      
      } else {
       errorToast(parsedResponse?.message);
@@ -610,6 +612,78 @@ console.log("FormData:", formdata);
   }
 };
 
+const GetApi = async (param: any, setLoading: (loading: boolean) => void) => {
+    console.log("API PARAM:", param);
+
+    try {
+        setLoading(true);
+const token = await AsyncStorage.getItem("token");
+        const myHeaders = new Headers();
+        myHeaders.append("Accept", "application/json");
+        myHeaders.append("Content-Type", "application/json");
+        myHeaders.append("Authorization", `Bearer ${token}`);
+
+        const requestOptions: any = {
+            method: param.method || "GET",
+            headers: myHeaders,
+        };
+
+        // ✅ ADD BODY ONLY IF EXISTS
+        if (param.data && Object.keys(param.data).length > 0) {
+            requestOptions.body = JSON.stringify(param.data);
+        }
+
+        const response = await fetch(base_url + param.url, requestOptions);
+        const resText = await response.text();
+        const result = JSON.parse(resText);
+
+        console.log("API RESPONSE:", result);
+
+        setLoading(false);
+        return result;
+
+    } catch (error) {
+        console.log("API ERROR:", error);
+        setLoading(false);
+        errorToast("Network error");
+        return null;
+    }
+};
+
+export const PostApi = async (param, setLoading) => {
+    try {
+        setLoading && setLoading(true);
+
+        const headers = {
+            Accept: "application/json",
+            ...(param?.isFormData
+                ? { "Content-Type": "multipart/form-data" }
+                : { "Content-Type": "application/json" }),
+            ...(param?.token && { Authorization: `Bearer ${param.token}` }),
+        };
+console.log(  base_url + param.url,
+            param.data,
+            { headers })
+        const response = await axios.post(
+            base_url + param.url,
+            param.data,
+            { headers }
+        );
+        console.log(response)
+        return response.data;
+    } catch (error) {
+        console.log("POST API ERROR 👉", error?.response || error);
+
+        return {
+            status: false,
+            message:
+                error?.response?.data?.message ||
+                "Something went wrong. Please try again.",
+        };
+    } finally {
+        setLoading && setLoading(false);
+    }
+};
 
 
 
@@ -698,5 +772,6 @@ DeliveryVehicleDocument,
 GetuploadDocument,
 AddParcelApi,
 Parceldetails ,
-DeliveryAvailableRequests
+DeliveryAvailableRequests,
+GetApi
 }  

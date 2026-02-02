@@ -53,7 +53,7 @@ const LocationPermissionModal = ({ visible, onClose, onLocationGranted }: any) =
       if (result === RESULTS.GRANTED) {
         navigator.geolocation.getCurrentPosition(
           (position) => {
-            console.log("User Location: ", position);
+            // console.log("User Location: ", position);
             onLocationGranted(position);
             onClose();
           },

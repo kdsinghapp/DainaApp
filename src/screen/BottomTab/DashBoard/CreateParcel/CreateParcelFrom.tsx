@@ -9,11 +9,12 @@ import {
   Alert,
   Image,
   Platform,
+  KeyboardAvoidingView,
 } from "react-native";
 import DateTimePicker from "@react-native-community/datetimepicker";
- import { useNavigation , useFocusEffect } from "@react-navigation/native";
- import { launchCamera, launchImageLibrary } from "react-native-image-picker";
-  import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useNavigation, useFocusEffect } from "@react-navigation/native";
+import { launchCamera, launchImageLibrary } from "react-native-image-picker";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import font from "../../../../theme/font";
 import ImagePickerModal from "../../../../compoent/ImagePickerModal";
 import AddressModalInput from "../../../../compoent/AutocompleteData";
@@ -28,7 +29,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { AddParcelApi } from "../../../../Api/apiRequest";
 import { styles } from "./style";
 import { errorToast, successToast } from "../../../../utils/customToast";
- 
+
 const CreateParcelFrom = () => {
   const navgatoon = useNavigation()
   const [pickupDate, setPickupDate] = useState<Date | null>(null);
@@ -42,15 +43,15 @@ const CreateParcelFrom = () => {
   const [pickupLat, setpickupLat] = useState<{ latitude: number; longitude: number } | null>(null);
   const [droplat, sedroplat] = useState<{ latitude: number; longitude: number } | null>(null);
   const [dropLocation, setDropLocation] = useState("");
-   const [dropModal, setDropModal] = useState(false);
-  const [senderName, setSenderName] = useState("aj");
-  const [senderMobile, setSenderMobile] = useState("9876543211");
-  const [senderAddress, setSenderAddress] = useState("indore mp ");
-  const [receiverName, setReceiverName] = useState("ghovid");
-  const [receiverMobile, setReceiverMobile] = useState("6476543211");
-  const [receiverAddress, setReceiverAddress] = useState("indias");
-  const [extraMessage, setExtraMessage] = useState("eee");
-  const [price, setPrice] = useState("11");
+  const [dropModal, setDropModal] = useState(false);
+  const [senderName, setSenderName] = useState("");
+  const [senderMobile, setSenderMobile] = useState("");
+  const [senderAddress, setSenderAddress] = useState("");
+  const [receiverName, setReceiverName] = useState("");
+  const [receiverMobile, setReceiverMobile] = useState("");
+  const [receiverAddress, setReceiverAddress] = useState("");
+  const [extraMessage, setExtraMessage] = useState("");
+  const [price, setPrice] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [image, setImage] = useState<any>();
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -104,48 +105,48 @@ const CreateParcelFrom = () => {
       case "senderName":
       case "receiverName":
         if (!value.trim()) error = "This field is required";
-       
+
       case "senderMobile":
       case "receiverMobile":
         if (!value.trim()) error = "Mobile number is required";
-         break;
-      
+        break;
+
       case "senderAddress":
       case "receiverAddress":
         if (!value.trim()) error = "This field is required";
-         break;
-      
+        break;
+
       case "pickupLocation":
         if (!value || !value.address) error = "Pickup location is required";
         break;
-      
+
       case "dropLocation":
         if (!value.trim()) error = "Drop location is required";
         break;
-      
+
       case "price":
         if (!value.trim()) error = "Price is required";
-         break;
-      
+        break;
+
       case "shipmentType":
       case "consignmentType":
       case "deliveryType":
         if (!value.trim()) error = "Please select an option";
         break;
-      
+
       case "pickupDate":
         if (!value) error = "Pickup date is required";
         else if (value < new Date()) error = "Pickup date cannot be in the past";
         break;
-      
+
       case "pickupTime":
         if (!value) error = "Pickup time is required";
         break;
-      
+
       case "image":
         if (!value) error = "Please add a parcel image";
         break;
-      
+
       default:
         break;
     }
@@ -170,7 +171,7 @@ const CreateParcelFrom = () => {
       price,
       receiverName,
       receiverMobile,
-      
+
       receiverAddress,
     };
 
@@ -184,56 +185,56 @@ const CreateParcelFrom = () => {
 
     return isValid;
   };
-   
-const handleSubmit = async () => {
-  if (validateForm()) {
-    console.log("Form submitted successfully!");
 
-    const formDataObj = {
-      shipmentType,
-      senderName,
-      senderMobile,
-      senderAddress,
-      pickupDate,
-      pickupTime,
-      consignmentType,
-      packageSize,
-      deliveryType,
-      price,
-      receiverName,
-      receiverMobile,
-      receiverAddress,
-      extraMessage,
-      pickupLat,
-      droplat  ,
-      pickupLocation ,
-      dropLocation ,
-      image
-    };
-     const response = await AddParcelApi(formDataObj, setIsLoading);
- 
-    if (response && response.status == "1") {
-        navgatoon.replace(ScreenNameEnum.NearbyDriversMap,{
-        parcelId: response,
-        pickupLocation:pickupLocation?.address
-       })
-      //   navgatoon.replace(ScreenNameEnum.RequestLoading,{
-      //   parcelId: response,
-      //  })
-      successToast("Pickup request submitted successfully!");
+  const handleSubmit = async () => {
+    if (validateForm()) {
+      console.log("Form submitted successfully!");
+
+      const formDataObj = {
+        shipmentType,
+        senderName,
+        senderMobile,
+        senderAddress,
+        pickupDate,
+        pickupTime,
+        consignmentType,
+        packageSize,
+        deliveryType,
+        price,
+        receiverName,
+        receiverMobile,
+        receiverAddress,
+        extraMessage,
+        pickupLat,
+        droplat,
+        pickupLocation,
+        dropLocation,
+        image
+      };
+      const response = await AddParcelApi(formDataObj, setIsLoading);
+
+      if (response && response.status == "1") {
+        // navgatoon.replace(ScreenNameEnum.NearbyDriversMap, {
+        //   parcelId: response,
+        //   pickupLocation: pickupLocation?.address
+        // })
+        navgatoon.replace(ScreenNameEnum.RequestLoading, {
+          parcelId: response,
+        })
+        successToast("Pickup request submitted successfully!");
+      }
+    } else {
+      console.log("Form has validation errors");
+
+      const firstErrorField = Object.keys(errors).find(key => errors[key]);
+      if (firstErrorField) {
+        console.log(`First error in: ${firstErrorField}`);
+        // scrollToErrorField(firstErrorField);
+      }
+
+      errorToast("Please fill all required fields correctly");
     }
-  } else {
-    console.log("Form has validation errors");
-
-    const firstErrorField = Object.keys(errors).find(key => errors[key]);
-    if (firstErrorField) {
-      console.log(`First error in: ${firstErrorField}`);
-      // scrollToErrorField(firstErrorField);
-    }
-
-    errorToast("Please fill all required fields correctly");
-  }
-};
+  };
 
 
 
@@ -292,8 +293,8 @@ const handleSubmit = async () => {
   };
 
   const handleLocationSelect = (type: 'pickup' | 'drop', item: any) => {
-     const fieldName = type === 'pickup' ? 'pickupLocation' : 'dropLocation';
-    
+    const fieldName = type === 'pickup' ? 'pickupLocation' : 'dropLocation';
+
     if (errors[fieldName]) {
       setErrors(prev => ({ ...prev, [fieldName]: "" }));
     }
@@ -321,36 +322,36 @@ const handleSubmit = async () => {
     });
   };
 
-  useFocusEffect(
-    useCallback(() => {
-      const fetchPickupLocation = async () => {
-        try {
-          setIsLoading(true);
-          const storedLocation = await AsyncStorage.getItem('pickupLocation');
-          if (storedLocation) {
-            const location1 = JSON.parse(storedLocation);
-            setPickupLocation(location1);
-            console.log("Fetched pickup location:", location1);
-            setpickupLat({
-              latitude: location1.latitude,
-              longitude: location1.longitude,
-            });
+  useEffect(() => {
+    const fetchPickupLocation = async () => {
+      try {
+        setIsLoading(true);
+        const storedLocation = await AsyncStorage.getItem('pickupLocation');
 
-            console.log('Fetched pickup location:', location1.address);
-          }
-        } catch (error) {
-          console.error('Error fetching pickup location:', error);
-        } finally {
-          setIsLoading(false);
+        if (storedLocation) {
+          const location1 = JSON.parse(storedLocation);
+
+          // Update states
+          setPickupLocation(location1);
+          setpickupLat({
+            latitude: location1.latitude,
+            longitude: location1.longitude,
+          });
+
+          console.log("Fetched address:", location1.address);
         }
-      };
+      } catch (error) {
+        console.error('Error fetching pickup location:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-      fetchPickupLocation();
-    }, [])
-  );
+    fetchPickupLocation();
+  }, []); // Runs on mount
 
 
- 
+
 
   return (
     <SafeAreaView style={{
@@ -359,307 +360,329 @@ const handleSubmit = async () => {
     }}>
       <StatusBarComponent />
       <CustomHeader label={"Create Parcel"}
-       />
-                                        <LoadingModal visible ={isLoading}/>
+      />
+      <LoadingModal visible={isLoading} />
 
-      <ScrollView 
-        showsVerticalScrollIndicator={false}
-        style={styles.container}
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : 'height'} // undefined often works best for Android with adjustResize
+        style={{ flex: 1 }}
       >
-        {/* Pickup & Drop */}
-        <Text style={styles.sectionTitle}>Pickup & Drop</Text>
-        
-        <TouchableOpacity 
-           onPress={()=>
-
-            navgatoon.navigate(ScreenNameEnum.PickupLocationRapido)
-          }
-           
-          style={[styles.input, errors.pickupLocation ? styles.inputError : null]}
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          style={styles.container}
         >
-          <Text style={{
-            color: pickupLocation?.address ? "black" : "#ADA4A5",
-            fontSize: 15,
-            fontFamily: font.MonolithRegular ,
-            flex:1
-          }}>
-            {pickupLocation ? pickupLocation?.address : "Add Pickup Location"}
-          </Text>
-           <Image style={{
-            height:22,
-            width:22,
-            resizeMode:"contain"
-          }} source={imageIndex.location1} />
-        </TouchableOpacity>
-        {errors.pickupLocation ? <Text style={styles.errorText}>{errors.pickupLocation}</Text> : null}
+          {/* Pickup & Drop */}
+          <Text style={styles.sectionTitle}>Pickup & Drop</Text>
 
-        <TouchableOpacity
-          onPress={() => setDropModal(true)}
-          style={[styles.input, errors.pickupLocation ? styles.inputError : null]}
-        >
-          <Text style={{
-            color: dropLocation ? "black" : "#ADA4A5",
-            fontSize: 15,
-            fontFamily: font.MonolithRegular ,
-                            flex:1
-
-          }}>
-            {dropLocation ? dropLocation : "Add Drop Location"}
-          </Text>
-          <Image style={{
-            height:22,
-            width:22,
-            resizeMode:"contain"
-          }} source={imageIndex.location1} />
-        </TouchableOpacity>
-        {errors.dropLocation ? <Text style={styles.errorText}>{errors.dropLocation}</Text> : null}
-
-        {/* Shipment & Sender Details */}
-        <Text style={styles.sectionTitle}>Shipment & Sender Details</Text>
-        
-        <CustomDropdown
-          data={shipmentTypeData}
-          placeholder="Shipment Type"
-          onSelect={(value) => handleDropdownSelect("shipmentType", value)}
-         />
-        {errors.shipmentType ? <Text style={styles.errorText}>{errors.shipmentType}</Text> : null}
-
-        <TextInput  
-          placeholderTextColor={"#ADA4A5"}
-          value={senderName}
-          onChangeText={(value) => handleInputChange("senderName", value)}
-          style={[styles.input, errors.senderName ? styles.inputError : null]} 
-          placeholder="Sender Name" 
-        />
-        {errors.senderName ? <Text style={styles.errorText}>{errors.senderName}</Text> : null}
-
-        <TextInput
-          style={[styles.input, errors.senderMobile ? styles.inputError : null]}
-          placeholder="Sender Mobile Number"
-          keyboardType="phone-pad"
-          placeholderTextColor="#ADA4A5"
-          value={senderMobile}
-          onChangeText={(value) => handleInputChange("senderMobile", value)}
-          maxLength={10}
-        />
-        {errors.senderMobile ? <Text style={styles.errorText}>{errors.senderMobile}</Text> : null}
-
-        <TextInput 
-          placeholderTextColor={"#ADA4A5"}
-          value={senderAddress}
-          onChangeText={(value) => handleInputChange("senderAddress", value)}
-          style={[styles.input, errors.senderAddress ? styles.inputError : null]} 
-          placeholder="Sender Address" 
-        />
-        {errors.senderAddress ? <Text style={styles.errorText}>{errors.senderAddress}</Text> : null}
-
-        <TouchableOpacity
-          style={[styles.input, errors.pickupDate ? styles.inputError : null]}
-          onPress={() => setShowDate(true)}
-        >
-          <Text style={styles.placeholderText}>
-            {pickupDate ? pickupDate.toDateString() : "Pickup Date"}
-          </Text>
-        </TouchableOpacity>
-        {errors.pickupDate ? <Text style={styles.errorText}>{errors.pickupDate}</Text> : null}
-
-        {showDate && (
-          <DateTimePicker
-            value={pickupDate || new Date()}
-            mode="date"
-          display={Platform.OS === "ios" ? "inline" : "default"}
-            onChange={(e, date) => {
-              setShowDate(false);
-              if (date) {
-                setPickupDate(date);
-                if (errors.pickupDate) {
-                  setErrors(prev => ({ ...prev, pickupDate: "" }));
+          <TouchableOpacity
+            onPress={() =>
+              navgatoon.navigate(ScreenNameEnum.PickupLocationRapido, {
+                onLocationSelect: (data) => {
+                  console.log("Received location:", data);
+                  setPickupLocation(data);
                 }
-              }
-            }}
-          />
-        )}
+              })
+            }
 
-        <TouchableOpacity
-          style={[styles.input, errors.pickupTime ? styles.inputError : null]}
-          onPress={() => setShowTime(true)}
-        >
-          <Text style={styles.placeholderText}>
-            {pickupTime
-              ? pickupTime.toLocaleTimeString()
-              : "Pickup Time"}
-          </Text>
-        </TouchableOpacity>
-        {errors.pickupTime ? <Text style={styles.errorText}>{errors.pickupTime}</Text> : null}
-
-        {showTime && (
-          <DateTimePicker
-            value={pickupTime || new Date()}
-            mode="time"
-          display={Platform.OS === "ios" ? "inline" : "default"}
-            onChange={(e, time) => {
-              setShowTime(false);
-              if (time) {
-                setPickupTime(time);
-                if (errors.pickupTime) {
-                  setErrors(prev => ({ ...prev, pickupTime: "" }));
-                }
-              }
-            }}
-          />
-        )}
-
-        <CustomDropdown
-          data={consignmentTypeData}
-          placeholder="Consignment Type"
-          onSelect={(value) => handleDropdownSelect("consignmentType", value)}
-         />
-        {errors.consignmentType ? <Text style={styles.errorText}>{errors.consignmentType}</Text> : null}
-
-        {/* Package Size */}
-        <Text style={styles.sectionTitle}>Package Size</Text>
-        <View style={styles.packageRow}>
-          {["1 KG", "3KG-10KG", "10kG"].map((size) => (
-            <TouchableOpacity
-              key={size}
-              style={[
-                styles.packageBox,
-                packageSize === size && styles.selectedBox,
-              ]}
-              onPress={() => setPackageSize(size)}
-            >
-              <Text
-                style={[
-                  styles.packageText,
-                  packageSize === size && styles.selectedText,
-                ]}
-              >
-                {size}{" "}
-              </Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-
-        {/* Delivery Type */}
-        <CustomDropdown
-          data={deliveryTypeData}
-          placeholder="Delivery Type"
-          onSelect={(value) => handleDropdownSelect("deliveryType", value)}
-         />
-        {errors.deliveryType ? <Text style={styles.errorText}>{errors.deliveryType}</Text> : null}
-
-        <TextInput 
-          placeholderTextColor={"#ADA4A5"}
-          value={price}
-          onChangeText={(value) => handleInputChange("price", value)}
-          style={[styles.input, errors.price ? styles.inputError : null]} 
-          placeholder="Price" 
-          keyboardType="numeric" 
-        />
-        {errors.price ? <Text style={styles.errorText}>{errors.price}</Text> : null}
-
-        {/* Receiver Details */}
-        <Text style={styles.sectionTitle}>Receiver Details</Text>
-        <TextInput 
-          style={[styles.input, errors.receiverName ? styles.inputError : null]}  
-          placeholderTextColor={"#ADA4A5"}
-          value={receiverName}
-          onChangeText={(value) => handleInputChange("receiverName", value)}
-          placeholder="Receiver Name" 
-        />
-        {errors.receiverName ? <Text style={styles.errorText}>{errors.receiverName}</Text> : null}
-
-        <TextInput
-          style={[styles.input, errors.receiverMobile ? styles.inputError : null]}
-          placeholder="Receiver Mobile Number"
-          keyboardType="phone-pad"
-          placeholderTextColor={"#ADA4A5"}
-          value={receiverMobile}
-          onChangeText={(value) => handleInputChange("receiverMobile", value)}
-          maxLength={10}
-        />
-        {errors.receiverMobile ? <Text style={styles.errorText}>{errors.receiverMobile}</Text> : null}
-
-        <TextInput 
-          style={[styles.input, errors.receiverAddress ? styles.inputError : null]} 
-          placeholder="Receiver Address" 
-          placeholderTextColor={"#ADA4A5"}
-          value={receiverAddress}
-          onChangeText={(value) => handleInputChange("receiverAddress", value)}
-        />
-        {errors.receiverAddress ? <Text style={styles.errorText}>{errors.receiverAddress}</Text> : null}
-
-        <TextInput
-          style={[styles.input, { height: 80 }]}
-          placeholder="Extra Message"
-          multiline 
-          placeholderTextColor={"#ADA4A5"}
-          value={extraMessage}
-          onChangeText={setExtraMessage}
-        />
-        {image?.uri ? (
-          <TouchableOpacity  
-
-onPress={()=>{
-  setIsModalVisible(true)
-}}
-          style={{
-  borderWidth:1 ,
-  padding:30 ,
-  alignItems:"center" ,
-  borderRadius:10,
-  borderColor:"#EAEAEA" ,
-  borderStyle:"dotted" ,marginTop:5,
-  marginBottom:11
-
-}}
+            style={[styles.input, errors.pickupLocation ? styles.inputError : null]}
           >
-           <Image
-              source={image ? { uri: image?.uri || image } : imageIndex.prfile}
-               resizeMode="cover" 
-               style={{
-                height:150,
-                width:150 ,
-                borderRadius:10 ,
-                resizeMode:"contain"
-               }}
-            />
-            </TouchableOpacity>
-        ):(
-<TouchableOpacity  
-
-onPress={()=>{
-  setIsModalVisible(true)
-}}
-style={{
-  borderWidth:1 ,
-  padding:30 ,
-  alignItems:"center" ,
-  borderRadius:10,
-  borderColor:"#EAEAEA" ,
-  borderStyle:"dotted" ,marginTop:5,
-  marginBottom:11
-
-}}>
-
-          <Text style={{
-            fontSize:18,
-            fontFamily:font.MonolithRegular ,
-            color: "#ADA4A5"
-          }}>Add Parcel Image +</Text>
+            <Text style={{
+              color: pickupLocation?.address ? "black" : "#ADA4A5",
+              fontSize: 15,
+              fontFamily: font.MonolithRegular,
+              flex: 1
+            }}>
+              {pickupLocation ? pickupLocation?.address : "Add Pickup Location"}
+            </Text>
+            <Image style={{
+              height: 22,
+              width: 22,
+              resizeMode: "contain"
+            }} source={imageIndex.location1} />
           </TouchableOpacity>
-        )}
+          {errors.pickupLocation ? <Text style={styles.errorText}>{errors.pickupLocation}</Text> : null}
+
+          <TouchableOpacity
+            onPress={() =>
+              navgatoon.navigate(ScreenNameEnum.PickupLocationRapido, {
+                onLocationSelect: (data) => {
+                  console.log("Received location:", data);
+                  setDropLocation(data?.address);
+                  sedroplat({
+                    latitude: data.latitude,
+                    longitude: data.longitude,
+                  });
+
+                }
+              })
+            }
+
+            style={[styles.input, errors.pickupLocation ? styles.inputError : null]}
+          >
+            <Text style={{
+              color: dropLocation ? "black" : "#ADA4A5",
+              fontSize: 15,
+              fontFamily: font.MonolithRegular,
+              flex: 1
+
+            }}>
+              {dropLocation ? dropLocation : "Add Drop Location"}
+            </Text>
+            <Image style={{
+              height: 22,
+              width: 22,
+              resizeMode: "contain"
+            }} source={imageIndex.location1} />
+          </TouchableOpacity>
+          {errors.dropLocation ? <Text style={styles.errorText}>{errors.dropLocation}</Text> : null}
+
+          {/* Shipment & Sender Details */}
+          <Text style={styles.sectionTitle}>Shipment & Sender Details</Text>
+
+          <CustomDropdown
+            data={shipmentTypeData}
+            placeholder="Shipment Type"
+            onSelect={(value) => handleDropdownSelect("shipmentType", value)}
+          />
+          {errors.shipmentType ? <Text style={styles.errorText}>{errors.shipmentType}</Text> : null}
+
+          <TextInput
+            placeholderTextColor={"#ADA4A5"}
+            value={senderName}
+            onChangeText={(value) => handleInputChange("senderName", value)}
+            style={[styles.input, errors.senderName ? styles.inputError : null]}
+            placeholder="Sender Name"
+          />
+          {errors.senderName ? <Text style={styles.errorText}>{errors.senderName}</Text> : null}
+
+          <TextInput
+            style={[styles.input, errors.senderMobile ? styles.inputError : null]}
+            placeholder="Sender Mobile Number"
+            keyboardType="phone-pad"
+            placeholderTextColor="#ADA4A5"
+            value={senderMobile}
+            onChangeText={(value) => handleInputChange("senderMobile", value)}
+            maxLength={10}
+          />
+          {errors.senderMobile ? <Text style={styles.errorText}>{errors.senderMobile}</Text> : null}
+
+          <TextInput
+            placeholderTextColor={"#ADA4A5"}
+            value={senderAddress}
+            onChangeText={(value) => handleInputChange("senderAddress", value)}
+            style={[styles.input, errors.senderAddress ? styles.inputError : null]}
+            placeholder="Sender Address"
+          />
+          {errors.senderAddress ? <Text style={styles.errorText}>{errors.senderAddress}</Text> : null}
+
+          <TouchableOpacity
+            style={[styles.input, errors.pickupDate ? styles.inputError : null]}
+            onPress={() => setShowDate(true)}
+          >
+            <Text style={styles.placeholderText}>
+              {pickupDate ? pickupDate.toDateString() : "Pickup Date"}
+            </Text>
+          </TouchableOpacity>
+          {errors.pickupDate ? <Text style={styles.errorText}>{errors.pickupDate}</Text> : null}
+
+          {showDate && (
+            <DateTimePicker
+              value={pickupDate || new Date()}
+              mode="date"
+              display={Platform.OS === "ios" ? "inline" : "default"}
+              onChange={(e, date) => {
+                setShowDate(false);
+                if (date) {
+                  setPickupDate(date);
+                  if (errors.pickupDate) {
+                    setErrors(prev => ({ ...prev, pickupDate: "" }));
+                  }
+                }
+              }}
+            />
+          )}
+
+          <TouchableOpacity
+            style={[styles.input, errors.pickupTime ? styles.inputError : null]}
+            onPress={() => setShowTime(true)}
+          >
+            <Text style={styles.placeholderText}>
+              {pickupTime
+                ? pickupTime.toLocaleTimeString()
+                : "Pickup Time"}
+            </Text>
+          </TouchableOpacity>
+          {errors.pickupTime ? <Text style={styles.errorText}>{errors.pickupTime}</Text> : null}
+
+          {showTime && (
+            <DateTimePicker
+              value={pickupTime || new Date()}
+              mode="time"
+              display={Platform.OS === "ios" ? "inline" : "default"}
+              onChange={(e, time) => {
+                setShowTime(false);
+                if (time) {
+                  setPickupTime(time);
+                  if (errors.pickupTime) {
+                    setErrors(prev => ({ ...prev, pickupTime: "" }));
+                  }
+                }
+              }}
+            />
+          )}
+
+          <CustomDropdown
+            data={consignmentTypeData}
+            placeholder="Consignment Type"
+            onSelect={(value) => handleDropdownSelect("consignmentType", value)}
+          />
+          {errors.consignmentType ? <Text style={styles.errorText}>{errors.consignmentType}</Text> : null}
+
+          {/* Package Size */}
+          <Text style={styles.sectionTitle}>Package Size</Text>
+          <View style={styles.packageRow}>
+            {["1 KG", "3KG-10KG", "10kG"].map((size) => (
+              <TouchableOpacity
+                key={size}
+                style={[
+                  styles.packageBox,
+                  packageSize === size && styles.selectedBox,
+                ]}
+                onPress={() => setPackageSize(size)}
+              >
+                <Text
+                  style={[
+                    styles.packageText,
+                    packageSize === size && styles.selectedText,
+                  ]}
+                >
+                  {size}{" "}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+
+          {/* Delivery Type */}
+          <CustomDropdown
+            data={deliveryTypeData}
+            placeholder="Delivery Type"
+            onSelect={(value) => handleDropdownSelect("deliveryType", value)}
+          />
+          {errors.deliveryType ? <Text style={styles.errorText}>{errors.deliveryType}</Text> : null}
+
+          <TextInput
+            placeholderTextColor={"#ADA4A5"}
+            value={price}
+            onChangeText={(value) => handleInputChange("price", value)}
+            style={[styles.input, errors.price ? styles.inputError : null]}
+            placeholder="Price"
+            keyboardType="numeric"
+          />
+          {errors.price ? <Text style={styles.errorText}>{errors.price}</Text> : null}
+
+          {/* Receiver Details */}
+          <Text style={styles.sectionTitle}>Receiver Details</Text>
+          <TextInput
+            style={[styles.input, errors.receiverName ? styles.inputError : null]}
+            placeholderTextColor={"#ADA4A5"}
+            value={receiverName}
+            onChangeText={(value) => handleInputChange("receiverName", value)}
+            placeholder="Receiver Name"
+          />
+          {errors.receiverName ? <Text style={styles.errorText}>{errors.receiverName}</Text> : null}
+
+          <TextInput
+            style={[styles.input, errors.receiverMobile ? styles.inputError : null]}
+            placeholder="Receiver Mobile Number"
+            keyboardType="phone-pad"
+            placeholderTextColor={"#ADA4A5"}
+            value={receiverMobile}
+            onChangeText={(value) => handleInputChange("receiverMobile", value)}
+            maxLength={10}
+          />
+          {errors.receiverMobile ? <Text style={styles.errorText}>{errors.receiverMobile}</Text> : null}
+
+          <TextInput
+            style={[styles.input, errors.receiverAddress ? styles.inputError : null]}
+            placeholder="Receiver Address"
+            placeholderTextColor={"#ADA4A5"}
+            value={receiverAddress}
+            onChangeText={(value) => handleInputChange("receiverAddress", value)}
+          />
+          {errors.receiverAddress ? <Text style={styles.errorText}>{errors.receiverAddress}</Text> : null}
+
+          <TextInput
+            style={[styles.input, { height: 80 }]}
+            placeholder="Extra Message"
+            multiline
+            placeholderTextColor={"#ADA4A5"}
+            value={extraMessage}
+            onChangeText={setExtraMessage}
+          />
+          {image?.uri ? (
+            <TouchableOpacity
+
+              onPress={() => {
+                setIsModalVisible(true)
+              }}
+              style={{
+                borderWidth: 1,
+                padding: 30,
+                alignItems: "center",
+                borderRadius: 10,
+                borderColor: "#EAEAEA",
+                borderStyle: "dotted", marginTop: 5,
+                marginBottom: 11
+
+              }}
+            >
+              <Image
+                source={image ? { uri: image?.uri || image } : imageIndex.prfile}
+                resizeMode="cover"
+                style={{
+                  height: 150,
+                  width: 150,
+                  borderRadius: 10,
+                  resizeMode: "contain"
+                }}
+              />
+            </TouchableOpacity>
+          ) : (
+            <TouchableOpacity
+
+              onPress={() => {
+                setIsModalVisible(true)
+              }}
+              style={{
+                borderWidth: 1,
+                padding: 30,
+                alignItems: "center",
+                borderRadius: 10,
+                borderColor: "#EAEAEA",
+                borderStyle: "dotted", marginTop: 5,
+                marginBottom: 11
+
+              }}>
+
+              <Text style={{
+                fontSize: 18,
+                fontFamily: font.MonolithRegular,
+                color: "#ADA4A5"
+              }}>Add Parcel Image +</Text>
+            </TouchableOpacity>
+          )}
 
 
-        {/* Submit Button */}
-        <View style={{
-          marginBottom: 50,
-          marginTop: 11
-        }}>
-          <CustomButton title={"Send Request"} onPress={handleSubmit} />
-        </View>
-      </ScrollView>
-{/* 
+          {/* Submit Button */}
+          <View style={{
+            marginBottom: 50,
+            marginTop: 11
+          }}>
+            <CustomButton title={"Send Request"} onPress={handleSubmit} />
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
+      {/* 
       <AddressModalInput
         value={pickupLocation}
         modalVisible={pickupModal}
@@ -676,17 +699,17 @@ style={{
         onSelect={(item: any) => handleLocationSelect('drop', item)}
         placeholder="Select Drop Address"
       />
-         <ImagePickerModal
-                  modalVisible={isModalVisible}
-                  setModalVisible={setIsModalVisible}
-                  pickImageFromGallery={pickImageFromGallery}
-                  takePhotoFromCamera={takePhotoFromCamera}
-                />
+      <ImagePickerModal
+        modalVisible={isModalVisible}
+        setModalVisible={setIsModalVisible}
+        pickImageFromGallery={pickImageFromGallery}
+        takePhotoFromCamera={takePhotoFromCamera}
+      />
     </SafeAreaView>
   );
 };
 
- 
- 
+
+
 
 export default CreateParcelFrom;

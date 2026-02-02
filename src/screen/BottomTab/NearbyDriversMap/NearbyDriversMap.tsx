@@ -21,6 +21,7 @@ import ScreenNameEnum from "../../../routes/screenName.enum";
 import { Text } from "react-native";
 import font from "../../../theme/font";
 import { color } from "../../../constant";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const { width, height } = Dimensions.get("window");
 const DEFAULT_LAT = 28.9008;
@@ -253,7 +254,7 @@ const NearbyDriversMap: React.FC = () => {
   const navgatoon = useNavigation();
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView edges={['bottom']} style={styles.container}>
       {/* ================= MAP ================= */}
       <MapView
         ref={mapRef}
@@ -533,7 +534,7 @@ const NearbyDriversMap: React.FC = () => {
           <Text style={styles.ordersLoadingText}>Loading orders...</Text>
         </View>
       )}
-    </View>
+    </SafeAreaView>
   );
 };
 
@@ -895,8 +896,8 @@ const styles = StyleSheet.create({
 
   // Bottom Card
   bottomCard: {
-    position: 'absolute',
-    bottom: 0,
+    // position: 'absolute',
+    // bottom: 0,
     left: 0,
     right: 0,
     backgroundColor: '#FFFFFF',

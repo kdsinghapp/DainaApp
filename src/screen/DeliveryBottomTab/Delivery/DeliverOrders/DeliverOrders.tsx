@@ -1,8 +1,8 @@
-import React, {  useRef, useState, useEffect, useCallback } from "react";
+import React, { useRef, useState, useEffect, useCallback } from "react";
 import {
   View,
   Text,
-   Image,
+  Image,
   FlatList,
   Pressable,
   Animated,
@@ -20,8 +20,9 @@ import axios from "axios";
 import { base_url } from "../../../../Api";
 import LoadingModal from "../../../../utils/Loader";
 import { styles } from "./style";
+import { STATUS } from "../../../../utils/Constant";
 
-type OrderStatus = "Pending" | "Completed" | "Canceled";
+type OrderStatus = "Pending" | "Completed" | "Cancelled";
 type Order = {
   id: string;
   name: string;
@@ -33,7 +34,7 @@ type Order = {
   avatar?: string; // remote/avatar uri if you have
 };
 
-const TABS = ["Pending", "Complete", "Canceled"] as const;
+const TABS = ["Pending", "Complete", "Cancelled"] as const;
 
 const STATUS_STYLES: Record<
   OrderStatus,
@@ -41,13 +42,12 @@ const STATUS_STYLES: Record<
 > = {
   Pending: { bg: "#FFF4E5", text: "#C26B00", label: "Pending" },
   Completed: { bg: "#EAF8EE", text: "#00CE9A", label: "Completed" },
-  Canceled: { bg: "#FDECEC", text: "#D32F2F", label: "Canceled" },
+  Cancelled: { bg: "#FDECEC", text: "#D32F2F", label: "Cancelled" },
 };
-
 
 const DeliveryHome = () => {
   const navigation = useNavigation();
-  const [ordersSeed, setordersSeed] = useState([])
+  const [ordersSeed, setordersSeed] = useState([]);
   const [isOnline, setIsOnline] = useState(false);
   const [isLoading, setisLoading] = useState(false);
   const pillX = useRef(new Animated.Value(0)).current;
@@ -59,10 +59,59 @@ const DeliveryHome = () => {
       useNativeDriver: true,
     }).start();
   }, [isOnline]);
- 
 
+  // const filteredOrders = ordersSeed.filter((item) => {
+  //   const status = item?.parcel?.deliveryStatus;
+  //   console.log(status)
+  // const COMPLETED_STATUSES = [
+  //   STATUS.DELIVERED
+  // ];
+
+  // const Cancelled_STATUSES = [
+  //  STATUS.CANCELLED
+  // ];
+  //   if (activeTab === 'Pending') {
+  //     return (
+  //       !COMPLETED_STATUSES.includes(status) &&
+  //       !Cancelled_STATUSES.includes(status)
+  //     );
+  //   }
+
+  //   if (activeTab === 'Complete') {
+  //     return COMPLETED_STATUSES.includes(status);
+  //   }
+
+  //   if (activeTab === 'Cancelled') {
+  //     return Cancelled_STATUSES.includes(status);
+  //   }
+
+  //   return false;
+  // });
   // tabs + filter
   const [activeTab, setActiveTab] = useState<(typeof TABS)[number]>("Pending");
+  const filteredOrders = ordersSeed.filter((item) => {
+    const status = item?.parcel?.deliveryStatus?.toLowerCase();
+
+    const COMPLETED_STATUSES = ["delivered", "completed"];
+    const Cancelled_STATUSES = ["cancelled", "Cancelled"];
+
+    if (activeTab === "Pending") {
+      return (
+        !COMPLETED_STATUSES.includes(status) &&
+        !Cancelled_STATUSES.includes(status)
+      );
+    }
+
+    if (activeTab === "Complete") {
+      return COMPLETED_STATUSES.includes(status);
+    }
+
+    if (activeTab === "Cancelled") {
+      return Cancelled_STATUSES.includes(status);
+    }
+
+    return false;
+  });
 
   // list enter animation on tab change
   const listSlide = useRef(new Animated.Value(0)).current;
@@ -75,62 +124,70 @@ const DeliveryHome = () => {
       useNativeDriver: true,
     }).start();
   }, [activeTab]);
-  const translateX = listSlide.interpolate({ inputRange: [0, 1], outputRange: [30, 0] });
-  const fade = listSlide.interpolate({ inputRange: [0, 1], outputRange: [0.2, 1] });
+  const translateX = listSlide.interpolate({
+    inputRange: [0, 1],
+    outputRange: [30, 0],
+  });
+  const fade = listSlide.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0.2, 1],
+  });
   useFocusEffect(
     useCallback(() => {
       fetchAvailableRequests();
-    }, [])
+    }, []),
   );
   const fetchAvailableRequests = async () => {
-    setisLoading(true)
+    setisLoading(true);
     try {
-      const token = await AsyncStorage.getItem('token');
+      const token = await AsyncStorage.getItem("token");
       if (!token) {
         return;
       }
-      const response = await axios.get(
-        `${base_url}/delivery/my-offers`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            Accept: 'application/json',
-          },
+      const response = await axios.get(`${base_url}/delivery/my-offers`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: "application/json",
         },
-      );
+      });
       if (response?.data?.status == 1) {
-        setisLoading(false)
-        setordersSeed(response?.data?.offers)
+        setisLoading(false);
+        console.log(response?.data, "data in order page");
+        setordersSeed(response?.data?.offers);
       } else {
-        setisLoading(false)
-
+        setisLoading(false);
       }
-    } catch (error:any) {
-      setisLoading(false)
+    } catch (error: any) {
+      setisLoading(false);
 
-      console.error('Error fetching available requests:', error?.response?.data || error?.message);
+      console.error(
+        "Error fetching available requests:",
+        error?.response?.data || error?.message,
+      );
     } finally {
-      setisLoading(false)
-
+      setisLoading(false);
     }
   };
 
   const renderItem = ({ item }: { item: Order }) => {
-    const st = STATUS_STYLES[item.status];
+    const st = STATUS_STYLES[item.parcel?.deliveryStatus];
     return (
-      <TouchableOpacity style={styles.card}
-
-
+      <TouchableOpacity
+        style={styles.card}
+        activeOpacity={0.9}
         onPress={() => {
           if (item.status == "Pending") {
             navigation.navigate(ScreenNameEnum.ParcelDetails, {
-              item: item,
+              // item: item,
+               item: { ...item, ...item?.parcel }
+            });
+          } else {
+            navigation.navigate(ScreenNameEnum.ParcelDetails, {
+              item: { ...item, ...item?.parcel },
             });
           }
         }}
-
       >
-
         <View style={styles.cardTop}>
           <Image
             source={
@@ -158,20 +215,18 @@ const DeliveryHome = () => {
                 fontSize: 15,
                 fontFamily: font.TrialMedium,
                 color:
-                  item.status === "pending"
+                  item.parcel?.deliveryStatus === "pending"
                     ? "orange"
-                    : item.status === "assigned"
-                      ? "green"
-                      : item.status === "complete"
-                        ? "blue"
-                        : "black",
+                    : item.parcel?.deliveryStatus === "assigned"
+                    ? "green"
+                    : item.parcel?.deliveryStatus === "complete"
+                    ? "blue"
+                    : "black",
               },
             ]}
           >
-            {item.status}
+            {item.parcel?.deliveryStatus}
           </Text>
-
-
         </View>
 
         <Text style={styles.code} numberOfLines={1}>
@@ -240,15 +295,19 @@ const DeliveryHome = () => {
       </View>
 
       {/* List */}
-      <Animated.View style={{ flex: 1, transform: [{ translateX }], opacity: fade }}>
+      <Animated.View
+        style={{ flex: 1, transform: [{ translateX }], opacity: fade }}
+      >
         <FlatList
-          data={ordersSeed}
+          data={filteredOrders}
+          extraData={filteredOrders}
+          // data={ordersSeed}
           style={{
-            marginTop: 10
+            marginTop: 10,
           }}
           keyExtractor={(i) => i.id}
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ paddingBottom: 20 }}
+          contentContainerStyle={{ paddingBottom: 80 }}
           renderItem={renderItem}
           ListEmptyComponent={
             <Text style={styles.emptyText}>No orders here yet.</Text>
@@ -260,5 +319,3 @@ const DeliveryHome = () => {
 };
 
 export default DeliveryHome;
-
-

@@ -9,14 +9,14 @@ export const useOfferOR = () => {
   const [location, setLocation] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [offerData, setOfferData] = useState([]);
-const rou:any = useRoute()
-const  {Parcelid,id}= rou?.params || ""
-   useEffect(() => {
+  const rou: any = useRoute()
+  const { Parcelid, id } = rou?.params || ""
+  useEffect(() => {
     fetchOffers();
   }, []);
-const navgation = useNavigation()
+  const navgation = useNavigation()
   const fetchOffers = async () => {
-            // setOfferData(Parcelid || []);
+    // setOfferData(Parcelid || []);
     try {
       setIsLoading(true);
       const token = await AsyncStorage.getItem('token');
@@ -29,9 +29,9 @@ const navgation = useNavigation()
       });
       const result = await response.json();
       if (result.status == 1 || result.success === true) {
-         setOfferData(result?.offers || []);
+        setOfferData(result?.offers || []);
         setIsLoading(false)
-       }  
+      }
     } catch (err) {
       console.log('Error fetching offers:', err);
     } finally {
@@ -40,38 +40,38 @@ const navgation = useNavigation()
   };
 
 
-const onAccept = async (id:any) => {
-  try {
- 
-    const token = await AsyncStorage.getItem('token');
-    if (!token) {
-      console.warn("No token found");
-      return;
+  const onAccept = async (id: any) => {
+    try {
+
+      const token = await AsyncStorage.getItem('token');
+      if (!token) {
+        console.warn("No token found");
+        return;
+      }
+      const apiUrl = `https://aitechnotech.in/DAINA/api/offers/${id}/accept`;
+      const response = await fetch(apiUrl, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`, // include Bearer if API expects it
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({}), // add body data if needed
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        successToast("Offer accepted successfully!"),
+          navgation.replace(ScreenNameEnum.TabNavigator);
+
+      } else {
+        errorToast(result?.message)
+      }
+    } catch (error) {
+      console.error("Error accepting offer:", error);
+      alert("Something went wrong. Please try again.");
     }
-    const apiUrl = `https://aitechnotech.in/DAINA/api/offers/${id}/accept`;
-     const response = await fetch(apiUrl, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${token}`, // include Bearer if API expects it
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({}), // add body data if needed
-    });
-
-    const result = await response.json();
- 
-    if (response.ok) {
-      successToast("Offer accepted successfully!") ,
-                    navgation.replace(ScreenNameEnum.TabNavigator);
-
-     } else {
-      errorToast(result?.message)
-     }
-  } catch (error) {
-    console.error("Error accepting offer:", error);
-    alert("Something went wrong. Please try again.");
-  }
-};
+  };
 
 
 
@@ -82,8 +82,8 @@ const onAccept = async (id:any) => {
     location,
     setLocation,
     // Functions
-    fetchOffers, 
-    onAccept ,
+    fetchOffers,
+    onAccept,
     navgation
   };
 };

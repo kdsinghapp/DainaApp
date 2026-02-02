@@ -1,5 +1,5 @@
 import React, { useRef, useState, useCallback, useEffect } from 'react';
-import { Dimensions } from 'react-native';
+import { Alert, Dimensions, Linking } from 'react-native';
 import {
     widthPercentageToDP as wp,
     heightPercentageToDP as hp,
@@ -88,6 +88,69 @@ const Countdown = ({ eventTime = 1683526848, interval = 1000 }) => {
 const getCloser = (value, checkOne, checkTwo) =>
     Math.abs(value - checkOne) < Math.abs(value - checkTwo) ? checkOne : checkTwo;
 
+const openDialer = (phoneNumber) => {
+  // Define the protocol based on the OS (though 'tel:' works for both)
+  let phoneUrl = `tel:${phoneNumber}`;
+
+  Linking.canOpenURL(phoneUrl)
+    .then((supported) => {
+      if (!supported) {
+        Alert.alert('Error', 'Dialer is not supported on this device');
+      } else {
+        return Linking.openURL(phoneUrl);
+      }
+    })
+    .catch((err) => console.error('An error occurred', err));
+};
+
+// constants/statusConstants.js
+export const STATUS = {
+  PENDING: 'pending',
+  ASSIGNED: 'assigned',
+  GOING_TO_PICKUP: 'going_to_pickup',
+  PICKED_UP: 'picked_up',
+  ON_THE_WAY: 'on_the_way',
+  ARRIVING: 'arriving',
+  DELIVERED: 'delivered',
+  COMPLETED: 'completed',
+  CANCELLED: 'cancelled'
+};
+
+export const STATUS_LABELS = {
+  [STATUS.PENDING]: 'Pending',
+  [STATUS.ASSIGNED]: 'Assigned',
+  [STATUS.GOING_TO_PICKUP]: 'Going to Pickup',
+  [STATUS.PICKED_UP]: 'Picked Up',
+  [STATUS.ON_THE_WAY]: 'On the Way',
+  [STATUS.ARRIVING]: 'Arriving',
+  [STATUS.DELIVERED]: 'Delivered',
+  [STATUS.COMPLETED]: 'Completed',
+  [STATUS.CANCELLED]: 'Cancelled'
+};
+
+export const STATUS_COLORS = {
+  [STATUS.PENDING]: '#FF9500', // Orange
+  [STATUS.ASSIGNED]: '#007AFF', // Blue
+  [STATUS.GOING_TO_PICKUP]: '#5856D6', // Purple
+  [STATUS.PICKED_UP]: '#34C759', // Green
+  [STATUS.ON_THE_WAY]: '#5AC8FA', // Light Blue
+  [STATUS.ARRIVING]: '#FF2D55', // Pink
+  [STATUS.DELIVERED]: '#32D74B', // Bright Green
+  [STATUS.COMPLETED]: '#64D2FF', // Sky Blue
+  [STATUS.CANCELLED]: '#FF3B30' // Red
+};
+
+export const STATUS_ICONS = {
+  [STATUS.PENDING]: 'time-outline',
+  [STATUS.ASSIGNED]: 'person-outline',
+  [STATUS.GOING_TO_PICKUP]: 'car-outline',
+  [STATUS.PICKED_UP]: 'cube-outline',
+  [STATUS.ON_THE_WAY]: 'navigate-outline',
+  [STATUS.ARRIVING]: 'location-outline',
+  [STATUS.DELIVERED]: 'checkmark-circle-outline',
+  [STATUS.COMPLETED]: 'flag-outline',
+  [STATUS.CANCELLED]: 'close-circle-outline'
+};
 export {
     hp,
     wp,
@@ -103,4 +166,5 @@ export {
     UTCFormat,
     Countdown,
     getCloser,
+    openDialer
 };

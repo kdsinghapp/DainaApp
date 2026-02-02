@@ -1,12 +1,12 @@
-import React, { useMemo } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   View,
   Text,
   Pressable,
   ScrollView,
   StyleSheet,
-   Image ,
-   TouchableOpacity
+  Image,
+  TouchableOpacity
 } from "react-native";
 import StatusBarComponent from "../../../compoent/StatusBarCompoent";
 import CustomHeader from "../../../compoent/CustomHeader";
@@ -15,8 +15,10 @@ import imageIndex from "../../../assets/imageIndex";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import ScreenNameEnum from "../../../routes/screenName.enum";
+import { GetApi } from "../../../Api/apiRequest";
+import { STATUS } from "../../../utils/Constant";
 
-type OrderStatus = "packaged" | "shipped" | "inTransit" | "delivered";
+type OrderStatus = "packaged" | "shipped" | "inTransit" | "delivered" | "pending";
 
 type Order = {
   id: string;
@@ -28,11 +30,17 @@ type Order = {
   status: OrderStatus;
 };
 
-const STATUS_STEPS: OrderStatus[] = [
-  "packaged",
-  "shipped",
-  "inTransit",
-  "delivered",
+// const STATUS_STEPS: OrderStatus[] = [
+//   "packaged",
+//   "shipped",
+//   "inTransit",
+//   "delivered",
+// ];
+const STATUS_STEPS = [
+  STATUS.PENDING,
+  STATUS.PICKED_UP,
+  STATUS.ON_THE_WAY,
+  STATUS.DELIVERED,
 ];
 
 type TimelineItem = {
@@ -43,12 +51,26 @@ type TimelineItem = {
   done: boolean;
 };
 
- 
-export default function ViewDetails() {
-  const route:any = useRoute();
-  const { item } = route?.params || {};
 
- 
+export default function ViewDetails() {
+  const route: any = useRoute();
+  const { item } = route?.params || {};
+  const [loading, setLoading] = useState(false)
+const [parcel, setParcel] = useState(item)
+  useEffect(() => {
+    getDetail()
+  }, [])
+  const getDetail = async () => {
+    const param = {
+      url: `/parcel-details/${item?.id}`
+    }
+    const res = await GetApi(param, setLoading)
+    if(res.status == 1){
+setParcel(res?.parcel)
+    }
+    
+    console.log(res, 'this is res')
+  }
   const formatDate = (isoString: string) => {
     if (!isoString) return "";
     const date = new Date(isoString);
@@ -66,42 +88,27 @@ export default function ViewDetails() {
     toCity: item?.dropLocation ?? "Unknown",
     startDate: formatDate(item?.pickupDate),
     endDate: formatDate(item?.dropDate ?? new Date().toISOString()),
-    status: item?.status ?? "packaged",
+    status: item?.deliveryStatus ?? "packaged",
   };
 
   const currentIdx = STATUS_STEPS.indexOf(order.status);
   const progress =
     currentIdx >= 0 ? currentIdx / (STATUS_STEPS.length - 1) : 0;
+  const STATUS_LABELS: Record<string, string> = {
+    assigned:"Assigned",
+    pending: "Waiting for Driver",
+    packaged: "Still Packaged",
+    shipped: "In Shipping",
+    inTransit: "In Transit",
+    delivered: "Delivered",
+  };
 
-  const timeline: TimelineItem[] = useMemo(() => {
-    return [
-      {
-        key: "placed",
-        title: "Order Placed",
-        time: "June 10, 2023 · 05:45 pm",
-        done: true,
-      },
-      {
-        key: "dispatched",
-        title: "Order Dispatched",
-        time: "June 11, 2023 · 11:03 am",
-        done: currentIdx >= 1,
-      },
-      {
-        key: "transit",
-        title: "Order in Transit",
-        subtitle: "Reached at Jackline Tower, New York",
-        done: currentIdx >= 2,
-      },
-      {
-        key: "delivered",
-        title: "Delivered Successfully",
-        subtitle: currentIdx === 3 ? "Delivered" : "Not delivered yet",
-        done: currentIdx === 3,
-      },
-    ];
-  }, [currentIdx]);
-const navigation = useNavigation()
+  // Default fallback if status is missing or unknown
+  const DEFAULT_STATUS = "Unknown Status";
+   const activeIdx = currentIdx === -1 ? 0 : currentIdx;
+ 
+
+  const navigation = useNavigation()
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "white" }}>
       <StatusBarComponent />
@@ -112,11 +119,11 @@ const navigation = useNavigation()
         showsVerticalScrollIndicator={false}
       >
         {/* Order Card */}
-        <TouchableOpacity style={styles.card} 
-          onPress={()=>{
-            navigation.navigate(ScreenNameEnum.CourierTrackingScreen ,{
-              item:item
-            })
+        <TouchableOpacity style={styles.card} activeOpacity={1}
+          onPress={() => {
+            // navigation.navigate(ScreenNameEnum.CourierTrackingScreen, {
+            //   item: item
+            // })
           }}
         >
           <View style={styles.cardHeader}>
@@ -125,13 +132,11 @@ const navigation = useNavigation()
           </View>
 
           {/* Progress Bar */}
-          <View style={styles.trackBase} 
-          
-        
+          <View style={styles.trackBase}
           >
             <View style={styles.trackLine} />
             <View style={[styles.trackFill, { width: `${progress * 100}%` }]} />
-            {STATUS_STEPS.map((_, i) => (
+            {/* {STATUS_STEPS.map((_, i) => (
               <View
                 key={i}
                 style={[
@@ -140,12 +145,26 @@ const navigation = useNavigation()
                   { left: `${(i / (STATUS_STEPS.length - 1)) * 100}%` },
                 ]}
               />
-            ))}
+            ))} */}
+
+               {STATUS_STEPS.map((step, i) => {
+                      const isActive = i <= activeIdx;
+                      return (
+                        <View
+                          key={step}
+                          style={[
+                            styles.dot,
+                            isActive ? styles.dotActive : styles.dotInactive,
+                            { left: `${(i / (STATUS_STEPS.length - 1)) * 100}%` },
+                          ]}
+                        />
+                      );
+                    })}
           </View>
 
           {/* City Info */}
-          <View style={styles.row} 
-          
+          <View style={styles.row}
+
           >
             <View style={styles.cityBlock}>
               <Text style={styles.date}>{order.startDate}</Text>
@@ -175,18 +194,32 @@ const navigation = useNavigation()
                 currentIdx === 3 ? styles.pillDone : styles.pillProgress,
               ]}
             >
-              <Text style={styles.pillText}>
-                {order.status === "packaged"
+              <Text style={styles.pillText}
+
+              > {STATUS_LABELS[order.status] || DEFAULT_STATUS}
+                {/* {order.status === "pending" ? "Waiting for Driver" : order.status === "packaged"
                   ? "Still Packaged"
                   : order.status === "shipped"
-                  ? "In Shipping"
-                  : order.status === "inTransit"
-                  ? "In Transit"
-                  : "Delivered"}
+                    ? "In Shipping"
+                    : order.status === "inTransit"
+                      ? "In Transit"
+                      : "Delivered"} */}
               </Text>
             </View>
 
-            <Text style={styles.viewDetails}>View Details</Text>
+            <Text style={styles.viewDetails}
+              onPress={() => {
+                if (order.status === 'pending') {
+                  navigation.navigate(ScreenNameEnum.OfferOR, {
+                    id: { parcel: parcel }
+                  })
+                } else {
+                  navigation.navigate(ScreenNameEnum.CourierTrackingScreen, {
+                    item: parcel
+                  })
+                }
+              }}
+            >{order.status === 'pending'? 'View Offer':"Track Detail"}</Text>
           </View>
         </TouchableOpacity>
 
@@ -220,14 +253,14 @@ const TimelineRow = ({
       <View style={styles.timelineLeft}>
         {/* <View style={[styles.timeBullet, item.done ? styles.bulletOn : styles.bulletOff]}>
           <Text style={styles.bulletIcon}>{item.done ? "✓" : "•"}</Text>
-        </View> */} 
+        </View> */}
 
-        <Image source={imageIndex.OrderPlaced} 
-        
-        style={{
-            height:50,
-            width:50
-        }}
+        <Image source={imageIndex.OrderPlaced}
+
+          style={{
+            height: 50,
+            width: 50
+          }}
         />
         {/* {!isLast && <View style={[styles.connector, item.done ? styles.connectorOn : styles.connectorOff]} />} */}
       </View>
@@ -269,25 +302,25 @@ const styles = StyleSheet.create({
     padding: 14,
     shadowOpacity: 0.05,
     shadowRadius: 8,
-     borderWidth: 1,
-    borderColor: "#eee",    shadowColor: "#000",
+    borderWidth: 1,
+    borderColor: "#eee", shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
   },
   cardHeader: { flexDirection: "row", justifyContent: "space-between", marginBottom: 10 },
-  muted: { color: MUTED,  fontFamily:font.MonolithRegular },
-  bold: { color: TEXT, fontFamily:font.MonolithRegular },
+  muted: { color: MUTED, fontFamily: font.MonolithRegular },
+  bold: { color: TEXT, fontFamily: font.MonolithRegular },
 
   trackBase: { height: 24, justifyContent: "center", marginBottom: 10 },
   trackLine: { position: "absolute", height: 4, backgroundColor: "#E8E8E8", left: 8, right: 8, borderRadius: 4 },
   trackFill: { position: "absolute", height: 4, backgroundColor: YELLOW, left: 8, borderTopLeftRadius: 4, borderBottomLeftRadius: 4 },
   dot: { position: "absolute", width: 16, height: 16, marginLeft: -8, borderRadius: 8, top: 4, borderWidth: 3 },
-  dotActive: { backgroundColor: YELLOW, borderColor: "#FFF" },
+  dotActive: { backgroundColor: YELLOW, borderColor: YELLOW },
   dotInactive: { backgroundColor: "#FFF", borderColor: "#E8E8E8" },
 
   row: { flexDirection: "row", alignItems: "center", marginBottom: 8 },
   cityBlock: { flex: 1 },
-  date: { color: MUTED, fontSize: 12, fontFamily:font.MonolithRegular ,marginBottom: 4 },
-  city: { color: TEXT, fontSize: 16, fontFamily:font.MonolithRegular },
+  date: { color: MUTED, fontSize: 12, fontFamily: font.MonolithRegular, marginBottom: 4 },
+  city: { color: TEXT, fontSize: 16, fontFamily: font.MonolithRegular },
   playButton: {
     width: 28, height: 28, borderRadius: 14, borderWidth: 1, borderColor: BORDER,
     alignItems: "center", justifyContent: "center", marginHorizontal: 10, backgroundColor: "#FFF",
@@ -296,16 +329,16 @@ const styles = StyleSheet.create({
   pill: { paddingVertical: 6, paddingHorizontal: 12, borderRadius: 999 },
   pillProgress: { backgroundColor: "#FFCC00" },
   pillDone: { backgroundColor: "#FFCC00" },
-  pillText: { fontFamily:font.MonolithRegular, fontSize: 12, color: "white" },
-  viewDetails: { color: "#FFCC00",fontFamily:font.MonolithRegular,fontSize: 12, },
+  pillText: { fontFamily: font.MonolithRegular, fontSize: 12, color: "white" },
+  viewDetails: { color: "#FFCC00", fontFamily: font.MonolithRegular, fontSize: 12, },
 
-  sectionTitle: { marginTop: 18, marginHorizontal: 16, marginBottom: 10, color: TEXT, fontFamily:font.MonolithRegular, fontSize: 16 },
+  sectionTitle: { marginTop: 18, marginHorizontal: 16, marginBottom: 10, color: TEXT, fontFamily: font.MonolithRegular, fontSize: 16 },
   timelineWrap: {
     marginHorizontal: 16,
     paddingHorizontal: 8,
     paddingVertical: 8,
     borderRadius: 16,
-  
+
   },
   timelineRow: { flexDirection: "row", paddingVertical: 14 },
   timelineLeft: { width: 34, alignItems: "center" },
@@ -315,12 +348,12 @@ const styles = StyleSheet.create({
   },
   bulletOn: { borderColor: YELLOW, backgroundColor: "#FFF8D6" },
   bulletOff: { borderColor: "#E3E3E3", backgroundColor: "#FFF" },
-  bulletIcon: { fontFamily:font.MonolithRegular },
+  bulletIcon: { fontFamily: font.MonolithRegular },
   connector: { width: 2, flex: 1, marginTop: 4, borderRadius: 1 },
   connectorOn: { backgroundColor: YELLOW },
   connectorOff: { backgroundColor: "#EAEAEA" },
 
-  timelineContent: { flex: 1, paddingRight: 8  , marginLeft:16},
-  timelineTitle: { fontFamily:font.MonolithRegular, color: "#5a5a5a", marginBottom: 4 },
-  timelineSub: { color: MUTED, fontSize: 12,fontFamily:font.MonolithRegular },
+  timelineContent: { flex: 1, paddingRight: 8, marginLeft: 16 },
+  timelineTitle: { fontFamily: font.MonolithRegular, color: "#5a5a5a", marginBottom: 4 },
+  timelineSub: { color: MUTED, fontSize: 12, fontFamily: font.MonolithRegular },
 });

@@ -97,6 +97,8 @@ const RequestLoading = () => {
               Parcelid: data.offers,
               id: parcelId,
             });
+          }else if(data?.type ==="status_update"){
+
           }
 
           if (data?.status) {

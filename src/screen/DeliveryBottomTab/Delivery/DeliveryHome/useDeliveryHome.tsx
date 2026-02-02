@@ -21,31 +21,51 @@ export const useDeliveryHome = () => {
   const locationRef = useRef(null);
   const [isConnected, setIsConnected] = useState(false);
   const socketRef = useRef<Socket | null>(null);
-  const fetchAvailableRequests = async () => {
-    console.log("dddd")
+  const socketLiveRef = useRef<WebSocket | null>(null);
+
+  // Store lat/long for API; only updates when user moves ≥20m (see watchPosition)
+  const [coords, setCoords] = useState<{ lat: number; lon: number } | null>(null);
+  const coordsRef = useRef<{ lat: number; lon: number } | null>(null);
+  useEffect(() => {
+    coordsRef.current = coords;
+  }, [coords]);
+
+  const fetchAvailableRequests = useCallback(async () => {
     try {
       setIsLoading(true);
 
-      // Get token
       const token = await AsyncStorage.getItem('token');
       if (!token) {
         setIsLoading(false);
         return;
       }
-      // Get current location
-      // const position = await new Promise((resolve, reject) => {
-      //   Geolocation.getCurrentPosition(
-      //     (pos) => resolve(pos),
-      //     (error) => reject(error),
-      //     { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 },
-      //   );
-      // });
-    console.log("12222")
 
-      // const lat = position?.coords?.latitude;
-      // const lon = position?.coords?.longitude;
+      let lat = coordsRef.current?.lat;
+      let lon = coordsRef.current?.lon;
+
+      // If no stored coords yet, get current position once
+      if (lat == null || lon == null) {
+        const position = await new Promise<{ coords: { latitude: number; longitude: number } }>((resolve, reject) => {
+          Geolocation.getCurrentPosition(resolve, reject, {
+            enableHighAccuracy: false,
+            timeout: 15000,
+            maximumAge: 10000,
+          });
+        });
+        lat = position?.coords?.latitude;
+        lon = position?.coords?.longitude;
+        if (lat != null && lon != null) {
+          setCoords({ lat, lon });
+        }
+      }
+
+      if (lat == null || lon == null) {
+        setIsLoading(false);
+        return;
+      }
+
       const response = await axios.get(
-        `${base_url}/delivery/available-requests?lat=${"22.699"}&lon=${"75.867"}`,
+        `${base_url}/delivery/available-requests?lat=${lat}&lon=${lon}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -53,14 +73,20 @@ export const useDeliveryHome = () => {
           },
         },
       );
-        console.log("response?.data",response?.data)
+      console.log("response?.data", response?.data)
 
       if (response?.data?.status == 1) {
-        console.log("response?.data",response?.data)
+        console.log("response?.data", response?.data)
         successToast(response?.data.message)
-        const validRequests = response?.data?.requests?.filter(
-          (item) => item?.trackingId !== null && item?.trackingId !== "",
-        );
+        // const validRequests = response?.data?.requests?.filter(
+        //   (item) => item?.trackingId !== null && item?.trackingId !== "",
+        // );
+        const validRequests = response?.data?.requests
+          ?.filter((item) => item?.trackingId !== null && item?.trackingId !== "")
+          ?.map((item) => ({
+            ...item,                    // Copy all existing properties
+            deliveryStatus: item?.status // Update 'status' with value from 'deliveryStatus'
+          }));
         setRequests(validRequests || []);
       } else {
         setRequests([]);
@@ -72,18 +98,65 @@ export const useDeliveryHome = () => {
       );
       setRequests([]);
     } finally {
-      
       setIsLoading(false);
     }
-  };
+  }, []);
 
+  const sendLiveLocation = useCallback((lat: number, lon: number) => {
+    const ws = socketLiveRef.current;
+    if (ws?.readyState === WebSocket.OPEN) {
+      ws.send(JSON.stringify({ type: 'online', lat, lon }));
+    }
+  }, []);
 
-  // ✅ Auto-fetch when hook initializes
+  // Watch position: update stored lat/long only when user moves ≥20 meters
+  useEffect(() => {
+    let watchId: number | null = null;
+
+    const onPosition = (position: { coords: { latitude: number; longitude: number } }) => {
+      const lat = position?.coords?.latitude;
+      const lon = position?.coords?.longitude;
+      if (lat != null && lon != null) {
+        setCoords({ lat, lon });
+        // fetchAvailableRequests();
+        sendLiveLocation(lat, lon);
+      }
+    };
+
+    const onError = (error: unknown) => {
+      console.warn('Location error:', error);
+    };
+
+    Geolocation.getCurrentPosition(
+      (pos) => {
+        const lat = pos?.coords?.latitude;
+        const lon = pos?.coords?.longitude;
+        if (lat != null && lon != null) {
+          setCoords({ lat, lon });
+          // fetchAvailableRequests();
+          sendLiveLocation(lat, lon);
+        }
+        watchId = Geolocation.watchPosition(onPosition, onError, {
+          enableHighAccuracy: true,
+          distanceFilter: 20,
+        });
+      },
+      onError,
+      { enableHighAccuracy: false, timeout: 15000, maximumAge: 10000 }
+    );
+
+    return () => {
+      if (watchId != null) {
+        Geolocation.clearWatch(watchId);
+      }
+    };
+  }, [fetchAvailableRequests, sendLiveLocation]);
+
+  // Auto-fetch when screen is focused
   useFocusEffect(
     useCallback(() => {
-      console.log("kopji")
       fetchAvailableRequests();
-    }, [])
+    }, [fetchAvailableRequests])
   );
 
   const connectSocket = (token: string) => {
@@ -134,6 +207,56 @@ export const useDeliveryHome = () => {
     });
   };
 
+  const connectLiveLocationSocket = (token: string) => {
+    return new Promise<void>((resolve, reject) => {
+      try {
+        const wsUrl = `${WebSocket_Url}/driver-live?token=${token}`;
+        const ws = new WebSocket(wsUrl);
+
+        ws.onopen = () => {
+          console.log('✅ Live location WebSocket connected');
+          socketLiveRef.current = ws;
+          const { lat, lon } = coordsRef.current ?? {};
+          if (lat != null && lon != null) {
+            ws.send(JSON.stringify({ type: 'online', lat, lon }))
+          }
+          resolve();
+        };
+
+        ws.onmessage = (event) => {
+          try {
+            const data = JSON.parse(event.data);
+            if (data?.type === "offer_accepted") {
+              setAcceptModal(true);
+              setuserInfromation(data);
+              navigation.navigate(ScreenNameEnum.DeliveryRequest, {
+                deliveryInfo: data,
+              });
+            }
+            if (data?.type == "parcelStatusUpdate") {
+              console.log("📦 Parcel Status Update:", data?.status);
+            }
+          } catch (e) {
+            console.warn('❌ Failed to parse message:', e);
+          }
+        };
+        ws.onerror = (error) => {
+          console.error('❌ Live location WebSocket Error:', error);
+          reject(error);
+        };
+
+        ws.onclose = () => {
+          console.log('⚠️ Live location WebSocket Closed');
+          socketLiveRef.current = null;
+        };
+
+      } catch (error) {
+        reject(error);
+        console.log('⚠️ Error creating live location socket:', error);
+      }
+    });
+  };
+
 
   useEffect(() => {
     const init = async () => {
@@ -144,6 +267,7 @@ export const useDeliveryHome = () => {
           return;
         }
         await connectSocket(token);
+        await connectLiveLocationSocket(token);
       } catch (error) {
         console.error('🔌 Socket init failed:', error);
       }
@@ -153,7 +277,8 @@ export const useDeliveryHome = () => {
 
     return () => {
       console.log('🛑 Disconnect WebSocket');
-      socketRef.current?.close(); // 👈 Proper cleanup
+      socketRef.current?.close();
+      socketLiveRef.current?.close();
     };
   }, []);
 
@@ -172,6 +297,7 @@ export const useDeliveryHome = () => {
     currentlocation,
     setCurrentLocation,
     locationRef,
+    coords,
     userInfromation,
     // API function
     fetchAvailableRequests,

@@ -3,9 +3,9 @@ import {
   View,
   Text,
   StyleSheet,
-   ScrollView,
+  ScrollView,
   Image
- } from "react-native";
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import font from "../../../theme/font";
 import imageIndex from "../../../assets/imageIndex";
@@ -13,36 +13,41 @@ import CustomButton from "../../../compoent/CustomButton";
 import HomeHeaderBar from "../../../compoent/HomeHeaderBar";
 import StatusBarComponent from "../../../compoent/StatusBarCompoent";
 import ScreenNameEnum from "../../../routes/screenName.enum";
- import AddressModalInput from "../../../compoent/AutocompleteData";
+import AddressModalInput from "../../../compoent/AutocompleteData";
 import useDashboard from "./useDashboard";
 import CurrentLocation from "../../../CurrentLocation";
 import LoadingModal from "../../../utils/Loader";
- 
-const ShippingScreen = () => {
-   
+import { FlatList } from "react-native-gesture-handler";
+import OrderCard from "../../../compoent/OrderCard";
 
-  const { 
-     navigation ,
-     isLoading,
-     locationRef,
-     currentlocation,
-    address, setAddress , 
+const ShippingScreen = () => {
+
+
+  const {
+    navigation,
+    isLoading,
+    locationRef,
+    currentlocation,
+    address, setAddress,
     location, setLocation,
-    locationModal, setlocationModal}= useDashboard()
+    locationModal,
+    setlocationModal,
+    orderData
+  } = useDashboard()
 
   return (
     <SafeAreaView style={styles.container}>
-        <StatusBarComponent/>
-                                        <LoadingModal visible ={isLoading}/>
+      <StatusBarComponent />
+      <LoadingModal visible={isLoading} />
 
-              <CurrentLocation ref={locationRef} />
+      <CurrentLocation ref={locationRef} />
 
-        <HomeHeaderBar
-       location= { currentlocation  || address} 
-      // onLocationPress={() => setlocationModal(true)}
-      onNotificationPress={() => console.log("Notifications clicked")}
-      hasNotification={true}
-    />
+      <HomeHeaderBar
+        location={currentlocation || address}
+        // onLocationPress={() => setlocationModal(true)}
+        onNotificationPress={() => console.log("Notifications clicked")}
+        hasNotification={true}
+      />
 
       {/* <TouchableOpacity style={styles.inputBox} 
       onPress={()=> navigation.navigate(ScreenNameEnum.PickupLocation)}
@@ -56,103 +61,127 @@ const ShippingScreen = () => {
       />
        </TouchableOpacity> */}
 
-  <View style={{
-    marginTop:11 ,marginBottom:5
-  }}>
-      <CustomButton title={"Create Parcel"} 
-      onPress={()=> navigation.navigate(ScreenNameEnum.CreateParcelFrom)}
-      />
+      <View style={{
+        marginTop: 11, marginBottom: 5
+      }}>
+        <CustomButton title={"Create Parcel"}
+          onPress={() => navigation.navigate(ScreenNameEnum.CreateParcelFrom)}
+        />
       </View>
-      {/* Shipping History */} 
+      {/* Shipping History */}
 
       <View style={{
-        flexDirection:"row",
-        justifyContent:"space-between" ,
-        alignItems:"center" ,
-        marginTop:18 ,
-        marginBottom:10
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "center",
+        marginTop: 18,
+        marginBottom: 10
       }}>
-      <Text style={styles.sectionTitle}>Shipping History</Text>
+        <Text style={styles.sectionTitle}>Shipping History</Text>
 
-        <Image source={imageIndex.Filter} 
+        <Image source={imageIndex.Filter}
 
-        style={{
-            height:24,
-            width:24
-        }}
+          style={{
+            height: 24,
+            width: 24
+          }}
         />
       </View>
 
-      <ScrollView showsVerticalScrollIndicator={false}>
-        {[].map((item, index) => (
+      {/* <ScrollView showsVerticalScrollIndicator={false}> */}
+      {/* {orderData.map((item, index) => (
           <View key={index} style={styles.card}>
-             <View style={styles.cardTop}>
-                
-              <View style={[styles.iconBox, ]}>
-              
-              <Image source={imageIndex.icons} 
-      style={{
-        height:40,
-        width:40
-      }}
-      />
-               </View>
-              <Text style={[styles.cardId,{
-                fontFamily:font.MonolithRegular ,
-                fontSize:14,
-                color:"black"
+            <View style={styles.cardTop}>
+
+              <View style={[styles.iconBox,]}>
+
+                <Image source={imageIndex.icons}
+                  style={{
+                    height: 40,
+                    width: 40
+                  }}
+                />
+              </View>
+              <Text style={[styles.cardId, {
+                fontFamily: font.MonolithRegular,
+                fontSize: 14,
+                color: "black"
               }]}>#{item.id}</Text>
-               <Text style={styles.cardDate}>{item.date}</Text>
-           <Text style={styles.cardDate}>ss</Text>
+              <Text style={styles.cardDate}>{item.date}</Text>
+              <Text style={styles.cardDate}>ss</Text>
 
             </View>
 
-            {/* From / To */}
-            <View style={{
-                flexDirection:"row",
-                justifyContent:"space-evenly" ,
-                alignItems:"center"
+             <View style={{
+              flexDirection: "row",
+              justifyContent: "space-evenly",
+              alignItems: "center"
             }}>
-                <Image source={imageIndex.Vector} 
+              <Image source={imageIndex.Vector}
                 style={{
-                    height:88,
-                    width:10
+                  height: 88,
+                  width: 10
                 }}
                 resizeMode="contain"
-                />
+              />
 
-  <View style={{
-                flexDirection:"column",
-                right:11
-             }}>
-<Text style={styles.label}>From</Text>
-            <Text style={[styles.value,{
-                marginTop:5
-            }]}>{item.from}</Text>
-            <Text style={[styles.label,{
-                marginTop:10
-            }]}>To</Text>
-            <Text style={[styles.value,{
-                marginTop:5
-            }]}>{item.to || "5678 Maple Avenue Seattle, WA 98101"}</Text>
+              <View style={{
+                flexDirection: "column",
+                right: 11
+              }}>
+                <Text style={styles.label}>From</Text>
+                <Text style={[styles.value, {
+                  marginTop: 5
+                }]}>{item.from}</Text>
+                <Text style={[styles.label, {
+                  marginTop: 10
+                }]}>To</Text>
+                <Text style={[styles.value, {
+                  marginTop: 5
+                }]}>{item.to || "5678 Maple Avenue Seattle, WA 98101"}</Text>
 
-            {/* Status */}
-            <View style={styles.statusRow}>
-              <Text style={styles.statusText}>Delivery Status :</Text>
-              <Text style={[styles.statusValue, { color: item.statusColor }]}>
-                {item.status}
-              </Text>
+                 <View style={styles.statusRow}>
+                  <Text style={styles.statusText}>Delivery Status :</Text>
+                  <Text style={[styles.statusValue, { color: item.statusColor }]}>
+                    {item.status}
+                  </Text>
+                </View>
+              </View>
             </View>
-</View>
-            </View>
-           
+
           </View>
-        ))}
-      </ScrollView>
+        ))} */}
+      {/* </ScrollView> */}
+      <FlatList
+        contentContainerStyle={{ paddingBottom: 120 }}
+        data={orderData}
+        keyExtractor={(item) => item.id}
+        renderItem={({ item }) => (
+          <OrderCard order={item} onPress={() => {
+            // console.log('first', item)
+            if (item?.deliveryStatus === "pending") {
+              navigation.navigate(ScreenNameEnum.ViewDetails, {
+                item: item
+              })
+            } else {
+              // navigation.navigate(ScreenNameEnum.NearbyDriversMap)
+              navigation.navigate(ScreenNameEnum.ViewDetails, {
+                item: item
+              })
+            }
+
+          }} />
+        )}
+        ItemSeparatorComponent={() => <View style={{ height: 14 }} />}
+        showsVerticalScrollIndicator={false}
+        ListEmptyComponent={() => (
+          <Text style={styles.emptyText}>No orders found</Text>
+        )}
+      />
       <AddressModalInput
         value={address}
-        modalVisible ={locationModal}       
-      setModalVisible ={()=>setlocationModal(false)}
+        modalVisible={locationModal}
+        setModalVisible={() => setlocationModal(false)}
         onChange={setAddress}
         onSelect={(loc) => setLocation(loc)}
         placeholder="Select your delivery address"
@@ -184,20 +213,20 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     padding: 17,
     marginBottom: 15,
-     borderWidth: 1,
+    borderWidth: 1,
     borderColor: "#eee",
     marginHorizontal: 2,
-    marginTop:11,
+    marginTop: 11,
     // iOS shadow
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.05,
     shadowRadius: 6,
     // Android shadow
-  
 
-    flexDirection:"row" ,
-    justifyContent:"space-between"
+
+    flexDirection: "row",
+    justifyContent: "space-between"
   },
   createBtn: {
     backgroundColor: "#FFD600",
@@ -214,9 +243,9 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 16,
     fontWeight: "600",
-     color:"black",
-    fontFamily:font.MonolithRegular ,
-     
+    color: "black",
+    fontFamily: font.MonolithRegular,
+
   },
   card: {
     backgroundColor: "#fff",
@@ -232,7 +261,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.05,
     shadowRadius: 6,
     // Android shadow
-     
+
   },
   cardTop: {
     flexDirection: "row",
@@ -255,20 +284,20 @@ const styles = StyleSheet.create({
   cardDate: {
     fontSize: 14,
     color: "#BABFC5",
-    fontFamily:font.MonolithRegular
+    fontFamily: font.MonolithRegular
 
   },
   label: {
     fontSize: 14,
     color: "#BABFC5",
     marginTop: 6,
-    fontFamily:font.MonolithRegular
+    fontFamily: font.MonolithRegular
 
   },
   value: {
     fontSize: 14,
-     color: "#76889A",
-     fontFamily:font.MonolithRegular
+    color: "#76889A",
+    fontFamily: font.MonolithRegular
   },
   statusRow: {
     flexDirection: "row",
@@ -278,12 +307,12 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: "#555",
     marginRight: 6,
-    fontFamily:font.MonolithRegular
+    fontFamily: font.MonolithRegular
   },
   statusValue: {
     fontSize: 13,
-     color: "#555",
-    fontFamily:font.MonolithRegular
+    color: "#555",
+    fontFamily: font.MonolithRegular
 
   },
 });

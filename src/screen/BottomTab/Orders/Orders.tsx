@@ -1,4 +1,4 @@
-import React, {   useMemo, useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import {
   View,
   Text,
@@ -7,15 +7,17 @@ import {
   StyleSheet,
   Image,
   TouchableOpacity,
- } from "react-native";
+  RefreshControl,
+} from "react-native";
 import imageIndex from "../../../assets/imageIndex";
 import font from "../../../theme/font";
 import { SafeAreaView } from "react-native-safe-area-context";
 import StatusBarComponent from "../../../compoent/StatusBarCompoent";
 import { useNavigation } from "@react-navigation/native";
 import ScreenNameEnum from "../../../routes/screenName.enum";
- import LoadingModal from "../../../utils/Loader";
+import LoadingModal from "../../../utils/Loader";
 import { useOrders } from "./useOrders";
+import { STATUS, STATUS_LABELS } from "../../../utils/Constant";
 
 type OrderStatus = "packaged" | "shipped" | "inTransit" | "delivered";
 
@@ -27,76 +29,110 @@ type Order = {
   startDate: string; // ISO or formatted string
   endDate: string;
   status: OrderStatus;
+  deliveryStatus: OrderStatus
 };
 
-const STATUS_STEPS: OrderStatus[] = [
-  "packaged",
-  "shipped",
-  "inTransit",
-  "delivered",
+// const STATUS_STEPS: OrderStatus[] = [
+//   "packaged",
+//   "shipped",
+//   "inTransit",
+//   "delivered",
+// ];
+const STATUS_STEPS = [
+  STATUS.PENDING,
+  STATUS.PICKED_UP,
+  STATUS.ON_THE_WAY,
+  STATUS.DELIVERED,
 ];
- export default function OrdersScreen() {
-const {
-     isLoading,
-  orderData, 
-} = useOrders()
-   const [tab, setTab] = useState<"pending" | "complete">("pending");
-const nava = useNavigation()
-   const data = useMemo(() => {
-    return orderData.filter((o) =>
-      tab === "pending" ? o.status !== "delivered" : o.status === "delivered"
-    );
-  }, [tab]);
-  const OrderCard = ({ order }: { order: Order }) => {
-     const formatDate = (isoString: string) => {
-    const date = new Date(isoString);
-    return date.toLocaleDateString("en-US", {
-      month: "short", // "Jan"
-      day: "2-digit", // "31"
-      year: "numeric", // "2023"
+export default function OrdersScreen() {
+  const {
+    isLoading,
+    orderData,
+    getParceldetailsApi
+  } = useOrders()
+  const [tab, setTab] = useState<"pending" | "complete">("pending");
+  const nava = useNavigation()
+  const [refreshing, setRefreshing] = useState(false);
+  // const data = useMemo(() => {
+  //   return orderData.filter((o) =>
+  //     tab === "pending" ? o.deliveryStatus !== "delivered" : o.deliveryStatus === "delivered"
+  //   );
+  // }, [tab]);
+
+  // 1. Filter Logic: Separate Complete from Pending
+  const data = useMemo(() => {
+    return orderData.filter((o:Order) => {
+      const isDelivered = o.deliveryStatus === STATUS.DELIVERED || o.deliveryStatus === STATUS.COMPLETED;
+      return tab === "complete" ? isDelivered : !isDelivered;
     });
-  };
+  }, [tab, orderData]);
+
+  // 2. Pull to Refresh Logic
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    try {
+      if (getParceldetailsApi) {
+        await getParceldetailsApi();
+      }
+    } catch (error) {
+      console.error("Refresh failed:", error);
+    } finally {
+      setRefreshing(false);
+    }
+  }, [getParceldetailsApi]);
+  const OrderCard = ({ order }: { order: Order }) => {
+    const formatDate = (isoString: string) => {
+      const date = new Date(isoString);
+      return date.toLocaleDateString("en-US", {
+        month: "short", // "Jan"
+        day: "2-digit", // "31"
+        year: "numeric", // "2023"
+      });
+    };
     return (
-      <TouchableOpacity style={styles.card} 
-      
-      onPress={()=>{
-        nava.navigate(ScreenNameEnum.ViewDetails,{
-          item:order
-        })
-      }}
+      <TouchableOpacity style={styles.card}
+        activeOpacity={1}
+        onPress={() => {
+          if (order.deliveryStatus === STATUS.DELIVERED) {
+          } else {
+            nava.navigate(ScreenNameEnum.ViewDetails, {
+              item: order
+            })
+          }
+        }}
       >
         <View style={styles.cardHeader}>
           <Text style={styles.trackingLabel}>Tracking ID:</Text>
-          <Text style={styles.trackingId}>TY9860036NM</Text>
+          <Text style={styles.trackingId}>{order.trackingId}</Text>
         </View>
-  
-        <ProgressTrack status={order.status} />
-  
+
+        {/* <ProgressTrack status={order.status} /> */}
+        <ProgressTrack status={order.deliveryStatus} />
         <View style={styles.row}>
           <View style={styles.cityBlock}>
             <Text style={styles.date}>{formatDate(order.pickupDate)}</Text>
             <Text style={styles.city}>{order?.pickupLocation}</Text>
           </View>
-  
+
           <Pressable style={styles.playButton}>
-          <Image  
-          style={{
-            height:22,
-            width:22
-          }}
-          source={imageIndex.BackLeft}/>
+            <Image
+              style={{
+                height: 22,
+                width: 22
+              }}
+              source={imageIndex.BackLeft} />
           </Pressable>
-  
+
           <View style={[styles.cityBlock, { alignItems: "flex-end" }]}>
             <Text style={styles.date}>{formatDate(order.pickupTime)}</Text>
             <Text style={styles.city}>{order?.dropLocation}</Text>
           </View>
         </View>
-  
+
         <View style={styles.footerRow}>
-          <StatusPill status={order.status} />
+          <StatusPill status={order.deliveryStatus} />
           <Pressable onPress={() => console.log("View details", order.id)}>
-            <Text style={styles.viewDetails}>View Details</Text>
+            <Text style={styles.viewDetails}>{order.deliveryStatus === STATUS.DELIVERED ? "Write a Review" : "View Details"}</Text>
           </Pressable>
         </View>
       </TouchableOpacity>
@@ -104,12 +140,10 @@ const nava = useNavigation()
   };
   return (
     <SafeAreaView style={styles.safe}>
-      <StatusBarComponent/>
-                                              <LoadingModal visible ={isLoading}/>
-
+      <StatusBarComponent />
+      <LoadingModal visible={isLoading} />
       <View style={styles.container}>
         <Text style={styles.title}>Orders</Text>
-
         {/* Tabs */}
         <View style={styles.tabsWrap}>
           <SegmentedTab
@@ -125,24 +159,33 @@ const nava = useNavigation()
         </View>
 
         <FlatList
-          contentContainerStyle={{ paddingBottom: 24 ,marginTop:11 }}
-          data={orderData}
-          keyExtractor={(item) => item.id}
+          contentContainerStyle={{ paddingBottom: 120, marginTop: 11 }}
+          // data={orderData}
+          data={data}
+          keyExtractor={(item:any) => item.id}
           renderItem={({ item }) => <OrderCard order={item} />}
           ItemSeparatorComponent={() => <View style={{ height: 14 }} />}
           showsVerticalScrollIndicator={false}
-           ListEmptyComponent={() => (
-    <Text style={{ textAlign: 'center', marginTop: 20, color: 'gray' }}>
-      No orders found
-    </Text>
-  )}
+          ListEmptyComponent={() => (
+            <Text style={{ textAlign: 'center', marginTop: 20, color: 'gray' }}>
+              No orders found
+            </Text>
+          )}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+              colors={["#FFCC00"]}
+              tintColor="#FFCC00"
+            />
+          }
         />
       </View>
     </SafeAreaView>
   );
 }
 
- 
+
 const SegmentedTab = ({
   label,
   active,
@@ -164,54 +207,63 @@ const SegmentedTab = ({
 
 const StatusPill = ({ status }: { status: OrderStatus }) => {
   const text =
-    status === "packaged"
+    status === STATUS.PENDING
       ? "Still Packaged"
-      : status === "shipped"
-      ? "In Shipping"
-      : status === "inTransit"
-      ? "In Transit"
-      : "Delivered";
+      : status === STATUS.PICKED_UP
+        ? "In Shipping"
+        : status === STATUS.ON_THE_WAY
+          ? "In Transit"
+          : status === STATUS.DELIVERED ?
+            STATUS_LABELS[STATUS.DELIVERED]
+            : STATUS_LABELS[STATUS.PENDING];
 
   const pillStyle =
     status === "delivered" ? styles.pillDone : styles.pillProgress;
 
   return (
     <View style={[styles.pill, pillStyle]}>
-      <Text style={[styles.pillText,{
-        color:"white"
+      <Text style={[styles.pillText, {
+        color: "white"
       }]}>{text}</Text>
     </View>
   );
 };
 
-const ProgressTrack = ({ status }: { status: OrderStatus }) => {
-  // Calculate progress 0..1 based on step index
-  const idx = STATUS_STEPS.indexOf(status);
-  const progress = idx / (STATUS_STEPS.length - 1);
+
+const ProgressTrack = ({ status }: { status: string }) => {
+  const currentIdx = STATUS_STEPS.indexOf(status);
+
+  const activeIdx = currentIdx === -1 ? 0 : currentIdx;
+
+  const progressPercent = (activeIdx / (STATUS_STEPS.length - 1)) * 100;
 
   return (
-    <View>
-      {/* Dots + line */}
+    <View >
       <View style={styles.trackBase}>
+        {/* Background Grey Line */}
         <View style={styles.trackLine} />
-        <View style={[styles.trackFill, { width: `${progress * 100}%` }]} />
-        {/* 4 milestone dots */}
-        {STATUS_STEPS.map((_, i) => (
-          <View
-            key={i}
-            style={[
-              styles.dot,
-              i <= idx ? styles.dotActive : styles.dotInactive,
-              { left: `${(i / (STATUS_STEPS.length - 1)) * 100}%` },
-            ]}
-          />
-        ))}
+
+        {/* Active Yellow Line */}
+        <View style={[styles.trackFill, { width: `${progressPercent}%` }]} />
+
+        {/* Milestone dots */}
+        {STATUS_STEPS.map((step, i) => {
+          const isActive = i <= activeIdx;
+          return (
+            <View
+              key={step}
+              style={[
+                styles.dot,
+                isActive ? styles.dotActive : styles.dotInactive,
+                { left: `${(i / (STATUS_STEPS.length - 1)) * 100}%` },
+              ]}
+            />
+          );
+        })}
       </View>
     </View>
   );
 };
-
-
 
 /* -------------------- Styles -------------------- */
 
@@ -225,7 +277,7 @@ const BORDER = "#EFEFEF";
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: BG },
   container: { flex: 1, paddingHorizontal: 16, paddingTop: 8 },
-  title: { fontSize: 28,   fontFamily:font.MonolithRegular, color: TEXT, marginBottom: 10 },
+  title: { fontSize: 28, fontFamily: font.MonolithRegular, color: TEXT, marginBottom: 10 },
 
   tabsWrap: {
     flexDirection: "row",
@@ -233,12 +285,12 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 14,
     marginBottom: 14,
-     shadowColor: "#000", // For iOS shadow
+    shadowColor: "#000", // For iOS shadow
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.2,
-    marginTop:11,
+    marginTop: 11,
     shadowRadius: 1.41,
-        borderWidth: 1,
+    borderWidth: 1,
     borderColor: "#eee",
   },
   tab: {
@@ -248,8 +300,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   tabActive: { backgroundColor: "#FFCC00" },
-  tabText: { fontSize: 14, fontFamily:font.MonolithRegular, color: MUTED },
-  tabTextActive: { color: "#000",fontSize: 14, fontFamily:font.MonolithRegular, },
+  tabText: { fontSize: 14, fontFamily: font.MonolithRegular, color: MUTED },
+  tabTextActive: { color: "#000", fontSize: 14, fontFamily: font.MonolithRegular, },
 
   card: {
     backgroundColor: CARD,
@@ -267,8 +319,8 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     marginBottom: 12,
   },
-  trackingLabel: { color: MUTED, fontFamily:font.MonolithRegular,  },
-  trackingId: { color: TEXT, fontFamily:font.MonolithRegular,  },
+  trackingLabel: { color: MUTED, fontFamily: font.MonolithRegular, },
+  trackingId: { color: TEXT, fontFamily: font.MonolithRegular, },
 
   trackBase: {
     height: 24,
@@ -300,7 +352,7 @@ const styles = StyleSheet.create({
     top: 4,
     borderWidth: 3,
   },
-  dotActive: { backgroundColor: YELLOW, borderColor: "#FFF" },
+  dotActive: { backgroundColor: YELLOW, borderColor: YELLOW },
   dotInactive: { backgroundColor: "#FFF", borderColor: "#E8E8E8" },
 
   row: {
@@ -309,13 +361,13 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   cityBlock: { flex: 1 },
-  date: { color: MUTED, fontSize: 12, marginBottom: 4,fontFamily:font.MonolithRegular,  },
-  city: { color: TEXT, fontSize: 16, fontFamily:font.MonolithRegular,  },
+  date: { color: MUTED, fontSize: 12, marginBottom: 4, fontFamily: font.MonolithRegular, },
+  city: { color: TEXT, fontSize: 16, fontFamily: font.MonolithRegular, },
 
   playButton: {
     width: 28,
     height: 28,
- 
+
   },
 
   footerRow: {
@@ -332,9 +384,8 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFCC00",
   },
   pillDone: {
-    backgroundColor: "#DFF7DA",
+    backgroundColor: "#60a552",
   },
-  pillText: {fontFamily:font.MonolithRegular, fontSize: 12, color: TEXT },
-
-  viewDetails: { color: "#8A8A8A", fontFamily:font.MonolithRegular,  },
+  pillText: { fontFamily: font.MonolithRegular, fontSize: 12, color: TEXT },
+  viewDetails: { color: YELLOW, fontFamily: font.MonolithRegular, },
 });

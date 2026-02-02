@@ -1,262 +1,184 @@
-import React, {
-  useEffect,
-  useRef,
-  useState,
-  forwardRef,
-  useImperativeHandle,
-  useMemo,
-} from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   View,
   Text,
   StyleSheet,
   Platform,
-  Alert,
   PermissionsAndroid,
   TouchableOpacity,
+  ActivityIndicator,
 } from 'react-native';
-import MapView, {
-  PROVIDER_GOOGLE,
-  Marker,
-  Circle,
-} from 'react-native-maps';
+import MapView, { PROVIDER_GOOGLE } from 'react-native-maps';
+// import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete'; // New Import
 import Geocoder from 'react-native-geocoding';
 import Geolocation from '@react-native-community/geolocation';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
-import LoadingModal from '../../../utils/Loader';
 import CustomButton from '../../../compoent/CustomButton';
 import font from '../../../theme/font';
-import CustomHeader from '../../../compoent/CustomHeader';
-import imageIndex from '../../../assets/imageIndex';
+import { GOOGLE_MAPS_APIKEY } from '../../../Api';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { width } from '../../../utils/Constant';
 
-/* ================= GOOGLE API ================= */
-
-const GOOGLE_API_KEY = 'AIzaSyDgFGS91BvviXh_f-nmvtEggUHJcaGyUwA';
-Geocoder.init(GOOGLE_API_KEY);
-
-/* ================= LOCATION HELPER ================= */
-
-const CurrentLocation = forwardRef((props, ref) => {
-  const requestPermission = async () => {
-    if (Platform.OS === 'android') {
-      const granted = await PermissionsAndroid.request(
-        PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
-      );
-      return granted === PermissionsAndroid.RESULTS.GRANTED;
-    }
-    return true;
-  };
-
-  const fetchLocation = async () => {
-    const hasPermission = await requestPermission();
-    if (!hasPermission) return { error: 'Permission denied' };
-
-    return new Promise(resolve => {
-      Geolocation.getCurrentPosition(
-        async pos => {
-          const { latitude, longitude } = pos.coords;
-          try {
-            const geo = await Geocoder.from(latitude, longitude);
-            resolve({
-              latitude,
-              longitude,
-              address: geo.results[0]?.formatted_address || '',
-            });
-          } catch {
-            resolve({ latitude, longitude, address: '' });
-          }
-        },
-        err => resolve({ error: err.message }),
-        { enableHighAccuracy: true, timeout: 15000 },
-      );
-    });
-  };
-
-  useImperativeHandle(ref, () => ({ fetchLocation }));
-  return null;
-});
-
-/* ================= MAIN SCREEN ================= */
+Geocoder.init(GOOGLE_MAPS_APIKEY);
 
 const PickupLocationRapido = () => {
   const navigation = useNavigation();
-  const mapRef = useRef(null);
-  const locationRef = useRef(null);
+  const mapRef = useRef<MapView>(null);
+  const searchRef = useRef<any>(null); // To clear search bar if needed
+  const debounceTimer = useRef<NodeJS.Timeout | null>(null);
 
   const [region, setRegion] = useState({
-    latitude: 22.7005687,
-    longitude: 75.8628066,
-    latitudeDelta: 0.01,
-    longitudeDelta: 0.01,
+    latitude: 46.8625, // Mongolia Fallback
+    longitude: 103.8467,
+    latitudeDelta: 0.05,
+    longitudeDelta: 0.05,
   });
 
-  const [currentLocation, setCurrentLocation] = useState(null);
-  const [address, setAddress] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-
-  /* ================= AUTO FETCH ================= */
+  const [address, setAddress] = useState('Locating...');
+  const [isFetchingAddress, setIsFetchingAddress] = useState(false);
+  const [isLocatingUser, setIsLocatingUser] = useState(false);
 
   useEffect(() => {
-    handleGetLocation();
+    getCurrentLocation();
   }, []);
 
-  const handleGetLocation = async () => {
-    setIsLoading(true);
-    const data = await locationRef.current.fetchLocation();
-    setIsLoading(false);
+  const getCurrentLocation = async () => {
+    if (Platform.OS === 'android') {
+      const granted = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION
+      );
+      if (granted !== PermissionsAndroid.RESULTS.GRANTED) return;
+    }
 
-    // if (data?.error) {
-    //   Alert.alert('Location Error', data.error);
-    //   return;
-    // }
-
-    const newRegion = {
-      latitude: data.latitude ||  "22.7005687",
-      longitude: data.longitude ||"75.8628066",
-      latitudeDelta: 0.01,
-      longitudeDelta: 0.01,
-    };
-
-    setCurrentLocation({
-      latitude: data.latitude ||  "22.7005687",
-      longitude: data.longitude  ||"75.8628066",
-    });
-
-    setRegion(newRegion);
-    setAddress(data.address);
-
-    mapRef.current?.animateToRegion(newRegion, 800);
+    setIsLocatingUser(true);
+    Geolocation.getCurrentPosition(
+      (pos) => {
+        const { latitude, longitude } = pos.coords;
+        const userRegion = { ...region, latitude, longitude, latitudeDelta: 0.005, longitudeDelta: 0.005 };
+        setRegion(userRegion);
+        mapRef.current?.animateToRegion(userRegion, 1000);
+        setIsLocatingUser(false);
+      },
+      (err) => setIsLocatingUser(false),
+      { enableHighAccuracy: true, timeout: 15000 }
+    );
   };
-
-  /* ================= CONFIRM ================= */
+  const route = useRoute(); 
 
   const confirmLocation = async () => {
-    await AsyncStorage.setItem(
-      'pickupLocation',
-      JSON.stringify({ region, address }),
-    );
+    const locationData = {
+      latitude: region.latitude,
+      longitude: region.longitude,
+      address: address,
+    };
+console.log(locationData)
+    // Trigger the callback from params
+    if (route.params?.onLocationSelect) {
+      route.params.onLocationSelect(locationData);
+    }
+
     navigation.goBack();
   };
 
-  /* ================= UI ================= */
+  const handleRegionChangeComplete = (newRegion: any) => {
+    setRegion(newRegion);
+    setIsFetchingAddress(true);
+
+    if (debounceTimer.current) clearTimeout(debounceTimer.current);
+
+    debounceTimer.current = setTimeout(async () => {
+      try {
+        const json = await Geocoder.from(newRegion.latitude, newRegion.longitude);
+        const addressComponent = json.results?.[0]?.formatted_address || 'Unknown Location';
+        setAddress(addressComponent);
+        // Sync search bar text with map movement
+        searchRef.current?.setAddressText(addressComponent);
+      } catch (error) {
+        setAddress('Unknown Location');
+      } finally {
+        setIsFetchingAddress(false);
+      }
+    }, 1000);
+  };
 
   return (
-    <View style={styles.container}>
-
-      <CurrentLocation ref={locationRef} />
-
+    <SafeAreaView style={styles.container}  >
       <MapView
         ref={mapRef}
         provider={PROVIDER_GOOGLE}
         style={styles.map}
         initialRegion={region}
-        onRegionChangeComplete={setRegion}
+        onRegionChangeComplete={handleRegionChangeComplete}
+        showsUserLocation={true}
       />
 
-       
-      <View pointerEvents="none" style={styles.centerPin}>
-        <Icon name="location-on" size={42} color="#FF3B30" />
+      {/* SEARCH BAR OVERLAY */}
+      <View style={styles.searchContainer}>
+        {/* <GooglePlacesAutocomplete
+          ref={searchRef}
+          placeholder="Search Pickup Area"
+          fetchDetails={true}
+          onPress={(data, details = null) => {
+            if (details) {
+              const { lat, lng } = details.geometry.location;
+              const newRegion = { ...region, latitude: lat, longitude: lng };
+              mapRef.current?.animateToRegion(newRegion, 1000);
+            }
+          }}
+          query={{ key: GOOGLE_MAPS_APIKEY, language: 'en' }}
+          styles={searchStyles}
+          enablePoweredByContainer={false}
+        /> */}
       </View>
-   
 
-      {/* RECENTER BUTTON */}
-      <TouchableOpacity
-        style={styles.recenterBtn}
-        onPress={handleGetLocation}
-      >
-        <Icon name="my-location" size={22} color="#007AFF" />
-      </TouchableOpacity>
-
-      {/* HEADER */}
-      <View style={styles.headerWrap}>
-        <CustomHeader label="" imageIndex={imageIndex.Closed} />
+      {/* FIXED PIN */}
+      <View pointerEvents="none" style={styles.pinWrapper}>
+        <View style={styles.pinContainer}>
+          <View style={styles.pinCallout}>
+            {isFetchingAddress ? <ActivityIndicator size="small" color="#000" /> : <Text style={styles.calloutText}>Set Pickup</Text>}
+          </View>
+          <Icon name="location-on" size={48} color="#FF3B30" />
+        </View>
       </View>
 
-      {/* BOTTOM CARD */}
+      {/* <TouchableOpacity style={styles.recenterBtn} onPress={getCurrentLocation}>
+        <Icon name="my-location" size={24} color="#000" />
+      </TouchableOpacity> */}
+
       <View style={styles.bottomCard}>
-        <Text style={styles.title}>Pickup Location</Text>
-        <Text style={styles.address} numberOfLines={2}>
-          {address || 'Fetching address...'}
-        </Text>
-
-        <CustomButton
-          title="Confirm Pickup Location"
-          onPress={confirmLocation}
+        <View style={styles.indicator} />
+        <Text style={styles.addressText} numberOfLines={2}>{address}</Text>
+        <CustomButton title="Confirm Location" 
+        // onPress={() => navigation.goBack()} 
+        onPress={confirmLocation} 
+  disable={isFetchingAddress || address === 'Locating...'}
         />
+          <SafeAreaView edges={['bottom']}/>
       </View>
-
-      <LoadingModal visible={isLoading} />
-    </View>
+    </SafeAreaView>
   );
 };
 
-/* ================= STYLES ================= */
+const searchStyles = {
+  container: { flex: 0, position: 'absolute', width: width - 40, top: 10, left: 20, zIndex: 10 },
+  textInput: { height: 50, borderRadius: 12, elevation: 5, shadowOpacity: 0.1, fontSize: 14, color: '#000' },
+  listView: { backgroundColor: 'white', borderRadius: 12, elevation: 5, marginTop: 5 },
+};
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-  },
-
-  map: {
-    flex: 1,
-  },
-
-  headerWrap: {
-    position: 'absolute',
-    top: 55,
-    width: '100%',
-  },
-  centerPin: {
-   position: 'absolute',
-  top: '50%',
-  left: '50%',
-  transform: [{ translateX: -60 }, { translateY: -60 }], // half of width & height
-  height: 120,
-  width: 120,
-  borderRadius: 60,
-  borderWidth: 2,
-  borderColor: '#007AFF',
-  alignItems: 'center',
-  justifyContent: 'center',
-  backgroundColor: 'rgba(0,122,255,0.08)',
-  },
-
-  recenterBtn: {
-    position: 'absolute',
-    right: 16,
-    bottom: 200,
-    backgroundColor: '#fff',
-    padding: 12,
-    borderRadius: 30,
-    elevation: 6,
-  },
-
-  bottomCard: {
-    position: 'absolute',
-    bottom: 0,
-    width: '100%',
-    backgroundColor: '#fff',
-    padding: 20,
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
-    elevation: 15,
-  },
-
-  title: {
-    fontSize: 18,
-    fontFamily: font.MonolithRegular,
-    marginBottom: 6,
-  },
-
-  address: {
-    fontSize: 14,
-    color: '#555',
-    fontFamily: font.MonolithRegular,
-    marginBottom: 12,
-  },
+  container: { flex: 1 },
+  map: { flex: 1 },
+  searchContainer: { position: 'absolute', width: '100%', top: 60, zIndex: 100 },
+  pinWrapper: { ...StyleSheet.absoluteFillObject, justifyContent: 'center', alignItems: 'center' },
+  pinContainer: { alignItems: 'center', marginBottom: 48 },
+  pinCallout: { backgroundColor: '#fff', padding: 8, borderRadius: 12, elevation: 6, marginBottom: 4 },
+  calloutText: { fontSize: 11, fontWeight: 'bold' },
+  recenterBtn: { position: 'absolute', right: 20, bottom: 220, backgroundColor: '#fff', padding: 12, borderRadius: 12, elevation: 5 },
+  bottomCard: { position: 'absolute', bottom: 0, width: '100%', backgroundColor: '#fff', padding: 20, borderTopLeftRadius: 24, borderTopRightRadius: 24, elevation: 20 },
+  addressText: { fontSize: 14, color: '#333', marginBottom: 15, fontFamily: font.MonolithRegular },
+  indicator: { width: 40, height: 4, backgroundColor: '#E0E0E0', alignSelf: 'center', marginBottom: 10 },
 });
 
 export default PickupLocationRapido;

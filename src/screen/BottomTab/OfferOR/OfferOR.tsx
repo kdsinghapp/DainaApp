@@ -13,6 +13,7 @@ import LoadingModal from "../../../utils/Loader";
 import { styles } from "./style";
 import { Image } from "react-native";
 import imageIndex from "../../../assets/imageIndex";
+import { openDialer } from "../../../utils/Constant";
 
 
 
@@ -25,41 +26,41 @@ export default function OfferOR() {
     offerData,
     location,
     setLocation,
-    onAccept, 
+    onAccept,
     navgation,
   } = useOfferOR()
 
-  const OfferCard = ({ item }: any) => {
+  const OfferCard = ({ item, onCounterPress }: any) => {
     return (
       <View style={styles.card}>
         <View style={{
-          flexDirection:"row" ,
-          justifyContent:"space-between"
+          flexDirection: "row",
+          justifyContent: "space-between"
         }}>
-        <Text style={styles.carrierText}>Carrier : <Text style={[styles.bold, {
-          color: "#878787",
-          fontFamily: font.MonolithRegular
+          <Text style={styles.carrierText}>Carrier : <Text style={[styles.bold, {
+            color: "#878787",
+            fontFamily: font.MonolithRegular
 
 
-        }]}>{item?.deliveryUser?.name}</Text></Text>
- <TouchableOpacity>
+          }]}>{item?.deliveryUser?.name}</Text></Text>
+          <TouchableOpacity onPress={()=>openDialer(item?.deliveryUser?.phone)}>
 
-  <Image source={imageIndex.Calls} 
-  
-  style={{
-    height:25,
-    width:25,
+            <Image source={imageIndex.Calls}
 
-  }}
-  />
- </TouchableOpacity>
+              style={{
+                height: 25,
+                width: 25,
+
+              }}
+            />
+          </TouchableOpacity>
 
         </View>
         <Text style={styles.offerText}>Offer Price : <Text style={[styles.bold, {
           color: "#878787",
           fontFamily: font.MonolithRegular
 
-        }]}>{item?.amount}</Text>
+        }]}>{item?.offerAmount}</Text>
 
         </Text>
         <Text style={styles.offerText}>Message : <Text style={[styles.bold, {
@@ -71,7 +72,7 @@ export default function OfferOR() {
           color: "#878787",
           fontFamily: font.MonolithRegular,
 
-        }]}>95350599308</Text></Text>
+        }]}>{item?.deliveryUser?.phone}</Text></Text>
 
         <View style={styles.buttonRow}>
           <TouchableOpacity style={[styles.button, styles.acceptBtn]}
@@ -80,10 +81,10 @@ export default function OfferOR() {
             <Text style={styles.acceptText}>ACCEPT</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={[styles.button, styles.counterBtn]}>
+          <TouchableOpacity onPress={onCounterPress} style={[styles.button, styles.counterBtn]}>
             <Text style={styles.counterText}>COUNTER OFFER</Text>
           </TouchableOpacity>
- 
+
 
           <TouchableOpacity style={[styles.button, styles.chatBtn]}>
             <Text style={styles.chatText}>CHAT</Text>
@@ -112,22 +113,21 @@ export default function OfferOR() {
           data={offerData}
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => (
-            <OfferCard item={item} />
+            <OfferCard item={item} onCounterPress={()=>setOpen(true)}/>
           )}
           showsVerticalScrollIndicator={false}
         />
       </View>
       <CounterOfferModal
         visible={Open}
-        defaultValue={1850}
-        currency="₹"
+        defaultValue={1}
+        currency="$"
         min={1}
         max={50000}
         onCancel={() => setOpen(false)}
-        onSubmit={(amount) => { /* send amount */ setOpen(false)
+        onSubmit={(amount) => { /* send amount */
+           setOpen(false)
           settrackerModal(true)
-
-            ;
         }}
       />
 
