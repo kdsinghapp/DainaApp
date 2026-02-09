@@ -230,7 +230,7 @@ export const useDeliveryHome = () => {
           const { lat, lon } = coordsRef.current ?? {};
           if (lat != null && lon != null) {
             console.log(JSON.stringify({ type: 'online', lat, lon }))
-            ws.send(JSON.stringify({ type: 'online', lat: lat, lon: lon }))
+            // ws.send(JSON.stringify({ type: 'online', lat: lat, lon: lon }))
           }
           resolve();
         };

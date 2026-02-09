@@ -10,6 +10,7 @@ import {
   Alert,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import Geolocation from '@react-native-community/geolocation';
  
 import imageIndex from '../assets/imageIndex';
 import font from '../theme/font';
@@ -19,17 +20,52 @@ const { width } = Dimensions.get('window');
 interface SlideButtonProps {
   title?: string;
   onSlideSuccess?: () => void;
+  
 }
 
 const OnlineSlideRight: React.FC<SlideButtonProps> = ({
   title = 'Continue',
   onSlideSuccess,
+  isOnline,
+   setIsOnline
 }) => {
   const translateX = useRef(new Animated.Value(0)).current;
   const maxSlide = width * 0.75;
-
-  const [isOnline, setIsOnline] = useState(false);
+  const [statusData, setData] = useState(null);
+  // const [isOnline, setIsOnline] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [currentLocation, setCurrentLocation] = useState({ lat: null, lon: null });
+
+  // Fetch initial online status on component mount
+  // useEffect(() => {
+  //   const fetchInitialStatus = async () => {
+  //     try {
+  //       const token = await AsyncStorage.getItem('token');
+  //       if (!token) return;
+
+  //       const response = await fetch(
+  //         'https://aitechnotech.in/DAINA/api/driver/location',
+  //         {
+  //           method: 'GET',
+  //           headers: {
+  //             'Content-Type': 'application/json',
+  //             Authorization: `Bearer ${token}`,
+  //           },
+  //         }
+  //       );
+
+  //       const data = await response.json();
+  //       if (data.status && data?.data) {
+  //         setIsOnline(data?.data?.status === 'online');
+  //         setData(data?.data);
+  //       }
+  //     } catch (error) {
+  //       console.log('Fetch initial status error:', error);
+  //     }
+  //   };
+
+  //   fetchInitialStatus();
+  // }, []);
 
   const panResponder = useRef(
     PanResponder.create({
@@ -65,12 +101,35 @@ const toggleOnlineStatus = async () => {
     setLoading(true); // show loading while API works
     const token = await AsyncStorage.getItem('token');
 
-    // Determine the new status
-    const newStatus = isOnline ? 0 : 1; // 1 = online, 0 = offline
+    // Get current location
+    let lat = currentLocation.lat;
+    let lon = currentLocation.lon;
+
+    // If location not already fetched, get it now
+    if (!lat || !lon) {
+      await new Promise((resolve) => {
+        Geolocation.getCurrentPosition(
+          (position) => {
+            lat = position.coords.latitude.toString();
+            lon = position.coords.longitude.toString();
+            setCurrentLocation({ lat, lon });
+            resolve(null);
+          },
+          (error) => {
+            console.log('Location error:', error);
+            resolve(null);
+          },
+          { enableHighAccuracy: false, timeout: 30000, maximumAge: 10000 }
+        );
+      });
+    }
+
+    // Determine the new status based on current isOnline state
+    const newStatus = isOnline ? "online" : "offline";
 
     const requestBody = {
-      lat: "28.9008",
-      lon: "77.2092",
+      lat: lat || "0",
+      lon: lon || "0",
       status: newStatus,
     };
 
@@ -91,10 +150,18 @@ const toggleOnlineStatus = async () => {
     const data = await response.json();
     console.log('API Response:', data);
 
-    if (data.status === '1') {
-      setIsOnline((prev) => !prev);
+    if (data.status) {
+      // Set status based on API response
+      setIsOnline(data?.data?.status === 'online');
+      setData(data?.data);
+      // Reset slider to initial state after successful update
+      Animated.spring(translateX, {
+        toValue: 0,
+        useNativeDriver: true,
+      }).start();
+      // onSlideSuccess()
     } else {
-      Alert.alert('Error', data.message || 'Something went wrong!');
+      // Alert.alert('Error', data.message || 'Something went wrong!');
       // Reset slider if API fails
       Animated.spring(translateX, {
         toValue: 0,
@@ -107,7 +174,7 @@ const toggleOnlineStatus = async () => {
       toValue: 0,
       useNativeDriver: true,
     }).start();
-    Alert.alert('Error', 'Unable to update status.');
+    // Alert.alert('Error', 'Unable to update status.');
   } finally {
     setLoading(false);
   }
@@ -122,7 +189,8 @@ const toggleOnlineStatus = async () => {
       <View style={styles.slider}>
         <View style={styles.arrowWrapper}>
           <Text style={styles.onlineText}>
-            {isOnline ? 'ONLINE' : 'OFFLINE'}
+            {/* {isOnline ? 'ONLINE' : 'OFFLINE'} */}
+            {statusData?.status}
           </Text>
         </View>
 

@@ -53,7 +53,7 @@ const useDashboard = () => {
     try {
       const data = await locationRef?.current?.fetchLocation();
       if (data.error) {
-        Alert.alert('Error', data.error);
+        // Alert.alert('Error', data.error);
       } else {
         // Store in AsyncStorage
         await AsyncStorage.setItem('pickupLocation', JSON.stringify(data));

@@ -790,24 +790,6 @@ const OtpSection = ({ label, value, onChange }:any) => {
   );
 };
 
-// Helper function to calculate progress percentage
-const getProgressPercentage = (status) => {
-  const statusFlow = [
-    STATUS.PENDING,
-    STATUS.ASSIGNED,
-    STATUS.GOING_TO_PICKUP,
-    STATUS.PICKED_UP,
-    STATUS.ON_THE_WAY,
-    // STATUS.ARRIVING,
-    STATUS.DELIVERED,
-    // STATUS.COMPLETED
-  ];
-
-  const currentIndex = statusFlow.indexOf(status);
-  if (currentIndex === -1) return 0;
-
-  return ((currentIndex + 1) / statusFlow.length) * 100;
-};
 
 export default ParcelDetails;
 

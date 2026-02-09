@@ -7,18 +7,25 @@ import {
   Image,
   TouchableOpacity,
   Linking,
+  Alert,
+  TextInput,
 } from 'react-native';
-import MapView, { Marker, Polyline } from 'react-native-maps';
+import MapView, { AnimatedRegion, Marker, Polyline } from 'react-native-maps';
+import Geolocation from '@react-native-community/geolocation';
 import ScreenNameEnum from '../../../routes/screenName.enum';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import LoadingModal from '../../../utils/Loader';
 import imageIndex from '../../../assets/imageIndex';
 import CustomButton from '../../../compoent/CustomButton';
-import { GetApi } from '../../../Api/apiRequest';
-import { image_url } from '../../../Api';
+import { GetApi, PostApi } from '../../../Api/apiRequest';
+import { GOOGLE_MAPS_APIKEY, image_url } from '../../../Api';
+import { STATUS, STATUS_COLORS, STATUS_LABELS } from '../../../utils/Constant';
+import Icon from '../../../compoent/Icon';
+import { color } from '../../../constant';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import font from '../../../theme/font';
+import MapViewDirections from 'react-native-maps-directions';
 
-
-const { width, height } = Dimensions.get('window');
 
 const TripMap = () => {
   const [loading, setLoading] = useState(false)
@@ -26,21 +33,47 @@ const TripMap = () => {
   const { item } = route?.params || ""
   console.log("item", item)
   const parcelId = item?.parcelId
+  const [actionLoading, setActionLoading] = useState(true);
   const [parcel, setParcel] = useState(item)
+  const [pickupOtp, setPickupOtp] = useState('');
+  const [deliveryOtp, setDeliveryOtp] = useState('');
+  const [driverCoords, setDriverCoords] = useState({
+    latitude: 33.95,
+    longitude: 117.4028,
+  });
+  const canCancel = item?.deliveryStatus &&
+    [STATUS.PENDING, STATUS.ASSIGNED, STATUS.GOING_TO_PICKUP, STATUS.PICKED_UP, STATUS.ON_THE_WAY].includes(item.deliveryStatus);
+
+  // Fetch current location on component mount
   useEffect(() => {
+    Geolocation.getCurrentPosition(
+      (position) => {
+        setDriverCoords({
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+        });
+      },
+      (error) => {
+        console.log('Location error:', error);
+      },
+      { enableHighAccuracy: false, timeout: 30000, maximumAge: 10000 }
+    );
+  }, []);
+  useEffect(() => {
+    // setActionLoading(true)
     getDetail()
   }, [])
   const getDetail = async () => {
 
-    console.log(`/parcels/${item?.parcelId}/statis`)
+    // console.log(`/parcels/${item?.parcelId}/statis`)
     const param = {
-      url: `/delivery/parcel-details/${parcelId}`
+      url: `/delivery/my-offers/${parcelId}`
     }
     const res = await GetApi(param, setLoading)
     if (res.status == 1) {
-      setParcel(res?.parcel)
+      setParcel(res?.offer?.parcel)
     }
-
+    setActionLoading(false)
     console.log(res, 'this is res')
   }
 
@@ -91,7 +124,197 @@ const TripMap = () => {
   //   { latitude: 25, longitude: -80 },
   //   destination,
   // ];
+  const getButtonConfig = () => {
+    const currentStatus = item?.deliveryStatus;
 
+    switch (currentStatus) {
+      // case STATUS.PENDING:
+      //   return {
+      //     title: "Send Offer",
+      //     onPress: handleSendOffer,
+      //     color: "#FFD700", // Golden color for offer
+      //     icon: "send-outline",
+      //     showInputs: true
+      //   };
+
+      case STATUS.ASSIGNED:
+        return {
+          title: "Start Pickup",
+          onPress: () => handleStatusUpdate(STATUS.GOING_TO_PICKUP),
+          color: STATUS_COLORS[STATUS.GOING_TO_PICKUP], // Fixed
+          icon: "car-outline",
+          showInputs: false
+        };
+
+      case STATUS.GOING_TO_PICKUP:
+        return {
+          title: "Mark as Picked Up",
+          onPress: () => handleStatusUpdate(STATUS.PICKED_UP),
+          color: STATUS_COLORS[STATUS.PICKED_UP], // Fixed
+          icon: "cube-outline",
+          showInputs: false
+        };
+
+      case STATUS.PICKED_UP:
+        return {
+          title: "Start Delivery",
+          onPress: () => handleStatusUpdate(STATUS.ON_THE_WAY),
+          color: STATUS_COLORS[STATUS.ON_THE_WAY], // Fixed
+          icon: "navigate-outline",
+          showInputs: false
+        };
+
+      // case STATUS.ON_THE_WAY:
+      //   return {
+      //     title: "Mark as Arriving",
+      //     onPress: () => handleStatusUpdate(STATUS.ARRIVING),
+      //     color: STATUS_COLORS[STATUS.ARRIVING], // Fixed
+      //     icon: "location-outline",
+      //     showInputs: false
+      //   };
+
+      case STATUS.ON_THE_WAY:
+        return {
+          title: "Mark as Delivered",
+          onPress: () => handleStatusUpdate(STATUS.DELIVERED),
+          color: STATUS_COLORS[STATUS.DELIVERED], // Fixed
+          icon: "checkmark-circle-outline",
+          showInputs: false
+        };
+
+      // case STATUS.DELIVERED:
+      //   return {
+      //     title: "Complete Order",
+      //     onPress: () => handleStatusUpdate(STATUS.COMPLETED),
+      //     color: STATUS_COLORS[STATUS.COMPLETED], // Fixed
+      //     icon: "flag-outline",
+      //     showInputs: false
+      //   };
+
+      case STATUS.DELIVERED:
+        return {
+          title: "Order Completed",
+          onPress: null,
+          color: STATUS_COLORS[STATUS.COMPLETED], // Fixed
+          icon: "checkmark-done-outline",
+          showInputs: false,
+          disabled: true
+        };
+
+      case STATUS.CANCELLED:
+        return {
+          title: "Order Cancelled",
+          onPress: null,
+          color: STATUS_COLORS[STATUS.CANCELLED], // Fixed
+          icon: "close-circle-outline",
+          showInputs: false,
+          disabled: true
+        };
+
+      default:
+        return {
+          title: "Send Offer",
+          onPress: null,
+          color: "#FFD700", // Golden color for offer
+          icon: "send-outline",
+          showInputs: true
+        };
+      // {
+      //   title: "Send",
+      //   onPress: handleSendOffer,
+      //   color: "#FFD700",
+      //   icon: "send-outline",
+      //   showInputs: true
+      // };
+    }
+  };
+  const pickup = {
+    latitude: parseFloat(parcel?.pickupLocationLon),
+    longitude: parseFloat(parcel?.pickupLocationLat),
+  };
+  const dropoff = {
+    latitude: parseFloat(parcel?.dropLocationLat),
+    longitude: parseFloat(parcel?.dropLocationLon),
+  };
+  const [distance, setDistance] = useState(0);
+  // Initialize currentCoords with the dynamic driver position
+  const [currentCoords, setCurrentCoords] = useState(driverCoords);
+  const [driverLocation] = useState(
+    new AnimatedRegion({
+      ...driverCoords,
+      latitudeDelta: 0.01,
+      longitudeDelta: 0.01,
+    }),
+  );
+  const [eta, setEta] = useState("Calculating...");
+
+  const buttonConfig = getButtonConfig();
+  const updateParcelStatus = async (orderId, newStatus, otp) => {
+    // Implement your API call here
+    const token = await AsyncStorage.getItem('token');
+    const body = {
+      otp: otp ?? '',
+      // order_id: orderId,
+      newStatus: newStatus
+    };
+    console.log(body, orderId)
+    const param = {
+      url: `/delivery/parcels/${orderId}/status`,
+      data: body,
+      token,
+      isFormData: true
+    }
+    console.log(param)
+    return await PostApi(param, setActionLoading);
+  };
+
+  // Handle status update
+  const handleStatusUpdate = async (newStatus: any) => {
+    try {
+      setActionLoading(true);
+      if (newStatus == STATUS.PICKED_UP && pickupOtp == '') {
+        Alert.alert('Please enter pickup OTP shared by customer')
+        return;
+      }
+      if (newStatus == STATUS.DELIVERED && deliveryOtp == '') {
+        Alert.alert('Please enter delivery OTP shared by customer')
+        return;
+      }
+      // Call API to update status
+
+      const result = await updateParcelStatus(item?.parcelId, newStatus, newStatus == STATUS.DELIVERED ? deliveryOtp : pickupOtp);
+      console.log(result)
+      if (result.status == 1) {
+        Alert.alert("Success", `Status updated to ${STATUS_LABELS[newStatus]}`);
+        navigation.goBack();
+        // You might want to refresh the data here
+      } else {
+        Alert.alert("Error", result.message ?? "Failed to update status");
+        // Alert.alert("Success", "Update Status Successfully");
+      }
+    } catch (error) {
+      console.error("Status update error:", error);
+      Alert.alert("Error", "Something went wrong");
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  // Handle cancel order
+  const handleCancelOrder = () => {
+    Alert.alert(
+      "Cancel Order",
+      "Are you sure you want to cancel this order?",
+      [
+        { text: "No", style: "cancel" },
+        {
+          text: "Yes",
+          style: "destructive",
+          onPress: () => handleStatusUpdate(STATUS.CANCELLED)
+        }
+      ]
+    );
+  };
   return (
     <View style={styles.container}>
       {loading && <LoadingModal />}
@@ -118,13 +341,49 @@ const TripMap = () => {
       <MapView
         style={{ flex: 1 }}
         initialRegion={{
-          latitude: 28.6139,
-          longitude: 77.209,
+          latitude: 33.95,
+    longitude: 117.4028,
+          // longitude: 77.209,
           latitudeDelta: 0.05,
           longitudeDelta: 0.05,
         }}
       >
-        <Marker coordinate={{ latitude: 28.6139, longitude: 77.209 }} />
+        {/* <Marker coordinate={{ latitude: 28.6139, longitude: 77.209 }} /> */}
+        {!actionLoading &&
+          <MapViewDirections
+            origin={currentCoords} // Must be a plain object
+            destination={item?.parcel?.deliveryStatus === "assigned" ? pickup : dropoff}
+            apikey={GOOGLE_MAPS_APIKEY}
+            strokeWidth={4}
+            strokeColor={item?.parcel?.deliveryStatus === "assigned" ? "#2196F3" : "#FFCC00"}
+            onReady={(res) => {
+              console.log(res, "map res");
+              // setDistance(res?.distance);
+              // setEta(`${Math.ceil(res.duration)} mins`);
+            }}
+          />
+        }
+        {!actionLoading &&
+          <Marker coordinate={pickup} title="Pickup Point">
+            <View style={[styles.dotMarker, { backgroundColor: "#4CAF50" }]} />
+          </Marker>
+        }
+        {!actionLoading &&
+          <Marker coordinate={dropoff} title="Drop-off Point">
+            <View style={[styles.dotMarker, { backgroundColor: "#F44336" }]} />
+          </Marker>
+        }
+        {!actionLoading &&
+          <Marker.Animated
+            key="driver-marker"
+            coordinate={driverLocation as any}
+            anchor={{ x: 0.5, y: 0.5 }}
+          >
+            <View style={styles.courierMarker}>
+              <Image source={imageIndex.deliver} style={styles.courierImage} />
+            </View>
+          </Marker.Animated>
+        }
       </MapView>
 
 
@@ -157,23 +416,23 @@ const TripMap = () => {
 
       {/* Bottom Driver Card */}
       <View style={styles.driverCard}>
-        {!end &&
+        {/* {!end &&
           <>
             <Text style={styles.arrivingText}>Driver is Arriving...</Text>
             <Text style={styles.timeText}>2 ss</Text>
             <View style={styles.seprator} />
           </>
-        }
+        } */}
         <View style={styles.driverRow}>
           <Image
             source={{
-              uri:  item?.user?.image ? image_url + item?.patient_details?.image : 'https://randomuser.me/api/portraits/men/41.jpg',
+              uri: item?.user?.image ?  item?.user?.image : 'https://randomuser.me/api/portraits/men/41.jpg',
             }}
             style={styles.avatar}
           />
           <View>
             {/* <Text style={styles.driverName}>Marcus Aminoff</Text> */}
-            <Text style={styles.driverName}>{item?.user?.firstName  || ""}</Text>
+            <Text style={styles.driverName}>{item?.user?.firstName || ""}</Text>
             <Text style={styles.carDetails}>{item?.user?.phone}</Text>
             {/* <Text style={styles.carDetails}>{item?.patient_details?.mobile_number}</Text> */}
           </View>
@@ -200,8 +459,45 @@ const TripMap = () => {
           </TouchableOpacity>
         </View>
         {/* {end && */}
-        <CustomButton onPress={Submit} title={"Finish"} />
+        {/* <CustomButton onPress={Submit} title={"Finish"} /> */}
         {/* } */}
+
+        {item?.deliveryStatus === STATUS.GOING_TO_PICKUP && (
+          <OtpSection
+            label="Enter Pickup OTP shared by customer"
+            value={pickupOtp}
+            onChange={setPickupOtp}
+          />
+        )}
+
+        {item?.deliveryStatus === STATUS.ON_THE_WAY && (
+          <OtpSection
+            label="Enter delivery OTP shared by customer"
+            value={deliveryOtp}
+            onChange={setDeliveryOtp}
+          />
+        )}
+
+        <CustomButton
+          title={actionLoading ? "Processing..." : buttonConfig.title}
+          onPress={buttonConfig.onPress}
+          disabled={actionLoading || buttonConfig.disabled}
+          style={{
+            // backgroundColor: buttonConfig.color,
+            backgroundColor: color.primary,
+            opacity: (actionLoading || buttonConfig.disabled) ? 0.6 : 1,
+
+          }}
+          // txtcolor={'white'}
+          icon={
+            <Icon
+              name={buttonConfig.icon}
+              size={20}
+              color="#fff"
+              style={{ marginRight: 8 }}
+            />
+          }
+        />
       </View>
 
       {/* <LocationPicker
@@ -221,7 +517,25 @@ const TripMap = () => {
     </View>
   );
 };
+const OtpSection = ({ label, value, onChange }: any) => {
+  return (
+    <View>
+      <View style={styles.inputContainer1}>
+        <Text style={styles.inputLabel}>{label}</Text>
 
+        <TextInput
+          style={styles.textInput}
+          keyboardType="numeric"
+          placeholder="Enter OTP"
+          maxLength={6}
+          value={value}
+          onChangeText={onChange}
+          placeholderTextColor="#999"
+        />
+      </View>
+    </View>
+  );
+};
 export default TripMap;
 
 const styles = StyleSheet.create({
@@ -230,7 +544,7 @@ const styles = StyleSheet.create({
   },
   infoCard: {
     position: 'absolute',
-    top: 60,
+    top: 40,
     alignSelf: 'center',
     width: '90%',
     backgroundColor: '#fff',
@@ -253,7 +567,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '500',
     // marginRight:5
-    flex:1
+    flex: 1
   },
   driverCard: {
     position: 'absolute',
@@ -279,7 +593,7 @@ const styles = StyleSheet.create({
   driverRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginVertical: 15,
+    // marginVertical: 15,
   },
   avatar: {
     width: 50,
@@ -314,5 +628,44 @@ const styles = StyleSheet.create({
     marginTop: 15,
     width: '100%',
     backgroundColor: "grey"
-  }
+  },
+  inputContainer1: {
+    marginBottom: 15,
+    backgroundColor: "#F5F5F5",
+    borderRadius: 18,
+    padding: 12,
+  },
+  inputLabel: {
+    fontSize: 14,
+    color: "#3B4051",
+    marginBottom: 8,
+    fontWeight: "700"
+  },
+  textInput: {
+    color: "#000",
+    fontSize: 14,
+    fontWeight: "500",
+    fontFamily: font.MonolithRegular,
+    padding: 0,
+  },
+  dotMarker: {
+    width: 14,
+    height: 14,
+    borderRadius: 7,
+    borderWidth: 2,
+    borderColor: "white",
+  },
+  courierMarker: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: "white",
+    justifyContent: "center",
+    alignItems: "center",
+    elevation: 10,
+    borderWidth: 2,
+    borderColor: "#FFCC00",
+  },
+  courierImage: { width: 30, height: 30, resizeMode: "contain" },
+
 });

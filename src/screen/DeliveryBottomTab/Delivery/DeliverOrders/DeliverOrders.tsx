@@ -177,7 +177,7 @@ const DeliveryHome = () => {
         activeOpacity={0.9}
         onPress={() => {
           console.log(item)
-          if (st == "Pending") {
+          if (st == STATUS.PENDING) {
             navigation.navigate(ScreenNameEnum.ParcelDetails, {
               // item: item,
                item: { ...item, ...item?.parcel }
@@ -191,8 +191,9 @@ const DeliveryHome = () => {
           }
           
           else {
-            navigation.navigate(ScreenNameEnum.ParcelDetails, {
-              item: { ...item, ...item?.parcel },
+            navigation.navigate(ScreenNameEnum.TripMap, {
+              // item: item,
+               item: { ...item, ...item?.parcel }
             });
           }
         }}

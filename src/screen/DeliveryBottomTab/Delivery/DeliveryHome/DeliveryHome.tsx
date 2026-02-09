@@ -31,14 +31,14 @@ const DeliveryHome = () => {
   const [isOnline, setIsOnline] = useState(false);
   const pillX = useRef(new Animated.Value(0)).current;
 
-  useEffect(() => {
-    Animated.timing(pillX, {
-      toValue: isOnline ? 1 : 0,
-      duration: 260,
-      easing: Easing.out(Easing.quad),
-      useNativeDriver: true,
-    }).start();
-  }, [isOnline]);
+  // useEffect(() => {
+  //   Animated.timing(pillX, {
+  //     toValue: isOnline ? 1 : 0,
+  //     duration: 260,
+  //     easing: Easing.out(Easing.quad),
+  //     useNativeDriver: true,
+  //   }).start();
+  // }, [isOnline]);
 
   const listSlide = useRef(new Animated.Value(0)).current;
   useEffect(() => {
@@ -112,7 +112,7 @@ const DeliveryHome = () => {
           marginBottom: 5,
         }}
       >
-        <OnlineSlideRight onSlideSuccess={() => successToast("Online")} />
+        <OnlineSlideRight onSlideSuccess={() => successToast("Online")} isOnline={isOnline} setIsOnline={setIsOnline} />
       </View>
       <View style={styles.container1}>
         {/* Earnings */}
