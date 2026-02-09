@@ -84,8 +84,8 @@ export const useDeliveryHome = () => {
         const validRequests = response?.data?.requests
           ?.filter((item) => item?.trackingId !== null && item?.trackingId !== "")
           ?.map((item) => ({
-            ...item,                    // Copy all existing properties
-            deliveryStatus: item?.status // Update 'status' with value from 'deliveryStatus'
+            ...item,
+            deliveryStatus: item?.status
           }));
         setRequests(validRequests || []);
       } else {
@@ -101,13 +101,23 @@ export const useDeliveryHome = () => {
       setIsLoading(false);
     }
   }, []);
-
   const sendLiveLocation = useCallback((lat: number, lon: number) => {
     const ws = socketLiveRef.current;
-    if (ws?.readyState === WebSocket.OPEN) {
-      ws.send(JSON.stringify({ type: 'online', lat, lon }));
+    console.log('first', ws)
+    if (ws && ws.readyState === WebSocket.OPEN) {
+      const payload = JSON.stringify({ type: 'online', lat, lon });
+      console.log("📤 Sending Location to Socket:", payload);
+      ws.send(payload);
+    } else {
+      console.log("⚠️ Socket not open. State:", ws?.readyState);
     }
   }, []);
+  // const sendLiveLocation = useCallback((lat: number, lon: number) => {
+  //   const ws = socketLiveRef.current;
+  //   if (ws?.readyState === WebSocket.OPEN) {
+  //     ws.send(JSON.stringify({ type: 'online', lat, lon }));
+  //   }
+  // }, []);
 
   // Watch position: update stored lat/long only when user moves ≥20 meters
   useEffect(() => {
@@ -173,6 +183,7 @@ export const useDeliveryHome = () => {
         };
 
         ws.onmessage = (event) => {
+          console.log(event.data, 'event.data')
           try {
             const data = JSON.parse(event.data);
             if (data?.type === "offer_accepted") {
@@ -212,19 +223,20 @@ export const useDeliveryHome = () => {
       try {
         const wsUrl = `${WebSocket_Url}/driver-live?token=${token}`;
         const ws = new WebSocket(wsUrl);
-
+        console.log(`${WebSocket_Url}/driver-live?token=${token}`)
         ws.onopen = () => {
-          console.log('✅ Live location WebSocket connected');
+          console.log('✅ Live location WebSocket connected', coordsRef.current);
           socketLiveRef.current = ws;
           const { lat, lon } = coordsRef.current ?? {};
           if (lat != null && lon != null) {
-            ws.send(JSON.stringify({ type: 'online', lat, lon }))
+            console.log(JSON.stringify({ type: 'online', lat, lon }))
+            ws.send(JSON.stringify({ type: 'online', lat: lat, lon: lon }))
           }
           resolve();
         };
-
         ws.onmessage = (event) => {
           try {
+            console.log(event.data, 'this response from backend')
             const data = JSON.parse(event.data);
             if (data?.type === "offer_accepted") {
               setAcceptModal(true);
@@ -261,6 +273,7 @@ export const useDeliveryHome = () => {
   useEffect(() => {
     const init = async () => {
       try {
+        handleGetLocation()
         const token = await AsyncStorage.getItem('token');
         if (!token) {
           console.log('❌ No token in storage');
@@ -281,7 +294,35 @@ export const useDeliveryHome = () => {
       socketLiveRef.current?.close();
     };
   }, []);
+  useEffect(() => {
+    if (coords && socketLiveRef.current?.readyState === WebSocket.OPEN) {
+      sendLiveLocation(coords.lat, coords.lon);
+    }
+  }, [coords, isConnected, sendLiveLocation]);
 
+  const handleGetLocation = async () => {
+    try {
+      const data = await locationRef?.current?.fetchLocation();
+      if (data.error) {
+        // Alert.alert('Error', data.error);
+      } else {
+        // Store in AsyncStorage
+        await AsyncStorage.setItem('pickupLocation', JSON.stringify(data));
+        setCurrentLocation(data?.address)
+        // Update state
+        setCurrentLocation(data.address);
+        // setPickupLocation(data);
+        // setPickupLat({
+        //   latitude: data.region.latitude,
+        //   longitude: data.region.longitude,
+        // });
+
+        console.log('Stored and set location:', data);
+      }
+    } catch (error) {
+      console.error('Error getting location:', error);
+    }
+  };
   return {
     // States
     isLoading,

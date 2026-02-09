@@ -56,7 +56,7 @@ export default function ViewDetails() {
   const route: any = useRoute();
   const { item } = route?.params || {};
   const [loading, setLoading] = useState(false)
-const [parcel, setParcel] = useState(item)
+  const [parcel, setParcel] = useState(item)
   useEffect(() => {
     getDetail()
   }, [])
@@ -65,10 +65,10 @@ const [parcel, setParcel] = useState(item)
       url: `/parcel-details/${item?.id}`
     }
     const res = await GetApi(param, setLoading)
-    if(res.status == 1){
-setParcel(res?.parcel)
+    if (res.status == 1) {
+      setParcel(res?.parcel)
     }
-    
+
     console.log(res, 'this is res')
   }
   const formatDate = (isoString: string) => {
@@ -95,7 +95,7 @@ setParcel(res?.parcel)
   const progress =
     currentIdx >= 0 ? currentIdx / (STATUS_STEPS.length - 1) : 0;
   const STATUS_LABELS: Record<string, string> = {
-    assigned:"Assigned",
+    assigned: "Assigned",
     pending: "Waiting for Driver",
     packaged: "Still Packaged",
     shipped: "In Shipping",
@@ -105,8 +105,8 @@ setParcel(res?.parcel)
 
   // Default fallback if status is missing or unknown
   const DEFAULT_STATUS = "Unknown Status";
-   const activeIdx = currentIdx === -1 ? 0 : currentIdx;
- 
+  const activeIdx = currentIdx === -1 ? 0 : currentIdx;
+
 
   const navigation = useNavigation()
   return (
@@ -147,19 +147,19 @@ setParcel(res?.parcel)
               />
             ))} */}
 
-               {STATUS_STEPS.map((step, i) => {
-                      const isActive = i <= activeIdx;
-                      return (
-                        <View
-                          key={step}
-                          style={[
-                            styles.dot,
-                            isActive ? styles.dotActive : styles.dotInactive,
-                            { left: `${(i / (STATUS_STEPS.length - 1)) * 100}%` },
-                          ]}
-                        />
-                      );
-                    })}
+            {STATUS_STEPS.map((step, i) => {
+              const isActive = i <= activeIdx;
+              return (
+                <View
+                  key={step}
+                  style={[
+                    styles.dot,
+                    isActive ? styles.dotActive : styles.dotInactive,
+                    { left: `${(i / (STATUS_STEPS.length - 1)) * 100}%` },
+                  ]}
+                />
+              );
+            })}
           </View>
 
           {/* City Info */}
@@ -219,7 +219,7 @@ setParcel(res?.parcel)
                   })
                 }
               }}
-            >{order.status === 'pending'? 'View Offer':"Track Detail"}</Text>
+            >{order.status === 'pending' ? 'View Offer' : "Track Detail"}</Text>
           </View>
         </TouchableOpacity>
 

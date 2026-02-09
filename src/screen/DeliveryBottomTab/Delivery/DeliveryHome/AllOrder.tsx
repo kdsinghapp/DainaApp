@@ -20,6 +20,7 @@ import { useDeliveryHome } from "./useDeliveryHome";
 import LoadingModal from "../../../../utils/Loader";
 import CustomHeader from "../../../../compoent/CustomHeader";
 import { styles } from "./style";
+import { STATUS } from "../../../../utils/Constant";
 
 
 
@@ -128,9 +129,18 @@ const AllOrder = () => {
             return (
               <TouchableOpacity style={styles.card}
                 onPress={() => {
+//                    if (item.deliveryStatus === STATUS.DELIVERED) {
+//                             } else if(item.deliveryStatus === STATUS.ASSIGNED) {
+// navigation.navigate(ScreenNameEnum.TripMap, {
+//                     item: item,
+//                   });
+//                             }else{
+
+                            
                   navigation.navigate(ScreenNameEnum.ParcelDetails, {
                     item: item,
                   });
+                
                 }}
               >
                 <View style={styles.cardTop}>

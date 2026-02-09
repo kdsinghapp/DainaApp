@@ -1,13 +1,11 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import { useEffect, useRef, useState } from 'react';
+import { useNavigation } from '@react-navigation/native';
 import { Alert } from 'react-native';
 import { useDispatch } from 'react-redux';
 import { GetProfileApi, Parceldetails } from '../../../Api/apiRequest';
 import { loginSuccess } from '../../../redux/feature/authSlice';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { base_url, WebSocket_Url } from '../../../Api';
-import { successToast } from '../../../utils/customToast';
-import axios from 'axios';
+import { WebSocket_Url } from '../../../Api';
 import { Socket } from 'socket.io-client';
 
 

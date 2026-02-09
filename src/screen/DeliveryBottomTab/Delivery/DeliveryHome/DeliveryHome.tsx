@@ -20,10 +20,13 @@ import { successToast } from "../../../../utils/customToast";
 import { useDeliveryHome } from "./useDeliveryHome";
 import LoadingModal from "../../../../utils/Loader";
 import { styles } from "./style";
+import CurrentLocation from "../../../../CurrentLocation";
 
 const TABS = ["Pending", "Complete", "Canceled"] as const;
 const DeliveryHome = () => {
-  const { isLoading, requests } = useDeliveryHome();
+  const { isLoading, requests,  locationRef,
+    currentlocation,
+    address, } = useDeliveryHome();
   const [activeTab, setActiveTab] = useState<(typeof TABS)[number]>("Pending");
   const [isOnline, setIsOnline] = useState(false);
   const pillX = useRef(new Animated.Value(0)).current;
@@ -84,7 +87,16 @@ const DeliveryHome = () => {
     <SafeAreaView style={styles.container}>
       <StatusBarComponent />
       <LoadingModal visible={isLoading} />
+        <CurrentLocation ref={locationRef} />
 
+      <HomeHeaderBar
+        location={currentlocation || address}
+        // onLocationPress={() => setlocationModal(true)}
+        onNotificationPress={() => console.log("Notifications clicked")}
+        hasNotification={true}
+      />
+
+{/* 
       <HomeHeaderBar
         location={ "Wallace, Australia"}
         onLocationPress={() => console.log("Change location")}
@@ -93,7 +105,7 @@ const DeliveryHome = () => {
         style1={{
           fontWeight: "500",
         }}
-      />
+      /> */}
       <View
         style={{
           marginTop: 12,

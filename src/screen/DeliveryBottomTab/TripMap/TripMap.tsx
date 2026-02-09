@@ -14,6 +14,7 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import LoadingModal from '../../../utils/Loader';
 import imageIndex from '../../../assets/imageIndex';
 import CustomButton from '../../../compoent/CustomButton';
+import { GetApi } from '../../../Api/apiRequest';
 
 
 const { width, height } = Dimensions.get('window');
@@ -21,9 +22,28 @@ const { width, height } = Dimensions.get('window');
 const TripMap = () => {
   const [loading, setLoading] = useState(false)
   const route: any = useRoute()
-  const item = route?.params || ""
+  const {item} = route?.params || ""
   console.log("item", item)
   console.log(item, "item in msp")
+  const parcelId = item?.parcelId 
+const [parcel, setParcel] = useState(item)
+  useEffect(() => {
+    getDetail()
+  }, [])
+  const getDetail = async () => {
+    
+    console.log( `/parcel-details/${item?.parcelId}`)
+    const param = {
+      url: `/parcel-details/${item?.id}`
+    }
+    const res = await GetApi(param, setLoading)
+    if(res.status == 1){
+setParcel(res?.parcel)
+    }
+    
+    console.log(res, 'this is res')
+  }
+
   const Submit = async () => {
     navigation.replace(ScreenNameEnum.DeliveryTabNavigator)
 

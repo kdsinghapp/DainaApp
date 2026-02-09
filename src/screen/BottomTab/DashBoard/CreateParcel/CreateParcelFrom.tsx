@@ -70,7 +70,7 @@ const CreateParcelFrom = () => {
     shipmentType: "",
     senderName: "",
     senderMobile: "",
-    senderAddress: "",
+    // senderAddress: "",
     pickupDate: "",
     pickupTime: "",
     consignmentType: "",
@@ -78,7 +78,7 @@ const CreateParcelFrom = () => {
     price: "",
     receiverName: "",
     receiverMobile: "",
-    receiverAddress: "",
+    // receiverAddress: "",
   });
 
   // Dropdown data
@@ -111,10 +111,10 @@ const CreateParcelFrom = () => {
         if (!value.trim()) error = "Mobile number is required";
         break;
 
-      case "senderAddress":
-      case "receiverAddress":
-        if (!value.trim()) error = "This field is required";
-        break;
+      // case "senderAddress":
+      // case "receiverAddress":
+      //   if (!value.trim()) error = "This field is required";
+      //   break;
 
       case "pickupLocation":
         if (!value || !value.address) error = "Pickup location is required";
@@ -333,6 +333,7 @@ const CreateParcelFrom = () => {
 
           // Update states
           setPickupLocation(location1);
+          setSenderAddress(location1?.address)
           setpickupLat({
             latitude: location1.latitude,
             longitude: location1.longitude,
@@ -466,14 +467,14 @@ const CreateParcelFrom = () => {
           />
           {errors.senderMobile ? <Text style={styles.errorText}>{errors.senderMobile}</Text> : null}
 
-          <TextInput
+          {/* <TextInput
             placeholderTextColor={"#ADA4A5"}
             value={senderAddress}
             onChangeText={(value) => handleInputChange("senderAddress", value)}
             style={[styles.input, errors.senderAddress ? styles.inputError : null]}
             placeholder="Sender Address"
           />
-          {errors.senderAddress ? <Text style={styles.errorText}>{errors.senderAddress}</Text> : null}
+          {errors.senderAddress ? <Text style={styles.errorText}>{errors.senderAddress}</Text> : null} */}
 
           <TouchableOpacity
             style={[styles.input, errors.pickupDate ? styles.inputError : null]}
@@ -602,14 +603,14 @@ const CreateParcelFrom = () => {
           />
           {errors.receiverMobile ? <Text style={styles.errorText}>{errors.receiverMobile}</Text> : null}
 
-          <TextInput
+          {/* <TextInput
             style={[styles.input, errors.receiverAddress ? styles.inputError : null]}
             placeholder="Receiver Address"
             placeholderTextColor={"#ADA4A5"}
             value={receiverAddress}
             onChangeText={(value) => handleInputChange("receiverAddress", value)}
           />
-          {errors.receiverAddress ? <Text style={styles.errorText}>{errors.receiverAddress}</Text> : null}
+          {errors.receiverAddress ? <Text style={styles.errorText}>{errors.receiverAddress}</Text> : null} */}
 
           <TextInput
             style={[styles.input, { height: 80 }]}

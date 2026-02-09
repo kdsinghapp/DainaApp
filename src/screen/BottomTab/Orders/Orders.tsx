@@ -94,7 +94,15 @@ export default function OrdersScreen() {
         activeOpacity={1}
         onPress={() => {
           if (order.deliveryStatus === STATUS.DELIVERED) {
-          } else {
+          } 
+          // else  if (order.deliveryStatus === STATUS.ASSIGNED) {
+          //    nava.navigate(ScreenNameEnum.TripMap, {
+          //     item: order
+          //   })
+          // } 
+          
+          
+          else {
             nava.navigate(ScreenNameEnum.ViewDetails, {
               item: order
             })

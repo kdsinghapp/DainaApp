@@ -65,7 +65,7 @@ const PickupLocationRapido = () => {
       { enableHighAccuracy: true, timeout: 15000 }
     );
   };
-  const route = useRoute(); 
+  const route = useRoute();
 
   const confirmLocation = async () => {
     const locationData = {
@@ -73,7 +73,7 @@ const PickupLocationRapido = () => {
       longitude: region.longitude,
       address: address,
     };
-console.log(locationData)
+    console.log(locationData)
     // Trigger the callback from params
     if (route.params?.onLocationSelect) {
       route.params.onLocationSelect(locationData);
@@ -150,21 +150,15 @@ console.log(locationData)
       <View style={styles.bottomCard}>
         <View style={styles.indicator} />
         <Text style={styles.addressText} numberOfLines={2}>{address}</Text>
-        <CustomButton title="Confirm Location" 
-        // onPress={() => navigation.goBack()} 
-        onPress={confirmLocation} 
-  disable={isFetchingAddress || address === 'Locating...'}
+        <CustomButton title="Confirm Location"
+          // onPress={() => navigation.goBack()} 
+          onPress={confirmLocation}
+          disable={isFetchingAddress || address === 'Locating...'}
         />
-          <SafeAreaView edges={['bottom']}/>
+        <SafeAreaView edges={['bottom']} />
       </View>
     </SafeAreaView>
   );
-};
-
-const searchStyles = {
-  container: { flex: 0, position: 'absolute', width: width - 40, top: 10, left: 20, zIndex: 10 },
-  textInput: { height: 50, borderRadius: 12, elevation: 5, shadowOpacity: 0.1, fontSize: 14, color: '#000' },
-  listView: { backgroundColor: 'white', borderRadius: 12, elevation: 5, marginTop: 5 },
 };
 
 const styles = StyleSheet.create({

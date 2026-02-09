@@ -181,7 +181,15 @@ const DeliveryHome = () => {
               // item: item,
                item: { ...item, ...item?.parcel }
             });
-          } else {
+          }
+          else  if (item.status == STATUS.ASSIGNED) {
+            navigation.navigate(ScreenNameEnum.TripMap, {
+              // item: item,
+               item: { ...item, ...item?.parcel }
+            });
+          }
+          
+          else {
             navigation.navigate(ScreenNameEnum.ParcelDetails, {
               item: { ...item, ...item?.parcel },
             });
