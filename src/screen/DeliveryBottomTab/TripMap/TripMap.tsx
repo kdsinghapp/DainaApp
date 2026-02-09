@@ -15,6 +15,7 @@ import LoadingModal from '../../../utils/Loader';
 import imageIndex from '../../../assets/imageIndex';
 import CustomButton from '../../../compoent/CustomButton';
 import { GetApi } from '../../../Api/apiRequest';
+import { image_url } from '../../../Api';
 
 
 const { width, height } = Dimensions.get('window');
@@ -22,25 +23,24 @@ const { width, height } = Dimensions.get('window');
 const TripMap = () => {
   const [loading, setLoading] = useState(false)
   const route: any = useRoute()
-  const {item} = route?.params || ""
+  const { item } = route?.params || ""
   console.log("item", item)
-  console.log(item, "item in msp")
-  const parcelId = item?.parcelId 
-const [parcel, setParcel] = useState(item)
+  const parcelId = item?.parcelId
+  const [parcel, setParcel] = useState(item)
   useEffect(() => {
     getDetail()
   }, [])
   const getDetail = async () => {
-    
-    console.log( `/parcel-details/${item?.parcelId}`)
+
+    console.log(`/parcels/${item?.parcelId}/statis`)
     const param = {
-      url: `/parcel-details/${item?.id}`
+      url: `/delivery/parcel-details/${parcelId}`
     }
     const res = await GetApi(param, setLoading)
-    if(res.status == 1){
-setParcel(res?.parcel)
+    if (res.status == 1) {
+      setParcel(res?.parcel)
     }
-    
+
     console.log(res, 'this is res')
   }
 
@@ -137,8 +137,8 @@ setParcel(res?.parcel)
             height: 22,
             width: 22
           }} />
-          <Text style={styles.locationText}>
-            {item?.departure_address}35 Oak Ave. Antioch, TN 37013
+          <Text style={styles.locationText} numberOfLines={1}>
+            {item?.pickupLocation || "35 Oak Ave. Antioch, TN 37013"}
           </Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.locationRow}
@@ -149,8 +149,8 @@ setParcel(res?.parcel)
             height: 22,
             width: 22
           }} />
-          <Text style={styles.locationText}>
-            {item?.arrival_address} New Palasia, Indore, Madhya....
+          <Text style={styles.locationText} numberOfLines={1}>
+            {item?.dropLocation || "New Palasia, Indore, Madhya...."}
           </Text>
         </TouchableOpacity>
       </View>
@@ -167,14 +167,14 @@ setParcel(res?.parcel)
         <View style={styles.driverRow}>
           <Image
             source={{
-              uri: item?.patient_details?.image ? item?.patient_details?.image : 'https://randomuser.me/api/portraits/men/41.jpg',
+              uri:  item?.user?.image ? image_url + item?.patient_details?.image : 'https://randomuser.me/api/portraits/men/41.jpg',
             }}
             style={styles.avatar}
           />
           <View>
-            <Text style={styles.driverName}>Marcus Aminoff</Text>
-            {/* <Text style={styles.driverName}>{item?.patient_details?.first_name + '' + item?.patient_details?.last_name || ""}</Text> */}
-            <Text style={styles.carDetails}>+197 504 371 0841</Text>
+            {/* <Text style={styles.driverName}>Marcus Aminoff</Text> */}
+            <Text style={styles.driverName}>{item?.user?.firstName  || ""}</Text>
+            <Text style={styles.carDetails}>{item?.user?.phone}</Text>
             {/* <Text style={styles.carDetails}>{item?.patient_details?.mobile_number}</Text> */}
           </View>
           {end &&
@@ -187,13 +187,13 @@ setParcel(res?.parcel)
             <Image source={imageIndex.Closed} style={styles.iconBtn} />
           </TouchableOpacity>
           <TouchableOpacity onPress={() => {
-            let url = `tel:${item?.patient_details?.mobile_number}`;
+            let url = `tel:${item?.user?.phobe}`;
             Linking.openURL(url);
           }}>
             <Image source={imageIndex.Calblack} style={styles.iconBtn} />
           </TouchableOpacity>
           <TouchableOpacity onPress={() => {
-            let url = `sms:${item?.patient_details?.mobile_number}`;
+            let url = `sms:${item?.user?.phone}`;
             Linking.openURL(url);
           }}>
             <Image source={imageIndex.MessageBlack} style={styles.iconBtn} />
@@ -252,6 +252,8 @@ const styles = StyleSheet.create({
     color: '#333',
     fontSize: 14,
     fontWeight: '500',
+    // marginRight:5
+    flex:1
   },
   driverCard: {
     position: 'absolute',

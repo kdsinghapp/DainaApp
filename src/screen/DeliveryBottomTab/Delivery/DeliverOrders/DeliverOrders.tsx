@@ -170,19 +170,20 @@ const DeliveryHome = () => {
   };
 
   const renderItem = ({ item }: { item: Order }) => {
-    const st = STATUS_STYLES[item.parcel?.deliveryStatus];
+    const st = item.parcel?.deliveryStatus
     return (
       <TouchableOpacity
         style={styles.card}
         activeOpacity={0.9}
         onPress={() => {
-          if (item.status == "Pending") {
+          console.log(item)
+          if (st == "Pending") {
             navigation.navigate(ScreenNameEnum.ParcelDetails, {
               // item: item,
                item: { ...item, ...item?.parcel }
             });
           }
-          else  if (item.status == STATUS.ASSIGNED) {
+          else  if (st == STATUS.ASSIGNED) {
             navigation.navigate(ScreenNameEnum.TripMap, {
               // item: item,
                item: { ...item, ...item?.parcel }

@@ -189,8 +189,8 @@ export const useDeliveryHome = () => {
             if (data?.type === "offer_accepted") {
               setAcceptModal(true);
               setuserInfromation(data);
-              navigation.navigate(ScreenNameEnum.DeliveryRequest, {
-                deliveryInfo: data,
+              navigation.navigate(ScreenNameEnum.TripMap, {
+                item: data?.parcel,
               });
             }
             if (data?.type == "parcelStatusUpdate") {
@@ -223,7 +223,7 @@ export const useDeliveryHome = () => {
       try {
         const wsUrl = `${WebSocket_Url}/driver-live?token=${token}`;
         const ws = new WebSocket(wsUrl);
-        console.log(`${WebSocket_Url}/driver-live?token=${token}`)
+        
         ws.onopen = () => {
           console.log('✅ Live location WebSocket connected', coordsRef.current);
           socketLiveRef.current = ws;

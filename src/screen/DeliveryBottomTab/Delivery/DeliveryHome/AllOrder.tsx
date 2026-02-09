@@ -136,7 +136,6 @@ const AllOrder = () => {
 //                   });
 //                             }else{
 
-                            
                   navigation.navigate(ScreenNameEnum.ParcelDetails, {
                     item: item,
                   });

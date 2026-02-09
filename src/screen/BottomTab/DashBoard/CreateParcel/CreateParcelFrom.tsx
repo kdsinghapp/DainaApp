@@ -155,7 +155,6 @@ const CreateParcelFrom = () => {
     return error === "";
   };
 
-
   const validateForm = () => {
     const fieldsToValidate = {
       pickupLocation,
@@ -188,8 +187,6 @@ const CreateParcelFrom = () => {
 
   const handleSubmit = async () => {
     if (validateForm()) {
-      console.log("Form submitted successfully!");
-
       const formDataObj = {
         shipmentType,
         senderName,
