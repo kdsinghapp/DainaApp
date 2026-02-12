@@ -16,10 +16,10 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import LoadingModal from "../../../utils/Loader";
 
 const PhoneLogin = () => {
-        // const [phoneNumber, setPhoneNumber] = useState("6282582825");  
+        //  const [phoneNumber, setPhoneNumber] = useState("6282582825");  
       // deliver
-  // const [phoneNumber, setPhoneNumber] = useState("96084084307");  
-     const [phoneNumber, setPhoneNumber] = useState("");  
+    const [phoneNumber, setPhoneNumber] = useState("96084084307");  
+    //  const [phoneNumber, setPhoneNumber] = useState("");  
 // user
   const [countryCode, setCountryCode] = useState("IN");
   const [callingCode, setCallingCode] = useState("+91");

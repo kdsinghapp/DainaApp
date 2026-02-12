@@ -173,7 +173,7 @@ const ProfileScreen: React.FC<Props> = ({
               navigation.navigate(ScreenNameEnum.OrdersPrfile)
            }}          />
           <ItemDivider />
-          <ListItem
+          {/* <ListItem
             icon={<SvgIndex.Lockss  />}
             label="Change Password"
              onPress={()=>{
@@ -181,7 +181,7 @@ const ProfileScreen: React.FC<Props> = ({
            }}
             
             secure
-          />
+          /> */}
           <ItemDivider />
           <ListItem
             icon={<SvgIndex.Privacy />}

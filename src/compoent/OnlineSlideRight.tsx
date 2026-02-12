@@ -469,9 +469,8 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     color: '#fff',
-    fontSize: 10,
-    fontWeight: '800',
-    textAlign: 'center',
+    fontSize: 12,
+     textAlign: 'center',
     fontFamily:font.MonolithRegular
   },
   statusText: {

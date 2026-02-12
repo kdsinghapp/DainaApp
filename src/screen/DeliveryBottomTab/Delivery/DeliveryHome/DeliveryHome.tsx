@@ -3,20 +3,17 @@ import {
   View,
   Text,
   Image,
-  FlatList,
-  Pressable,
+ 
   Animated,
   Easing,
-  TouchableOpacity,
-} from "react-native";
+ } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
 import StatusBarComponent from "../../../../compoent/StatusBarCompoent";
 import HomeHeaderBar from "../../../../compoent/HomeHeaderBar";
 import imageIndex from "../../../../assets/imageIndex";
 import OnlineSlideRight from "../../../../compoent/OnlineSlideRight";
-import ScreenNameEnum from "../../../../routes/screenName.enum";
-import { successToast } from "../../../../utils/customToast";
+ import { successToast } from "../../../../utils/customToast";
 import { useDeliveryHome } from "./useDeliveryHome";
 import LoadingModal from "../../../../utils/Loader";
 import { styles } from "./style";
