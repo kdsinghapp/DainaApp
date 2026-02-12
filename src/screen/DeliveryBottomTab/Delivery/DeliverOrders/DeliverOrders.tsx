@@ -60,34 +60,6 @@ const DeliveryHome = () => {
     }).start();
   }, [isOnline]);
 
-  // const filteredOrders = ordersSeed.filter((item) => {
-  //   const status = item?.parcel?.deliveryStatus;
-  //   console.log(status)
-  // const COMPLETED_STATUSES = [
-  //   STATUS.DELIVERED
-  // ];
-
-  // const Cancelled_STATUSES = [
-  //  STATUS.CANCELLED
-  // ];
-  //   if (activeTab === 'Pending') {
-  //     return (
-  //       !COMPLETED_STATUSES.includes(status) &&
-  //       !Cancelled_STATUSES.includes(status)
-  //     );
-  //   }
-
-  //   if (activeTab === 'Complete') {
-  //     return COMPLETED_STATUSES.includes(status);
-  //   }
-
-  //   if (activeTab === 'Cancelled') {
-  //     return Cancelled_STATUSES.includes(status);
-  //   }
-
-  //   return false;
-  // });
-  // tabs + filter
   const [activeTab, setActiveTab] = useState<(typeof TABS)[number]>("Pending");
   const filteredOrders = ordersSeed.filter((item) => {
     const status = item?.parcel?.deliveryStatus?.toLowerCase();
@@ -152,7 +124,7 @@ const DeliveryHome = () => {
       });
       if (response?.data?.status == 1) {
         setisLoading(false);
-        console.log(response?.data, "data in order page");
+        // console.log(response?.data, "data in order page");
         setordersSeed(response?.data?.offers);
       } else {
         setisLoading(false);
@@ -179,20 +151,17 @@ const DeliveryHome = () => {
           console.log(item)
           if (st == STATUS.PENDING) {
             navigation.navigate(ScreenNameEnum.ParcelDetails, {
-              // item: item,
                item: { ...item, ...item?.parcel }
             });
           }
           else  if (st == STATUS.ASSIGNED) {
             navigation.navigate(ScreenNameEnum.TripMap, {
-              // item: item,
                item: { ...item, ...item?.parcel }
             });
           }
           
           else {
             navigation.navigate(ScreenNameEnum.TripMap, {
-              // item: item,
                item: { ...item, ...item?.parcel }
             });
           }

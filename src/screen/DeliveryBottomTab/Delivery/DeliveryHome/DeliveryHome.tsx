@@ -29,7 +29,6 @@ const DeliveryHome = () => {
     address, } = useDeliveryHome();
   const [activeTab, setActiveTab] = useState<(typeof TABS)[number]>("Pending");
   const [isOnline, setIsOnline] = useState(false);
-  const pillX = useRef(new Animated.Value(0)).current;
 
   // useEffect(() => {
   //   Animated.timing(pillX, {
@@ -112,7 +111,7 @@ const DeliveryHome = () => {
           marginBottom: 5,
         }}
       >
-        <OnlineSlideRight onSlideSuccess={() => successToast("Online")} isOnline={isOnline} setIsOnline={setIsOnline} />
+        {/* <OnlineSlideRight onSlideSuccess={() => successToast("Online")} isOnline={isOnline} setIsOnline={setIsOnline} /> */}
       </View>
       <View style={styles.container1}>
         {/* Earnings */}
@@ -161,17 +160,64 @@ const DeliveryHome = () => {
           </Text>
         </View>
       </View>
+ <View style={styles.container1}>
+        {/* Earnings */}
+        <View style={styles.card1}>
+          <Image
+            source={imageIndex.earing}
+            style={{
+              height: 35,
+              width: 35,
+            }}
+            resizeMode="contain"
+          />
+          <Text style={styles.title}>Weekly's Earnings</Text>
+          <Text
+            style={{
+              color: "#fff",
+              fontSize: 18,
+              fontWeight: "bold",
+              marginTop: 5,
+            }}
+          >
+            00.€
+          </Text>
+        </View>
 
+        {/* Rides */}
+        <View style={styles.card1}>
+          <Image
+            source={imageIndex.cars}
+            style={{
+              height: 35,
+              width: 35,
+            }}
+            resizeMode="contain"
+          />
+          <Text style={styles.title}>Weekly's Rides</Text>
+          <Text
+            style={{
+              color: "#fff",
+              fontSize: 18,
+              fontWeight: "bold",
+              marginTop: 5,
+            }}
+          >
+            0
+          </Text>
+        </View>
+      </View>
+ <OnlineSlideRight onSlideSuccess={() => successToast("Online")} isOnline={isOnline} setIsOnline={setIsOnline} />
       {/* Orders header row */}
-      <View style={styles.ordersHeader}>
+      {/* <View style={styles.ordersHeader}>
         <Text style={styles.sectionTitle}>Orders</Text>
         <Image
           source={imageIndex?.Filter || { uri: "" }}
           style={{ height: 24, width: 24 }}
         />
-      </View>
+      </View> */}
 
-      <View style={styles.tabs}>
+      {/* <View style={styles.tabs}>
         {TABS.map((tab) => {
           const active = tab === activeTab;
           return (
@@ -186,18 +232,18 @@ const DeliveryHome = () => {
             </Pressable>
           );
         })}
-      </View>
-      <View style={styles.ordersHeader}>
+      </View> */}
+      {/* <View style={styles.ordersHeader}>
         <Text style={styles.sectionTitle1}>Orders</Text>
         <Text
-          onPress={() => navigation.navigate(ScreenNameEnum.AllOrder)}
+          onPress={() => navigation.navigate('Orders')}
           style={styles.sectionTitle1}
         >
           Sell All
         </Text>
-      </View>
+      </View> */}
       {/* List */}
-      <Animated.View
+      {/* <Animated.View
         style={{ flex: 1, transform: [{ translateX }], opacity: fade }}
       >
         <FlatList
@@ -274,17 +320,7 @@ const DeliveryHome = () => {
                     <Text style={[styles.value, { marginTop: 6 }]}>
                       {item?.dropLocation}
                     </Text>
-                    {/* <View style={styles.statusRow}>
-                    <Text style={styles.statusText}>Delivery Status :</Text>
-                    <Text
-                      style={[
-                        styles.statusValue,
-                        { color: item.statusColor || "#555" },
-                      ]}
-                    >
-                      {item.status}
-                    </Text>
-                  </View> */}
+                 
                   </View>
                 </View>
               </TouchableOpacity>
@@ -294,7 +330,7 @@ const DeliveryHome = () => {
             <Text style={styles.emptyText}>No orders here yet.</Text>
           }
         />
-      </Animated.View>
+      </Animated.View> */}
     </SafeAreaView>
   );
 };

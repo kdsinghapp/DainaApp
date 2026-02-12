@@ -645,10 +645,10 @@ const ParcelDetails = () => {
                   </View>
                 </View>
 
-                <View style={styles.inputContainer}>
+                {/* <View style={styles.inputContainer}>
                   <Text style={styles.label}>Sender Address</Text>
                   <Text style={styles.value}>{item?.senderAddress || 'N/A'}</Text>
-                </View>
+                </View> */}
               </View>
             )}
 
