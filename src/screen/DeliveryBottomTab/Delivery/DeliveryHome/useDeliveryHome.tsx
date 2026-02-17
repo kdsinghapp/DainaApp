@@ -270,6 +270,58 @@ export const useDeliveryHome = () => {
   };
 
 
+  const connectLiveLocationocket1  = (token: string) => {
+    return new Promise<void>((resolve, reject) => {
+      try {
+        const wsUrl = `${WebSocket_Url}/nearby-parcels?token=${token}`;
+        const ws = new WebSocket(wsUrl);
+        
+        ws.onopen = () => {
+          console.log('✅ Live location WebSocket connected', coordsRef.current);
+          socketLiveRef.current = ws;
+          const { lat, lon } = coordsRef.current ?? {};
+          if (lat != null && lon != null) {
+            console.log(JSON.stringify({ type: 'online', lat, lon }))
+            // ws.send(JSON.stringify({ type: 'online', lat: lat, lon: lon }))
+          }
+          resolve();
+        };
+        ws.onmessage = (event) => {
+          try {
+            console.log(event.data, 'this response from backend')
+            const data = JSON.parse(event.data);
+            if (data?.type === "offer_accepted") {
+              setAcceptModal(true);
+              setuserInfromation(data);
+              navigation.navigate(ScreenNameEnum.DeliveryRequest, {
+                deliveryInfo: data,
+              });
+            }
+            if (data?.type == "parcelStatusUpdate") {
+              console.log("📦 Parcel Status Update:", data?.status);
+            }
+          } catch (e) {
+            console.warn('❌ Failed to parse message:', e);
+          }
+        };
+        ws.onerror = (error) => {
+          console.error('❌ Live location WebSocket Error:', error);
+          reject(error);
+        };
+
+        ws.onclose = () => {
+          console.log('⚠️ Live location WebSocket Closed');
+          socketLiveRef.current = null;
+        };
+
+      } catch (error) {
+        reject(error);
+        console.log('⚠️ Error creating live location socket:', error);
+      }
+    });
+  };
+
+
   useEffect(() => {
     const init = async () => {
       try {
@@ -281,6 +333,7 @@ export const useDeliveryHome = () => {
         }
         await connectSocket(token);
         await connectLiveLocationSocket(token);
+        await connectLiveLocationocket1(token);
       } catch (error) {
         console.error('🔌 Socket init failed:', error);
       }

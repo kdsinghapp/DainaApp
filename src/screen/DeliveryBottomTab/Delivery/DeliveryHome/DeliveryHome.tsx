@@ -3,9 +3,10 @@ import {
   View,
   Text,
   Image,
- 
+ TouchableOpacity,
   Animated,
   Easing,
+  FlatList,
  } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
@@ -18,6 +19,8 @@ import { useDeliveryHome } from "./useDeliveryHome";
 import LoadingModal from "../../../../utils/Loader";
 import { styles } from "./style";
 import CurrentLocation from "../../../../CurrentLocation";
+import { Pressable } from "react-native";
+import ScreenNameEnum from "../../../../routes/screenName.enum";
 
 const TABS = ["Pending", "Complete", "Canceled"] as const;
 const DeliveryHome = () => {
@@ -205,16 +208,15 @@ const DeliveryHome = () => {
         </View>
       </View>
  <OnlineSlideRight onSlideSuccess={() => successToast("Online")} isOnline={isOnline} setIsOnline={setIsOnline} />
-      {/* Orders header row */}
-      {/* <View style={styles.ordersHeader}>
+     <View style={styles.ordersHeader}>
         <Text style={styles.sectionTitle}>Orders</Text>
         <Image
           source={imageIndex?.Filter || { uri: "" }}
           style={{ height: 24, width: 24 }}
         />
-      </View> */}
+      </View>  
 
-      {/* <View style={styles.tabs}>
+    <View style={styles.tabs}>
         {TABS.map((tab) => {
           const active = tab === activeTab;
           return (
@@ -229,7 +231,7 @@ const DeliveryHome = () => {
             </Pressable>
           );
         })}
-      </View> */}
+      </View>  
       {/* <View style={styles.ordersHeader}>
         <Text style={styles.sectionTitle1}>Orders</Text>
         <Text
@@ -240,8 +242,9 @@ const DeliveryHome = () => {
         </Text>
       </View> */}
       {/* List */}
-      {/* <Animated.View
-        style={{ flex: 1, transform: [{ translateX }], opacity: fade }}
+      <Animated.View
+        style={{ flex: 1, transform: [{ translateX }], opacity: fade  ,
+    }}
       >
         <FlatList
           data={filteredRequests} 
@@ -327,7 +330,7 @@ const DeliveryHome = () => {
             <Text style={styles.emptyText}>No orders here yet.</Text>
           }
         />
-      </Animated.View> */}
+      </Animated.View>
     </SafeAreaView>
   );
 };
