@@ -10,7 +10,7 @@ import {
   Alert,
   TextInput,
 } from 'react-native';
-import MapView, { AnimatedRegion, Marker, Polyline } from 'react-native-maps';
+import MapView, { Marker, Polyline } from 'react-native-maps';
 import Geolocation from '@react-native-community/geolocation';
 import ScreenNameEnum from '../../../routes/screenName.enum';
 import { useNavigation, useRoute } from '@react-navigation/native';
@@ -30,10 +30,16 @@ import MapViewDirections from 'react-native-maps-directions';
 const TripMap = () => {
   const [loading, setLoading] = useState(false)
   const route: any = useRoute()
-  const { item } = route?.params || ""
-  console.log("item", item)
+  const { item,event } = route?.params || ""
+  // console.log("pickupLon", event?.parcel?.pickupLat)
+  // console.log("pickupLon", event?.parcel?.pickupLon)
+
+ 
   const parcelId = item?.parcelId
   const [actionLoading, setActionLoading] = useState(true);
+  useEffect(()=>{
+
+  },[route])
   const [parcel, setParcel] = useState(item)
   const [pickupOtp, setPickupOtp] = useState('');
   const [deliveryOtp, setDeliveryOtp] = useState('');
@@ -71,6 +77,7 @@ const TripMap = () => {
     }
     const res = await GetApi(param, setLoading)
     if (res.status == 1) {
+      console.log("---")
       setParcel(res?.offer?.parcel)
     }
     setActionLoading(false)
@@ -228,26 +235,37 @@ const TripMap = () => {
       // };
     }
   };
+  const DEFAULT_LAT = 22.7176;
+  const DEFAULT_LNG = 75.8577;
+
+  /** Ensures native map gets a number; API often returns string or null. */
+  const safeNum = (v: unknown, fallback: number): number => {
+    if (v == null) return fallback;
+    const n = typeof v === 'number' ? v : parseFloat(String(v));
+    return Number.isFinite(n) ? n : fallback;
+  };
+
+  // Latitude = lat, longitude = lon. Always numbers so AIRMapMarker never gets String.
   const pickup = {
-    latitude: parseFloat(parcel?.pickupLocationLon),
-    longitude: parseFloat(parcel?.pickupLocationLat),
+    latitude: safeNum(parcel?.pickupLat ?? parcel?.pickupLocationLat, DEFAULT_LAT),
+    longitude: safeNum(parcel?.pickupLon ?? parcel?.pickupLocationLon, DEFAULT_LNG),
   };
   const dropoff = {
-    latitude: parseFloat(parcel?.dropLocationLat),
-    longitude: parseFloat(parcel?.dropLocationLon),
+    latitude: safeNum(parcel?.dropLat, DEFAULT_LAT),
+    longitude: safeNum(parcel?.dropLon, DEFAULT_LNG),
   };
-  const [distance, setDistance] = useState(0);
-  // Initialize currentCoords with the dynamic driver position
-  const [currentCoords, setCurrentCoords] = useState(driverCoords);
-  const [driverLocation] = useState(
-    new AnimatedRegion({
-      ...driverCoords,
-      latitudeDelta: 0.01,
-      longitudeDelta: 0.01,
-    }),
-  );
-  const [eta, setEta] = useState("Calculating...");
 
+  const [currentCoords, setCurrentCoords] = useState(driverCoords);
+
+  useEffect(() => {
+    setCurrentCoords(driverCoords);
+  }, [driverCoords.latitude, driverCoords.longitude]);
+
+  const driverCoordinate = {
+    latitude: safeNum(driverCoords.latitude, DEFAULT_LAT),
+    longitude: safeNum(driverCoords.longitude, DEFAULT_LNG),
+  };
+ 
   const buttonConfig = getButtonConfig();
   const updateParcelStatus = async (orderId, newStatus, otp) => {
     // Implement your API call here
@@ -341,12 +359,20 @@ const TripMap = () => {
       <MapView
         style={{ flex: 1 }}
         initialRegion={{
-          latitude: 33.95,
-    longitude: 117.4028,
+          latitude:22.7028931,
+    longitude: 75.8715823,
           // longitude: 77.209,
           latitudeDelta: 0.05,
           longitudeDelta: 0.05,
         }}
+//  initialRegion={{
+//     latitude: pickup.latitude,
+//     longitude: pickup.longitude,
+//     latitudeDelta: 0.05,
+//     longitudeDelta: 0.05,
+ 
+// }}
+
       >
         {/* <Marker coordinate={{ latitude: 28.6139, longitude: 77.209 }} /> */}
         {!actionLoading &&
@@ -373,17 +399,17 @@ const TripMap = () => {
             <View style={[styles.dotMarker, { backgroundColor: "#F44336" }]} />
           </Marker>
         }
-        {!actionLoading &&
-          <Marker.Animated
+        {!actionLoading && (
+          <Marker
             key="driver-marker"
-            coordinate={driverLocation as any}
+            coordinate={driverCoordinate}
             anchor={{ x: 0.5, y: 0.5 }}
           >
             <View style={styles.courierMarker}>
               <Image source={imageIndex.deliver} style={styles.courierImage} />
             </View>
-          </Marker.Animated>
-        }
+          </Marker>
+        )}
       </MapView>
 
 
@@ -423,16 +449,17 @@ const TripMap = () => {
             <View style={styles.seprator} />
           </>
         } */}
+     
         <View style={styles.driverRow}>
           <Image
             source={{
-              uri: item?.user?.image ?  item?.user?.image : 'https://randomuser.me/api/portraits/men/41.jpg',
+              uri: item?.user?.image || event?.sender.profileImage  ? event?.sender.profileImage :event?.sender.profileImage,
             }}
             style={styles.avatar}
           />
           <View>
             {/* <Text style={styles.driverName}>Marcus Aminoff</Text> */}
-            <Text style={styles.driverName}>{item?.user?.firstName || ""}</Text>
+            <Text style={styles.driverName}>{item?.user?.firstName ||event?.sender.name || ""}</Text>
             <Text style={styles.carDetails}>{item?.user?.phone}</Text>
             {/* <Text style={styles.carDetails}>{item?.patient_details?.mobile_number}</Text> */}
           </View>
@@ -452,7 +479,7 @@ const TripMap = () => {
             <Image source={imageIndex.Calblack} style={styles.iconBtn} />
           </TouchableOpacity>
           <TouchableOpacity onPress={() => {
-            let url = `sms:${item?.user?.phone}`;
+            let url = `sms:${item?.user?.phone || event?.sender.phone}`;
             Linking.openURL(url);
           }}>
             <Image source={imageIndex.MessageBlack} style={styles.iconBtn} />

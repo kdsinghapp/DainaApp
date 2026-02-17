@@ -1134,13 +1134,19 @@ const CourierTrackingScreen = () => {
     longitude: 117.4028, //75.0715906,
   };
 
+  const DEFAULT_LAT = 28.6139;
+  const DEFAULT_LNG = 77.209;
+  const safeNum = (v: any, fallback: number) => {
+    const n = parseFloat(v);
+    return Number.isFinite(n) ? n : fallback;
+  };
   const pickup = {
-    latitude: parseFloat(item?.pickupLocationLon),
-    longitude: parseFloat(item?.pickupLocationLat),
+    latitude: safeNum(item?.pickupLocationLon, DEFAULT_LAT),
+    longitude: safeNum(item?.pickupLocationLat, DEFAULT_LNG),
   };
   const dropoff = {
-    latitude: parseFloat(item?.dropLocationLat),
-    longitude: parseFloat(item?.dropLocationLon),
+    latitude: safeNum(item?.dropLocationLat, DEFAULT_LAT),
+    longitude: safeNum(item?.dropLocationLon, DEFAULT_LNG),
   };
   const [distance, setDistance] = useState(0);
   // 2. States - Initialize currentCoords with the static driver position

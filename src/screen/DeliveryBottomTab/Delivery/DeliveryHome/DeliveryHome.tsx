@@ -40,14 +40,23 @@ const DeliveryHome = () => {
   // }, [isOnline]);
 
   const listSlide = useRef(new Animated.Value(0)).current;
+  const animationRef = useRef<Animated.CompositeAnimation | null>(null);
   useEffect(() => {
     listSlide.setValue(0);
-    Animated.timing(listSlide, {
+    const anim = Animated.timing(listSlide, {
       toValue: 1,
       duration: 220,
       easing: Easing.out(Easing.quad),
       useNativeDriver: true,
-    }).start();
+    });
+    animationRef.current = anim;
+    anim.start();
+    return () => {
+      try {
+        animationRef.current?.stop();
+        animationRef.current = null;
+      } catch (_) {}
+    };
   }, [activeTab]);
 
   const translateX = listSlide.interpolate({

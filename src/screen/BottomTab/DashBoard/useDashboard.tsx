@@ -127,10 +127,11 @@ const useDashboard = () => {
             console.warn('❌ Failed to parse message:', e);
           }
         };
-        ws.onerror = (error) => {
-          console.error('❌ WebSocket Error:', error);
+        ws.onerror = (event) => {
+          const msg = (event && typeof event === 'object' && 'message' in event) ? String((event as { message?: string }).message) : 'WebSocket error';
+          console.error('❌ WebSocket Error:', msg);
           setIsConnected(false);
-          reject(error);
+          reject(new Error(msg));
         };
 
         ws.onclose = () => {
@@ -139,7 +140,7 @@ const useDashboard = () => {
         };
 
       } catch (error) {
-        reject(error);
+        reject(error instanceof Error ? error : new Error(String(error)));
         console.log('⚠️ Error creating socket:', error);
       }
     });
