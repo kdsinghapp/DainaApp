@@ -28,6 +28,9 @@ export default function OfferOR() {
     setLocation,
     onAccept,
     navgation,
+    CounterOffer,
+    selectedOfferId, setSelectedOfferId
+
   } = useOfferOR()
 
   const OfferCard = ({ item, onCounterPress }: any) => {
@@ -43,7 +46,7 @@ export default function OfferOR() {
 
 
           }]}>{item?.deliveryUser?.name}</Text></Text>
-          <TouchableOpacity onPress={()=>openDialer(item?.deliveryUser?.phone)}>
+          <TouchableOpacity onPress={() => openDialer(item?.deliveryUser?.phone)}>
 
             <Image source={imageIndex.Calls}
 
@@ -81,7 +84,11 @@ export default function OfferOR() {
             <Text style={styles.acceptText}>ACCEPT</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity onPress={onCounterPress} style={[styles.button, styles.counterBtn]}>
+          <TouchableOpacity onPress={() => {
+            setSelectedOfferId(item?.id || item?.offerId);
+            setOpen(true);
+          }}
+            style={[styles.button, styles.counterBtn]}>
             <Text style={styles.counterText}>COUNTER OFFER</Text>
           </TouchableOpacity>
 
@@ -113,7 +120,9 @@ export default function OfferOR() {
           data={offerData}
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => (
-            <OfferCard item={item} onCounterPress={()=>setOpen(true)}/>
+            <OfferCard item={item} onCounterPress={
+
+              () => setOpen(true)} />
           )}
           showsVerticalScrollIndicator={false}
         />
@@ -125,10 +134,14 @@ export default function OfferOR() {
         min={1}
         max={50000}
         onCancel={() => setOpen(false)}
-        onSubmit={(amount) => { /* send amount */
-           setOpen(false)
-          settrackerModal(true)
+        onSubmit={(amount) => {
+          if (selectedOfferId) {
+            CounterOffer(selectedOfferId, amount); // 👈 ID + amount
+          }
+          setOpen(false);
+          settrackerModal(true);
         }}
+
       />
 
 

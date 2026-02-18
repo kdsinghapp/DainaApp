@@ -1103,7 +1103,7 @@ import {
   Platform,
   PanResponder,
 } from "react-native";
-import MapView, { Marker, AnimatedRegion } from "react-native-maps";
+import MapView, { Marker, AnimatedRegion, PROVIDER_GOOGLE } from "react-native-maps";
 import MapViewDirections from "react-native-maps-directions";
 import StatusBarComponent from "../../../compoent/StatusBarCompoent";
 import CustomHeader from "../../../compoent/CustomHeader";
@@ -1127,7 +1127,9 @@ const CourierTrackingScreen = () => {
   console.log(item, "this is new packag item");
   const driver = item?.assignedDriver;
   const status = item?.deliveryStatus;
+useEffect(()=>{
 
+},[item])
   // 1. Static Driver Coordinates for testing
   const staticDriverCoords = {
     latitude: 33.95, // 22.5028885,
@@ -1160,6 +1162,7 @@ const CourierTrackingScreen = () => {
   );
   const [eta, setEta] = useState("Calculating...");
 
+  const mapRef = useRef<MapView>(null);
   const pan = useRef(new Animated.Value(PANEL_CLOSED_Y)).current;
 
   const panResponder = useRef(
@@ -1191,9 +1194,9 @@ const CourierTrackingScreen = () => {
     socket.onmessage = (e) => {
       try {
         const data = JSON.parse(e.data);
-        if (data.latitude && data.longitude) {
+        if (data?.latitude && data?.longitude) {
           const newPoint = {
-            latitude: parseFloat(data.latitude),
+            latitude: parseFloat(data?.latitude),
             longitude: parseFloat(data.longitude),
           };
           setCurrentCoords(newPoint); // This triggers the route update
@@ -1206,13 +1209,15 @@ const CourierTrackingScreen = () => {
       }
     };
     return () => socket.close();
-  }, [item.trackingId]);
+  }, [item?.trackingId]);
 
   return (
     <View style={styles.container}>
       <StatusBarComponent />
 
       <MapView
+        ref={mapRef}
+        provider={PROVIDER_GOOGLE}
         style={styles.map}
         initialRegion={{
           ...staticDriverCoords,
@@ -1237,17 +1242,33 @@ const CourierTrackingScreen = () => {
           </View>
         </Marker.Animated>
 
-        {/* DRAWING ROUTE: From static driver (currentCoords) to target */}
+        {/* Base polyline – Rapido style: thick visible route line */}
         <MapViewDirections
-          origin={currentCoords} // Must be a plain object
-          destination={status === "assigned" ? pickup : dropoff}
+          origin={currentCoords}
+          destination={
+            status === STATUS.ASSIGNED || status === STATUS.GOING_TO_PICKUP
+              ? pickup
+              : dropoff
+          }
           apikey={GOOGLE_MAPS_APIKEY}
-          strokeWidth={4}
-          strokeColor={status === "assigned" ? "#2196F3" : "#FFCC00"}
+          strokeWidth={8}
+          strokeColor={status === STATUS.ASSIGNED || status === STATUS.GOING_TO_PICKUP ? "#007AFF" : "#FF9500"}
+          lineCap="round"
+          lineJoin="round"
           onReady={(res) => {
-            console.log(res, "map res");
-            setDistance(res?.distance);
-            setEta(`${Math.ceil(res.duration)} mins`);
+            setDistance(res?.distance ?? 0);
+            setEta(`${Math.ceil(res.duration ?? 0)} mins`);
+            const dest =
+              status === STATUS.ASSIGNED || status === STATUS.GOING_TO_PICKUP
+                ? pickup
+                : dropoff;
+            mapRef.current?.fitToCoordinates(
+              [currentCoords, dest],
+              {
+                edgePadding: { top: 80, right: 50, bottom: 320, left: 50 },
+                animated: true,
+              }
+            );
           }}
         />
       </MapView>

@@ -10,7 +10,7 @@ import {
  
   ScrollView
 } from 'react-native';
-import MapView, { Marker, Polyline } from 'react-native-maps';
+import MapView, { Marker, Polyline, PROVIDER_GOOGLE } from 'react-native-maps';
 import font from '../../../../theme/font';
  import AsyncStorage from '@react-native-async-storage/async-storage';
 import LoadingModal from '../../../../utils/Loader';
@@ -210,6 +210,7 @@ const DeliveryRequest = () => {
       <Text style={styles.sectionTitle}>Route Map</Text>
       <View style={styles.mapContainer}>
         <MapView
+          provider={PROVIDER_GOOGLE}
           style={styles.map}
           initialRegion={{
             latitude: deliveryData?.pickupLocation?.latitude || 28.6139,

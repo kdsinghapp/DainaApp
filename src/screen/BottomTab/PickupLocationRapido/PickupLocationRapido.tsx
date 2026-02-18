@@ -44,15 +44,32 @@ const PickupLocationRapido = () => {
     getCurrentLocation();
   }, []);
 
+  const fetchAddressForCoords = async (lat: number, lng: number) => {
+    try {
+      const json = await Geocoder.from(lat, lng);
+      const formatted = json.results?.[0]?.formatted_address || 'Unknown Location';
+      setAddress(formatted);
+      searchRef.current?.setAddressText(formatted);
+    } catch {
+      setAddress('Unknown Location');
+    } finally {
+      setIsFetchingAddress(false);
+    }
+  };
+
   const getCurrentLocation = async () => {
     if (Platform.OS === 'android') {
       const granted = await PermissionsAndroid.request(
         PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION
       );
-      if (granted !== PermissionsAndroid.RESULTS.GRANTED) return;
+      if (granted !== PermissionsAndroid.RESULTS.GRANTED) {
+        setAddress('Location permission denied');
+        return;
+      }
     }
 
     setIsLocatingUser(true);
+    setIsFetchingAddress(true);
     Geolocation.getCurrentPosition(
       (pos) => {
         const { latitude, longitude } = pos.coords;
@@ -60,9 +77,15 @@ const PickupLocationRapido = () => {
         setRegion(userRegion);
         mapRef.current?.animateToRegion(userRegion, 1000);
         setIsLocatingUser(false);
+        // Android par onRegionChangeComplete kabhi kabhi nahi chalta, isliye yahan hi address fetch karo
+        fetchAddressForCoords(latitude, longitude);
       },
-      (err) => setIsLocatingUser(false),
-      { enableHighAccuracy: true, timeout: 15000 }
+      (err) => {
+        setIsLocatingUser(false);
+        setIsFetchingAddress(false);
+        setAddress('Unable to get location');
+      },
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 }
     );
   };
   const route = useRoute();

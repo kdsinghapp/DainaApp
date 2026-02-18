@@ -10,6 +10,7 @@ export const useOfferOR = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [offerData, setOfferData] = useState([]);
   const rou: any = useRoute()
+  const [selectedOfferId, setSelectedOfferId] = useState<number | null>(null)
   const { Parcelid, id } = rou?.params || ""
   useEffect(() => {
     fetchOffers();
@@ -48,7 +49,8 @@ export const useOfferOR = () => {
         console.warn("No token found");
         return;
       }
-      const apiUrl = `https://aitechnotech.in/DAINA/api/offers/${id}/accept`;
+        //  const apiUrl = `${base_url}/ooffers/${id}/accept`;
+       const apiUrl = `https://aitechnotech.in/DAINA/api/offers/${id}/accept`;
       const response = await fetch(apiUrl, {
         method: 'POST',
         headers: {
@@ -75,6 +77,37 @@ export const useOfferOR = () => {
 
 
 
+const CounterOffer = async (id: any, amount: number) => {
+  try {
+    const token = await AsyncStorage.getItem('token');
+    if (!token) return;
+   const apiUrl = `${base_url}/offers/counter-offer`;
+    const response = await fetch(apiUrl, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        counterAmount: amount, 
+        offerId: id ,// 👈 yahan amount jaayega
+       }),
+    });
+
+    const result = await response.json();
+
+    if (response.ok) {
+      successToast("counter accepted successfully!");
+     } else {
+      errorToast(result?.message);
+    }
+  } catch (error) {
+    console.error("Error counter offer:", error);
+  }
+};
+
+
+
   return {
     // States
     isLoading,
@@ -84,6 +117,8 @@ export const useOfferOR = () => {
     // Functions
     fetchOffers,
     onAccept,
-    navgation
+    navgation ,
+    CounterOffer ,
+    selectedOfferId, setSelectedOfferId
   };
 };

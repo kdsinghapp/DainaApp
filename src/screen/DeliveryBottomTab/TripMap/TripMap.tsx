@@ -9,8 +9,9 @@ import {
   Linking,
   Alert,
   TextInput,
+  Platform,
 } from 'react-native';
-import MapView, { Marker, Polyline } from 'react-native-maps';
+import MapView, { Marker, Polyline, PROVIDER_GOOGLE } from 'react-native-maps';
 import Geolocation from '@react-native-community/geolocation';
 import ScreenNameEnum from '../../../routes/screenName.enum';
 import { useNavigation, useRoute } from '@react-navigation/native';
@@ -25,21 +26,23 @@ import { color } from '../../../constant';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import font from '../../../theme/font';
 import MapViewDirections from 'react-native-maps-directions';
+import { successToast } from '../../../utils/customToast';
+import CustomHeader from '../../../compoent/CustomHeader';
 
 
 const TripMap = () => {
   const [loading, setLoading] = useState(false)
   const route: any = useRoute()
-  const { item,event } = route?.params || ""
+  const { item, event } = route?.params || ""
   // console.log("pickupLon", event?.parcel?.pickupLat)
   // console.log("pickupLon", event?.parcel?.pickupLon)
 
- 
+
   const parcelId = item?.parcelId
   const [actionLoading, setActionLoading] = useState(true);
-  useEffect(()=>{
+  useEffect(() => {
 
-  },[route])
+  }, [route])
   const [parcel, setParcel] = useState(item)
   const [pickupOtp, setPickupOtp] = useState('');
   const [deliveryOtp, setDeliveryOtp] = useState('');
@@ -84,56 +87,18 @@ const TripMap = () => {
     console.log(res, 'this is res')
   }
 
-  const Submit = async () => {
-    navigation.replace(ScreenNameEnum.DeliveryTabNavigator)
 
-    // const param = {
-    //   id: item?.user_id,
-    //   bookingId: item?.id,
-    //   status: "Done"
-    // }
-    // setLoading(true)
-    // await ChangeTripStatusApi(param, setLoading)
-    //  navigation.navigate(ScreenNameEnum.CaptureDoc) 
-  }
   const origin = {
     latitude: parseFloat(item?.departure_lat) || 0,
     longitude: parseFloat(item?.departure_lon) || 0,
   };
   const destination = { latitude: parseFloat(item?.arrival_lat), longitude: parseFloat(item?.arrival_lon) }; // Indore MP
   const driver = { latitude: parseFloat(item?.departure_lat), longitude: parseFloat(item?.departure_lon) };
-  // const [locationModal, setLocationModal] = useState(false);
-  // const [selectedAddress, setSelectedAddress] = useState(item?.departure_address);
-  // const [selectedAddress2, setSelectedAddress2] = useState(item?.arrival_address);
-  // const [locationModal2, setLocationModal2] = useState(false);
-  const [end, setEnd] = useState(false)
+
   const navigation = useNavigation()
-  const mapRef = useRef(null)
-  // const handleLocationSelected = (location: { latitude: number, longitude: number, address: string }) => {
-  //   setSelectedAddress(location);
-  //   handleModalSubmit()
-  // };
-  // const handleModalSubmit = () => {
-  //   setLocationModal(false);
-  // };
-
-  // const handleLocationSelected2 = (location: { latitude: number, longitude: number, address: string }) => {
-  //   setSelectedAddress2(location);
-  //   handleModalSubmit2()
-  // };
-  // const handleModalSubmit2 = () => {
-  //   setLocationModal(false);
-  // };
-
-  // const routeCoordinates = [
-  //   origin,
-  //   { latitude: 30, longitude: -90 },
-  //   { latitude: 25, longitude: -80 },
-  //   destination,
-  // ];
   const getButtonConfig = () => {
     const currentStatus = item?.deliveryStatus;
-
+    console.log("currentStatus", currentStatus)
     switch (currentStatus) {
       // case STATUS.PENDING:
       //   return {
@@ -251,8 +216,8 @@ const TripMap = () => {
     longitude: safeNum(parcel?.pickupLon ?? parcel?.pickupLocationLon, DEFAULT_LNG),
   };
   const dropoff = {
-    latitude: safeNum(parcel?.dropLat, DEFAULT_LAT),
-    longitude: safeNum(parcel?.dropLon, DEFAULT_LNG),
+    latitude: safeNum(parcel?.dropLat || parcel.dropLocationLat, DEFAULT_LAT),
+    longitude: safeNum(parcel?.dropLon || parcel.dropLocationLon, DEFAULT_LNG),
   };
 
   const [currentCoords, setCurrentCoords] = useState(driverCoords);
@@ -265,7 +230,7 @@ const TripMap = () => {
     latitude: safeNum(driverCoords.latitude, DEFAULT_LAT),
     longitude: safeNum(driverCoords.longitude, DEFAULT_LNG),
   };
- 
+
   const buttonConfig = getButtonConfig();
   const updateParcelStatus = async (orderId, newStatus, otp) => {
     // Implement your API call here
@@ -282,11 +247,11 @@ const TripMap = () => {
       token,
       isFormData: true
     }
-    console.log(param)
     return await PostApi(param, setActionLoading);
   };
+  useEffect(() => {
 
-  // Handle status update
+  }, [item])
   const handleStatusUpdate = async (newStatus: any) => {
     try {
       setActionLoading(true);
@@ -298,12 +263,11 @@ const TripMap = () => {
         Alert.alert('Please enter delivery OTP shared by customer')
         return;
       }
-      // Call API to update status
 
-      const result = await updateParcelStatus(item?.parcelId, newStatus, newStatus == STATUS.DELIVERED ? deliveryOtp : pickupOtp);
+      const result = await updateParcelStatus(item?.parcelId || item.id, newStatus, newStatus == STATUS.DELIVERED ? deliveryOtp : pickupOtp);
       console.log(result)
       if (result.status == 1) {
-        Alert.alert("Success", `Status updated to ${STATUS_LABELS[newStatus]}`);
+        successToast(`Success, Status updated to ${STATUS_LABELS[newStatus]}`)
         navigation.goBack();
         // You might want to refresh the data here
       } else {
@@ -318,24 +282,12 @@ const TripMap = () => {
     }
   };
 
-  // Handle cancel order
-  const handleCancelOrder = () => {
-    Alert.alert(
-      "Cancel Order",
-      "Are you sure you want to cancel this order?",
-      [
-        { text: "No", style: "cancel" },
-        {
-          text: "Yes",
-          style: "destructive",
-          onPress: () => handleStatusUpdate(STATUS.CANCELLED)
-        }
-      ]
-    );
-  };
+
+
   return (
     <View style={styles.container}>
       {loading && <LoadingModal />}
+
       {/* <MapView
   provider="google"
   style={{ flex: 1 }}
@@ -357,22 +309,14 @@ const TripMap = () => {
   </Marker>
 </MapView> */}
       <MapView
-        style={{ flex: 1 }}
+        provider={PROVIDER_GOOGLE}
+        style={[styles.mapView, Platform.OS === 'ios' && { height: Dimensions.get('window').height }]}
         initialRegion={{
-          latitude:22.7028931,
-    longitude: 75.8715823,
-          // longitude: 77.209,
+          latitude: 22.7028931,
+          longitude: 75.8715823,
           latitudeDelta: 0.05,
           longitudeDelta: 0.05,
         }}
-//  initialRegion={{
-//     latitude: pickup.latitude,
-//     longitude: pickup.longitude,
-//     latitudeDelta: 0.05,
-//     longitudeDelta: 0.05,
- 
-// }}
-
       >
         {/* <Marker coordinate={{ latitude: 28.6139, longitude: 77.209 }} /> */}
         {!actionLoading &&
@@ -449,27 +393,60 @@ const TripMap = () => {
             <View style={styles.seprator} />
           </>
         } */}
-     
+
         <View style={styles.driverRow}>
-          <Image
-            source={{
-              uri: item?.user?.image || event?.sender.profileImage  ? event?.sender.profileImage :event?.sender.profileImage,
-            }}
-            style={styles.avatar}
-          />
+          {item?.user?.image ? (
+            <Image
+              source={{
+                uri: item?.user?.image || item?.user?.imagem ? item?.user?.image : item?.user?.image,
+              }}
+              style={styles.avatar}
+            />
+
+          ) : (
+            <Image
+              source={{
+                uri: item?.user?.image || event?.sender.profileImage ? event?.sender.profileImage : event?.sender.profileImage,
+              }}
+              style={styles.avatar}
+            />
+
+          )}
+
           <View>
             {/* <Text style={styles.driverName}>Marcus Aminoff</Text> */}
-            <Text style={styles.driverName}>{item?.user?.firstName ||event?.sender.name || ""}</Text>
+            <Text style={styles.driverName}>{item?.user?.firstName || event?.sender.name || ""}</Text>
             <Text style={styles.carDetails}>{item?.user?.phone}</Text>
-            {/* <Text style={styles.carDetails}>{item?.patient_details?.mobile_number}</Text> */}
+            <Text style={styles.carDetails}>{item?.patient_details?.mobile_number}</Text>
           </View>
-          {end &&
+          {/* {end &&
             <Text style={[styles.timeText, { right: 0 }]}>2 xxx</Text>
-          }
+          } */}
         </View>
 
         <View style={styles.buttonRow}>
-          <TouchableOpacity onPress={() => setEnd(true)} >
+
+          <TouchableOpacity onPress={() =>
+            Alert.alert(
+              "Confirmation",
+              "Are you sure you want to cancel?",
+              [
+                {
+                  text: "No",
+                  style: "cancel",
+                  onPress: () => console.log("User chose No"),
+                },
+                {
+                  text: "Yes",
+                  onPress: () => {
+                    console.log("User chose Yes");
+                    handleStatusUpdate(STATUS.CANCELLED);
+                  },
+                },
+              ],
+              { cancelable: false }
+            )
+          }>
             <Image source={imageIndex.Closed} style={styles.iconBtn} />
           </TouchableOpacity>
           <TouchableOpacity onPress={() => {
@@ -694,5 +671,9 @@ const styles = StyleSheet.create({
     borderColor: "#FFCC00",
   },
   courierImage: { width: 30, height: 30, resizeMode: "contain" },
+  mapView: {
+    flex: 1,
+    width: '100%',
+  },
 
 });

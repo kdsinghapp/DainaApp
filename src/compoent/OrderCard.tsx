@@ -12,7 +12,20 @@ const CARD_BG = "#FFFFFF";
 const BORDER = "#EFEFEF";
 
 const OrderCard = ({ order, onPress }: { order: any; onPress: () => void }) => {
-  
+         const isoTime = order?.createdAt;
+
+const formattedTime = new Date(isoTime).toLocaleString("en-IN", {
+  timeZone: "Asia/Kolkata",
+  day: "2-digit",
+  month: "short",
+  year: "numeric",
+  hour: "2-digit",
+  minute: "2-digit",
+  hour12: true,
+});
+ 
+console.log(formattedTime);
+
   // Helper to format the date/time
   const formatDateTime = (isoString: string) => {
     if (!isoString) return "";
@@ -42,7 +55,9 @@ const OrderCard = ({ order, onPress }: { order: any; onPress: () => void }) => {
         </View>
         <View style={styles.headerText}>
           <Text style={styles.cardId}>#{order.trackingId || order.id} <Text style={{color:MUTED}}> •</Text></Text>
-          <Text style={styles.cardDate}> {formatDateTime(order.createdAt)}</Text>
+          <Text style={styles.cardDate}> {order?.deliveryStatus}</Text>
+          {/* <Text style={styles.cardDate}> {formattedTime}</Text> */}
+          {/* <Text style={styles.cardDate}> {formatDateTime(order.createdAt)}</Text> */}
         </View>
         {/* Price Tag */}
         {/* <View style={styles.priceContainer}>

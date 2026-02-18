@@ -156,8 +156,11 @@ const ShippingScreen = () => {
         contentContainerStyle={{ paddingBottom: 120 }}
         data={orderData}
         keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <OrderCard order={item} onPress={() => {
+        renderItem={({ item }) =>  {
+  console.log("item",item)
+
+          return(
+             <OrderCard order={item} onPress={() => {
             // console.log('first', item)
             if (item?.deliveryStatus === "pending") {
               navigation.navigate(ScreenNameEnum.ViewDetails, {
@@ -171,7 +174,8 @@ const ShippingScreen = () => {
             }
 
           }} />
-        )}
+          )
+        }}
         ItemSeparatorComponent={() => <View style={{ height: 14 }} />}
         showsVerticalScrollIndicator={false}
         ListEmptyComponent={() => (

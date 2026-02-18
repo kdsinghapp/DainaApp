@@ -163,8 +163,18 @@ export default function ViewDetails() {
           </View>
 
           {/* City Info */}
-          <View style={styles.row}
-
+          <TouchableOpacity style={styles.row}
+ onPress={() => {
+                if (order.status === 'pending') {
+                  navigation.navigate(ScreenNameEnum.OfferOR, {
+                    id: { parcel: parcel }
+                  })
+                } else {
+                  navigation.navigate(ScreenNameEnum.CourierTrackingScreen, {
+                    item: parcel
+                  })
+                }
+              }}
           >
             <View style={styles.cityBlock}>
               <Text style={styles.date}>{order.startDate}</Text>
@@ -175,7 +185,7 @@ export default function ViewDetails() {
               <Text style={styles.date}>{order.endDate}</Text>
               <Text style={styles.city}>{order.toCity}</Text>
             </View>
-          </View>
+          </TouchableOpacity>
 
           <View
             style={{
@@ -196,7 +206,8 @@ export default function ViewDetails() {
             >
               <Text style={styles.pillText}
 
-              > {STATUS_LABELS[order.status] || DEFAULT_STATUS}
+              >
+                 {STATUS_LABELS[order.status] || DEFAULT_STATUS}
                 {/* {order.status === "pending" ? "Waiting for Driver" : order.status === "packaged"
                   ? "Still Packaged"
                   : order.status === "shipped"

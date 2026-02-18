@@ -309,7 +309,7 @@
 
 
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -388,7 +388,7 @@ const ParcelDetails = () => {
     imgloading, setImgloading,
     updateParcelStatus
   } = useParcelDetails();
-
+console.log("--0--item",item)
   const [actionLoading, setActionLoading] = useState(false);
  
   // Get button configuration based on status - CORRECTED COLOR ACCESS
@@ -489,7 +489,9 @@ const ParcelDetails = () => {
         };
     }
   };
-
+ useEffect(()=>{
+  
+ },[item?.parcelId])
   // Handle status update
   const handleStatusUpdate = async (newStatus:any) => {
     try {

@@ -2,10 +2,14 @@ import UIKit
 import React
 import React_RCTAppDelegate
 import ReactAppDependencyProvider
+import GoogleMaps
 
 @main
 class AppDelegate: RCTAppDelegate {
   override func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
+    // Google Maps SDK for iOS (required for map + polyline on iOS)
+    GMSServices.provideAPIKey("AIzaSyDgFGS91BvviXh_f-nmvtEggUHJcaGyUwA")
+
     self.moduleName = "ChewbeApp"
     self.dependencyProvider = RCTAppDependencyProvider()
 

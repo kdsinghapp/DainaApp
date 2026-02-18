@@ -20,7 +20,7 @@ import axios from "axios";
 import { base_url } from "../../../../Api";
 import LoadingModal from "../../../../utils/Loader";
 import { styles } from "./style";
-import { STATUS } from "../../../../utils/Constant";
+import { STATUS, STATUS_COLORS, STATUS_LABELS } from "../../../../utils/Constant";
 
 type OrderStatus = "Pending" | "Completed" | "Cancelled";
 type Order = {
@@ -142,27 +142,29 @@ const DeliveryHome = () => {
   };
 
   const renderItem = ({ item }: { item: Order }) => {
-    const st = item.parcel?.deliveryStatus
+    const st = item.parcel?.deliveryStatus;
+    const statusKey = item.parcel?.deliveryStatus;
+    const statusLabel = STATUS_LABELS[statusKey] || 'Unknown';
+    const statusColor = STATUS_COLORS[statusKey] || 'black';
     return (
       <TouchableOpacity
         style={styles.card}
         activeOpacity={0.9}
         onPress={() => {
-          console.log(item)
-          if (st == STATUS.PENDING) {
+           if (st == STATUS.PENDING) {
             navigation.navigate(ScreenNameEnum.ParcelDetails, {
-               item: { ...item, ...item?.parcel }
+              item: { ...item, ...item?.parcel }
             });
           }
-          else  if (st == STATUS.ASSIGNED) {
+          else if (st == STATUS.ASSIGNED) {
             navigation.navigate(ScreenNameEnum.TripMap, {
-               item: { ...item, ...item?.parcel }
+              item: { ...item, ...item?.parcel }
             });
           }
-          
+
           else {
             navigation.navigate(ScreenNameEnum.TripMap, {
-               item: { ...item, ...item?.parcel }
+              item: { ...item, ...item?.parcel }
             });
           }
         }}
@@ -193,18 +195,18 @@ const DeliveryHome = () => {
                 textTransform: "capitalize",
                 fontSize: 15,
                 fontFamily: font.TrialMedium,
-                color:
-                  item.parcel?.deliveryStatus === "pending"
-                    ? "orange"
-                    : item.parcel?.deliveryStatus === "assigned"
-                    ? "green"
-                    : item.parcel?.deliveryStatus === "complete"
-                    ? "blue"
-                    : "black",
+                color: statusColor
+                // item.parcel?.deliveryStatus === "pending"
+                //   ? "orange"
+                //   : item.parcel?.deliveryStatus === "assigned"
+                //   ? "green"
+                //   : item.parcel?.deliveryStatus === "complete"
+                //   ? "blue"
+                //   : "black",
               },
             ]}
           >
-            {item.parcel?.deliveryStatus}
+            {statusLabel}
           </Text>
         </View>
 
