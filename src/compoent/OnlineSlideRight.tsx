@@ -296,20 +296,22 @@ const FloatingOnlineButton: React.FC<Props> = ({ isOnline, setIsOnline }) => {
     lon: string | null;
   }>({ lat: null, lon: null });
 
-  // Pulse Loop Logic
+  // Pulse Loop Logic – with cleanup to avoid leaks
   useEffect(() => {
-    if (isOnline && !loading) {
-      Animated.loop(
-        Animated.timing(pulseAnim, {
-          toValue: 1,
-          duration: 2000,
-          easing: Easing.out(Easing.ease),
-          useNativeDriver: true,
-        })
-      ).start();
-    } else {
+    if (!isOnline || loading) {
       pulseAnim.setValue(0);
+      return;
     }
+    const loop = Animated.loop(
+      Animated.timing(pulseAnim, {
+        toValue: 1,
+        duration: 2000,
+        easing: Easing.out(Easing.ease),
+        useNativeDriver: true,
+      })
+    );
+    loop.start();
+    return () => loop.stop();
   }, [isOnline, loading]);
 
   const pressIn = () => {
@@ -321,25 +323,29 @@ const FloatingOnlineButton: React.FC<Props> = ({ isOnline, setIsOnline }) => {
   };
 
   const toggleOnlineStatus = async () => {
-    try {
-      setLoading(true);
-      const token = await AsyncStorage.getItem('token');
-      if (!token) return;
+    if (loading) return;
+    const token = await AsyncStorage.getItem('token');
+    if (!token) return;
 
+    // Optimistic: UI toggle turant
+    const nextOnline = !isOnline;
+    setIsOnline(nextOnline);
+    setLoading(true);
+
+    try {
       let lat = currentLocation.lat;
       let lon = currentLocation.lon;
 
       if (!lat || !lon) {
-        await new Promise((resolve) => {
+        await new Promise<void>((resolve) => {
           Geolocation.getCurrentPosition(
             (position) => {
               lat = position.coords.latitude.toString();
               lon = position.coords.longitude.toString();
               setCurrentLocation({ lat, lon });
-              console.log(position)
-              resolve(null);
+              resolve();
             },
-            (error) => { resolve(null); },
+            () => resolve(),
             { enableHighAccuracy: true, timeout: 20000, maximumAge: 10000 }
           );
         });
@@ -348,7 +354,7 @@ const FloatingOnlineButton: React.FC<Props> = ({ isOnline, setIsOnline }) => {
       const requestBody = {
         lat: lat || '0',
         lon: lon || '0',
-        status: isOnline ? 'offline' : 'online',
+        status: nextOnline ? 'online' : 'offline',
       };
 
       const response = await fetch(`${base_url}/driver/location`, {
@@ -361,12 +367,15 @@ const FloatingOnlineButton: React.FC<Props> = ({ isOnline, setIsOnline }) => {
       });
 
       const data = await response.json();
-      console.log(data)
       if (data?.status) {
         setIsOnline(data?.data?.status === 'online');
+      } else {
+        // API fail → revert UI
+        setIsOnline(!nextOnline);
       }
     } catch (error) {
-      console.log('Toggle Error:', error);
+      __DEV__ && console.warn('Toggle Error:', error);
+      setIsOnline(!nextOnline);
     } finally {
       setLoading(false);
     }
@@ -407,9 +416,13 @@ const FloatingOnlineButton: React.FC<Props> = ({ isOnline, setIsOnline }) => {
             onPress={toggleOnlineStatus}
             onPressIn={pressIn}
             onPressOut={pressOut}
+            disabled={loading}
             style={[
               styles.button,
-              { backgroundColor: isOnline ? '#000' : '#000' }
+              {
+                backgroundColor: isOnline ? '#22c55e' : '#374151',
+                opacity: loading ? 0.85 : 1,
+              },
             ]}
           >
             <Text style={styles.buttonText}>
@@ -436,8 +449,8 @@ const styles = StyleSheet.create({
   container: {
     position: 'absolute',
     left: 0,
-    right: 0,
-    alignItems: 'center',
+    right: 15,
+    alignItems: 'flex-end',
     zIndex: 1000,
   },
   buttonWrapper: {
@@ -451,9 +464,9 @@ const styles = StyleSheet.create({
     height: 80,
     width: 80,
     borderRadius: 40,
-    backgroundColor: '#000', // Matches online color
+    backgroundColor: 'transparent',
     borderWidth: 2,
-    borderColor: '#000',
+    borderColor: '#22c55e',
   },
   button: {
     height: 80,
@@ -469,9 +482,9 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     color: '#fff',
-    fontSize: 12,
-     textAlign: 'center',
-    fontFamily:font.MonolithRegular
+    fontSize: 14,
+    textAlign: 'center',
+    fontFamily: font.MonolithRegular,
   },
   statusText: {
     marginTop: 8,

@@ -60,12 +60,23 @@ export default function OrdersScreen() {
   // }, [tab]);
 
   // 1. Filter Logic: Separate Complete from Pending
-  const data = useMemo(() => {
-    return orderData.filter((o:Order) => {
-      const isDelivered = o.deliveryStatus === STATUS.DELIVERED || o.deliveryStatus === STATUS.COMPLETED;
-      return tab === "complete" ? isDelivered : !isDelivered;
-    });
-  }, [tab, orderData]);
+const data = useMemo(() => {
+  return orderData.filter((o: Order) => {
+    const isDelivered =
+      o.deliveryStatus === STATUS.DELIVERED ||
+      o.deliveryStatus === STATUS.COMPLETED;
+
+    const isCancelled =
+      o.deliveryStatus === STATUS.CANCELLED;
+
+    if (tab === "complete") return isDelivered;
+    if (tab === "cancelled") return isCancelled;
+
+    // pending
+    return !isDelivered && !isCancelled;
+  });
+}, [tab, orderData]);
+
 
   // 2. Pull to Refresh Logic
   const onRefresh = useCallback(async () => {
@@ -164,6 +175,11 @@ export default function OrdersScreen() {
             active={tab === "complete"}
             onPress={() => setTab("complete")}
           />
+          <SegmentedTab
+            label="Canceled"
+            active={tab === "cancelled"}
+            onPress={() => setTab("cancelled")}
+          />
         </View>
 
         <FlatList
@@ -213,30 +229,66 @@ const SegmentedTab = ({
   </Pressable>
 );
 
+// const StatusPill = ({ status }: { status: OrderStatus }) => {
+//   const text =
+//     status === STATUS.PENDING
+//       ? "Still Packaged"
+//       : status === STATUS.PICKED_UP
+//         ? "In Shipping"
+//         : status === STATUS.ON_THE_WAY
+//           ? "In Transit"
+//           : status === STATUS.DELIVERED ?
+//             STATUS_LABELS[STATUS.DELIVERED]
+//             : STATUS_LABELS[STATUS.PENDING];
+
+//   const pillStyle =
+//     status === "delivered" ? styles.pillDone : styles.pillProgress;
+
+//   return (
+//     <View style={[styles.pill, pillStyle]}>
+//       <Text style={[styles.pillText, {
+//         color: "white"
+//       }]}>{text}</Text>
+//     </View>
+//   );
+// };
+
 const StatusPill = ({ status }: { status: OrderStatus }) => {
   const text =
     status === STATUS.PENDING
       ? "Still Packaged"
       : status === STATUS.PICKED_UP
-        ? "In Shipping"
-        : status === STATUS.ON_THE_WAY
-          ? "In Transit"
-          : status === STATUS.DELIVERED ?
-            STATUS_LABELS[STATUS.DELIVERED]
-            : STATUS_LABELS[STATUS.PENDING];
+      ? "In Shipping"
+      : status === STATUS.ON_THE_WAY
+      ? "In Transit"
+      : status === STATUS.DELIVERED
+      ? STATUS_LABELS[STATUS.DELIVERED]
+      : status === STATUS.CANCELLED
+      ? "Canceled"
+      : STATUS_LABELS[STATUS.PENDING];
 
   const pillStyle =
-    status === "delivered" ? styles.pillDone : styles.pillProgress;
+    status === STATUS.DELIVERED
+      ? styles.pillDone
+      : status === STATUS.CANCELLED
+      ? styles.pillCancelled
+      : styles.pillProgress;
+
+  const textColor =
+    status === STATUS.DELIVERED
+      ? "#FFFFFF"        // white on green
+      : status === STATUS.CANCELLED
+      ? "#ff0404ff"        // white on red
+      : "#000000";       // black on yellow
 
   return (
     <View style={[styles.pill, pillStyle]}>
-      <Text style={[styles.pillText, {
-        color: "white"
-      }]}>{text}</Text>
+      <Text style={[styles.pillText, { color: textColor }]}>
+        {text}
+      </Text>
     </View>
   );
 };
-
 
 const ProgressTrack = ({ status }: { status: string }) => {
   const currentIdx = STATUS_STEPS.indexOf(status);
@@ -298,7 +350,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     marginTop: 11,
     shadowRadius: 1.41,
-    borderWidth: 1,
+    borderWidth: 0.8,
     borderColor: "#eee",
   },
   tab: {
@@ -308,7 +360,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   tabActive: { backgroundColor: "#FFCC00" },
-  tabText: { fontSize: 14, fontFamily: font.MonolithRegular, color: MUTED },
+  tabText: { fontSize: 14, fontFamily: font.MonolithRegular, color: "#FFCC00" },
   tabTextActive: { color: "#000", fontSize: 14, fontFamily: font.MonolithRegular, },
 
   card: {

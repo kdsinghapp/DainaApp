@@ -17,6 +17,9 @@ container: { flex: 1, backgroundColor: '#FFCC00' },
     height: 200,
     width: 200,
   },
+  emptyText:{
+ fontSize: 15, color: 'black', fontWeight: '600',  
+  },
   circle: {
     width: 120,
     height: 120,

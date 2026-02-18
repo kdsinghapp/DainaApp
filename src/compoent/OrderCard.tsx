@@ -2,6 +2,7 @@ import React from "react";
 import { View, Text, StyleSheet, Image, TouchableOpacity } from "react-native";
 import imageIndex from "../assets/imageIndex";
 import font from "../theme/font";
+import { color } from "../constant";
  
 
 // Define the colors based on your design
@@ -14,17 +15,7 @@ const BORDER = "#EFEFEF";
 const OrderCard = ({ order, onPress }: { order: any; onPress: () => void }) => {
          const isoTime = order?.createdAt;
 
-const formattedTime = new Date(isoTime).toLocaleString("en-IN", {
-  timeZone: "Asia/Kolkata",
-  day: "2-digit",
-  month: "short",
-  year: "numeric",
-  hour: "2-digit",
-  minute: "2-digit",
-  hour12: true,
-});
  
-console.log(formattedTime);
 
   // Helper to format the date/time
   const formatDateTime = (isoString: string) => {
@@ -54,10 +45,10 @@ console.log(formattedTime);
           />
         </View>
         <View style={styles.headerText}>
-          <Text style={styles.cardId}>#{order.trackingId || order.id} <Text style={{color:MUTED}}> •</Text></Text>
-          <Text style={styles.cardDate}> {order?.deliveryStatus}</Text>
-          {/* <Text style={styles.cardDate}> {formattedTime}</Text> */}
-          {/* <Text style={styles.cardDate}> {formatDateTime(order.createdAt)}</Text> */}
+          <Text style={styles.cardId}>#{order.trackingId || order.id} <Text style={{color:MUTED,    fontFamily: font.MonolithRegular,
+}}> •</Text></Text>
+          {/* <Text style={styles.cardDate}> {order?.deliveryStatus}</Text> */}
+           <Text style={styles.cardDate}> {formatDateTime(order.createdAt)}</Text>
         </View>
         {/* Price Tag */}
         {/* <View style={styles.priceContainer}>
@@ -101,8 +92,20 @@ console.log(formattedTime);
             {order.deliveryStatus ? order.deliveryStatus=="pending" ? "Waiting for Driver" : order.deliveryStatus.toUpperCase() : "PENDING"}
           </Text>
         </View>
-        <Text style={styles.viewDetailsText}>View Details</Text>
       </View>
+      <View style={{
+        backgroundColor:color.baground,
+        width:"40%" ,
+        padding:6,
+        borderRadius:10,
+        marginTop:10,
+        alignItems:"center",
+        justifyContent:"center"
+      }}>
+              <Text style={[styles.viewDetailsText,{
+                color:"black"
+              }]}>View Details</Text>
+</View>
     </TouchableOpacity>
   );
 };
@@ -146,8 +149,7 @@ const styles = StyleSheet.create({
     fontFamily: font.MonolithRegular,
     fontSize: 15,
     color: TEXT,
-    fontWeight: "bold",
-  },
+   },
   cardDate: {
     fontFamily: font.MonolithRegular,
     fontSize: 12,
@@ -163,7 +165,7 @@ const styles = StyleSheet.create({
   priceText: {
     fontFamily: font.MonolithRegular,
     color: YELLOW,
-    fontWeight: "700",
+  
   },
   locationSection: {
     flexDirection: "row",
@@ -190,8 +192,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: TEXT,
     fontFamily: font.MonolithRegular,
-    fontWeight: "500",
-    marginTop: 2,
+     marginTop: 2,
   },
   footer: {
     flexDirection: "row",
@@ -212,15 +213,14 @@ const styles = StyleSheet.create({
     fontFamily: font.MonolithRegular,
   },
   statusValue: {
-    fontSize: 13,
+    fontSize: 16,
     color: "#4CAF50", // Green for status
-    fontWeight: "bold",
-    fontFamily: font.MonolithRegular,
+     fontFamily: font.MonolithRegular,
   },
   viewDetailsText: {
-    fontSize: 13,
-    color: MUTED,
-    textDecorationLine: "underline",
-    fontFamily: font.MonolithRegular,
+  fontSize: 14,
+    color: color.baground,
+    // textDecorationLine: "underline",
+     fontFamily: font.MonolithRegular,
   },
 });

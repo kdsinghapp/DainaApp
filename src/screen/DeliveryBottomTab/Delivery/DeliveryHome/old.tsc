@@ -1,16 +1,17 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
+import { Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import { base_url, WebSocket_Url } from '../../../../Api';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import Geolocation from '@react-native-community/geolocation';
 import { successToast } from '../../../../utils/customToast';
-import io, { Socket } from 'socket.io-client';
 import ScreenNameEnum from '../../../../routes/screenName.enum';
+import { STATUS } from '../../../../utils/Constant';
 export const useDeliveryHome = () => {
   const [isLoading, setIsLoading] = useState(false);
   const navigation = useNavigation()
-  const [requests, setRequests] = useState<Record<string, unknown>[]>([]);
+  const [requests, setRequests] = useState([]);
   const [address, setAddress] = useState('');
   const [location, setLocation] = useState(null);
   const [locationModal, setlocationModal] = useState(false);
@@ -20,9 +21,8 @@ export const useDeliveryHome = () => {
 
   const locationRef = useRef(null);
   const [isConnected, setIsConnected] = useState(false);
-  const socketRef = useRef<Socket | null>(null);
+  const socketRef = useRef<WebSocket | null>(null);
   const socketLiveRef = useRef<WebSocket | null>(null);
-  const socketNearbyParcelsRef = useRef<WebSocket | null>(null);
 
   // Store lat/long for API; only updates when user moves ≥20m (see watchPosition)
   const [coords, setCoords] = useState<{ lat: number; lon: number } | null>(null);
@@ -74,10 +74,9 @@ export const useDeliveryHome = () => {
           },
         },
       );
-      console.log("response?.data", response?.data)
-
+ 
       if (response?.data?.status == 1) {
-        console.log("response?.data", response?.data)
+        // console.log("response?.data", response?.data)
         successToast(response?.data.message)
         // const validRequests = response?.data?.requests?.filter(
         //   (item) => item?.trackingId !== null && item?.trackingId !== "",
@@ -104,23 +103,25 @@ export const useDeliveryHome = () => {
   }, []);
   const sendLiveLocation = useCallback((lat: number, lon: number) => {
     const ws = socketLiveRef.current;
-    if (ws?.readyState === WebSocket.OPEN) {
-      ws.send(JSON.stringify({ type: 'online', lat, lon }));
+    if (ws && ws.readyState === WebSocket.OPEN) {
+      const payload = JSON.stringify({ type: 'online', lat, lon });
+      console.log("📤 Sending Location to Socket:", payload);
+      ws.send(payload);
+    } else {
+      console.log("⚠️ Socket not open. State:", ws?.readyState);
     }
   }, []);
 
-  const requestNearbyParcels = useCallback((lat: number, lon: number) => {
-    const ws = socketNearbyParcelsRef.current;
-    if (ws?.readyState === WebSocket.OPEN) {
-      ws.send(JSON.stringify({ type: 'location', lat, lon }));
+  const nearbyparcels = useCallback((lat: number, lon: number) => {
+    const ws = socketLiveRef.current;
+    if (ws && ws.readyState === WebSocket.OPEN) {
+      const payload = JSON.stringify({ type: 'location', lat, lon });
+      console.log("📤 Nearby parcels location to Socket:", payload);
+      ws.send(payload);
+    } else {
+      console.log("⚠️ Nearby parcels socket not open. State:", ws?.readyState);
     }
   }, []);
-  // const sendLiveLocation = useCallback((lat: number, lon: number) => {
-  //   const ws = socketLiveRef.current;
-  //   if (ws?.readyState === WebSocket.OPEN) {
-  //     ws.send(JSON.stringify({ type: 'online', lat, lon }));
-  //   }
-  // }, []);
 
   // Watch position: update stored lat/long only when user moves ≥20 meters
   useEffect(() => {
@@ -132,7 +133,7 @@ export const useDeliveryHome = () => {
       if (lat != null && lon != null) {
         setCoords({ lat, lon });
         sendLiveLocation(lat, lon);
-        requestNearbyParcels(lat, lon);
+        nearbyparcels(lat, lon);
       }
     };
 
@@ -146,8 +147,9 @@ export const useDeliveryHome = () => {
         const lon = pos?.coords?.longitude;
         if (lat != null && lon != null) {
           setCoords({ lat, lon });
+          // fetchAvailableRequests();
           sendLiveLocation(lat, lon);
-          requestNearbyParcels(lat, lon);
+          nearbyparcels(lat, lon)
         }
         watchId = Geolocation.watchPosition(onPosition, onError, {
           enableHighAccuracy: true,
@@ -163,14 +165,14 @@ export const useDeliveryHome = () => {
         Geolocation.clearWatch(watchId);
       }
     };
-  }, [sendLiveLocation, requestNearbyParcels]);
+  }, [sendLiveLocation, nearbyparcels]);
 
   // Auto-fetch when screen is focused
-  // useFocusEffect(
-  //   useCallback(() => {
-  //     fetchAvailableRequests();
-  //   }, [fetchAvailableRequests])
-  // );
+  useFocusEffect(
+    useCallback(() => {
+      fetchAvailableRequests();
+    }, [fetchAvailableRequests])
+  );
 
   const connectSocket = (token: string) => {
     return new Promise<void>((resolve, reject) => {
@@ -192,8 +194,10 @@ export const useDeliveryHome = () => {
             if (data?.type === "offer_accepted") {
               setAcceptModal(true);
               setuserInfromation(data);
+              console.log("data", data)
               navigation.navigate(ScreenNameEnum.TripMap, {
-                item: data?.parcel,
+                item: { ...data?.parcel, deliveryStatus: STATUS.ASSIGNED },
+                event: data,
               });
             }
             if (data?.type == "parcelStatusUpdate") {
@@ -203,61 +207,58 @@ export const useDeliveryHome = () => {
             console.warn('❌ Failed to parse message:', e);
           }
         };
-        ws.onerror = (error) => {
-          console.error('❌ WebSocket Error:', error);
+        ws.onerror = (event) => {
+          const msg = (event && typeof event === 'object' && 'message' in event) ? String((event as { message?: string }).message) : 'WebSocket error';
+          console.error('❌ WebSocket Error:', msg);
           setIsConnected(false);
-          reject(error);
+          reject(new Error(msg));
         };
 
         ws.onclose = () => {
           console.log('⚠️ WebSocket Closed');
           setIsConnected(false);
+          socketRef.current = null;
         };
 
       } catch (error) {
-        reject(error);
+        reject(error instanceof Error ? error : new Error(String(error)));
         console.log('⚠️ Error creating socket:', error);
       }
     });
   };
 
+
   const connectLiveLocationSocket = (token: string) => {
     return new Promise<void>((resolve, reject) => {
       try {
-        const wsUrl = `${WebSocket_Url}/driver-live?token=${token}`;
+        const wsUrl = `${WebSocket_Url}/nearby-parcels?token=${token}`;
         const ws = new WebSocket(wsUrl);
-        
         ws.onopen = () => {
-          console.log('✅ Live location WebSocket connected', coordsRef.current);
+          console.log('location WebSocket connected');
           socketLiveRef.current = ws;
-          const { lat, lon } = coordsRef.current ?? {};
-          if (lat != null && lon != null) {
-            console.log(JSON.stringify({ type: 'online', lat, lon }))
-            // ws.send(JSON.stringify({ type: 'online', lat: lat, lon: lon }))
-          }
           resolve();
         };
+
         ws.onmessage = (event) => {
+          console.log(event.data, 'event.data');
           try {
-            console.log(event.data, 'this response from backend')
             const data = JSON.parse(event.data);
-            if (data?.type === "offer_accepted") {
-              setAcceptModal(true);
-              setuserInfromation(data);
-              navigation.navigate(ScreenNameEnum.DeliveryRequest, {
-                deliveryInfo: data,
-              });
-            }
-            if (data?.type == "parcelStatusUpdate") {
-              console.log("📦 Parcel Status Update:", data?.status);
+            if (data?.type === 'nearby_parcel') {
+              const trackingId = data?.trackingId || 'N/A';
+              Alert.alert(
+                'Nearby Parcel',
+                `New parcel available near you.\n\nTracking ID: ${trackingId}`,
+                [{ text: 'OK' }]
+              );
             }
           } catch (e) {
             console.warn('❌ Failed to parse message:', e);
           }
         };
-        ws.onerror = (error) => {
-          console.error('❌ Live location WebSocket Error:', error);
-          reject(error);
+        ws.onerror = (event) => {
+          const msg = (event && typeof event === 'object' && 'message' in event) ? String((event as { message?: string }).message) : 'WebSocket error';
+          console.error('❌ Live location WebSocket Error:', msg);
+          reject(new Error(msg));
         };
 
         ws.onclose = () => {
@@ -266,130 +267,31 @@ export const useDeliveryHome = () => {
         };
 
       } catch (error) {
-        reject(error);
+        reject(error instanceof Error ? error : new Error(String(error)));
         console.log('⚠️ Error creating live location socket:', error);
       }
     });
   };
 
 
-  const connectNearbyParcelsSocket = useCallback((token: string): Promise<void> => {
-    const CONNECT_TIMEOUT_MS = 15000;
 
-    return new Promise<void>((resolve, reject) => {
-      let isSettled = false;
-      let connectTimeoutId: ReturnType<typeof setTimeout> | null = null;
-
-      const settle = (error?: unknown) => {
-        if (isSettled) return;
-        isSettled = true;
-        if (connectTimeoutId != null) {
-          clearTimeout(connectTimeoutId);
-          connectTimeoutId = null;
-        }
-        if (error != null) reject(error);
-        else resolve();
-      };
-
-      const handleMessage = (raw: string) => {
-        let data: Record<string, unknown>;
-        try {
-          data = JSON.parse(raw) as Record<string, unknown>;
-        } catch {
-          console.warn('❌ Nearby parcels: invalid JSON');
-          return;
-        }
-
-        if (data.requests != null && Array.isArray(data.requests)) {
-          const valid = data.requests
-            .filter((item): item is Record<string, unknown> => item != null && typeof item === 'object')
-            .filter((item) => {
-              const tid = item.trackingId;
-              return tid != null && String(tid).trim() !== '';
-            })
-            .map((item) => ({ ...item, deliveryStatus: item.status }));
-          setRequests(valid);
-          if (__DEV__) console.log('📦 Nearby parcels: received', valid.length, 'requests');
-          return;
-        }
-
-        if (data.parcel != null && typeof data.parcel === 'object' && !Array.isArray(data.parcel)) {
-          const parcel = data.parcel as Record<string, unknown>;
-          const updated = { ...parcel, deliveryStatus: parcel.status };
-          setRequests((prev) => {
-            const next = [...prev];
-            const idx = next.findIndex(
-              (r) => r?.id === parcel?.id || r?.trackingId === parcel?.trackingId
-            );
-            if (idx >= 0) next[idx] = updated;
-            else next.push(updated);
-            return next;
-          });
-        }
-      };
-
-      try {
-        const wsUrl = `${WebSocket_Url}/nearby-parcels?token=${token}`;
-        const ws = new WebSocket(wsUrl);
-
-        connectTimeoutId = setTimeout(() => {
-          if (!isSettled) {
-            ws.close();
-            settle(new Error('Nearby parcels WebSocket connection timeout'));
-          }
-        }, CONNECT_TIMEOUT_MS);
-
-        ws.onopen = () => {
-          console.log('✅ Nearby parcels WebSocket connected');
-          socketNearbyParcelsRef.current = ws;
-          settle();
-          // Ask server for nearby parcels by sending current location (backend often waits for this)
-          
-        };
-
-        ws.onmessage = (event) => {
-            console.warn('eventg, got', event);
-          const raw = event.data;
-          if (typeof raw !== 'string') {
-            console.warn('❌ Nearby parcels: expected string, got', typeof raw);
-            return;
-          }
-          handleMessage(raw);
-        };
-
-        ws.onerror = (event) => {
-          console.error('❌ Nearby parcels WebSocket error', event);
-          settle(event ?? new Error('WebSocket error'));
-        };
-
-        ws.onclose = (event) => {
-          socketNearbyParcelsRef.current = null;
-          if (!isSettled) {
-            settle(new Error(event.reason || `Connection closed (code ${event.code})`));
-          } else {
-            console.log('⚠️ Nearby parcels WebSocket closed', event.code, event.reason || '');
-          }
-        };
-      } catch (error) {
-        settle(error);
-        console.error('⚠️ Nearby parcels socket init error', error);
-      }
-    });
-  }, []);
 
 
   useEffect(() => {
     const init = async () => {
       try {
-        handleGetLocation()
+        handleGetLocation();
         const token = await AsyncStorage.getItem('token');
         if (!token) {
           console.log('❌ No token in storage');
           return;
         }
         await connectSocket(token);
-        await connectLiveLocationSocket(token);
-        await connectNearbyParcelsSocket(token);
+        try {
+          await connectLiveLocationSocket(token);
+        } catch (liveErr) {
+          console.warn('🔌 Live location socket failed (app continues):', liveErr);
+        }
       } catch (error) {
         console.error('🔌 Socket init failed:', error);
       }
@@ -398,20 +300,23 @@ export const useDeliveryHome = () => {
     init();
 
     return () => {
-      console.log('🛑 Disconnect WebSockets');
-      socketRef.current?.close();
-      socketRef.current = null;
-      socketLiveRef.current?.close();
-      socketLiveRef.current = null;
-      socketNearbyParcelsRef.current?.close();
-      socketNearbyParcelsRef.current = null;
+      console.log('🛑 Disconnect WebSocket');
+      try {
+        socketRef.current?.close();
+        socketRef.current = null;
+        socketLiveRef.current?.close();
+        socketLiveRef.current = null;
+      } catch (_) { }
     };
   }, []);
   useEffect(() => {
-    if (coords && socketLiveRef.current?.readyState === WebSocket.OPEN) {
+    if (!coords) return;
+    const ws = socketLiveRef.current;
+    if (ws?.readyState === WebSocket.OPEN) {
       sendLiveLocation(coords.lat, coords.lon);
+      nearbyparcels(coords.lat, coords.lon);
     }
-  }, [coords, isConnected, sendLiveLocation]);
+  }, [coords, isConnected, sendLiveLocation, nearbyparcels]);
 
   const handleGetLocation = async () => {
     try {

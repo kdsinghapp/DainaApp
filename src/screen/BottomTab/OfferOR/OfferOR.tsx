@@ -93,7 +93,14 @@ export default function OfferOR() {
           </TouchableOpacity>
 
 
-          <TouchableOpacity style={[styles.button, styles.chatBtn]}>
+          <TouchableOpacity 
+           onPress={() => {
+            navgation.navigate(ScreenNameEnum.ChatScreen,{
+              item:item,
+            })
+          }}
+          
+          style={[styles.button, styles.chatBtn]}>
             <Text style={styles.chatText}>CHAT</Text>
           </TouchableOpacity>
         </View>
@@ -139,8 +146,7 @@ export default function OfferOR() {
             CounterOffer(selectedOfferId, amount); // 👈 ID + amount
           }
           setOpen(false);
-          settrackerModal(true);
-        }}
+         }}
 
       />
 

@@ -122,7 +122,7 @@ const DeliveryProfile: React.FC<Props> = ({
         <TouchableOpacity
 
           onPress={() => {
-            navigation.navigate(ScreenNameEnum.EditProfile)
+            navigation.navigate(ScreenNameEnum.ProfileSetup)
           }}
           style={styles.profileCard}>
           <View style={styles.avatarWrap}>

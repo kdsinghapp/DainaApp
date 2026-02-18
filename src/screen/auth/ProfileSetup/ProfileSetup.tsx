@@ -116,12 +116,12 @@ if (!emailRegex.test(email.trim())) {
     const response = await UpdateProfile(params, setIsLoading);
     if (response) {
       await getProfileApi();
-
-      if (userData?.type === "Delivery") {
-        navigation.navigate(ScreenNameEnum.UploadDocumentsScreen);
-      } else {
-        navigation.navigate(ScreenNameEnum.TabNavigator);
-      }
+navigation.goBack()
+      // if (userData?.type === "Delivery") {
+      //   navigation.navigate(ScreenNameEnum.UploadDocumentsScreen);
+      // } else {
+      //   navigation.navigate(ScreenNameEnum.TabNavigator);
+      // }
     }
   } catch (error) {
     console.error("Error while saving profile:", error);
@@ -133,7 +133,7 @@ if (!emailRegex.test(email.trim())) {
   return (
     <SafeAreaView style={styles.safeArea}>
       <StatusBarComponent />
-      <CustomHeader label="Profile Setup" />
+      <CustomHeader label="Profile" />
                                               <LoadingModal visible ={isLoading}/>
 
 

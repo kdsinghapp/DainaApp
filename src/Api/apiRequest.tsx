@@ -237,7 +237,7 @@ const Resend_otp = async (param: any, setLoading: any) => {
       headers,
       body: formdata,
     });
-
+console.log("response",response)
     const textResponse = await response.text();
     let parsedResponse;
 
@@ -246,6 +246,7 @@ const Resend_otp = async (param: any, setLoading: any) => {
     } catch {
       throw new Error("Invalid server response");
     }
+console.log("parsedResponse",parsedResponse)
 
     if (parsedResponse.status == "1") {
       successToast(parsedResponse.message);
@@ -255,6 +256,8 @@ const Resend_otp = async (param: any, setLoading: any) => {
       return parsedResponse;
     }
   } catch (error) {
+    console.log("parsedResponse",error)
+
     console.error("UpdateProfile error:", error);
     errorToast("Something went wrong. Please try again.");
     return null;
@@ -532,10 +535,7 @@ const GetuploadDocument = async (
   }
 };
 const AddParcelApi = async (param: any, setLoading: (loading: boolean) => void) => {
-  console.log("AddParcelApi param:", param.pickupLocation?.latitude);
-  console.log("aaaaaa param:", param.pickupLocation?.address);
-  console.log("longitude param:", param.pickupLocation?.longitude);
-   try {
+    try {
     setLoading(true);
     const token = await AsyncStorage.getItem("token");
     const formdata = new FormData();

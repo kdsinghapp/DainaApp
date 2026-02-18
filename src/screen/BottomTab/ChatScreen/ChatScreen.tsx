@@ -13,7 +13,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import StatusBarComponent from "../../../compoent/StatusBarCompoent";
 import imageIndex from "../../../assets/imageIndex";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useRoute } from "@react-navigation/native";
 import ScreenNameEnum from "../../../routes/screenName.enum";
 import font from "../../../theme/font";
  
@@ -25,28 +25,13 @@ interface Message {
 }
 
 const ChatScreen = () => {
-  const [messages, setMessages] = useState<Message[]>([
-    { id: "1", text: "Hey there! 👋", sender: "other", time: "10:10" },
-    {
-      id: "2",
-      text: "This is your delivery driver from Speedy Chow. I'm just around the corner.",
-      sender: "other",
-      time: "10:10",
-    },
-    { id: "3", text: "Hi!", sender: "me", time: "10:12" },
-    {
-      id: "4",
-      text: "Awesome, thanks for letting me know! Can’t wait for my delivery. 🎉",
-      sender: "me",
-      time: "10:12",
-    },
-    { id: "5", text: "No problem at all! I’ll be there in about 15 minutes.", sender: "other", time: "10:13" },
-    { id: "6", text: "I’ll text you when I arrive.", sender: "other", time: "10:14" },
-    { id: "7", text: "Great! 😊", sender: "me", time: "10:15" },
-  ]);
-
+  const [messages, setMessages] = useState<Message[]>([]);
+  const routes = useRoute()
+const {item} = routes?.params || ""
   const [inputText, setInputText] = useState("");
-
+console.log("item",item?.deliveryUser
+  ?.name
+)
   const sendMessage = () => {
     if (inputText.trim().length === 0) return;
     const newMsg: Message = {
@@ -95,10 +80,11 @@ const navgtaion = useNavigation()
           }]}
         />
         <View>
-          <Text style={styles.name}>Jenny Wilson</Text>
-          <Text style={styles.status}>Online</Text>
+          <Text style={styles.name}> {item?.deliveryUser
+  ?.nam ||"Jenny Wilson"}</Text>
+          {/* <Text style={styles.status}>Online</Text> */}
         </View>
-      </View>
+       </View>
 
       {/* Chat messages */}
       <FlatList
@@ -190,6 +176,9 @@ const styles = StyleSheet.create({
     height:60 ,
     justifyContent:"center" ,
     marginTop:15
+    ,
+    fontFamily:font.MonolithRegular ,
+    fontSize:14,
 
 
   },

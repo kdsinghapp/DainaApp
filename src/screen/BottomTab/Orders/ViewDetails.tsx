@@ -107,8 +107,7 @@ export default function ViewDetails() {
   const DEFAULT_STATUS = "Unknown Status";
   const activeIdx = currentIdx === -1 ? 0 : currentIdx;
 
-
-  const navigation = useNavigation()
+   const navigation = useNavigation()
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "white" }}>
       <StatusBarComponent />
@@ -164,17 +163,17 @@ export default function ViewDetails() {
 
           {/* City Info */}
           <TouchableOpacity style={styles.row}
- onPress={() => {
-                if (order.status === 'pending') {
-                  navigation.navigate(ScreenNameEnum.OfferOR, {
-                    id: { parcel: parcel }
-                  })
-                } else {
-                  navigation.navigate(ScreenNameEnum.CourierTrackingScreen, {
-                    item: parcel
-                  })
-                }
-              }}
+            onPress={() => {
+              if (order.status === 'pending') {
+                navigation.navigate(ScreenNameEnum.OfferOR, {
+                  id: { parcel: parcel }
+                })
+              } else {
+                navigation.navigate(ScreenNameEnum.CourierTrackingScreen, {
+                  item: parcel
+                })
+              }
+            }}
           >
             <View style={styles.cityBlock}>
               <Text style={styles.date}>{order.startDate}</Text>
@@ -207,7 +206,7 @@ export default function ViewDetails() {
               <Text style={styles.pillText}
 
               >
-                 {STATUS_LABELS[order.status] || DEFAULT_STATUS}
+                {STATUS_LABELS[order.status] || DEFAULT_STATUS}
                 {/* {order.status === "pending" ? "Waiting for Driver" : order.status === "packaged"
                   ? "Still Packaged"
                   : order.status === "shipped"

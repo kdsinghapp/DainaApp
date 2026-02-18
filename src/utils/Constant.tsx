@@ -89,19 +89,15 @@ const getCloser = (value, checkOne, checkTwo) =>
     Math.abs(value - checkOne) < Math.abs(value - checkTwo) ? checkOne : checkTwo;
 
 const openDialer = (phoneNumber) => {
-  // Define the protocol based on the OS (though 'tel:' works for both)
-  let phoneUrl = `tel:${phoneNumber}`;
+  const cleanedNumber = phoneNumber.replace(/\s+/g, '');
 
-  Linking.canOpenURL(phoneUrl)
-    .then((supported) => {
-      if (!supported) {
-        Alert.alert('Error', 'Dialer is not supported on this device');
-      } else {
-        return Linking.openURL(phoneUrl);
-      }
-    })
-    .catch((err) => console.error('An error occurred', err));
+  const phoneUrl = `tel:${cleanedNumber}`;
+
+  Linking.openURL(phoneUrl).catch(() =>
+    Alert.alert('Error', 'Unable to open dialer')
+  );
 };
+
 
 // constants/statusConstants.js
 export const STATUS = {

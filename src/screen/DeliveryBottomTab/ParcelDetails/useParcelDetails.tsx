@@ -31,7 +31,7 @@ export const useParcelDetails = () => {
       }
       // ✅ Correct field names based on backend validation
       const formData = new FormData();
-      formData.append('parcelId', item?.id);  // changed here ✅
+      formData.append('parcelId', item?.id || item?.data.parcelId);  // changed here ✅
       formData.append('amount', amount);
       formData.append('message', message);
       //  formData.append('phoneCall', Phone);
@@ -80,17 +80,17 @@ export const useParcelDetails = () => {
 
       return;
     }
-    if (!item?.id) {
-      errorToast("Invalid parcel information")
+    // if (item?.id || item?.data.parcelId) {
+    //   errorToast("Invalid parcel information")
 
-      return;
-    }
+    //   return;
+    // }
     const amountValue = parseFloat(amount);
     if (isNaN(amountValue) || amountValue <= 0) {
       Alert.alert("Error", "Please enter a valid amount");
       return;
     }
-    const result: any = await makeOffer(item?.id, amountValue, message.trim());
+    const result: any = await makeOffer(item?.id || item?.data.parcelId, amountValue, message.trim());
     console.log("result", result)
     if (result?.data?.status == 1) {
       successToast(result?.data?.message)

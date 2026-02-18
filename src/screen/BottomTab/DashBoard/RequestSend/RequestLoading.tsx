@@ -3,19 +3,22 @@ import {
   View,
   Text,
   StyleSheet,
-  SafeAreaView,
+  
   Animated,
   Easing,
   Image,
   Dimensions,
   TouchableOpacity,
   ActivityIndicator,
-} from 'react-native';
+ } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import StatusBarComponent from '../../../../compoent/StatusBarCompoent';
 import imageIndex from '../../../../assets/imageIndex';
 import ScreenNameEnum from '../../../../routes/screenName.enum';
+import CustomHeader from '../../../../compoent/CustomHeader';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import font from '../../../../theme/font';
 
 const { width } = Dimensions.get('window');
 
@@ -267,7 +270,7 @@ const RequestLoading = () => {
   return (
     <SafeAreaView style={styles.container}>
       <StatusBarComponent barStyle="dark-content" backgroundColor="#FFFFFF" />
-      
+      <CustomHeader/>
       <Animated.View style={[styles.content, { opacity: fadeAnim }]}>
         {/* Header */}
         <View style={styles.header}>
@@ -324,14 +327,7 @@ const RequestLoading = () => {
           </View>
 
           {/* Progress Bar */}
-          <View style={styles.progressContainer}>
-            <View style={styles.progressBackground}>
-              <Animated.View 
-                style={[styles.progressFill, { width: progressWidth }]}
-              />
-            </View>
-            <Text style={styles.progressText}>Searching in progress...</Text>
-          </View>
+          
         </Animated.View>
 
         {/* Status Information */}
@@ -340,79 +336,13 @@ const RequestLoading = () => {
           <Text style={styles.secondaryStatus}>{statusDetails}</Text>
           
           {/* Status Timeline */}
-          <View style={styles.statusIndicators}>
-            <View style={styles.statusItem}>
-              <View style={[styles.statusDot, styles.dotActive]} />
-              <Text style={styles.statusLabel}>Request Sent</Text>
-            </View>
-            <View style={styles.statusDivider} />
-            <View style={styles.statusItem}>
-              <View style={[
-                styles.statusDot, 
-                driverStatus.includes('DRIVER') || driverStatus.includes('FOUND')
-                  ? styles.dotActive 
-                  : styles.dotInactive
-              ]} />
-              <Text style={styles.statusLabel}>Driver Matching</Text>
-            </View>
-            <View style={styles.statusDivider} />
-            <View style={styles.statusItem}>
-              <View style={[
-                styles.statusDot,
-                driverStatus.includes('PICKED') 
-                  ? styles.dotActive 
-                  : styles.dotInactive
-              ]} />
-              <Text style={styles.statusLabel}>Pickup</Text>
-            </View>
-          </View>
+         
         </View>
 
         {/* Connection Status */}
-        <Animated.View 
-          style={[
-            styles.connectionStatus,
-            { 
-              opacity: fadeAnim,
-              backgroundColor: error ? '#FFF5F5' : '#F8F8FA',
-              borderColor: error ? '#FF3B30' : isConnected ? '#34C759' : '#FF9500',
-            }
-          ]}
-        >
-          <View style={[
-            styles.connectionDot, 
-            error ? styles.error : isConnected ? styles.connected : styles.connecting
-          ]} />
-          <Text style={[
-            styles.connectionText,
-            error && { color: '#FF3B30' }
-          ]}>
-            {error || (isConnected ? 'Live tracking active' : 'Connecting...')}
-          </Text>
-          {error && retryCount < maxRetries && (
-            <TouchableOpacity onPress={handleRetry} style={styles.retryButton}>
-              <Text style={styles.retryText}>Retry</Text>
-            </TouchableOpacity>
-          )}
-        </Animated.View>
-
-        {/* Info Note */}
-        <View style={styles.noteContainer}>
-          <Text style={styles.noteIcon}>⏱️</Text>
-          <Text style={styles.noteText}>
-            This usually takes 1-2 minutes. Please wait while we find the perfect driver.
-          </Text>
-        </View>
-
-        {/* Retry count indicator (for debugging) */}
-        {retryCount > 0 && (
-          <View style={styles.retryInfo}>
-            <ActivityIndicator size="small" color="#FF9500" />
-            <Text style={styles.retryInfoText}>
-              Reconnecting... Attempt {retryCount}/{maxRetries}
-            </Text>
-          </View>
-        )}
+        
+       
+ 
       </Animated.View>
     </SafeAreaView>
   );
@@ -435,20 +365,25 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 28,
-    fontWeight: '700',
+ 
     color: '#1D1D1F',
     marginBottom: 8,
     letterSpacing: -0.5,
+    marginTop:120 ,
+    fontFamily:font.MonolithRegular
   },
   headerSubtitle: {
     fontSize: 16,
     color: '#6E6E73',
     textAlign: 'center',
     paddingHorizontal: 20,
+        fontFamily:font.MonolithRegular
+
   },
   loaderSection: {
     alignItems: 'center',
     marginBottom: 40,
+    marginTop:10
   },
   circleContainer: {
     width: 200,
@@ -531,12 +466,16 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: 8,
     lineHeight: 28,
+        fontFamily:font.MonolithRegular
+
   },
   secondaryStatus: {
     fontSize: 16,
     color: '#6E6E73',
     textAlign: 'center',
     marginBottom: 24,
+        fontFamily:font.MonolithRegular
+
   },
   statusIndicators: {
     flexDirection: 'row',
@@ -571,6 +510,7 @@ const styles = StyleSheet.create({
     color: '#8E8E93',
     fontWeight: '500',
     textAlign: 'center',
+   
   },
   statusDivider: {
     width: 30,

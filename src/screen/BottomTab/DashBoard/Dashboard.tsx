@@ -157,12 +157,9 @@ const ShippingScreen = () => {
         data={orderData}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) =>  {
-  console.log("item",item)
-
           return(
              <OrderCard order={item} onPress={() => {
-            // console.log('first', item)
-            if (item?.deliveryStatus === "pending") {
+             if (item?.deliveryStatus === "pending") {
               navigation.navigate(ScreenNameEnum.ViewDetails, {
                 item: item
               })

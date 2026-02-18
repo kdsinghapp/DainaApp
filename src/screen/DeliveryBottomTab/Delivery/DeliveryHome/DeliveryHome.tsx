@@ -7,6 +7,7 @@ import {
   Animated,
   Easing,
   FlatList,
+  ScrollView,
  } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
@@ -21,6 +22,7 @@ import { styles } from "./style";
 import CurrentLocation from "../../../../CurrentLocation";
 import { Pressable } from "react-native";
 import ScreenNameEnum from "../../../../routes/screenName.enum";
+import { slice } from "@tensorflow/tfjs";
 
 const TABS = ["Pending", "Complete", "Canceled"] as const;
 const DeliveryHome = () => {
@@ -114,6 +116,7 @@ const DeliveryHome = () => {
           fontWeight: "500",
         }}
       /> */}
+      <ScrollView showsVerticalScrollIndicator={false}>
       <View
         style={{
           marginTop: 12,
@@ -216,15 +219,7 @@ const DeliveryHome = () => {
           </Text>
         </View>
       </View>
- <OnlineSlideRight onSlideSuccess={() => successToast("Online")} isOnline={isOnline} setIsOnline={setIsOnline} />
-     <View style={styles.ordersHeader}>
-        <Text style={styles.sectionTitle}>Orders</Text>
-        <Image
-          source={imageIndex?.Filter || { uri: "" }}
-          style={{ height: 24, width: 24 }}
-        />
-      </View>  
-
+        <Text></Text>
     <View style={styles.tabs}>
         {TABS.map((tab) => {
           const active = tab === activeTab;
@@ -256,7 +251,8 @@ const DeliveryHome = () => {
     }}
       >
         <FlatList
-          data={filteredRequests} 
+        data={filteredRequests.slice(0, 3)}
+
           
           style={{
             marginTop: 12,
@@ -284,7 +280,7 @@ const DeliveryHome = () => {
                   </View>
 
                   <Text style={[styles.cardId, styles.bold]}>
-                    {item.trackingId}
+                    {item?.trackingId}
                   </Text>
                   <View
                     style={{
@@ -301,7 +297,7 @@ const DeliveryHome = () => {
                       },
                     ]}
                   >
-                    {item.date}
+                    {item?.date}
                   </Text>
 
                   <View style={{ flex: 1 }} />
@@ -340,6 +336,9 @@ const DeliveryHome = () => {
           }
         />
       </Animated.View>
+      </ScrollView>
+       <OnlineSlideRight onSlideSuccess={() => successToast("Online")} isOnline={isOnline} setIsOnline={setIsOnline} />
+
     </SafeAreaView>
   );
 };

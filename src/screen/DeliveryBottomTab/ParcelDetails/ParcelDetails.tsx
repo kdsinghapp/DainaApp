@@ -1,311 +1,3 @@
-// import React, { useState } from "react";
-// import { View, Text, StyleSheet, ImageBackground, TextInput, ScrollView, Image, Alert, ActivityIndicator, KeyboardAvoidingView, Platform } from "react-native";
-// import imageIndex from "../../../assets/imageIndex";
-// import StatusBarComponent from "../../../compoent/StatusBarCompoent";
-// import CustomHeader from "../../../compoent/CustomHeader";
-// import CustomButton from "../../../compoent/CustomButton";
-// import { useParcelDetails } from "./useParcelDetails";
-// import LoadingModal from "../../../utils/Loader";
-// import font from "../../../theme/font";
-// import { SafeAreaView } from "react-native-safe-area-context";
-
-// const ParcelDetails = () => {
-//   const {
-//     isLoading,
-//     setIsLoading,
-//     requests,
-//     Phone, setPhoneNumber,
-//     setRequests,
-//     item,
-//     navigation,
-//     makeOffer,
-//     fullImageUrl,
-//     handleSendOffer,
-//     amount, setAmount,
-//     message, setMessage,
-//     imgloading, setImgloading
-//   } = useParcelDetails()
-// console.log(item, 'item')
-//   return (
-//     <View style={styles.container}>
-//           <KeyboardAvoidingView
-//         behavior={Platform.OS === "ios" ? "padding" : 'height'}
-//         style={{ flex: 1 }}
-//       >
-//         <ScrollView 
-//           showsVerticalScrollIndicator={false}
-//           contentContainerStyle={{ flexGrow: 1 }} // Ensures scroll works correctly
-//           keyboardShouldPersistTaps="handled"
-//           // bounces={false}
-//         >
-//       <StatusBarComponent />
-//       <LoadingModal visible={isLoading} />
-//       {item?.imageUrl ? (
-//         <ImageBackground
-//           source={{ uri: fullImageUrl }}
-//           style={styles.backgroundImage}
-//           resizeMode="cover"
-//           onLoadStart={() => setImgloading(true)}
-//           onLoadEnd={() => setImgloading(false)}
-//         >
-//           {imgloading && (
-//             <View style={{
-//               ...StyleSheet.absoluteFillObject,
-//               justifyContent: 'center',
-//               alignItems: 'center',
-//               backgroundColor: 'rgba(0,0,0,0.3)', // optional dim effect
-//             }}>
-//               <ActivityIndicator size="large" color="#fff" />
-//             </View>
-//           )}
-//           <CustomHeader label="Details" />
-//         </ImageBackground>
-//       ) : (
-//         <ImageBackground
-//           source={imageIndex.Rectangle}
-//           style={styles.backgroundImage}
-//           resizeMode="cover"
-//         >
-//           <View>
-//           <SafeAreaView edges={['top']}/>
-//           <CustomHeader label="Details" />
-//           </View>
-//         </ImageBackground>
-//       )}
-
-//       <View style={styles.cardContainer}>
-
-//         {/* <ScrollView showsVerticalScrollIndicator={false}> */}
-//           {/* Pickup & Drop */}
-//           <View style={[styles.locationBox, { flexDirection: "row" }]}>
-//             <Image
-//               source={imageIndex?.Dots || { uri: "" }}
-//               style={{ width: 12, height: 88, marginRight: 10 }}
-//               resizeMode="contain"
-//             />
-//             <View style={{ flexDirection: "column" }}>
-//               <Text style={styles.locationTitle}>Pickup Location</Text>
-//               <Text style={styles.locationValue}>{item?.pickupLocation}</Text>
-
-//               <Text style={[styles.locationTitle, { marginTop: 10 }]}>
-//                 Drop Location
-//               </Text>
-//               <Text style={styles.locationValue}>{item?.dropLocation}</Text>
-//             </View>
-//           </View>
-
-//           {/* Details */}
-//           {item?.status == 'pending' &&
-//           <View>
-//           <View style={styles.infoRow}>
-//             <View style={styles.inputContainer}>
-//               <Text style={styles.label}>Name</Text>
-//               <Text style={styles.input}>{item?.senderName}</Text>
-//             </View>
-//             <View style={styles.inputContainer}>
-//               <Text style={styles.label}>Receiver Name</Text>
-//               <Text style={styles.input}>{item?.receiver?.name}</Text>
-//             </View>
-//           </View>
-
-//           <View style={styles.infoRow}>
-//             <View style={styles.inputContainer}>
-//               <Text style={styles.label}>Postal Code</Text>
-//               <Text style={styles.input}>452001</Text>
-//             </View>
-//             <View style={styles.inputContainer}>
-//               <Text style={styles.label}>Receiver Phone Number</Text>
-//               <Text style={styles.input}>{item?.receiver?.mobileNumber}</Text>
-//             </View>
-//           </View>
-
-//           <View style={styles.infoRow}>
-//             <View style={styles.inputContainer}>
-//               <Text style={styles.label}>Package Size</Text>
-//               <Text style={styles.input}>{item?.packageSize}</Text>
-//             </View>
-//             <View style={styles.inputContainer}>
-//               <Text style={styles.label}>Consignment Type</Text>
-//               <Text style={styles.input}>{item?.consignmentType}</Text>
-//             </View>
-//           </View>
-
-//           <View style={styles.infoRow}>
-//             <View style={styles.inputContainer}>
-//               <Text style={styles.label}>Shipment Type</Text>
-//               <Text style={styles.input}>{item?.shipmentType}</Text>
-//             </View>
-//             <View style={styles.inputContainer}>
-//               <Text style={styles.label}>Sender Name</Text>
-//               <Text style={styles.input}>{item?.senderName}</Text>
-//             </View>
-//           </View>
-
-//           <View style={styles.inputContainer}>
-//             <Text style={styles.label}>Home Address</Text>
-//             <Text style={styles.input}>{item?.senderAddress}</Text>
-//           </View>
-
-
-//           {/* Amount Input */}
-
-//           <View style={styles.inputContainer1}>
-//             <Text style={[styles.label, { marginLeft: 12 }]}>Amount</Text>
-//             <TextInput
-//               style={[styles.input, { marginLeft: 12 }]}
-//               keyboardType="numeric"
-//               placeholder="Enter Amount"
-//               value={amount}
-//               onChangeText={setAmount}
-//               placeholderTextColor={'grey'}
-
-//             />
-//           </View>
-
-//           {/* Message Input */}
-//           <View style={styles.inputContainer1}>
-//             <Text style={[styles.label, { marginLeft: 12 }]}>Message</Text>
-//             <TextInput
-//               style={[styles.input, { marginLeft: 12 }]}
-//               placeholder="Type Here"
-//               value={message}
-//               onChangeText={setMessage}
-//               multiline
-//               placeholderTextColor={'grey'}
-//             />
-//           </View>
-//        </View>
-// }
-//         {/* Send Button */}
-//         <View style={{ marginBottom: 20 }}>
-//            {item?.status == 'pending' ?
-//           <CustomButton
-//             title={isLoading ? "Sending..." : "Send"}
-//             onPress={handleSendOffer}
-//             disabled={isLoading}
-//           />
-//           :
-//           <CustomButton
-//             title={isLoading ? "Sending..." : "Send"}
-//             onPress={handleSendOffer}
-//             disabled={isLoading}
-//           />
-//            }
-//         </View>
-//       </View>
-//        </ScrollView>
-//         </KeyboardAvoidingView>
-
-//     </View>
-//   );
-// };
-
-// export default ParcelDetails;
-
-// const styles = StyleSheet.create({
-//   container: {
-//     flex: 1,
-//     backgroundColor: "#fff",
-//   },
-//   backgroundImage: {
-//     height: 300,
-//     justifyContent: "flex-start",
-
-//   },
-//   backBtn: {
-//     backgroundColor: "#fff",
-//     borderRadius: 20,
-//     padding: 6,
-//     alignSelf: "flex-start",
-//   },
-//   cardContainer: {
-//     flex: 1,
-//     marginTop: -30,
-//     backgroundColor: "#fff",
-//     paddingHorizontal: 20,
-//     paddingTop: 20,
-//   },
-//   locationBox: {
-//     backgroundColor: "#FAFAFA",
-//     borderRadius: 16,
-//     padding: 14,
-//     marginBottom: 20,
-//     borderWidth: 0.5,
-//     borderColor: "#eee",
-//     shadowColor: "#000",
-//     shadowOffset: { width: 0, height: 2 },
-//   },
-//   locationTitle: {
-//     fontWeight: "600",
-//     color: "#000",
-//     fontSize: 16,
-//   },
-//   locationValue: {
-//     fontSize: 12,
-//     color: "#808080",
-//     marginTop: 4,
-//   },
-//   infoRow: {
-//     flexDirection: "row",
-//     justifyContent: "space-between",
-//     gap: 10,
-//   },
-//   inputContainer: {
-//     flex: 1,
-//     marginBottom: 12,
-//   },
-//   label: {
-//     fontSize: 14,
-//     color: "#3B4051",
-//     marginBottom: 6,
-//     fontWeight: "700"
-//   },
-//   input: {
-//     color: "#808080",
-//     fontSize: 14,
-//     fontWeight: "500",
-//     marginTop: 5,
-//     marginBottom: 2,
-//     fontFamily: font.MonolithRegular
-//   },
-//   sendBtn: {
-//     backgroundColor: "#FFD700",
-//     borderRadius: 50,
-//     alignItems: "center",
-//     justifyContent: "center",
-//     paddingVertical: 16,
-//     marginTop: 10,
-//     marginBottom: 40,
-//     shadowColor: "#000",
-//     shadowOffset: { width: 0, height: 3 },
-//     shadowOpacity: 0.2,
-//     shadowRadius: 4,
-//     elevation: 3,
-//   },
-//   sendText: {
-//     fontWeight: "600",
-//     fontSize: 16,
-//     color: "#000",
-//   },
-//   input1: {
-//     backgroundColor: "#F9F9F9",
-//     borderRadius: 10,
-//     paddingHorizontal: 12,
-//     paddingVertical: 10,
-//     borderWidth: 1,
-//     borderColor: "#eee",
-//     fontSize: 13,
-//     color: "#000",
-//   },
-//   inputContainer1: {
-//     flex: 1,
-//     marginBottom: 15,
-//     backgroundColor: "#F5F5F5",
-//     justifyContent: "center",
-//     borderRadius: 18,
-//     height: 70
-//   },
-// });
 
 
 
@@ -333,6 +25,7 @@ import { useParcelDetails } from "./useParcelDetails";
 import LoadingModal from "../../../utils/Loader";
 import font from "../../../theme/font";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { image_url } from "../../../Api";
 
 // Status Constants
 const STATUS = {
@@ -388,12 +81,10 @@ const ParcelDetails = () => {
     imgloading, setImgloading,
     updateParcelStatus
   } = useParcelDetails();
-console.log("--0--item",item)
-  const [actionLoading, setActionLoading] = useState(false);
- 
+  const [actionLoading, setActioLoading] = useState(false);
   // Get button configuration based on status - CORRECTED COLOR ACCESS
   const getButtonConfig = () => {
-    const currentStatus = item?.deliveryStatus;
+    const currentStatus = item?.deliveryStatus || item?.deliveryStatus;
 
     switch (currentStatus) {
       case STATUS.PENDING:
@@ -410,7 +101,7 @@ console.log("--0--item",item)
           title: "Start Pickup",
           onPress: () => handleStatusUpdate(STATUS.GOING_TO_PICKUP),
           color: STATUS_COLORS[STATUS.GOING_TO_PICKUP], // Fixed
-          icon: "car-outline",
+          icon: "send-outline",
           showInputs: false
         };
 
@@ -489,13 +180,12 @@ console.log("--0--item",item)
         };
     }
   };
- useEffect(()=>{
-  
- },[item?.parcelId])
+  useEffect(() => {
+
+  }, [item?.parcelId])
   // Handle status update
-  const handleStatusUpdate = async (newStatus:any) => {
+  const handleStatusUpdate = async (newStatus: any) => {
     try {
-      setActionLoading(true);
       if (newStatus == STATUS.PICKED_UP && pickupOtp == '') {
         Alert.alert('Please enter pickup OTP shared by customer')
         return;
@@ -520,7 +210,6 @@ console.log("--0--item",item)
       console.error("Status update error:", error);
       Alert.alert("Error", "Something went wrong");
     } finally {
-      setActionLoading(false);
     }
   };
 
@@ -545,7 +234,6 @@ console.log("--0--item",item)
   const canCancel = item?.deliveryStatus &&
     [STATUS.PENDING, STATUS.ASSIGNED, STATUS.GOING_TO_PICKUP, STATUS.PICKED_UP, STATUS.ON_THE_WAY].includes(item.deliveryStatus);
 
-
   return (
     <View style={styles.container}>
       <KeyboardAvoidingView
@@ -560,10 +248,14 @@ console.log("--0--item",item)
           <StatusBarComponent />
           <LoadingModal visible={isLoading} />
 
-          {/* Image Background */}
-          {item?.imageUrl ? (
+
+          {item?.imageUrl || item?.data?.imageUrl ? (
             <ImageBackground
-              source={{ uri: fullImageUrl }}
+              source={{
+                uri: item?.data?.imageUrl
+                  ? `${image_url}${item?.data?.imageUrl}`
+                  : fullImageUrl,
+              }}
               style={styles.backgroundImage}
               resizeMode="cover"
               onLoadStart={() => setImgloading(true)}
@@ -582,13 +274,13 @@ console.log("--0--item",item)
               style={styles.backgroundImage}
               resizeMode="cover"
             >
-              <View>
+              <View  >
                 <SafeAreaView edges={['top']} />
                 <CustomHeader label="Parcel Details" />
               </View>
             </ImageBackground>
           )}
- 
+
           <View style={styles.cardContainer}>
             {/* Pickup & Drop */}
             <View style={styles.locationBox}>
@@ -600,11 +292,11 @@ console.log("--0--item",item)
               <View style={styles.locationDetails}>
                 <View style={styles.locationItem}>
                   <Text style={styles.locationTitle}>Pickup Location</Text>
-                  <Text style={styles.locationValue}>{item?.pickupLocation || 'N/A'}</Text>
+                  <Text style={styles.locationValue}>{item?.pickupLocation || item?.data?.pickup?.location || 'N/A'}</Text>
                 </View>
                 <View style={styles.locationItem}>
                   <Text style={styles.locationTitle}>Drop Location</Text>
-                  <Text style={styles.locationValue}>{item?.dropLocation || 'N/A'}</Text>
+                  <Text style={styles.locationValue}>{item?.dropLocation || item?.data?.drop?.location || 'N/A'}</Text>
                 </View>
               </View>
             </View>
@@ -617,33 +309,34 @@ console.log("--0--item",item)
                 <View style={styles.infoRow}>
                   <View style={styles.inputContainer}>
                     <Text style={styles.label}>Sender Name</Text>
-                    <Text style={styles.value}>{item?.senderName || 'N/A'}</Text>
+                    <Text style={styles.value}>{item?.senderName || item?.data?.sender?.name || 'N/A'}</Text>
                   </View>
                   <View style={styles.inputContainer}>
                     <Text style={styles.label}>Receiver Name</Text>
-                    <Text style={styles.value}>{item?.receiver?.name || 'N/A'}</Text>
+                    <Text style={styles.value}>{item?.receiver?.name || item?.data?.receiver?.name || 'N/A'}</Text>
                   </View>
                 </View>
 
                 <View style={styles.infoRow}>
                   <View style={styles.inputContainer}>
                     <Text style={styles.label}>Receiver Phone</Text>
-                    <Text style={styles.value}>{item?.receiver?.mobileNumber || 'N/A'}</Text>
+                    <Text style={styles.value}>{item?.receiver?.mobileNumber || item?.data?.receiver?.phone
+                      || 'N/A'}</Text>
                   </View>
                   <View style={styles.inputContainer}>
                     <Text style={styles.label}>Package Size</Text>
-                    <Text style={styles.value}>{item?.packageSize || 'N/A'}</Text>
+                    <Text style={styles.value}>{item?.packageSize || item?.data?.packageSize || 'N/A'}</Text>
                   </View>
                 </View>
 
                 <View style={styles.infoRow}>
                   <View style={styles.inputContainer}>
                     <Text style={styles.label}>Consignment Type</Text>
-                    <Text style={styles.value}>{item?.consignmentType || 'N/A'}</Text>
+                    <Text style={styles.value}>{item?.consignmentType || item?.data?.consignmentType || 'N/A'}</Text>
                   </View>
                   <View style={styles.inputContainer}>
                     <Text style={styles.label}>Shipment Type</Text>
-                    <Text style={styles.value}>{item?.shipmentType || 'N/A'}</Text>
+                    <Text style={styles.value}>{item?.shipmentType || item?.data?.shipmentType || 'N/A'}</Text>
                   </View>
                 </View>
 
@@ -772,7 +465,7 @@ console.log("--0--item",item)
 };
 
 
-const OtpSection = ({ label, value, onChange }:any) => {
+const OtpSection = ({ label, value, onChange }: any) => {
   return (
     <View style={styles.sectionContainer}>
       <View style={styles.inputContainer1}>

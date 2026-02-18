@@ -96,11 +96,9 @@ const CounterOffer = async (id: any, amount: number) => {
 
     const result = await response.json();
 
-    if (response.ok) {
+    if (result.ok) {
       successToast("counter accepted successfully!");
-     } else {
-      errorToast(result?.message);
-    }
+     }  
   } catch (error) {
     console.error("Error counter offer:", error);
   }

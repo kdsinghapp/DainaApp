@@ -16,10 +16,17 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import LoadingModal from "../../../utils/Loader";
 
 const PhoneLogin = () => {
-  //  const [phoneNumber, setPhoneNumber] = useState("6282582825");  
-  // const [phoneNumber, setPhoneNumber] = useState("96084084307");  
-    const [phoneNumber, setPhoneNumber] = useState("");  
+   const [phoneNumber, setPhoneNumber] = useState("9765437654365");   
 // user
+
+// del
+
+  //  const [phoneNumber, setPhoneNumber] = useState("676543765437");  
+
+
+  // const [phoneNumber, setPhoneNumber] = useState("96084084307");  
+    // const [phoneNumber, setPhoneNumber] = useState("");  
+
   const [countryCode, setCountryCode] = useState("IN");
   const [callingCode, setCallingCode] = useState("+91");
   const [loading, setLoading] = useState(false);
@@ -130,9 +137,9 @@ const navigation  = useNavigation();
           <CustomButton title={"Continue"} onPress={handleContinue} />
         </View>
 
-        <TouchableOpacity>
+        {/* <TouchableOpacity>
           <Text style={styles.emailText}>Prefer to sign in with email?</Text>
-        </TouchableOpacity>
+        </TouchableOpacity> */}
 
         {/* Custom Country Modal */}
         <Modal visible={modalVisible} animationType="slide" transparent={true}>
