@@ -89,10 +89,11 @@ const OrderCard = ({ order, onPress }: { order: any; onPress: () => void }) => {
         <View style={styles.statusRow}>
           <Text style={styles.statusLabel}>Delivery Status : </Text>
         <Text style={styles.statusValue}>
-  {order.deliveryStatus
+          Going To Pickup
+  {/* {order.deliveryStatus
     ? order.deliveryStatus.charAt(0).toUpperCase() +
       order.deliveryStatus.slice(1).toLowerCase()
-    : "Pending"}
+    : "Pending"} */}
 </Text>
         </View>
       </View>

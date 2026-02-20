@@ -381,6 +381,7 @@ const styles = StyleSheet.create({
   },
   trackingLabel: { color: MUTED, fontFamily: font.MonolithRegular, },
   trackingId: { color: TEXT, fontFamily: font.MonolithRegular, },
+  pillCancelled: { color: TEXT, fontFamily: font.MonolithRegular, },
 
   trackBase: {
     height: 24,
