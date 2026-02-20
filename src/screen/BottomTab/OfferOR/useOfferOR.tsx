@@ -28,7 +28,8 @@ export const useOfferOR = () => {
           Authorization: `Bearer ${token}`,
         },
       });
-      const result = await response.json();
+      const result = await response.json(); 
+      console.log("result",)
       if (result.status == 1 || result.success === true) {
         setOfferData(result?.offers || []);
         setIsLoading(false)

@@ -88,9 +88,12 @@ const OrderCard = ({ order, onPress }: { order: any; onPress: () => void }) => {
       <View style={styles.footer}>
         <View style={styles.statusRow}>
           <Text style={styles.statusLabel}>Delivery Status : </Text>
-          <Text style={styles.statusValue}>
-            {order.deliveryStatus ? order.deliveryStatus=="pending" ? "Waiting for Driver" : order.deliveryStatus.toUpperCase() : "PENDING"}
-          </Text>
+        <Text style={styles.statusValue}>
+  {order.deliveryStatus
+    ? order.deliveryStatus.charAt(0).toUpperCase() +
+      order.deliveryStatus.slice(1).toLowerCase()
+    : "Pending"}
+</Text>
         </View>
       </View>
       <View style={{

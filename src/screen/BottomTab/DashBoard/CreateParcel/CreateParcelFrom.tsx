@@ -36,7 +36,7 @@ const CreateParcelFrom = () => {
   const [pickupTime, setPickupTime] = useState<Date | null>(null);
   const [showDate, setShowDate] = useState(false);
   const [showTime, setShowTime] = useState(false);
-  const [shipmentType, setShipmentType] = useState("Standard");
+  const [shipmentType, setShipmentType] = useState("");
   const [consignmentType, setConsignmentType] = useState("Document");
   const [deliveryType, setDeliveryType] = useState("Normal");
   const [pickupLocation, setPickupLocation] = useState("");
@@ -44,14 +44,14 @@ const CreateParcelFrom = () => {
   const [droplat, sedroplat] = useState<{ latitude: number; longitude: number } | null>(null);
   const [dropLocation, setDropLocation] = useState("");
   const [dropModal, setDropModal] = useState(false);
-  const [senderName, setSenderName] = useState("Govid");
-  const [senderMobile, setSenderMobile] = useState("6234567895");
-  const [senderAddress, setSenderAddress] = useState("indore mp ");
-  const [receiverName, setReceiverName] = useState("komal");
-  const [receiverMobile, setReceiverMobile] = useState("6534567832");
-  const [receiverAddress, setReceiverAddress] = useState("mp indore");
+  const [senderName, setSenderName] = useState("");
+  const [senderMobile, setSenderMobile] = useState("");
+  const [senderAddress, setSenderAddress] = useState("");
+  const [receiverName, setReceiverName] = useState("");
+  const [receiverMobile, setReceiverMobile] = useState("");
+  const [receiverAddress, setReceiverAddress] = useState("");
   const [extraMessage, setExtraMessage] = useState("");
-  const [price, setPrice] = useState("134");
+  const [price, setPrice] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [image, setImage] = useState<any>();
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -102,14 +102,14 @@ const CreateParcelFrom = () => {
     let error = "";
 
     switch (fieldName) {
-      case "senderName":
-      case "receiverName":
-        if (!value.trim()) error = "This field is required";
+      // case "senderName":
+      // case "receiverName":
+      //   if (!value.trim()) error = "This field is required";
 
-      case "senderMobile":
-      case "receiverMobile":
-        if (!value.trim()) error = "Mobile number is required";
-        break;
+      // case "senderMobile":
+      // case "receiverMobile":
+      //   if (!value.trim()) error = "Mobile number is required";
+      //   break;
 
       // case "senderAddress":
       // case "receiverAddress":
@@ -124,31 +124,31 @@ const CreateParcelFrom = () => {
         if (!value.trim()) error = "Drop location is required";
         break;
 
-      case "price":
-        if (!value.trim()) error = "Price is required";
-        break;
+      // case "price":
+      //   if (!value.trim()) error = "Price is required";
+      //   break;
 
-      case "shipmentType":
-      case "consignmentType":
-      case "deliveryType":
-        if (!value.trim()) error = "Please select an option";
-        break;
+      // case "shipmentType":
+      // case "consignmentType":
+      // case "deliveryType":
+      //   if (!value.trim()) error = "Please select an option";
+      //   break;
 
-      case "pickupDate":
-        if (!value) error = "Pickup date is required";
-        else if (value < new Date()) error = "Pickup date cannot be in the past";
-        break;
+      // case "pickupDate":
+      //   if (!value) error = "Pickup date is required";
+      //   else if (value < new Date()) error = "Pickup date cannot be in the past";
+      //   break;
 
-      case "pickupTime":
-        if (!value) error = "Pickup time is required";
-        break;
+      // case "pickupTime":
+      //   if (!value) error = "Pickup time is required";
+      //   break;
 
-      case "image":
-        if (!value) error = "Please add a parcel image";
-        break;
+      // case "image":
+      //   if (!value) error = "Please add a parcel image";
+      //   break;
 
-      default:
-        break;
+      // default:
+      //   break;
     }
 
     setErrors(prev => ({ ...prev, [fieldName]: error }));

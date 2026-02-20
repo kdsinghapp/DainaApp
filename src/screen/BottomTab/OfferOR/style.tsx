@@ -22,6 +22,15 @@ export const styles = StyleSheet.create({
     fontFamily: font.MonolithRegular
 
   },
+  emptyText: {
+    fontSize: 14,
+    textAlign: "center",
+    color: "#9DB2BF",
+    marginBottom: 16,
+    marginTop: 5,
+    fontFamily: font.MonolithRegular
+
+  },
   card: {
     backgroundColor: "white",
     borderRadius: 12,

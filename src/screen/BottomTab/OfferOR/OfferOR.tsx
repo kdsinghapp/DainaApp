@@ -122,8 +122,14 @@ export default function OfferOR() {
 
         <FlatList
           style={{
-            marginTop: 20
+            marginTop: 20,
           }}
+          ListEmptyComponent={()=>(
+             <Text style={styles.emptyText}>
+    No offers available for your ad yet.
+  </Text>
+          )} 
+         
           data={offerData}
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => (

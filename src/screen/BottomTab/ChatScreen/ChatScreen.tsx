@@ -29,10 +29,7 @@ const ChatScreen = () => {
   const routes = useRoute()
 const {item} = routes?.params || ""
   const [inputText, setInputText] = useState("");
-console.log("item",item?.deliveryUser
-  ?.name
-)
-  const sendMessage = () => {
+   const sendMessage = () => {
     if (inputText.trim().length === 0) return;
     const newMsg: Message = {
       id: Date.now().toString(),
@@ -80,8 +77,7 @@ const navgtaion = useNavigation()
           }]}
         />
         <View>
-          <Text style={styles.name}> {item?.deliveryUser
-  ?.nam ||"Jenny Wilson"}</Text>
+          <Text style={styles.name}> {item?.deliveryUser?.name ||"Jenny Wilson"}</Text>
           {/* <Text style={styles.status}>Online</Text> */}
         </View>
        </View>
