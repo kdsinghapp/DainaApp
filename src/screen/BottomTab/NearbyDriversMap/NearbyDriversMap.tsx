@@ -464,7 +464,7 @@ const NearbyDriversMap: React.FC = () => {
               onPress={() => setSelectedOrder(null)}
               activeOpacity={0.7}
             >
-              <Text style={styles.closeOrderIcon}>✕</Text>
+              <Text style={styles.closeOrderIcon}>✕</Text>1
             </TouchableOpacity>
           </View>
           <View style={styles.orderDetailsBody}>

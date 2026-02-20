@@ -3,7 +3,7 @@ import {
   View,
   Text,
   StyleSheet,
-  ScrollView,
+ 
   Image
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -88,71 +88,7 @@ const ShippingScreen = () => {
         />
       </View>
 
-      {/* <ScrollView showsVerticalScrollIndicator={false}> */}
-      {/* {orderData.map((item, index) => (
-          <View key={index} style={styles.card}>
-            <View style={styles.cardTop}>
-
-              <View style={[styles.iconBox,]}>
-
-                <Image source={imageIndex.icons}
-                  style={{
-                    height: 40,
-                    width: 40
-                  }}
-                />
-              </View>
-              <Text style={[styles.cardId, {
-                fontFamily: font.MonolithRegular,
-                fontSize: 14,
-                color: "black"
-              }]}>#{item.id}</Text>
-              <Text style={styles.cardDate}>{item.date}</Text>
-              <Text style={styles.cardDate}>ss</Text>
-
-            </View>
-
-             <View style={{
-              flexDirection: "row",
-              justifyContent: "space-evenly",
-              alignItems: "center"
-            }}>
-              <Image source={imageIndex.Vector}
-                style={{
-                  height: 88,
-                  width: 10
-                }}
-                resizeMode="contain"
-              />
-
-              <View style={{
-                flexDirection: "column",
-                right: 11
-              }}>
-                <Text style={styles.label}>From</Text>
-                <Text style={[styles.value, {
-                  marginTop: 5
-                }]}>{item.from}</Text>
-                <Text style={[styles.label, {
-                  marginTop: 10
-                }]}>To</Text>
-                <Text style={[styles.value, {
-                  marginTop: 5
-                }]}>{item.to || "5678 Maple Avenue Seattle, WA 98101"}</Text>
-
-                 <View style={styles.statusRow}>
-                  <Text style={styles.statusText}>Delivery Status :</Text>
-                  <Text style={[styles.statusValue, { color: item.statusColor }]}>
-                    {item.status}
-                  </Text>
-                </View>
-              </View>
-            </View>
-
-          </View>
-        ))} */}
-      {/* </ScrollView> */}
-      <FlatList
+       <FlatList
         contentContainerStyle={{ paddingBottom: 120 }}
         data={orderData}
         keyExtractor={(item) => item.id}

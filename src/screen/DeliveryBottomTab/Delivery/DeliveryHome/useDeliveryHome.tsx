@@ -7,8 +7,7 @@ import Geolocation from '@react-native-community/geolocation';
 import { successToast } from '../../../../utils/customToast';
 import ScreenNameEnum from '../../../../routes/screenName.enum';
 import { STATUS } from '../../../../utils/Constant';
-import { Alert } from 'react-native';
-export const useDeliveryHome = () => {
+ export const useDeliveryHome = () => {
   const [isLoading, setIsLoading] = useState(false);
   const navigation = useNavigation()
   const [requests, setRequests] = useState([]);
@@ -74,12 +73,9 @@ export const useDeliveryHome = () => {
           },
         },
       );
-      console.log("response?.data", response?.data)
-
+ 
       if (response?.data?.status == 1) {
-        console.log("response?.data", response?.data)
-        successToast(response?.data.message)
-        // const validRequests = response?.data?.requests?.filter(
+         // const validRequests = response?.data?.requests?.filter(
         //   (item) => item?.trackingId !== null && item?.trackingId !== "",
         // );
         const validRequests = response?.data?.requests

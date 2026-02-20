@@ -68,14 +68,12 @@ const useDashboard = () => {
   const getParceldetailsApi = async () => {
     try {
       const response = await Parceldetails(setLoading);
-       const goingToPickupData = response.parcels.filter(
+      console.log("response",response)
+    const goingToPickupData = response.parcels.filter(
         item => item.deliveryStatus === "going_to_pickup"
       );
 
- 
-       setorderData(goingToPickupData)
-      // if (response) {
-      // }
+      setorderData(goingToPickupData);
     } catch (error) {
 
     }
@@ -103,6 +101,8 @@ const useDashboard = () => {
         ws.onmessage = async (event: { data: string | Blob | ArrayBuffer }) => {
           let raw: string;
           const d = event.data;
+             console.log('📩d raw:', d);
+
           if (typeof d === 'string') {
             raw = d;
           } else if (d && typeof (d as Blob).text === 'function') {
@@ -117,14 +117,7 @@ const useDashboard = () => {
           try {
             const data = JSON.parse(raw);
             console.log('📦 socket data:', data);
-            if (data?.type === 'offer_accepted') {
-              // setAcceptModal(true);
-              // setuserInfromation(data);
-              // navigation.navigate(ScreenNameEnum.DeliveryRequest, { deliveryInfo: data });
-            }
-            if (data?.type === 'parcelStatusUpdate') {
-              console.log('📦 Parcel Status Update:', data?.status);
-            }
+            
           } catch (e) {
             console.warn('❌ Not JSON or parse failed:', e);
             console.log('📩 Raw message:', raw);
