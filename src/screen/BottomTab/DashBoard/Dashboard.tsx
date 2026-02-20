@@ -199,6 +199,12 @@ const styles = StyleSheet.create({
     padding: 16,
     backgroundColor: "#fff",
   },
+  emptyText:{
+     fontSize: 14,
+     marginLeft: 6, 
+    fontFamily:font.MonolithRegular ,
+    textAlign:"center"
+  },
   locationRow: {
     flexDirection: "row",
     alignItems: "center",
@@ -206,8 +212,9 @@ const styles = StyleSheet.create({
   },
   locationText: {
     fontSize: 14,
-    fontWeight: "500",
-    marginLeft: 6,
+     marginLeft: 6,
+        fontFamily:font.MonolithRegular
+
   },
   inputBox: {
     backgroundColor: "#fff",
