@@ -10,7 +10,8 @@ import {
   Alert,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { launchCamera, launchImageLibrary } from "react-native-image-picker";
+import { launchImageLibrary } from "react-native-image-picker";
+import { openCamera } from "../../../utils/cameraHelper";
 import { useNavigation } from "@react-navigation/native";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -67,11 +68,14 @@ const getProfileApi = async () => {
   };
 
   const takePhotoFromCamera = () => {
-    launchCamera({ mediaType: "photo" ,quality: 0.4}, (response) => {
-      if (response?.assets && response?.assets?.length > 0) {
-        setImage(response?.assets[0]);
-        setIsModalVisible(false);
+    openCamera((result) => {
+      if ('cancelled' in result) return;
+      if ('error' in result) {
+        errorToast(result.error);
+        return;
       }
+      setImage(result.asset);
+      setIsModalVisible(false);
     });
   };
 
@@ -192,7 +196,7 @@ navigation.goBack()
             modalVisible={isModalVisible}
             setModalVisible={setIsModalVisible}
             pickImageFromGallery={pickImageFromGallery}
-            takePhotoFromCamera={takePhotoFromCamera}
+            handleTakePhoto={takePhotoFromCamera}
           />
         </ScrollView>
       </KeyboardAvoidingView>

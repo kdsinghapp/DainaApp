@@ -11,6 +11,16 @@ export interface ApiRequest {
 }
 
 export const base_url = 'https://aitechnotech.in/DAINA/api';
+
+// Prepr CMS (headless) – GraphQL client and helpers
+export {
+  preprRequest,
+  getPreprPageBySlug,
+  getPreprArticles,
+  PREPR_ACCESS_TOKEN,
+  PREPR_GRAPHQL_URL,
+} from './prepr';
+export type { PreprGraphQLVariables, PreprGraphQLResponse } from './prepr';
 export const WebSocket_Url =`wss://aitechnotech.in/DAINA/ws`
 export const image_url = 'https://aitechnotech.in/DAINA';
 export const GoogleClientId = '43208932533-6ktmlm2uusaqdgv42pj9u94eq9q6q8h7.apps.googleusercontent.com';
@@ -90,25 +100,29 @@ export const callApi = async (
 
 
 
-export const requestCameraPermissions = async () => {
-  if (Platform.OS === 'android') {
-    try {
-      const granted = await PermissionsAndroid.requestMultiple([
-        PermissionsAndroid.PERMISSIONS.CAMERA,
-        PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
-        PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE
-      ]);
+export const requestCameraPermissions = async (): Promise<boolean> => {
+  if (Platform.OS !== 'android') return true;
 
-      return (
-        granted['android.permission.CAMERA'] === PermissionsAndroid.RESULTS.GRANTED &&
-        granted['android.permission.READ_EXTERNAL_STORAGE'] === PermissionsAndroid.RESULTS.GRANTED
-      );
-    } catch (error) {
-      console.warn('Permission request error:', error);
-      return false;
-    }
+  try {
+    const result = await PermissionsAndroid.request(
+      PermissionsAndroid.PERMISSIONS.CAMERA,
+      {
+        title: 'Camera Permission',
+        message: 'This app needs camera access to take photos for your parcel or profile.',
+        buttonNeutral: 'Ask Me Later',
+        buttonNegative: 'Cancel',
+        buttonPositive: 'OK',
+      }
+    );
+
+    if (result === PermissionsAndroid.RESULTS.GRANTED) return true;
+    if (result === PermissionsAndroid.RESULTS.NEVER_ASK_AGAIN) return false;
+    if (result === PermissionsAndroid.RESULTS.DENIED) return false;
+    return false;
+  } catch (error) {
+    console.warn('Camera permission request error:', error);
+    return false;
   }
-  return true; // iOS handles permissions automatically
 };
 
  

@@ -4,9 +4,10 @@ import axios from 'axios';
 import { base_url, WebSocket_Url } from '../../../../Api';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import Geolocation from '@react-native-community/geolocation';
-import { successToast } from '../../../../utils/customToast';
+import { successToast, errorToast } from '../../../../utils/customToast';
 import ScreenNameEnum from '../../../../routes/screenName.enum';
 import { STATUS } from '../../../../utils/Constant';
+import { Alert } from 'react-native';
  export const useDeliveryHome = () => {
   const [isLoading, setIsLoading] = useState(false);
   const navigation = useNavigation()
@@ -17,6 +18,11 @@ import { STATUS } from '../../../../utils/Constant';
   const [currentlocation, setCurrentLocation] = useState(null);
   const [acceptModal, setAcceptModal] = useState(false);
   const [userInfromation, setuserInfromation] = useState([]);
+  const [newOrderNotification, setNewOrderNotification] = useState<{
+    visible: boolean;
+    data: unknown;
+  } | null>(null);
+  const [acceptCounterOfferLoading, setAcceptCounterOfferLoading] = useState(false);
 
   const locationRef = useRef(null);
   const [isConnected, setIsConnected] = useState(false);
@@ -186,14 +192,44 @@ import { STATUS } from '../../../../utils/Constant';
         };
 
         ws.onmessage = (event) => {
-          console.log(event.data, 'event.data')
           try {
             const data = JSON.parse(event.data);
+
+            if (data?.type === 'new_offer') {
+              const parcel = data?.parcel ?? data;
+              const parcelObj = parcel && typeof parcel === 'object' ? { ...parcel } : {};
+              const { type: _t, ...rest } = parcelObj as { type?: string; [k: string]: unknown };
+              const item: Record<string, unknown> & { deliveryStatus: string } = {
+                ...rest,
+                id: rest.id ?? rest.parcelId ?? parcelObj?.id ?? parcelObj?.parcelId,
+                parcelId: rest.parcelId ?? rest.id ?? parcelObj?.parcelId ?? parcelObj?.id,
+                deliveryStatus: STATUS.PENDING,
+              };
+              setRequests((prev: unknown[]) => {
+                const arr = Array.isArray(prev) ? [...prev] : [];
+                const exists = arr.some((r: unknown) => {
+                  const x = r as { id?: string; parcelId?: string };
+                  return String(x?.id ?? x?.parcelId) === String(item?.id ?? item?.parcelId);
+                });
+                const trackingId = item?.trackingId;
+                if (!exists && trackingId != null && String(trackingId) !== '') {
+                  arr.unshift({ ...item, status: STATUS.PENDING });
+                }
+                return arr as never[];
+              });
+              setNewOrderNotification({ visible: true, data });
+              return;
+            }
+
+            if (data?.type === 'counter_offer') {
+              setNewOrderNotification({ visible: true, data });
+              return;
+            }
+
             if (data?.type === "offer_accepted") {
               setAcceptModal(true);
               setuserInfromation(data);
-              console.log("data",data)
-              navigation.navigate(ScreenNameEnum.TripMap, {
+               navigation.navigate(ScreenNameEnum.TripMap, {
                 item: {...data?.parcel, deliveryStatus:STATUS.ASSIGNED },
                 event: data ,
               });
@@ -265,19 +301,42 @@ import { STATUS } from '../../../../utils/Constant';
         };
 
         ws.onmessage = (event) => {
-
-          console.log("event ---",event)
           const raw = event?.data;
-           try {
+          try {
             const data = typeof raw === 'string' ? JSON.parse(raw) : raw;
+               console.log("------ 111",data?.type)
+            if (!data || typeof data !== 'object') return;
+  
             if (data?.type === 'nearby_parcel') {
-          successToast("Nearby parcels message received successfully")
-                        console.log('datareceived:',data);
-               navigation.navigate(ScreenNameEnum.ParcelDetails, {
-                item: {data, deliveryStatus:STATUS.PENDING },
+ 
+              const parcel = data?.parcel ?? data;
+              const parcelObj = parcel && typeof parcel === 'object' ? { ...parcel } : {};
+              const { type: _t, ...rest } = parcelObj as { type?: string; [k: string]: unknown };
+              const item: Record<string, unknown> & { deliveryStatus: string } = {
+                ...rest,
+                id: rest.id ?? rest.parcelId ?? parcelObj?.id ?? parcelObj?.parcelId,
+                parcelId: rest.parcelId ?? rest.id ?? parcelObj?.parcelId ?? parcelObj?.id,
+                deliveryStatus: STATUS.PENDING,
+              };
+              setRequests((prev: unknown[]) => {
+                const arr = Array.isArray(prev) ? [...prev] : [];
+                const exists = arr.some((r: unknown) => {
+                  const x = r as { id?: string; parcelId?: string };
+                  return String(x?.id ?? x?.parcelId) === String(item?.id ?? item?.parcelId);
+                });
+                const trackingId = item?.trackingId;
+                if (!exists && trackingId != null && String(trackingId) !== '') {
+                  arr.unshift({ ...item, status: STATUS.PENDING });
+                }
+                return arr as never[];
               });
-             }
+              setNewOrderNotification({ visible: true, data });
+              return;
+            }
+
             const list = data?.requests ?? data?.parcels ?? data?.data ?? data?.result;
+                                      console.log("------ 4444",list)
+
             if (Array.isArray(list)) {
               const validRequests = list
                 .filter((item: { trackingId?: string | null }) => item?.trackingId != null && item?.trackingId !== '')
@@ -383,6 +442,65 @@ import { STATUS } from '../../../../utils/Constant';
       console.error('Error getting location:', error);
     }
   };
+
+  const acceptCounterOffer = async (offerId: number) => {
+    console.log("offerId",offerId)
+    try {
+       const token = await AsyncStorage.getItem('token');
+      if (!token) {
+        errorToast('Token not found');
+        return;
+      }
+      const response = await fetch(`${base_url}/delivery/offers/${offerId}/accept-counter`, {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      const result = await response.json();
+      if (response.ok && (result?.status === 1 || result?.success === true)) {
+        successToast(result?.message ?? 'Counter offer accepted');
+        setNewOrderNotification(null);
+        fetchAvailableRequests();
+      } else {
+        errorToast(result?.message ?? 'Failed to accept counter offer');
+      }
+    } catch (error) {
+      console.error('Accept counter offer error:', error);
+      errorToast('Something went wrong');
+    } finally {
+     
+    }
+  };
+  const RejectcounterOffer = async (offerId: number) => {
+     try {
+       const token = await AsyncStorage.getItem('token');
+      if (!token) {
+        errorToast('Token not found');
+        return;
+      }
+      const response = await fetch(`${base_url}/delivery/offers/${offerId}/reject-counter`, {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      const result = await response.json();
+      if (response.ok && (result?.status === 1 || result?.success === true)) {
+        successToast(result?.message ?? 'Reject  offer ');
+        setNewOrderNotification(null);
+        // fetchAvailableRequests();
+      } 
+    } catch (error) {
+      console.error('Reject counter offer error:', error);
+      errorToast('Something went wrong');
+    } finally {
+     
+    }
+  };
+
   return {
     // States
     isLoading,
@@ -402,6 +520,12 @@ import { STATUS } from '../../../../utils/Constant';
     userInfromation,
     // API function
     fetchAvailableRequests,
-    acceptModal, setAcceptModal
+    acceptModal,
+    setAcceptModal,
+    newOrderNotification,
+    setNewOrderNotification,
+    acceptCounterOffer,
+    acceptCounterOfferLoading, 
+    RejectcounterOffer
   };
 };

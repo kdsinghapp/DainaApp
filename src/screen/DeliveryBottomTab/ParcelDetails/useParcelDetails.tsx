@@ -23,8 +23,7 @@ export const useParcelDetails = () => {
     try {
       setIsLoading(true);
       const token = await AsyncStorage.getItem('token');
-
-      if (!token) {
+       if (!token) {
         console.warn('No token found');
         setIsLoading(false);
         return { success: false, message: 'No token found' };

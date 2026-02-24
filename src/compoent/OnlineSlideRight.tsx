@@ -365,8 +365,10 @@ const FloatingOnlineButton: React.FC<Props> = ({ isOnline, setIsOnline }) => {
         },
         body: JSON.stringify(requestBody),
       });
-
+ 
       const data = await response.json();
+            console.log("data",data)
+
       if (data?.status) {
         setIsOnline(data?.data?.status === 'online');
       } else {

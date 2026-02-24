@@ -71,7 +71,7 @@ const navgtaion = useNavigation()
         />
         </TouchableOpacity>
         <Image
-          source={{ uri: "https://i.pravatar.cc/100" }}
+          source={{ uri:item?.deliveryUser?.profile_image  ? item?.deliveryUser?.profile_image :   "https://i.pravatar.cc/100" }}
           style={[styles.avatar,{
             marginLeft:11
           }]}

@@ -81,12 +81,13 @@ const useDashboard = () => {
 
  
   const [isConnected, setIsConnected] = useState(false);
+  const [socketData, setSocketData] = useState<any>(null); // last message from WS for UI
   const socketRef = useRef<WebSocket | null>(null);
-  
+
   const connectSocket = (token: string) => {
     return new Promise<void>((resolve, reject) => {
       try {
-        const wsUrl = `${WebSocket_Url}/user?token=${token}`;
+        const wsUrl = `${WebSocket_Url}/user?token=${encodeURIComponent(token)}`;
         const ws = new WebSocket(wsUrl);
         let resolved = false;
 
@@ -95,13 +96,17 @@ const useDashboard = () => {
           resolved = true;
           setIsConnected(true);
           socketRef.current = ws;
+          // Optional: some servers need a first message (e.g. subscribe/ping) to start sending
+          try {
+            ws.send(JSON.stringify({ type: 'ping' }));
+          } catch (_) {}
           resolve();
         };
 
         ws.onmessage = async (event: { data: string | Blob | ArrayBuffer }) => {
+          console.log('📩 WebSocket message received');
           let raw: string;
           const d = event.data;
-             console.log('📩d raw:', d);
 
           if (typeof d === 'string') {
             raw = d;
@@ -112,12 +117,14 @@ const useDashboard = () => {
           } else {
             raw = String(d);
           }
-          console.log('📩 WebSocket raw:', raw);
 
           try {
             const data = JSON.parse(raw);
             console.log('📦 socket data:', data);
-            
+            setSocketData(data);
+            if (data?.type === 'order_update' || data?.refreshOrders) {
+              getParceldetailsApi();
+            }
           } catch (e) {
             console.warn('❌ Not JSON or parse failed:', e);
             console.log('📩 Raw message:', raw);
@@ -183,6 +190,7 @@ const useDashboard = () => {
     isLoading,
     orderData,
     isConnected,
+    socketData,
   };
 };
 

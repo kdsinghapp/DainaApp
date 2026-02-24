@@ -78,33 +78,80 @@ export const useOfferOR = () => {
 
 
 
-const CounterOffer = async (id: any, amount: number) => {
+// const CounterOffer = async (id: any, amount: number) => {
+//   try {
+//     const token = await AsyncStorage.getItem('token');
+//     console.log("token",)
+//     if (!token) return;
+//      const apiUrl = `${base_url}/offers/counter-offer`;
+//     const response = await fetch(apiUrl, {
+//       method: 'POST',
+//       headers: {
+//         Authorization: `Bearer ${token}`,
+//         'Content-Type': 'application/json',
+//       },
+//       body: JSON.stringify({
+//         counterAmount: amount,
+//         counterMessage: 'hi',
+//         offerId: id
+//       }),
+//     });
+// console.log("response",response)
+//     const result = await response.json();
+//     console.log("result", result);
+//     if (response.ok && (result.status === 1 || result.success === true)) {
+//       navgation.goBack()
+//       successToast("Counter offer sent successfully!");
+//     } else {
+          
+
+//       errorToast(result?.message || 'Failed to send counter offer');
+//     }
+//   } catch (error) {
+    
+//     console.error("Error counter offer:", error);
+//     errorToast('Something went wrong. Please try again.');
+//   }
+// };
+const CounterOffer = async (id: number, amount: number) => {
   try {
-    const token = await AsyncStorage.getItem('token');
-    if (!token) return;
-   const apiUrl = `${base_url}/offers/counter-offer`;
+    const token = await AsyncStorage.getItem("token");
+
+    if (!token) {
+      errorToast("Token not found");
+      return;
+    }
+
+    // offerId in URL path; body as application/x-www-form-urlencoded
+    const apiUrl = `${base_url}/offers/${id}/counter-offer`;
+    const body = new URLSearchParams({
+      counterAmount: String(amount),
+      counterMessage: "hi",
+    }).toString();
+
     const response = await fetch(apiUrl, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json',
+        "Authorization": `Bearer ${token}`,
+        "Accept": "application/json",
+        "Content-Type": "application/x-www-form-urlencoded",
       },
-      body: JSON.stringify({
-        counterAmount: amount, 
-        offerId: id ,// 👈 yahan amount jaayega
-       }),
+      body,
     });
 
     const result = await response.json();
 
-    if (result.ok) {
-      successToast("counter accepted successfully!");
-     }  
+    if (response.ok && (result.status == 1 || result.success === true)) {
+      successToast("Counter offer sent successfully!");
+      navgation.goBack();
+    } else {
+      errorToast(result?.message || "Failed to send counter offer");
+    }
   } catch (error) {
-    console.error("Error counter offer:", error);
+    console.log("Counter offer error:", error);
+    errorToast("Something went wrong");
   }
 };
-
 
 
   return {

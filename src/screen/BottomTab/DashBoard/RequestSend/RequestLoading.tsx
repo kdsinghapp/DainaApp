@@ -3,14 +3,15 @@ import {
   View,
   Text,
   StyleSheet,
-  
   Animated,
   Easing,
   Image,
   Dimensions,
   TouchableOpacity,
-  ActivityIndicator,
- } from 'react-native';
+  Platform,
+} from 'react-native';
+import MapView, { PROVIDER_GOOGLE } from 'react-native-maps';
+import Geolocation from '@react-native-community/geolocation';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import StatusBarComponent from '../../../../compoent/StatusBarCompoent';
@@ -20,7 +21,8 @@ import CustomHeader from '../../../../compoent/CustomHeader';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import font from '../../../../theme/font';
 
-const { width } = Dimensions.get('window');
+const { width, height } = Dimensions.get('window');
+const ACCEPT_TIMEOUT_SEC = 30;
 
 interface RouteParams {
   parcelId: {
@@ -37,31 +39,34 @@ interface WSMessage {
 }
 
 const RequestLoading = () => {
-  // Animation refs
   const spinValue = useRef(new Animated.Value(0)).current;
   const fadeAnim = useRef(new Animated.Value(0)).current;
-  const pulseAnim = useRef(new Animated.Value(0)).current;
   const progressAnim = useRef(new Animated.Value(0)).current;
-  const scaleAnim = useRef(new Animated.Value(0)).current;
 
-  // State
   const [driverStatus, setDriverStatus] = useState('Searching for available drivers...');
   const [statusDetails, setStatusDetails] = useState('Connecting to delivery network');
   const [isConnected, setIsConnected] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [retryCount, setRetryCount] = useState(0);
+  const [timeoutReached, setTimeoutReached] = useState(false);
+  const [secondsLeft, setSecondsLeft] = useState(ACCEPT_TIMEOUT_SEC);
+  const [currentRegion, setCurrentRegion] = useState({
+    latitude: 28.6139,
+    longitude: 77.209,
+    latitudeDelta: 0.02,
+    longitudeDelta: 0.02,
+  });
 
-  // Refs
+  const mapRef = useRef<MapView>(null);
   const socketRef = useRef<WebSocket | null>(null);
   const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const countdownRef = useRef<NodeJS.Timeout | null>(null);
   const maxRetries = 5;
 
-  // Navigation
   const route = useRoute();
   const navigation = useNavigation<any>();
   const { parcelId } = (route?.params as RouteParams) || {};
 
-  // Update status details based on driver status
   const updateStatusDetails = (status: string) => {
     const statusMap: Record<string, string> = {
       DRIVER_FOUND: 'Driver confirmed • Preparing pickup',
@@ -72,7 +77,13 @@ const RequestLoading = () => {
     setStatusDetails(statusMap[status] || 'Connecting to delivery network');
   };
 
-  // WebSocket connection function
+  const clearCountdown = () => {
+    if (countdownRef.current) {
+      clearInterval(countdownRef.current);
+      countdownRef.current = null;
+    }
+  };
+
   const connectSocket = async (token: string): Promise<void> => {
     try {
       if (!parcelId?.parcel?.id) {
@@ -83,7 +94,6 @@ const RequestLoading = () => {
       const ws = new WebSocket(wsUrl);
 
       ws.onopen = () => {
-        console.log('✅ WebSocket connected');
         setIsConnected(true);
         setError(null);
         setRetryCount(0);
@@ -93,15 +103,14 @@ const RequestLoading = () => {
       ws.onmessage = (event) => {
         try {
           const data: WSMessage = JSON.parse(event.data);
-          console.log('📨 Received:', data);
 
           if (data?.type === 'offers_update') {
+            clearCountdown();
             navigation.replace(ScreenNameEnum.OfferOR, {
               Parcelid: data.offers,
               id: parcelId,
             });
-          }else if(data?.type ==="status_update"){
-
+            return;
           }
 
           if (data?.status) {
@@ -113,20 +122,16 @@ const RequestLoading = () => {
         }
       };
 
-      ws.onerror = (error) => {
-        console.error('❌ WebSocket error:', error);
+      ws.onerror = () => {
         setIsConnected(false);
         setError('Connection error. Retrying...');
       };
 
-      ws.onclose = (event) => {
-        console.log('⚠️ WebSocket closed:', event.reason);
+      ws.onclose = () => {
         setIsConnected(false);
-        
-        // Auto-reconnect logic
         if (retryCount < maxRetries) {
           reconnectTimeoutRef.current = setTimeout(() => {
-            setRetryCount(prev => prev + 1);
+            setRetryCount((prev) => prev + 1);
             handleReconnect();
           }, Math.min(1000 * Math.pow(2, retryCount), 10000));
         } else {
@@ -135,90 +140,100 @@ const RequestLoading = () => {
       };
 
       socketRef.current = ws;
-    } catch (error) {
-      console.error('Socket connection error:', error);
+    } catch (err) {
       setError('Failed to connect. Please check your internet.');
-      throw error;
     }
   };
 
-  // Reconnect handler
   const handleReconnect = async () => {
     try {
       const token = await AsyncStorage.getItem('token');
-      if (token) {
-        await connectSocket(token);
-      }
-    } catch (error) {
-      console.error('Reconnect failed:', error);
-    }
+      if (token) await connectSocket(token);
+    } catch (_) {}
   };
 
-  // Manual retry
   const handleRetry = () => {
     setRetryCount(0);
     setError(null);
+    setTimeoutReached(false);
+    setSecondsLeft(ACCEPT_TIMEOUT_SEC);
+    progressAnim.setValue(0);
+    startProgressAnimation();
+    startCountdown();
     handleReconnect();
   };
 
-  // Initialize animations
+  const handleGoBack = () => {
+    clearCountdown();
+    if (navigation.canGoBack()) {
+      navigation.goBack();
+    } else {
+      navigation.replace(ScreenNameEnum.DashBoardScreen);
+    }
+  };
+
+  const startProgressAnimation = () => {
+    progressAnim.setValue(0);
+    Animated.timing(progressAnim, {
+      toValue: 1,
+      duration: ACCEPT_TIMEOUT_SEC * 1000,
+      easing: Easing.linear,
+      useNativeDriver: false,
+    }).start(({ finished }) => {
+      if (finished) setTimeoutReached(true);
+    });
+  };
+
+  const startCountdown = () => {
+    clearCountdown();
+    let s = ACCEPT_TIMEOUT_SEC;
+    setSecondsLeft(s);
+    countdownRef.current = setInterval(() => {
+      s -= 1;
+      setSecondsLeft(s);
+      if (s <= 0) clearCountdown();
+    }, 1000);
+  };
+
   useEffect(() => {
-    // Spinner animation
     Animated.loop(
       Animated.timing(spinValue, {
         toValue: 1,
-        duration: 1000,
+        duration: 2000,
         easing: Easing.linear,
         useNativeDriver: true,
       })
     ).start();
 
-    // Fade in animation
     Animated.timing(fadeAnim, {
       toValue: 1,
-      duration: 800,
+      duration: 500,
       useNativeDriver: true,
     }).start();
-
-    // Scale animation
-    Animated.spring(scaleAnim, {
-      toValue: 1,
-      tension: 50,
-      friction: 7,
-      useNativeDriver: true,
-    }).start();
-
-    // Pulse animation
-    Animated.loop(
-      Animated.sequence([
-        Animated.timing(pulseAnim, {
-          toValue: 1,
-          duration: 2000,
-          easing: Easing.inOut(Easing.ease),
-          useNativeDriver: true,
-        }),
-        Animated.timing(pulseAnim, {
-          toValue: 0,
-          duration: 2000,
-          easing: Easing.inOut(Easing.ease),
-          useNativeDriver: true,
-        }),
-      ])
-    ).start();
-
-    // Progress animation
-    Animated.loop(
-      Animated.timing(progressAnim, {
-        toValue: 1,
-        duration: 3000,
-        easing: Easing.bezier(0.4, 0, 0.2, 1),
-        useNativeDriver: false,
-      })
-    ).start();
   }, []);
 
-  // Initialize WebSocket connection
   useEffect(() => {
+    Geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords;
+        const region = {
+          latitude,
+          longitude,
+          latitudeDelta: 0.008,
+          longitudeDelta: 0.008,
+        };
+        setCurrentRegion(region);
+        setTimeout(() => {
+          mapRef.current?.animateToRegion(region, 1000);
+        }, 300);
+      },
+      () => {},
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 3000 }
+    );
+  }, []);
+
+  useEffect(() => {
+    let mounted = true;
     const init = async () => {
       try {
         const token = await AsyncStorage.getItem('token');
@@ -226,40 +241,26 @@ const RequestLoading = () => {
           setError('Authentication token not found');
           return;
         }
-        await connectSocket(token);
-      } catch (error) {
-        console.error('Initialization failed:', error);
-      }
+        if (mounted) {
+          await connectSocket(token);
+          startProgressAnimation();
+          startCountdown();
+        }
+      } catch (_) {}
     };
-
     init();
-
     return () => {
-      console.log('🛑 Cleaning up...');
-      if (reconnectTimeoutRef.current) {
-        clearTimeout(reconnectTimeoutRef.current);
-      }
-      if (socketRef.current) {
-        socketRef.current.close();
-        socketRef.current = null;
-      }
+      mounted = false;
+      clearCountdown();
+      if (reconnectTimeoutRef.current) clearTimeout(reconnectTimeoutRef.current);
+      socketRef.current?.close();
+      socketRef.current = null;
     };
   }, []);
 
-  // Interpolations
   const spin = spinValue.interpolate({
     inputRange: [0, 1],
     outputRange: ['0deg', '360deg'],
-  });
-
-  const pulseOpacity = pulseAnim.interpolate({
-    inputRange: [0, 1],
-    outputRange: [0.1, 0.4],
-  });
-
-  const pulseScale = pulseAnim.interpolate({
-    inputRange: [0, 1],
-    outputRange: [1, 1.5],
   });
 
   const progressWidth = progressAnim.interpolate({
@@ -267,82 +268,82 @@ const RequestLoading = () => {
     outputRange: ['0%', '100%'],
   });
 
+  if (timeoutReached) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <StatusBarComponent barStyle="dark-content" backgroundColor="#F5F5F5" />
+        <CustomHeader />
+        <Animated.View style={[styles.content, { opacity: fadeAnim }]}>
+          <View style={styles.timeoutCard}>
+            <View style={styles.timeoutIconWrap}>
+              <Image source={imageIndex.Location} style={styles.timeoutIcon} resizeMode="contain" />
+            </View>
+            <Text style={styles.timeoutTitle}>No partner accepted</Text>
+            <Text style={styles.timeoutMessage}>
+              No delivery partner accepted in 30 seconds. Tap Try again to search again or go back.
+            </Text>
+            <View style={styles.timeoutButtons}>
+              <TouchableOpacity style={styles.btnGoBack} onPress={handleGoBack} activeOpacity={0.8}>
+                <Text style={styles.btnGoBackText}>Go back</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.btnRetryMain} onPress={handleRetry} activeOpacity={0.8}>
+                <Text style={styles.btnRetryMainText}>Try again</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Animated.View>
+      </SafeAreaView>
+    );
+  }
+
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBarComponent barStyle="dark-content" backgroundColor="#FFFFFF" />
-      <CustomHeader/>
+      <StatusBarComponent barStyle="dark-content" backgroundColor="#F5F5F5" />
+      <CustomHeader />
       <Animated.View style={[styles.content, { opacity: fadeAnim }]}>
-        {/* Header */}
         <View style={styles.header}>
-          <Text style={styles.headerTitle}>Delivery Request</Text>
-          <Text style={styles.headerSubtitle}>
-            We're finding the best match for you
-          </Text>
+          <Text style={styles.headerTitle}>Finding a delivery partner</Text>
+          <Text style={styles.headerSubtitle}>Please wait while we find the nearest partner</Text>
         </View>
-
-        {/* Animated Loader */}
-        <Animated.View 
-          style={[
-            styles.loaderSection,
-            { transform: [{ scale: scaleAnim }] }
-          ]}
-        >
-          <View style={styles.circleContainer}>
-            {/* Pulse circles */}
-            <Animated.View
-              style={[
-                styles.pulseCircle,
-                { 
-                  opacity: pulseOpacity, 
-                  transform: [{ scale: pulseScale }],
-                },
-              ]}
-            />
-            <Animated.View
-              style={[
-                styles.pulseCircle,
-                styles.pulseCircle2,
-                { 
-                  opacity: pulseOpacity,
-                  transform: [{ scale: pulseScale }],
-                },
-              ]}
-            />
-            
-            {/* Main spinner */}
-            <Animated.View 
-              style={[
-                styles.mainCircle,
-                { transform: [{ rotate: spin }] }
-              ]}
-            >
-              <View style={styles.innerCircle}>
-                <Image 
-                  source={imageIndex.Location} 
-                  style={styles.locationIcon} 
-                  resizeMode="contain"
-                />
-              </View>
-            </Animated.View>
+        <View style={styles.mapContainer}>
+          <MapView
+            ref={mapRef}
+            provider={PROVIDER_GOOGLE}
+            style={styles.map}
+            initialRegion={currentRegion}
+            showsUserLocation
+            showsMyLocationButton={false}
+            showsCompass={false}
+            mapType="standard"
+            mapPadding={{ top: 24, right: 16, bottom: 24, left: 16 }}
+          />
+          <View style={styles.mapOverlay} pointerEvents="none">
+            <Image source={imageIndex.location1} style={styles.trackingImage} resizeMode="contain" />
           </View>
-
-          {/* Progress Bar */}
-          
-        </Animated.View>
-
-        {/* Status Information */}
-        <View style={styles.infoSection}>
+          <View style={styles.currentLocationBadge} pointerEvents="none">
+            <Text style={styles.currentLocationText}>Current location</Text>
+          </View>
+        </View>
+        <View style={styles.bottomCard}>
+          <View style={styles.indicator} />
           <Text style={styles.primaryStatus}>{driverStatus}</Text>
           <Text style={styles.secondaryStatus}>{statusDetails}</Text>
-          
-          {/* Status Timeline */}
-         
+          <View style={styles.progressContainer}>
+            <View style={styles.progressBackground}>
+              <Animated.View style={[styles.progressFill, { width: progressWidth }]} />
+            </View>
+            <Text style={styles.progressText}>{secondsLeft} sec left</Text>
+          </View>
+          {error ? (
+            <View style={styles.connectionStatus}>
+              <View style={[styles.connectionDot, styles.error]} />
+              <Text style={styles.connectionText}>{error}</Text>
+              <TouchableOpacity style={styles.retryButton} onPress={handleRetry}>
+                <Text style={styles.retryText}>Retry</Text>
+              </TouchableOpacity>
+            </View>
+          ) :null}
         </View>
-
-        {/* Connection Status */}
-        
-       
- 
       </Animated.View>
     </SafeAreaView>
   );
@@ -351,99 +352,181 @@ const RequestLoading = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#F5F5F5',
   },
   content: {
     flex: 1,
     paddingHorizontal: 20,
-    paddingTop: 20,
+    paddingTop: 12,
   },
   header: {
     alignItems: 'center',
-    marginBottom: 40,
-    paddingTop: 10,
+    marginBottom: 24,
+    paddingTop: 16,
   },
   headerTitle: {
-    fontSize: 28,
- 
-    color: '#1D1D1F',
+    fontSize: 24,
+     color: '#1D1D1F',
     marginBottom: 8,
-    letterSpacing: -0.5,
-    marginTop:120 ,
-    fontFamily:font.MonolithRegular
+    fontFamily: font.MonolithRegular,
   },
   headerSubtitle: {
-    fontSize: 16,
-    color: '#6E6E73',
+    fontSize: 15,
+    color: '#6B7280',
     textAlign: 'center',
     paddingHorizontal: 20,
-        fontFamily:font.MonolithRegular
-
+    fontFamily: font.MonolithRegular,
+  },
+  mapContainer: {
+    flex: 1,
+     minHeight:280,
+ 
+    overflow: 'hidden',
+    backgroundColor: '#E5E7EB',
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.08,
+        shadowRadius: 12,
+      },
+     }),
+     borderRadius:20,
+  },
+  map: {
+    ...StyleSheet.absoluteFillObject,
+  },
+  mapOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  trackingImage: {
+    height: 35,
+    width: 35,
+    opacity: 0.9,
+  },
+  currentLocationBadge: {
+    position: 'absolute',
+    bottom: 12,
+    left: 12,
+    right: 12,
+    alignItems: 'center',
+    backgroundColor: 'rgba(255,255,255,0.95)',
+    paddingVertical: 8,
+    paddingHorizontal: 14,
+    borderRadius: 10,
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+      },
+      android: { elevation: 3 },
+    }),
+  },
+  currentLocationText: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#374151',
+    fontFamily: font.MonolithRegular,
   },
   loaderSection: {
     alignItems: 'center',
-    marginBottom: 40,
-    marginTop:10
+    marginBottom: 0,
   },
   circleContainer: {
-    width: 200,
-    height: 200,
+    width: 160,
+    height: 160,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 30,
   },
   pulseCircle: {
     position: 'absolute',
-    width: 200,
-    height: 200,
-    borderRadius: 100,
-    backgroundColor: '#007AFF',
-  },
-  pulseCircle2: {
     width: 160,
     height: 160,
     borderRadius: 80,
-    backgroundColor: '#5856D6',
+    backgroundColor: '#FCD34D',
   },
-  mainCircle: {
+  pulseCircle2: {
     width: 120,
     height: 120,
     borderRadius: 60,
+    backgroundColor: '#FDE68A',
+  },
+  mainCircle: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
     backgroundColor: '#FFFFFF',
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: '#007AFF',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 12,
-    elevation: 8,
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.08,
+        shadowRadius: 12,
+      },
+      android: { elevation: 6 },
+    }),
     borderWidth: 3,
-    borderColor: '#007AFF',
+    borderColor: '#F59E0B',
   },
   innerCircle: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: '#F2F2F7',
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: '#FFFBEB',
     justifyContent: 'center',
     alignItems: 'center',
   },
   locationIcon: {
+    width: 32,
+    height: 32,
+    tintColor: '#F59E0B',
+  },
+  bottomCard: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: '#FFFFFF',
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    paddingHorizontal: 24,
+    paddingTop: 12,
+    paddingBottom: 28,
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: -4 },
+        shadowOpacity: 0.1,
+        shadowRadius: 16,
+      },
+      android: { elevation: 16 },
+    }),
+  },
+  indicator: {
     width: 40,
-    height: 40,
-    tintColor: '#007AFF',
+    height: 4,
+    backgroundColor: '#E0E0E0',
+    borderRadius: 2,
+    alignSelf: 'center',
+    marginBottom: 20,
   },
   progressContainer: {
     width: '100%',
-    alignItems: 'center',
+    marginBottom: 16,
   },
   progressBackground: {
     width: '100%',
     height: 6,
-    backgroundColor: '#F2F2F7',
+    backgroundColor: '#F3F4F6',
     borderRadius: 3,
     overflow: 'hidden',
-    marginBottom: 12,
+    marginBottom: 8,
   },
   progressFill: {
     height: '100%',
@@ -451,148 +534,130 @@ const styles = StyleSheet.create({
     borderRadius: 3,
   },
   progressText: {
-    fontSize: 14,
-    color: '#6E6E73',
-    fontWeight: '500',
-  },
-  infoSection: {
-    alignItems: 'center',
-    marginBottom: 30,
+    fontSize: 13,
+    color: '#6B7280',
+     fontFamily: font.MonolithRegular,
   },
   primaryStatus: {
-    fontSize: 22,
-    fontWeight: '600',
-    color: '#1D1D1F',
+    fontSize: 18,
+     color: '#1D1D1F',
     textAlign: 'center',
-    marginBottom: 8,
-    lineHeight: 28,
-        fontFamily:font.MonolithRegular
-
+    marginBottom: 6,
+    lineHeight: 24,
+    fontFamily: font.MonolithRegular,
   },
   secondaryStatus: {
-    fontSize: 16,
-    color: '#6E6E73',
+    fontSize: 14,
+    color: '#6B7280',
     textAlign: 'center',
-    marginBottom: 24,
-        fontFamily:font.MonolithRegular
-
-  },
-  statusIndicators: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 20,
-  },
-  statusItem: {
-    alignItems: 'center',
-  },
-  statusDot: {
-    width: 12,
-    height: 12,
-    borderRadius: 6,
-    marginBottom: 6,
-  },
-  dotActive: {
-    backgroundColor: '#34C759',
-    shadowColor: '#34C759',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.4,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  dotInactive: {
-    backgroundColor: '#F2F2F7',
-    borderWidth: 2,
-    borderColor: '#E5E5EA',
-  },
-  statusLabel: {
-    fontSize: 12,
-    color: '#8E8E93',
-    fontWeight: '500',
-    textAlign: 'center',
-   
-  },
-  statusDivider: {
-    width: 30,
-    height: 2,
-    backgroundColor: '#E5E5EA',
-    marginHorizontal: 8,
-    marginBottom: 18,
+    marginBottom: 16,
+    fontFamily: font.MonolithRegular,
   },
   connectionStatus: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderRadius: 12,
-    marginBottom: 20,
+    paddingVertical: 10,
+    paddingHorizontal: 14,
+    borderRadius: 10,
+    backgroundColor: '#F9FAFB',
     borderWidth: 1,
+    borderColor: '#E5E7EB',
   },
   connectionDot: {
     width: 8,
     height: 8,
     borderRadius: 4,
-    marginRight: 8,
+    marginRight: 10,
   },
-  connected: {
-    backgroundColor: '#34C759',
-  },
-  connecting: {
-    backgroundColor: '#FF9500',
-  },
-  error: {
-    backgroundColor: '#FF3B30',
-  },
+  connected: { backgroundColor: '#22C55E' },
+  connecting: { backgroundColor: '#F59E0B' },
+  error: { backgroundColor: '#EF4444' },
   connectionText: {
     fontSize: 14,
-    fontWeight: '500',
-    color: '#1D1D1F',
+     color: '#374151',
     flex: 1,
+    fontFamily: font.MonolithRegular,
   },
   retryButton: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    backgroundColor: '#FF3B30',
-    borderRadius: 6,
-    marginLeft: 8,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    backgroundColor: '#F59E0B',
+    borderRadius: 8,
   },
   retryText: {
     color: '#FFFFFF',
-    fontSize: 12,
-    fontWeight: '600',
-  },
-  noteContainer: {
-    flexDirection: 'row',
-    backgroundColor: '#F2F2F7',
-    padding: 16,
-    borderRadius: 12,
-    borderLeftWidth: 4,
-    borderLeftColor: '#FFCC00',
-    alignItems: 'flex-start',
-  },
-  noteIcon: {
-    fontSize: 16,
-    marginRight: 8,
-  },
-  noteText: {
+    fontSize: 13,
+   },
+  timeoutCard: {
     flex: 1,
-    fontSize: 14,
-    color: '#6E6E73',
-    lineHeight: 20,
-  },
-  retryInfo: {
-    flexDirection: 'row',
-    alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 12,
-    padding: 8,
+    alignItems: 'center',
+    paddingHorizontal: 24,
   },
-  retryInfoText: {
-    fontSize: 12,
-    color: '#FF9500',
-    marginLeft: 8,
-    fontWeight: '500',
+  timeoutIconWrap: {
+    width: 88,
+    height: 88,
+    borderRadius: 44,
+    backgroundColor: '#FEF2F2',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 24,
+  },
+  timeoutIcon: {
+    width: 44,
+    height: 44,
+    tintColor: '#EF4444',
+  },
+  timeoutTitle: {
+    fontSize: 22,
+     color: '#1D1D1F',
+    textAlign: 'center',
+    marginBottom: 12,
+    fontFamily: font.MonolithRegular,
+  },
+  timeoutMessage: {
+    fontSize: 15,
+    color: '#6B7280',
+    textAlign: 'center',
+    lineHeight: 22,
+    marginBottom: 28,
+    paddingHorizontal: 16,
+    fontFamily: font.MonolithRegular,
+  },
+  timeoutButtons: {
+    flexDirection: 'row',
+    gap: 14,
+    width: '100%',
+    maxWidth: 320,
+  },
+  btnGoBack: {
+    flex: 1,
+    paddingVertical: 16,
+    borderRadius: 14,
+    backgroundColor: '#F3F4F6',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+  },
+  btnGoBackText: {
+    fontSize: 16,
+ 
+    color: '#4B5563',
+    fontFamily: font.MonolithRegular,
+  },
+  btnRetryMain: {
+    flex: 1,
+    paddingVertical: 16,
+    borderRadius: 14,
+    backgroundColor: '#FFCC00',
+    alignItems: 'center',
+    
+  },
+  btnRetryMainText: {
+    fontSize: 16,
+     color: '#FFFFFF',
+    fontFamily: font.MonolithRegular,
   },
 });
 

@@ -11,18 +11,12 @@ export const useOrders = () => {
   const getParceldetailsApi = async () => {
     try {
       const response = await Parceldetails(setIsLoading);
-      console.log("response", response.parcels)
-      setorderData(response.parcels)
+       setorderData(response.parcels)
       if (response) {
       }
     } catch (error) {
-
     }
   };
-
-  // ✅ Auto-fetch when hook initializes
-
-
   return {
     // States
     isLoading,

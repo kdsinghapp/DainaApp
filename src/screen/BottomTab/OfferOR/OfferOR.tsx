@@ -34,6 +34,7 @@ export default function OfferOR() {
   } = useOfferOR()
 
   const OfferCard = ({ item, onCounterPress }: any) => {
+    console.log("item",item)
     return (
       <View style={styles.card}>
         <View style={{
@@ -93,14 +94,14 @@ export default function OfferOR() {
           </TouchableOpacity>
 
 
-          <TouchableOpacity 
-           onPress={() => {
-            navgation.navigate(ScreenNameEnum.ChatScreen,{
-              item:item,
-            })
-          }}
-          
-          style={[styles.button, styles.chatBtn]}>
+          <TouchableOpacity
+            onPress={() => {
+              navgation.navigate(ScreenNameEnum.ChatScreen, {
+                item: item,
+              })
+            }}
+
+            style={[styles.button, styles.chatBtn]}>
             <Text style={styles.chatText}>CHAT</Text>
           </TouchableOpacity>
         </View>
@@ -124,12 +125,12 @@ export default function OfferOR() {
           style={{
             marginTop: 20,
           }}
-          ListEmptyComponent={()=>(
-             <Text style={styles.emptyText}>
-    No offers available for your ad yet.
-  </Text>
-          )} 
-         
+          ListEmptyComponent={() => (
+            <Text style={styles.emptyText}>
+              No offers available for your ad yet.
+            </Text>
+          )}
+
           data={offerData}
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => (
@@ -152,7 +153,7 @@ export default function OfferOR() {
             CounterOffer(selectedOfferId, amount); // 👈 ID + amount
           }
           setOpen(false);
-         }}
+        }}
 
       />
 

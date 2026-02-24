@@ -3,8 +3,7 @@ import {
   View,
   Text,
   TextInput,
-  StyleSheet,
-  ScrollView,
+   ScrollView,
   TouchableOpacity,
   Alert,
   Image,
@@ -13,7 +12,8 @@ import {
 } from "react-native";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
-import { launchCamera, launchImageLibrary } from "react-native-image-picker";
+import { launchImageLibrary } from "react-native-image-picker";
+import { openCamera } from "../../../../utils/cameraHelper";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import font from "../../../../theme/font";
 import ImagePickerModal from "../../../../compoent/ImagePickerModal";
@@ -311,11 +311,14 @@ const CreateParcelFrom = () => {
     }
   };
   const takePhotoFromCamera = () => {
-    launchCamera({ mediaType: "photo" }, (response) => {
-      if (response.assets && response.assets.length > 0) {
-        setImage(response.assets[0]);
-        setIsModalVisible(false);
+    openCamera((result) => {
+      if ("cancelled" in result) return;
+      if ("error" in result) {
+        errorToast(result.error);
+        return;
       }
+      setImage(result.asset);
+      setIsModalVisible(false);
     });
   };
 
@@ -619,54 +622,23 @@ const CreateParcelFrom = () => {
           />
           {image?.uri ? (
             <TouchableOpacity
-
-              onPress={() => {
-                setIsModalVisible(true)
-              }}
-              style={{
-                borderWidth: 1,
-                padding: 30,
-                alignItems: "center",
-                borderRadius: 10,
-                borderColor: "#EAEAEA",
-                borderStyle: "dotted", marginTop: 5,
-                marginBottom: 11
-
-              }}
+              onPress={() => setIsModalVisible(true)}
+              style={[styles.imageUploadButton, styles.imageUploadButtonFilled]}
+              activeOpacity={0.7}
             >
               <Image
                 source={image ? { uri: image?.uri || image } : imageIndex.prfile}
-                resizeMode="cover"
-                style={{
-                  height: 150,
-                  width: 150,
-                  borderRadius: 10,
-                  resizeMode: "contain"
-                }}
+                style={styles.parcelImage}
+                resizeMode="contain"
               />
             </TouchableOpacity>
           ) : (
             <TouchableOpacity
-
-              onPress={() => {
-                setIsModalVisible(true)
-              }}
-              style={{
-                borderWidth: 1,
-                padding: 30,
-                alignItems: "center",
-                borderRadius: 10,
-                borderColor: "#EAEAEA",
-                borderStyle: "dotted", marginTop: 5,
-                marginBottom: 11
-
-              }}>
-
-              <Text style={{
-                fontSize: 18,
-                fontFamily: font.MonolithRegular,
-                color: "#ADA4A5"
-              }}>Add Parcel Image +</Text>
+              onPress={() => setIsModalVisible(true)}
+              style={[styles.imageUploadButton, styles.imageUploadButtonEmpty]}
+              activeOpacity={0.7}
+            >
+              <Text style={styles.imageUploadPlaceholderText}>Add Parcel Image +</Text>
             </TouchableOpacity>
           )}
 
@@ -701,7 +673,7 @@ const CreateParcelFrom = () => {
         modalVisible={isModalVisible}
         setModalVisible={setIsModalVisible}
         pickImageFromGallery={pickImageFromGallery}
-        takePhotoFromCamera={takePhotoFromCamera}
+        handleTakePhoto={takePhotoFromCamera}
       />
     </SafeAreaView>
   );

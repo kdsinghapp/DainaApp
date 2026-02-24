@@ -14,24 +14,25 @@ interface ImagePickerModalProps {
   modalVisible: boolean;
   setModalVisible: (visible: boolean) => void;
   pickImageFromGallery: () => void;
-  takePhotoFromCamera: () => void;
+  /** Called when "Take a Photo" is pressed. Pass same handler as OptionButton. */
+  handleTakePhoto: () => void;
 }
 
 const ImagePickerModal: React.FC<ImagePickerModalProps> = ({
   modalVisible,
   setModalVisible,
   pickImageFromGallery,
-  takePhotoFromCamera,
+  handleTakePhoto,
 }) => {
-  const handleSelectGallery = useCallback(() => {
+  const onSelectGallery = useCallback(() => {
     setModalVisible(false);
     pickImageFromGallery();
   }, [pickImageFromGallery, setModalVisible]);
 
-  const handleTakePhoto = useCallback(() => {
+  const onTakePhoto = useCallback(() => {
     setModalVisible(false);
-    takePhotoFromCamera();
-  }, [takePhotoFromCamera, setModalVisible]);
+    handleTakePhoto();
+  }, [handleTakePhoto, setModalVisible]);
 
   const handleCancel = useCallback(() => {
     setModalVisible(false);
@@ -52,9 +53,8 @@ const ImagePickerModal: React.FC<ImagePickerModalProps> = ({
               Choose an Option
             </Text>
 
-            <OptionButton text=" 📷   Select from Gallery" onPress={handleSelectGallery} />
-            {/* Uncomment below if camera option needed */}
-            {/* <OptionButton text="📸 Take a Photo" onPress={handleTakePhoto} /> */}
+            <OptionButton text="📷 Select from Gallery" onPress={onSelectGallery} />
+            <OptionButton text="📸 Take a Photo" onPress={onTakePhoto} />  
 
             <TouchableOpacity style={styles.cancelButton} onPress={handleCancel}>
               <Text allowFontScaling={false} style={styles.cancelText}>

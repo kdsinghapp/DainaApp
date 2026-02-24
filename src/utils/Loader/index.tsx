@@ -173,8 +173,8 @@ const LoadingModal = ({ visible, message = "Loading..." }:any) => {
             {/* Central logo */}
             <View style={styles.centerIcon}>
               <View style={styles.logoPlaceholder}>
-                 <Image source={imageIndex.appLogo}  
-                 resizeMode="center"
+                 <Image source={imageIndex.phonLogoapp}  
+                 resizeMode="stretch"
                  style={{
 
                   height:33,

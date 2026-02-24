@@ -88,5 +88,29 @@ import font from "../../../../theme/font";
     marginBottom: 8,
     fontFamily: font.MonolithRegular,
   },
-
+  imageUploadButton: {
+    borderWidth: 1,
+    padding: 24,
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: 12,
+    borderStyle: "dotted",
+    marginTop: 5,
+    marginBottom: 11,
+  },
+  imageUploadButtonFilled: {
+    borderColor: "#ADA4A5",
+  },
+  imageUploadButtonEmpty: {
+    borderColor: "#EAEAEA",
+  },
+  parcelImage: {
+    height: 120,
+    width: "90%",
+  },
+  imageUploadPlaceholderText: {
+    fontSize: 18,
+    fontFamily: font.MonolithRegular,
+    color: "#ADA4A5",
+  },
 });

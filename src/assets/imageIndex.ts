@@ -45,6 +45,7 @@ arrowqdown: require('./images/arrowqdown.png'),
 cars: require('./images/cars.png'),
 more_vert: require('./images/more_vert.png'),
 Rectangle: require('./images/Rectangle.png'),
+tracking: require('./images/tracking.png'),
 
 black: require('./images/black.png'),
 location1: require('./images/location1.png'),
