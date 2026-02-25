@@ -353,8 +353,21 @@ const TripMap = () => {
       </MapView>
 
 
-      {/* Pickup/Drop Info Card */}
-      <View style={styles.infoCard} >
+       <View style={styles.infoCard} >
+         <TouchableOpacity  
+      onPress={()=>{
+        navigation.goBack()
+      }}
+        >
+        <Image source={imageIndex.back}
+        style={{
+          height:42,
+          width:42,
+          bottom:5
+        }}
+        resizeMode='contain'
+        />
+        </TouchableOpacity>
         <TouchableOpacity style={styles.locationRow}
         // onPress={()=>setLocationModal(true)}
         >

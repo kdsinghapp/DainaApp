@@ -1,7 +1,7 @@
 
 
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   View,
   Text,
@@ -14,7 +14,9 @@ import {
   ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
-  TouchableOpacity
+  TouchableOpacity,
+  Keyboard,
+  Dimensions,
 } from "react-native";
 import Icon from 'react-native-vector-icons/Ionicons';
 import imageIndex from "../../../assets/imageIndex";
@@ -26,6 +28,7 @@ import LoadingModal from "../../../utils/Loader";
 import font from "../../../theme/font";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { image_url } from "../../../Api";
+import { errorToast, successToast } from "../../../utils/customToast";
 
 // Status Constants
 const STATUS = {
@@ -185,6 +188,7 @@ const ParcelDetails = () => {
   }, [item?.parcelId])
   // Handle status update
   const handleStatusUpdate = async (newStatus: any) => {
+    console.log("newStatus",newStatus)
     try {
       if (newStatus == STATUS.PICKED_UP && pickupOtp == '') {
         Alert.alert('Please enter pickup OTP shared by customer')
@@ -199,11 +203,13 @@ const ParcelDetails = () => {
       const result = await updateParcelStatus(item?.parcelId, newStatus, newStatus == STATUS.DELIVERED ? deliveryOtp : pickupOtp);
       console.log(result)
       if (result.status == 1) {
-        Alert.alert("Success", `Status updated to ${STATUS_LABELS[newStatus]}`);
+        successToast("Success")
+        // Alert.alert("Success", `Status updated to ${STATUS_LABELS[newStatus]}`);
         navigation.goBack();
         // You might want to refresh the data here
       } else {
-        Alert.alert("Error", result.message ?? "Failed to update status");
+        errorToast(result.message ?? "Failed to update status")
+        // Alert.alert("Error", result.message ?? "Failed to update status");
         // Alert.alert("Success", "Update Status Successfully");
       }
     } catch (error) {
@@ -230,20 +236,35 @@ const ParcelDetails = () => {
   };
   const [pickupOtp, setPickupOtp] = useState('');
   const [deliveryOtp, setDeliveryOtp] = useState('');
+  const scrollRef = useRef<ScrollView>(null);
   const buttonConfig = getButtonConfig();
   const canCancel = item?.deliveryStatus &&
-    [STATUS.PENDING, STATUS.ASSIGNED, STATUS.GOING_TO_PICKUP, STATUS.PICKED_UP, STATUS.ON_THE_WAY].includes(item.deliveryStatus);
+    [STATUS.ASSIGNED, STATUS.GOING_TO_PICKUP, STATUS.PICKED_UP, STATUS.ON_THE_WAY].includes(item.deliveryStatus);
+
+  const scrollToOfferSection = () => {
+    setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 300);
+  };
+
+  useEffect(() => {
+    const showSub = Keyboard.addListener("keyboardDidShow", () => {
+      setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 320);
+    });
+    return () => showSub.remove();
+  }, []);
 
   return (
     <View style={styles.container}>
       <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : 'height'}
-        style={{ flex: 1 }}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        style={styles.keyboardView}
+        keyboardVerticalOffset={Platform.OS === "ios" ? 90 : 0}
       >
         <ScrollView
+          ref={scrollRef}
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ flexGrow: 1 }}
+          contentContainerStyle={[styles.scrollContent,]}
           keyboardShouldPersistTaps="handled"
+          keyboardDismissMode="on-drag"
         >
           <StatusBarComponent />
           <LoadingModal visible={isLoading} />
@@ -292,11 +313,11 @@ const ParcelDetails = () => {
               <View style={styles.locationDetails}>
                 <View style={styles.locationItem}>
                   <Text style={styles.locationTitle}>Pickup Location</Text>
-                  <Text style={styles.locationValue}>{item?.pickupLocation || item?.data?.pickup?.location || 'N/A'}</Text>
+                  <Text style={styles.locationValue}>{item?.pickupLocation || item?.data?.pickup?.location || ''}</Text>
                 </View>
                 <View style={styles.locationItem}>
                   <Text style={styles.locationTitle}>Drop Location</Text>
-                  <Text style={styles.locationValue}>{item?.dropLocation || item?.data?.drop?.location || 'N/A'}</Text>
+                  <Text style={styles.locationValue}>{item?.dropLocation || item?.data?.drop?.location || ''}</Text>
                 </View>
               </View>
             </View>
@@ -309,11 +330,11 @@ const ParcelDetails = () => {
                 <View style={styles.infoRow}>
                   <View style={styles.inputContainer}>
                     <Text style={styles.label}>Sender Name</Text>
-                    <Text style={styles.value}>{item?.senderName || item?.data?.sender?.name || 'N/A'}</Text>
+                    <Text style={styles.value}>{item?.senderName || item?.data?.sender?.name || ''}</Text>
                   </View>
                   <View style={styles.inputContainer}>
                     <Text style={styles.label}>Receiver Name</Text>
-                    <Text style={styles.value}>{item?.receiver?.name || item?.data?.receiver?.name || 'N/A'}</Text>
+                    <Text style={styles.value}>{item?.receiver?.name || item?.data?.receiver?.name || ''}</Text>
                   </View>
                 </View>
 
@@ -321,24 +342,37 @@ const ParcelDetails = () => {
                   <View style={styles.inputContainer}>
                     <Text style={styles.label}>Receiver Phone</Text>
                     <Text style={styles.value}>{item?.receiver?.mobileNumber || item?.data?.receiver?.phone
-                      || 'N/A'}</Text>
+                      || ''}</Text>
                   </View>
                   <View style={styles.inputContainer}>
                     <Text style={styles.label}>Package Size</Text>
-                    <Text style={styles.value}>{item?.packageSize || item?.data?.packageSize || 'N/A'}</Text>
+                    <Text style={styles.value}>{item?.packageSize || item?.data?.packageSize || ''}</Text>
                   </View>
                 </View>
 
                 <View style={styles.infoRow}>
                   <View style={styles.inputContainer}>
                     <Text style={styles.label}>Consignment Type</Text>
-                    <Text style={styles.value}>{item?.consignmentType || item?.data?.consignmentType || 'N/A'}</Text>
+                    <Text style={styles.value}>{item?.consignmentType || item?.data?.consignmentType || ''}</Text>
                   </View>
                   <View style={styles.inputContainer}>
                     <Text style={styles.label}>Shipment Type</Text>
-                    <Text style={styles.value}>{item?.shipmentType || item?.data?.shipmentType || 'N/A'}</Text>
+                    <Text style={styles.value}>{item?.shipmentType || item?.data?.shipmentType || ''}</Text>
                   </View>
                 </View>
+                {item?.proposedPrice && 
+                   <View style={styles.infoRow}>
+                  <View style={styles.inputContainer}>
+                    <Text style={styles.label}>Price</Text>
+                    <Text style={styles.value}>{item?.proposedPrice || item?.data?.proposedPrice || ''}</Text>
+                  </View>
+                  <View style={styles.inputContainer}>
+                    <Text style={styles.label}>Delivery Type</Text>
+                    <Text style={styles.value}>{item?.deliveryType || item?.data?.deliveryType || ''}</Text>
+                  </View>
+                </View>
+                }
+             
 
                 {/* <View style={styles.inputContainer}>
                   <Text style={styles.label}>Sender Address</Text>
@@ -361,6 +395,7 @@ const ParcelDetails = () => {
                     value={amount}
                     onChangeText={setAmount}
                     placeholderTextColor={'#999'}
+                    onFocus={scrollToOfferSection}
                   />
                 </View>
 
@@ -373,6 +408,7 @@ const ParcelDetails = () => {
                     onChangeText={setMessage}
                     multiline
                     placeholderTextColor={'#999'}
+                    onFocus={scrollToOfferSection}
                   />
                 </View>
               </View>
@@ -488,10 +524,22 @@ const OtpSection = ({ label, value, onChange }: any) => {
 
 export default ParcelDetails;
 
+const { height: WINDOW_HEIGHT } = Dimensions.get("window");
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#fff",
+  },
+  keyboardView: {
+    flex: 1,
+  },
+  scrollContent: {
+    flexGrow: 1,
+    minHeight: WINDOW_HEIGHT + 200,
+  },
+  scrollPaddingBottom: {
+    paddingBottom: Platform.OS === "ios" ? 460 : 400,
   },
   backgroundImage: {
     height: 300,

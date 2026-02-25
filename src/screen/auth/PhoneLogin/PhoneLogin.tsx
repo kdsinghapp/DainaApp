@@ -16,8 +16,8 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import LoadingModal from "../../../utils/Loader";
 
 const PhoneLogin = () => {
-  const [phoneNumber, setPhoneNumber] = useState("");   
-      // const [phoneNumber, setPhoneNumber] = useState("9765437654365");   
+  // const [phoneNumber, setPhoneNumber] = useState("");   
+    const [phoneNumber, setPhoneNumber] = useState("9765437654365");   
 // user
 // del
   //  const [phoneNumber, setPhoneNumber] = useState("676543765437");  
@@ -52,7 +52,6 @@ const navigation  = useNavigation();
   };
 
   const handleContinue = async() => {
-    
     const trimmedNumber = phoneNumber.replace(/\D/g, ""); // Remove non-digit characters
    const userType = await AsyncStorage.getItem('selectedRole');
 
