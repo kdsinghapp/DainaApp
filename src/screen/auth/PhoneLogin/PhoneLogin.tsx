@@ -17,10 +17,11 @@ import LoadingModal from "../../../utils/Loader";
 
 const PhoneLogin = () => {
   // const [phoneNumber, setPhoneNumber] = useState("");   
-    const [phoneNumber, setPhoneNumber] = useState("9765437654365");   
+    // const [phoneNumber, setPhoneNumber] = useState("8665656565");   
 // user
 // del
-  //  const [phoneNumber, setPhoneNumber] = useState("676543765437");  
+  const [phoneNumber, setPhoneNumber] = useState("9663566532");  
+  // const [phoneNumber, setPhoneNumber] = useState("676543765437");  
   // const [phoneNumber, setPhoneNumber] = useState("96084084307");  
     // const [phoneNumber, setPhoneNumber] = useState("");  
 

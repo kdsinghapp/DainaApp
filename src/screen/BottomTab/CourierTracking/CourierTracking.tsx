@@ -20,10 +20,13 @@ import CustomHeader from "../../../compoent/CustomHeader";
 import { SafeAreaView } from "react-native-safe-area-context";
 import imageIndex from "../../../assets/imageIndex";
 import font from "../../../theme/font";
-import { useNavigation, useRoute } from "@react-navigation/native";
+import { useFocusEffect, useNavigation, useRoute } from "@react-navigation/native";
 import ScreenNameEnum from "../../../routes/screenName.enum";
 import { GOOGLE_MAPS_APIKEY, WebSocket_Url } from "../../../Api";
-import { STATUS } from "../../../utils/Constant";
+import { STATUS, STATUS_COLORS, STATUS_LABELS } from "../../../utils/Constant";
+import { GetApi } from "../../../Api/apiRequest";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { successToast } from "../../../utils/customToast";
 
 const { width, height } = Dimensions.get("window");
 const PANEL_PEEK_HEIGHT = 280;
@@ -32,10 +35,96 @@ const PANEL_CLOSED_Y = height - PANEL_PEEK_HEIGHT;
 
 const CourierTrackingScreen = () => {
   const nav = useNavigation();
+    const [loading, setLoading] = useState(false);
+    const isMounted = useRef(true);
+  
   const rou: any = useRoute();
   const { item } = rou.params || {};
-  const driver = item?.assignedDriver;
-  const status = item?.deliveryStatus;
+  const [parcel, setParcel] = useState(item ?? null);
+  const socketRef = useRef<WebSocket | null>(null);
+  const getDetailRef = useRef<() => Promise<void>>(() => Promise.resolve());
+
+  const getDetail = async () => {
+    const parcelId = parcel?.id ?? item?.id;
+    if (!parcelId) return;
+    const param = { url: `/parcel-details/${parcelId}` };
+    const res = await GetApi(param, setLoading);
+    if (isMounted.current && res?.status === 1 && res?.parcel) {
+      setParcel({ ...res.parcel });
+    }
+  };
+  getDetailRef.current = getDetail;
+
+  useEffect(() => {
+    isMounted.current = true;
+    getDetail();
+    return () => {
+      isMounted.current = false;
+    };
+  }, [item?.id]);
+
+  useEffect(() => {
+    let ws: WebSocket | null = null;
+    const connectSocket = (token: string) => {
+      return new Promise<void>((resolve, reject) => {
+        try {
+          const wsUrl = `${WebSocket_Url}/user?token=${encodeURIComponent(token)}`;
+          ws = new WebSocket(wsUrl);
+          let resolved = false;
+          ws.onopen = () => {
+            resolved = true;
+            socketRef.current = ws;
+            try {
+              ws?.send(JSON.stringify({ type: "ping" }));
+            } catch (_) {}
+            resolve();
+          };
+          ws.onmessage = async (event: { data: string | Blob | ArrayBuffer }) => {
+            let raw: string;
+            const d = event.data;
+            if (typeof d === "string") raw = d;
+            else if (d && typeof (d as Blob).text === "function") raw = await (d as Blob).text();
+            else if (d instanceof ArrayBuffer) raw = new TextDecoder().decode(d);
+            else raw = String(d);
+            try {
+              const data = JSON.parse(raw);
+              if (data?.type === "parcel_status_update") {
+                successToast(data?.message ?? "ttttt updated");
+                getDetailRef.current?.();
+              }
+              if (data?.type === "order_update" || data?.refreshOrders) {
+                getDetailRef.current?.();
+              }
+            } catch (_) {}
+          };
+          ws.onerror = (e: unknown) => {
+            const msg = e && typeof e === "object" && "message" in e ? String((e as { message?: string }).message) : "WebSocket error";
+            if (!resolved) reject(new Error(msg));
+          };
+          ws.onclose = (event: { reason?: string }) => {
+            socketRef.current = null;
+            if (!resolved) reject(new Error(event.reason ?? "Connection closed"));
+          };
+        } catch (error) {
+          reject(error instanceof Error ? error : new Error(String(error)));
+        }
+      });
+    };
+    const init = async () => {
+      try {
+        const token = await AsyncStorage.getItem("token");
+        if (!token) return;
+        await connectSocket(token);
+      } catch (_) {}
+    };
+    init();
+    return () => {
+      socketRef.current?.close();
+      socketRef.current = null;
+    };
+  }, []);
+  const driver = parcel?.assignedDriver ?? item?.assignedDriver;
+  const status = parcel?.deliveryStatus ?? item?.deliveryStatus;
   // 1. Static driver coords only used when no item coords (fallback)
   const staticDriverCoords = {
     latitude: 33.95,
@@ -195,6 +284,24 @@ const CourierTrackingScreen = () => {
   const routeDestForPolyline = tooClose ? dropoff : routeDestination;
   const isRouteToPickup =
     (status === STATUS.ASSIGNED || status === STATUS.GOING_TO_PICKUP) && !tooClose;
+const [statusKey, setStatusKey] = useState<string | null>(null);
+
+  useEffect(() => {
+    const key = parcel?.deliveryStatus ?? item?.deliveryStatus ?? null;
+    setStatusKey(key);
+  }, [parcel?.deliveryStatus, item?.deliveryStatus]);
+ useFocusEffect(
+  useCallback(() => {
+    getDetail(); // 👈 screen focus hote hi call hoga
+
+    return () => {
+      // optional cleanup (agar chahiye)
+    };
+  }, [parcel])
+);
+const statusNormKey = (statusKey ?? status ?? "").toLowerCase().trim();
+  const statusLabel = STATUS_LABELS[statusNormKey] || "Unknown";
+  const statusColor = STATUS_COLORS[statusNormKey] || "black";
 
   return (
     <View style={styles.container}>
@@ -269,11 +376,33 @@ const CourierTrackingScreen = () => {
         >
          
           <View style={styles.driverSection}>
-            <Image source={{ uri: driver?.image }} style={styles.avatar} />
-            <View style={styles.driverInfo}>
-              <Text style={styles.driverName} numberOfLines={1}>
+            {driver?.image ? (
+                <Image source={{ uri: driver?.image }} style={styles.avatar} />
+            ) :(
+                <Image source={imageIndex.dpuser} style={styles.avatar} />
+            )}
+          
+            <View style={[styles.driverInfo,]}>
+              <Text style={[styles.driverName,{
+                flex:1
+              }]} numberOfLines={1}>
                 {driver?.name || "Assigning driver..."}
               </Text>
+             
+             <Text
+                        style={[
+                           
+                          {
+                            textTransform: "capitalize",
+                            fontSize: 15,
+                            fontFamily: font.TrialMedium,
+                            color: statusColor
+                          
+                          },
+                        ]}
+                      >
+                        {statusLabel}
+                      </Text>
               {driver?.vehicle?.vehicleType || driver?.vehicle?.vehicleNumber &&  
               
                  <Text style={styles.vehicleInfo} numberOfLines={1}>
@@ -296,19 +425,21 @@ const CourierTrackingScreen = () => {
                 </TouchableOpacity>
               </View>
             </View>
-            <View style={styles.otpContainer}>
-              <Text style={styles.otpLabel}>OTP</Text>
-              <Text style={styles.otpValue}>
-                {item?.deliveryStatus === STATUS.ASSIGNED ||
-                item?.deliveryStatus === STATUS.GOING_TO_PICKUP
-                  ? item?.pickupOtp ?? "—"
-                  : item?.deliveryOtp ?? "—"}
-              </Text>
-            </View>
+            {(parcel?.deliveryStatus ?? item?.deliveryStatus) === "delivered" ? null : (
+              <View style={styles.otpContainer}>
+                <Text style={styles.otpLabel}>OTP</Text>
+                <Text style={styles.otpValue}>
+                  {(parcel?.deliveryStatus ?? item?.deliveryStatus) === STATUS.ASSIGNED ||
+                  (parcel?.deliveryStatus ?? item?.deliveryStatus) === STATUS.GOING_TO_PICKUP
+                    ? (parcel?.pickupOtp ?? item?.pickupOtp ?? "—")
+                    : (parcel?.deliveryOtp ?? item?.deliveryOtp ?? "—")}
+                </Text>
+              </View>
+            )}
+         
           </View>
 
-          {/* Parcel details - compact card */}
-          <View style={styles.parcelCard}>
+           <View style={styles.parcelCard}>
             <Text style={styles.sectionTitle}>Parcel details</Text>
             <View style={styles.grid}>
               <StatBox label="Size" value={item?.packageSize ?? "—"} />

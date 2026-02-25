@@ -1,8 +1,7 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   View,
   Text,
-  Pressable,
   ScrollView,
   StyleSheet,
   Image,
@@ -13,12 +12,14 @@ import CustomHeader from "../../../compoent/CustomHeader";
 import font from "../../../theme/font";
 import imageIndex from "../../../assets/imageIndex";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useNavigation, useRoute } from "@react-navigation/native";
+import { useNavigation, useRoute , useFocusEffect } from "@react-navigation/native";
 import ScreenNameEnum from "../../../routes/screenName.enum";
 import { GetApi } from "../../../Api/apiRequest";
-import { STATUS } from "../../../utils/Constant";
-
-type OrderStatus = "packaged" | "shipped" | "inTransit" | "delivered" | "pending";
+import { WebSocket_Url } from "../../../Api";
+import { STATUS, STATUS_LABELS, STATUS_ICONS, STATUS_COLORS } from "../../../utils/Constant";
+import Icon from "react-native-vector-icons/Ionicons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { successToast } from "../../../utils/customToast";
 
 type Order = {
   id: string;
@@ -27,50 +28,124 @@ type Order = {
   toCity: string;
   startDate: string;
   endDate: string;
-  status: OrderStatus;
+  status: string;
 };
 
-// const STATUS_STEPS: OrderStatus[] = [
-//   "packaged",
-//   "shipped",
-//   "inTransit",
-//   "delivered",
-// ];
 const STATUS_STEPS = [
   STATUS.PENDING,
+  STATUS.ASSIGNED,
+  STATUS.GOING_TO_PICKUP,
   STATUS.PICKED_UP,
   STATUS.ON_THE_WAY,
+  STATUS.ARRIVING,
   STATUS.DELIVERED,
 ];
 
-type TimelineItem = {
-  key: string;
-  title: string;
-  subtitle?: string;
-  time?: string; // e.g., "June 10, 2023 · 05:45 pm"
-  done: boolean;
-};
+const norm = (s: string | undefined) => (s || "").toLowerCase().trim();
 
 
 export default function ViewDetails() {
   const route: any = useRoute();
   const { item } = route?.params || {};
-  const [loading, setLoading] = useState(false)
-  const [parcel, setParcel] = useState(item)
-  useEffect(() => {
-    getDetail()
-  }, [])
-  const getDetail = async () => {
-    const param = {
-      url: `/parcel-details/${item?.id}`
-    }
-    const res = await GetApi(param, setLoading)
-    if (res.status == 1) {
-      setParcel(res?.parcel)
-    }
+  const [loading, setLoading] = useState(false);
+  const [parcel, setParcel] = useState(item ?? null);
+  const [statusKey, setStatusKey] = useState<string | null>(() => item?.deliveryStatus ?? null);
+  const isMounted = useRef(true);
+  const socketRef = useRef<WebSocket | null>(null);
+  const getDetailRef = useRef<() => Promise<void>>(() => Promise.resolve());
 
-    console.log(res, 'this is res')
-  }
+  const getDetail = async () => {
+    const parcelId = parcel?.id ?? item?.id;
+    if (!parcelId) return;
+    const param = { url: `/parcel-details/${parcelId}` };
+    const res = await GetApi(param, setLoading);
+    if (isMounted.current && res?.status === 1 && res?.parcel) {
+      setParcel({ ...res.parcel });
+    }
+  };
+  getDetailRef.current = getDetail;
+
+  useFocusEffect(
+    useCallback(() => {
+      getDetailRef.current?.();
+      return () => {};
+    }, []),
+  );
+
+  useEffect(() => {
+    const key = parcel?.deliveryStatus ?? item?.deliveryStatus ?? null;
+    setStatusKey(key);
+  }, [parcel?.deliveryStatus, item?.deliveryStatus]);
+
+  useEffect(() => {
+    isMounted.current = true;
+    getDetail();
+    return () => {
+      isMounted.current = false;
+    };
+  }, [item?.id]);
+
+  useEffect(() => {
+    let ws: WebSocket | null = null;
+    const connectSocket = (token: string) => {
+      return new Promise<void>((resolve, reject) => {
+        try {
+          const wsUrl = `${WebSocket_Url}/user?token=${encodeURIComponent(token)}`;
+          ws = new WebSocket(wsUrl);
+          let resolved = false;
+          ws.onopen = () => {
+            resolved = true;
+            socketRef.current = ws;
+            try {
+              ws?.send(JSON.stringify({ type: "ping" }));
+            } catch (_) {}
+            resolve();
+          };
+          ws.onmessage = async (event: { data: string | Blob | ArrayBuffer }) => {
+            let raw: string;
+            const d = event.data;
+            if (typeof d === "string") raw = d;
+            else if (d && typeof (d as Blob).text === "function") raw = await (d as Blob).text();
+            else if (d instanceof ArrayBuffer) raw = new TextDecoder().decode(d);
+            else raw = String(d);
+            try {
+              const data = JSON.parse(raw);
+              if (data?.type === "parcel_status_update") {
+                successToast(data?.message ?? "Parcel updated");
+                getDetailRef.current?.();
+              }
+              if (data?.type === "order_update" || data?.refreshOrders) {
+                getDetailRef.current?.();
+              }
+            } catch (_) {}
+          };
+          ws.onerror = (e: unknown) => {
+            const msg = e && typeof e === "object" && "message" in e ? String((e as { message?: string }).message) : "WebSocket error";
+            if (!resolved) reject(new Error(msg));
+          };
+          ws.onclose = (event: { reason?: string }) => {
+            socketRef.current = null;
+            if (!resolved) reject(new Error(event.reason ?? "Connection closed"));
+          };
+        } catch (error) {
+          reject(error instanceof Error ? error : new Error(String(error)));
+        }
+      });
+    };
+    const init = async () => {
+      try {
+        const token = await AsyncStorage.getItem("token");
+        if (!token) return;
+        await connectSocket(token);
+      } catch (_) {}
+    };
+    init();
+    return () => {
+      socketRef.current?.close();
+      socketRef.current = null;
+    };
+  }, []);
+
   const formatDate = (isoString: string) => {
     if (!isoString) return "";
     const date = new Date(isoString);
@@ -81,31 +156,24 @@ export default function ViewDetails() {
     });
   };
 
+  const source = parcel ?? item ?? {};
   const order: Order = {
-    id: item?.id ?? "1",
-    trackingId: item?.trackingId ?? "TY9860036NM",
-    fromCity: item?.pickupLocation ?? "Unknown",
-    toCity: item?.dropLocation ?? "Unknown",
-    startDate: formatDate(item?.pickupDate),
-    endDate: formatDate(item?.dropDate ?? new Date().toISOString()),
-    status: item?.deliveryStatus ?? "packaged",
+    id: source?.id ?? "1",
+    trackingId: source?.trackingId ?? "—",
+    fromCity: source?.pickupLocation ?? "Unknown",
+    toCity: source?.dropLocation ?? "Unknown",
+    startDate: formatDate(source?.pickupDate),
+    endDate: formatDate(source?.dropDate ?? new Date().toISOString()),
+    status: statusKey ?? source?.deliveryStatus ?? STATUS.PENDING,
   };
 
-  const currentIdx = STATUS_STEPS.indexOf(order.status);
+  const statusNorm = norm(order.status);
+  const currentIdx = STATUS_STEPS.indexOf(statusNorm);
+  const activeIdx = currentIdx === -1 ? 0 : currentIdx;
   const progress =
     currentIdx >= 0 ? currentIdx / (STATUS_STEPS.length - 1) : 0;
-  const STATUS_LABELS: Record<string, string> = {
-    assigned: "Assigned",
-    pending: "Waiting for Driver",
-    packaged: "Still Packaged",
-    shipped: "In Shipping",
-    inTransit: "In Transit",
-    delivered: "Delivered",
-  };
-
-  // Default fallback if status is missing or unknown
-  const DEFAULT_STATUS = "Unknown Status";
-  const activeIdx = currentIdx === -1 ? 0 : currentIdx;
+  const statusLabel = STATUS_LABELS[statusNorm] || "Unknown";
+  const statusColor = STATUS_COLORS[statusNorm] || "black";
 
    const navigation = useNavigation()
   return (
@@ -130,6 +198,9 @@ export default function ViewDetails() {
             <Text style={styles.bold}>{order.trackingId}</Text>
           </View>
 
+          <Text style={styles.stepCompleteText}>
+            Step {activeIdx + 1} of {STATUS_STEPS.length} complete
+          </Text>
           {/* Progress Bar */}
           <View style={styles.trackBase}
           >
@@ -164,7 +235,7 @@ export default function ViewDetails() {
           {/* City Info */}
           <TouchableOpacity style={styles.row}
             onPress={() => {
-              if (order.status === 'pending') {
+              if (statusNorm === STATUS.PENDING) {
                 navigation.navigate(ScreenNameEnum.OfferOR, {
                   id: { parcel: parcel }
                 })
@@ -200,13 +271,12 @@ export default function ViewDetails() {
             <View
               style={[
                 styles.pill,
-                currentIdx === 3 ? styles.pillDone : styles.pillProgress,
+                activeIdx >= STATUS_STEPS.length - 1 ? styles.pillDone : styles.pillProgress,
+                { backgroundColor: statusColor },
               ]}
             >
-              <Text style={styles.pillText}
-
-              >
-                {STATUS_LABELS[order.status] || DEFAULT_STATUS}
+              <Text style={styles.pillText}>
+                {statusLabel}
                 {/* {order.status === "pending" ? "Waiting for Driver" : order.status === "packaged"
                   ? "Still Packaged"
                   : order.status === "shipped"
@@ -219,7 +289,7 @@ export default function ViewDetails() {
 
             <Text style={styles.viewDetails}
               onPress={() => {
-                if (order.status === 'pending') {
+                if (statusNorm === STATUS.PENDING) {
                   navigation.navigate(ScreenNameEnum.OfferOR, {
                     id: { parcel: parcel }
                   })
@@ -229,61 +299,56 @@ export default function ViewDetails() {
                   })
                 }
               }}
-            >{order.status === 'pending' ? 'View Offer' : "Track Detail"}</Text>
+            >{statusNorm === STATUS.PENDING ? "View Offer" : "Track Detail"}</Text>
           </View>
         </TouchableOpacity>
 
-        {/* Timeline */}
-        <Text style={styles.sectionTitle}>Tracking Package</Text>
-        {/* <View style={styles.timelineWrap}>
-          {timeline.map((t, index) => (
-            <TimelineRow
-              key={t.key}
-              item={t}
-              isLast={index === timeline.length - 1}
+        {/* Tracking Package – steps with icon + label */}
+        <View style={styles.sectionTitleRow}>
+          {source?.imageUrl ? (
+            <Image
+              source={{ uri: source.imageUrl }}
+              style={styles.trackingSectionIcon}
+              resizeMode="contain"
             />
-          ))}
-        </View> */}
+          ) : (
+            <Image source={imageIndex.Rectangle} style={styles.trackingSectionIcon} resizeMode="contain" />
+          )}
+          <Text style={styles.sectionTitle}>Tracking Package</Text>
+        </View>
+        <View style={styles.timelineWrap}>
+          {STATUS_STEPS.map((step, i) => {
+            const isDone = i <= activeIdx;
+            const isLast = i === STATUS_STEPS.length - 1;
+            const iconName = (STATUS_ICONS as Record<string, string>)[step] || "ellipse-outline";
+            return (
+              <View key={step} style={styles.stepRow}>
+                <View style={styles.stepLeft}>
+                  <View style={[styles.stepIconWrap, isDone ? styles.stepIconDone : styles.stepIconPending]}>
+                    <Icon
+                      name={isDone ? "checkmark-circle" : (iconName as any)}
+                      size={24}
+                      color={isDone ? "#FFF" : "#9CA3AF"}
+                    />
+                  </View>
+                  {!isLast && (
+                    <View style={[styles.stepConnector, isDone ? styles.stepConnectorDone : styles.stepConnectorPending]} />
+                  )}
+                </View>
+                <View style={styles.stepContent}>
+                  <Text style={[styles.stepTitle, isDone && styles.stepTitleDone]}>
+                    {STATUS_LABELS[step] ?? step}
+                  </Text>
+                  {isDone && <Text style={styles.stepBadge}>Done</Text>}
+                </View>
+              </View>
+            );
+          })}
+        </View>
       </ScrollView>
     </SafeAreaView>
   );
 }
-/* ---------- Timeline Row ---------- */
-
-const TimelineRow = ({
-  item,
-  isLast,
-}: {
-  item: TimelineItem;
-  isLast: boolean;
-}) => {
-  return (
-    <View style={styles.timelineRow}>
-      {/* Left: bullet + connector */}
-      <View style={styles.timelineLeft}>
-        {/* <View style={[styles.timeBullet, item.done ? styles.bulletOn : styles.bulletOff]}>
-          <Text style={styles.bulletIcon}>{item.done ? "✓" : "•"}</Text>
-        </View> */}
-
-        <Image source={imageIndex.OrderPlaced}
-
-          style={{
-            height: 50,
-            width: 50
-          }}
-        />
-        {/* {!isLast && <View style={[styles.connector, item.done ? styles.connectorOn : styles.connectorOff]} />} */}
-      </View>
-
-      {/* Right: content */}
-      <View style={styles.timelineContent}>
-        <Text style={[styles.timelineTitle, item.done && { color: TEXT }]}>{item.title}</Text>
-        {item.time ? <Text style={styles.timelineSub}>{item.time}</Text> : null}
-        {item.subtitle ? <Text style={styles.timelineSub}>{item.subtitle}</Text> : null}
-      </View>
-    </View>
-  );
-};
 
 /* ---------- Styles ---------- */
 
@@ -319,7 +384,12 @@ const styles = StyleSheet.create({
   cardHeader: { flexDirection: "row", justifyContent: "space-between", marginBottom: 10 },
   muted: { color: MUTED, fontFamily: font.MonolithRegular },
   bold: { color: TEXT, fontFamily: font.MonolithRegular },
-
+  stepCompleteText: {
+    color: MUTED,
+    fontSize: 12,
+    fontFamily: font.MonolithRegular,
+    marginBottom: 6,
+  },
   trackBase: { height: 24, justifyContent: "center", marginBottom: 10 },
   trackLine: { position: "absolute", height: 4, backgroundColor: "#E8E8E8", left: 8, right: 8, borderRadius: 4 },
   trackFill: { position: "absolute", height: 4, backgroundColor: YELLOW, left: 8, borderTopLeftRadius: 4, borderBottomLeftRadius: 4 },
@@ -342,28 +412,39 @@ const styles = StyleSheet.create({
   pillText: { fontFamily: font.MonolithRegular, fontSize: 12, color: "white" },
   viewDetails: { color: "#FFCC00", fontFamily: font.MonolithRegular, fontSize: 12, },
 
-  sectionTitle: { marginTop: 18, marginHorizontal: 16, marginBottom: 10, color: TEXT, fontFamily: font.MonolithRegular, fontSize: 16 },
+  sectionTitleRow: { flexDirection: "row", alignItems: "center", marginTop: 18, marginHorizontal: 16, marginBottom: 12 },
+  trackingSectionIcon: { width: 28, height: 28, marginRight: 10 },
+  sectionTitle: { color: TEXT, fontFamily: font.MonolithRegular, fontSize: 16 },
   timelineWrap: {
     marginHorizontal: 16,
-    paddingHorizontal: 8,
-    paddingVertical: 8,
+    paddingVertical: 12,
+    paddingHorizontal: 4,
     borderRadius: 16,
-
+    
   },
-  timelineRow: { flexDirection: "row", paddingVertical: 14 },
-  timelineLeft: { width: 34, alignItems: "center" },
-  timeBullet: {
-    width: 26, height: 26, borderRadius: 13, alignItems: "center", justifyContent: "center",
-    backgroundColor: "#FFF", borderWidth: 2,
+  stepRow: { flexDirection: "row", alignItems: "flex-start", marginBottom: 4 },
+  stepLeft: { width: 44, alignItems: "center" },
+  stepIconWrap: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    alignItems: "center",
+    justifyContent: "center",
   },
-  bulletOn: { borderColor: YELLOW, backgroundColor: "#FFF8D6" },
-  bulletOff: { borderColor: "#E3E3E3", backgroundColor: "#FFF" },
-  bulletIcon: { fontFamily: font.MonolithRegular },
-  connector: { width: 2, flex: 1, marginTop: 4, borderRadius: 1 },
-  connectorOn: { backgroundColor: YELLOW },
-  connectorOff: { backgroundColor: "#EAEAEA" },
-
-  timelineContent: { flex: 1, paddingRight: 8, marginLeft: 16 },
-  timelineTitle: { fontFamily: font.MonolithRegular, color: "#5a5a5a", marginBottom: 4 },
-  timelineSub: { color: MUTED, fontSize: 12, fontFamily: font.MonolithRegular },
+  stepIconDone: { backgroundColor: YELLOW },
+  stepIconPending: { backgroundColor: "#E5E7EB" },
+  stepConnector: {
+    width: 2,
+    flex: 1,
+    minHeight: 28,
+    marginVertical: 4,
+    borderRadius: 1,
+    alignSelf: "center",
+  },
+  stepConnectorDone: { backgroundColor: YELLOW },
+  stepConnectorPending: { backgroundColor: "#E5E7EB" },
+  stepContent: { flex: 1, paddingLeft: 12, paddingTop: 6, flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
+  stepTitle: { fontFamily: font.MonolithRegular, fontSize: 15, color: "#6B7280" },
+  stepTitleDone: { color: TEXT, fontWeight: "600" },
+  stepBadge: { fontFamily: font.MonolithRegular, fontSize: 11, color: YELLOW, backgroundColor: "#FEF9E7", paddingHorizontal: 8, paddingVertical: 4, borderRadius: 8 },
 });

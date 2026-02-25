@@ -16,7 +16,7 @@ import StatusBarComponent from "../../../compoent/StatusBarCompoent";
 import { useNavigation } from "@react-navigation/native";
 import ScreenNameEnum from "../../../routes/screenName.enum";
 import LoadingModal from "../../../utils/Loader";
- import { STATUS, STATUS_LABELS } from "../../../utils/Constant";
+ import { STATUS, STATUS_COLORS, STATUS_LABELS } from "../../../utils/Constant";
 import useOrders from "./useOrders";
 
 type OrderStatus = "packaged" | "shipped" | "inTransit" | "delivered";
@@ -268,10 +268,12 @@ const StatusPill = ({ status }: { status: OrderStatus }) => {
       : s === STATUS.CANCELLED
       ? "#FFFFFF"
       : "#000000";
-
+   const statusKey =  s;
+    const statusLabel = STATUS_LABELS[statusKey] || 'Unknown';
+    const statusColor = STATUS_COLORS[statusKey] || 'black';
   return (
-    <View style={[styles.pill, pillStyle]}>
-      <Text style={[styles.pillText, { color: textColor }]}>{text}</Text>
+    <View style={[styles.pill,  ]}>
+      <Text style={[styles.pillText, { color: statusColor }]}>{statusLabel}</Text>
     </View>
   );
 };
@@ -283,8 +285,14 @@ const ProgressTrack = ({ status }: { status: string }) => {
 
   const progressPercent = (activeIdx / (STATUS_STEPS.length - 1)) * 100;
 
+  const completedCount = activeIdx + 1;
+  const totalSteps = STATUS_STEPS.length;
+
   return (
-    <View >
+    <View>
+      <Text style={styles.stepCompleteText}>
+        Step {completedCount} of {totalSteps} complete
+      </Text>
       <View style={styles.trackBase}>
         {/* Background Grey Line */}
         <View style={styles.trackLine} />
@@ -368,7 +376,12 @@ const styles = StyleSheet.create({
   trackingLabel: { color: MUTED, fontFamily: font.MonolithRegular, },
   trackingId: { color: TEXT, fontFamily: font.MonolithRegular, },
   pillCancelled: { backgroundColor: "#DC2626" },
-
+  stepCompleteText: {
+    color: MUTED,
+    fontSize: 12,
+    fontFamily: font.MonolithRegular,
+    marginBottom: 6,
+  },
   trackBase: {
     height: 24,
     justifyContent: "center",
@@ -433,6 +446,6 @@ const styles = StyleSheet.create({
   pillDone: {
     backgroundColor: "#60a552",
   },
-  pillText: { fontFamily: font.MonolithRegular, fontSize: 12, color: TEXT },
+  pillText: { fontFamily: font.MonolithRegular, fontSize: 15, color: TEXT },
   viewDetails: { color: YELLOW, fontFamily: font.MonolithRegular, },
 });

@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, Image, TouchableOpacity } from "react-native";
 import imageIndex from "../assets/imageIndex";
 import font from "../theme/font";
 import { color } from "../constant";
+import { STATUS_COLORS, STATUS_LABELS } from "../utils/Constant";
  
 
 // Define the colors based on your design
@@ -29,7 +30,9 @@ const OrderCard = ({ order, onPress }: { order: any; onPress: () => void }) => {
     //   minute: "2-digit",
     });
   };
-
+   const statusKey =  order.deliveryStatus;
+    const statusLabel = STATUS_LABELS[statusKey] || 'Unknown';
+    const statusColor = STATUS_COLORS[statusKey] || 'black';
   return (
     <TouchableOpacity 
       activeOpacity={0.9} 
@@ -88,12 +91,15 @@ const OrderCard = ({ order, onPress }: { order: any; onPress: () => void }) => {
       <View style={styles.footer}>
         <View style={styles.statusRow}>
           <Text style={styles.statusLabel}>Delivery Status : </Text>
-        <Text style={styles.statusValue}>
+        <Text style={[styles.statusValue,{
+          color:statusColor
+        }]}>
+          {statusLabel}
           {/* Going To Pickup */}
-  {order.deliveryStatus
+  {/* {order.deliveryStatus
     ? order.deliveryStatus.charAt(0).toUpperCase() +
       order.deliveryStatus.slice(1).toLowerCase()
-    : "Pending"}
+    : "Pending"} */}
 </Text>
         </View>
       </View>

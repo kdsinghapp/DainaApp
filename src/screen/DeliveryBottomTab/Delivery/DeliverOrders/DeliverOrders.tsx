@@ -174,7 +174,7 @@ const DeliveryHome = () => {
             source={
               item?.user?.image
                 ? { uri: item?.user.image }
-                : imageIndex?.userLogo || { uri: "" }
+                : imageIndex?.dpuser || { uri: "https://i.pravatar.cc/100" }
             }
             style={styles.avatar}
           />

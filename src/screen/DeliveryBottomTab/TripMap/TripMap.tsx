@@ -6,10 +6,12 @@ import {
   Dimensions,
   Image,
   TouchableOpacity,
+  TouchableWithoutFeedback,
   Linking,
   Alert,
   TextInput,
   Platform,
+  Keyboard,
 } from 'react-native';
 import MapView, { Marker, Polyline, PROVIDER_GOOGLE } from 'react-native-maps';
 import Geolocation from '@react-native-community/geolocation';
@@ -46,6 +48,7 @@ const TripMap = () => {
   const [parcel, setParcel] = useState(item)
   const [pickupOtp, setPickupOtp] = useState('');
   const [deliveryOtp, setDeliveryOtp] = useState('');
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
   const [driverCoords, setDriverCoords] = useState({
     latitude: 33.95,
     longitude: 117.4028,
@@ -207,20 +210,76 @@ const TripMap = () => {
     return Number.isFinite(n) ? n : fallback;
   };
 
-   const pickup = {
-    latitude: safeNum(parcel?.pickupLat ?? parcel?.pickupLocationLat, DEFAULT_LAT),
-    longitude: safeNum(parcel?.pickupLon ?? parcel?.pickupLocationLon, DEFAULT_LNG),
-  };
-  const dropoff = {
-    latitude: safeNum(parcel?.dropLat || parcel.dropLocationLat, DEFAULT_LAT),
-    longitude: safeNum(parcel?.dropLon || parcel.dropLocationLon, DEFAULT_LNG),
+  const source = parcel || item?.parcel || item;
+  const mapRef = useRef<MapView>(null);
+  // Pickup: API sends swapped - Lat field has longitude (75.x), Lon field has latitude (22.x). So use Lon→latitude, Lat→longitude.
+  const pickup = {
+    latitude: safeNum(
+      source?.pickupLon ?? source?.pickupLocationLon ?? source?.pickup_location_lon ?? source?.pickupLocationLat ?? source?.pickupLat,
+      DEFAULT_LAT,
+    ),
+    longitude: safeNum(
+      source?.pickupLat ?? source?.pickupLocationLat ?? source?.pickup_location_lat ?? source?.pickupLocationLon ?? source?.pickupLon,
+      DEFAULT_LNG,
+    ),
   };
 
+  const dropoff = {
+    latitude: safeNum(source?.dropLat ?? source?.dropLocationLat ?? source?.drop_location_lat, DEFAULT_LAT),
+    longitude: safeNum(source?.dropLon ?? source?.dropLocationLon ?? source?.drop_location_lon, DEFAULT_LNG),
+  };
   const [currentCoords, setCurrentCoords] = useState(driverCoords);
+
+  const deliveryStatus = item?.deliveryStatus ?? parcel?.deliveryStatus ?? item?.parcel?.deliveryStatus ?? '';
+  const isToPickup = deliveryStatus === STATUS.ASSIGNED || deliveryStatus === STATUS.GOING_TO_PICKUP;
+  const routeDestination = isToPickup ? pickup : dropoff;
+  const distanceBetween = (a: { latitude: number; longitude: number }, b: { latitude: number; longitude: number }) => {
+    const dLat = a.latitude - b.latitude;
+    const dLng = a.longitude - b.longitude;
+    return Math.sqrt(dLat * dLat + dLng * dLng);
+  };
+  const MIN_DIST = 0.0003;
+  const tooClose = distanceBetween(currentCoords, routeDestination) < MIN_DIST;
+  const routeOrigin = tooClose ? pickup : currentCoords;
+  const routeDest = tooClose ? dropoff : routeDestination;
+  const routePointsValid = distanceBetween(routeOrigin, routeDest) >= MIN_DIST;
+  // Full path green→red: show polyline between pickup and dropoff so driver sees where to go
+  const pickupToDropoffValid =
+    Number.isFinite(pickup.latitude) &&
+    Number.isFinite(pickup.longitude) &&
+    Number.isFinite(dropoff.latitude) &&
+    Number.isFinite(dropoff.longitude) &&
+    (pickup.latitude !== dropoff.latitude || pickup.longitude !== dropoff.longitude);
 
   useEffect(() => {
     setCurrentCoords(driverCoords);
   }, [driverCoords.latitude, driverCoords.longitude]);
+
+  useEffect(() => {
+    const showEvent = Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow';
+    const hideEvent = Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide';
+    const showSub = Keyboard.addListener(showEvent, (e) => setKeyboardHeight(e.endCoordinates.height));
+    const hideSub = Keyboard.addListener(hideEvent, () => setKeyboardHeight(0));
+    return () => {
+      showSub.remove();
+      hideSub.remove();
+      Keyboard.dismiss();
+      setKeyboardHeight(0);
+    };
+  }, []);
+
+  useEffect(() => {
+    const showOtp = item?.deliveryStatus === STATUS.GOING_TO_PICKUP || item?.deliveryStatus === STATUS.ON_THE_WAY;
+    if (!showOtp) {
+      Keyboard.dismiss();
+      setKeyboardHeight(0);
+    }
+  }, [item?.deliveryStatus]);
+
+  const dismissKeyboard = () => {
+    Keyboard.dismiss();
+    setKeyboardHeight(0);
+  };
 
   const driverCoordinate = {
     latitude: safeNum(driverCoords.latitude, DEFAULT_LAT),
@@ -245,6 +304,7 @@ const TripMap = () => {
     }
     return await PostApi(param, setActionLoading);
   };
+  console.log("item",item)
   useEffect(() => {
 
   }, [item])
@@ -284,74 +344,61 @@ const TripMap = () => {
     <View style={styles.container}>
       {loading && <LoadingModal />}
 
-      {/* <MapView
-  provider="google"
-  style={{ flex: 1 }}
-  initialRegion={{
-    latitude: parseFloat(item?.departure_lat) || 0,
-    longitude: parseFloat(item?.departure_lon) || 0,
-    latitudeDelta: 0.05,
-    longitudeDelta: 0.05,
-  }}
->
-  <Marker coordinate={origin} pinColor="green" />
-  <Marker coordinate={destination} pinColor="red" />
-  <Marker coordinate={driver}>
-    <Image
-      source={imageIndex.cars}
-      style={{ width: 40, height: 40 }}
-      resizeMode="contain"
-    />
-  </Marker>
-</MapView> */}
+      <TouchableWithoutFeedback onPress={dismissKeyboard} accessible={false}>
+        <View style={styles.mapWrap}>
       <MapView
+        ref={mapRef}
         provider={PROVIDER_GOOGLE}
         style={[styles.mapView, Platform.OS === 'ios' && { height: Dimensions.get('window').height }]}
         initialRegion={{
-          latitude: 22.7028931,
-          longitude: 75.8715823,
-          latitudeDelta: 0.05,
-          longitudeDelta: 0.05,
+          latitude: (pickup.latitude + dropoff.latitude) / 2,
+          longitude: (pickup.longitude + dropoff.longitude) / 2,
+          latitudeDelta: Math.max(0.05, Math.abs(pickup.latitude - dropoff.latitude) * 1.5),
+          longitudeDelta: Math.max(0.05, Math.abs(pickup.longitude - dropoff.longitude) * 1.5),
         }}
       >
-        {/* <Marker coordinate={{ latitude: 28.6139, longitude: 77.209 }} /> */}
-        {!actionLoading &&
-          <MapViewDirections
-            origin={currentCoords} // Must be a plain object
-            destination={item?.parcel?.deliveryStatus === "assigned" ? pickup : dropoff}
-            apikey={GOOGLE_MAPS_APIKEY}
-            strokeWidth={4}
-            strokeColor={item?.parcel?.deliveryStatus === "assigned" ? "#2196F3" : "#FFCC00"}
-            onReady={(res) => {
-              console.log(res, "map res");
-              // setDistance(res?.distance);
-              // setEta(`${Math.ceil(res.duration)} mins`);
-            }}
-          />
-        }
-        {!actionLoading &&
-          <Marker coordinate={pickup} title="Pickup Point">
-            <View style={[styles.dotMarker, { backgroundColor: "#4CAF50" }]} />
-          </Marker>
-        }
-        {!actionLoading &&
-          <Marker coordinate={dropoff} title="Drop-off Point">
-            <View style={[styles.dotMarker, { backgroundColor: "#F44336" }]} />
-          </Marker>
-        }
-        {!actionLoading && (
-          <Marker
-            key="driver-marker"
-            coordinate={driverCoordinate}
-            anchor={{ x: 0.5, y: 0.5 }}
-          >
-            <View style={styles.courierMarker}>
-              <Image source={imageIndex.deliver} style={styles.courierImage} />
-            </View>
-          </Marker>
+        {pickupToDropoffValid && (
+          <>
+            <Polyline
+              coordinates={[pickup, dropoff]}
+              strokeColor="#FFD700"
+              strokeWidth={8}
+              lineCap="round"
+              lineJoin="round"
+            />
+            <MapViewDirections
+              key={`polyline-pickup-dropoff-${pickup.latitude.toFixed(5)}-${pickup.longitude.toFixed(5)}-${dropoff.latitude.toFixed(5)}-${dropoff.longitude.toFixed(5)}`}
+              origin={pickup}
+              destination={dropoff}
+              apikey={GOOGLE_MAPS_APIKEY}
+              strokeWidth={8}
+              strokeColor="#FFD700"
+              lineCap="round"
+              lineJoin="round"
+              precision="high"
+              onError={(err) => console.warn('MapViewDirections error:', err)}
+            />
+          </>
         )}
+        <Marker coordinate={pickup} title="Pickup" tracksViewChanges={false}>
+          <View style={[styles.dotMarkerLarge, { backgroundColor: "#4CAF50" }]} />
+         </Marker>
+        <Marker coordinate={dropoff} title="Drop-off" tracksViewChanges={false}>
+          <View style={[styles.dotMarkerLarge, { backgroundColor: "#F44336" }]} /> 
+        </Marker>
+        <Marker
+          key="driver-marker"
+          coordinate={driverCoordinate}
+          anchor={{ x: 0.5, y: 0.5 }}
+          tracksViewChanges={false}
+        >
+          <View style={styles.courierMarker}>
+            <Image source={imageIndex.deliver} style={styles.courierImage} />
+          </View>
+        </Marker>
       </MapView>
-
+        </View>
+      </TouchableWithoutFeedback>
 
        <View style={styles.infoCard} >
          <TouchableOpacity  
@@ -392,9 +439,9 @@ const TripMap = () => {
           </Text>
         </TouchableOpacity>
       </View>
-
-      {/* Bottom Driver Card */}
-      <View style={styles.driverCard}>
+  <TouchableWithoutFeedback onPress={dismissKeyboard} accessible={false}>
+      {/* Bottom Driver Card - sits above keyboard when open */}
+      <View style={[styles.driverCard, { bottom: keyboardHeight }]}>
         {/* {!end &&
           <>
             <Text style={styles.arrivingText}>Driver is Arriving...</Text>
@@ -414,9 +461,7 @@ const TripMap = () => {
 
           ) : (
             <Image
-              source={{
-                uri: item?.user?.image || event?.sender.profileImage ? event?.sender.profileImage : event?.sender.profileImage,
-              }}
+              source={imageIndex.dpuser}
               style={styles.avatar}
             />
 
@@ -512,7 +557,7 @@ const TripMap = () => {
           }
         />
       </View>
-
+</TouchableWithoutFeedback>
       {/* <LocationPicker
       visible={locationModal}
       apiKey={MapApiKey}// replace with actual key
@@ -585,8 +630,11 @@ const styles = StyleSheet.create({
   driverCard: {
     position: 'absolute',
     bottom: 0,
+    left: 0,
+    right: 0,
     width: '100%',
     padding: 20,
+    paddingBottom: Platform.OS === 'ios' ? 34 : 20,
     borderTopLeftRadius: 25,
     borderTopRightRadius: 25,
     backgroundColor: '#fff',
@@ -668,6 +716,14 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: "white",
   },
+  dotMarkerLarge: {
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    borderWidth: 3,
+    borderColor: "#FFF",
+   
+  },
   courierMarker: {
     width: 44,
     height: 44,
@@ -680,6 +736,10 @@ const styles = StyleSheet.create({
     borderColor: "#FFCC00",
   },
   courierImage: { width: 30, height: 30, resizeMode: "contain" },
+  mapWrap: {
+    flex: 1,
+    width: '100%',
+  },
   mapView: {
     flex: 1,
     width: '100%',

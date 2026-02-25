@@ -69,6 +69,7 @@ import { Alert } from 'react-native';
         setIsLoading(false);
         return;
       }
+ 
 
       const response = await axios.get(
         `${base_url}/delivery/available-requests?lat=${lat}&lon=${lon}`,
@@ -79,6 +80,7 @@ import { Alert } from 'react-native';
           },
         },
       );
+      console.log("ss",response)
  
       if (response?.data?.status == 1) {
          // const validRequests = response?.data?.requests?.filter(
@@ -444,8 +446,7 @@ import { Alert } from 'react-native';
   };
 
   const acceptCounterOffer = async (offerId: number) => {
-    console.log("offerId",offerId)
-    try {
+     try {
        const token = await AsyncStorage.getItem('token');
       if (!token) {
         errorToast('Token not found');
