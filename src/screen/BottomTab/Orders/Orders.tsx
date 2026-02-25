@@ -16,20 +16,25 @@ import StatusBarComponent from "../../../compoent/StatusBarCompoent";
 import { useNavigation } from "@react-navigation/native";
 import ScreenNameEnum from "../../../routes/screenName.enum";
 import LoadingModal from "../../../utils/Loader";
-import { useOrders } from "./useOrders";
-import { STATUS, STATUS_LABELS } from "../../../utils/Constant";
+ import { STATUS, STATUS_LABELS } from "../../../utils/Constant";
+import useOrders from "./useOrders";
 
 type OrderStatus = "packaged" | "shipped" | "inTransit" | "delivered";
 
 type Order = {
   id: string;
   trackingId: string;
-  fromCity: string;
-  toCity: string;
-  startDate: string; // ISO or formatted string
-  endDate: string;
-  status: OrderStatus;
-  deliveryStatus: OrderStatus
+  fromCity?: string;
+  toCity?: string;
+  startDate?: string;
+  endDate?: string;
+  status?: OrderStatus;
+  deliveryStatus: OrderStatus;
+  pickupDate?: string;
+  pickupTime?: string;
+  pickupLocation?: string;
+  dropLocation?: string;
+  [key: string]: any;
 };
 
 // const STATUS_STEPS: OrderStatus[] = [
@@ -38,44 +43,42 @@ type Order = {
 //   "inTransit",
 //   "delivered",
 // ];
+// Full progress order: all statuses so Pending tab shows correct step for every order
 const STATUS_STEPS = [
   STATUS.PENDING,
+  STATUS.ASSIGNED,
+  STATUS.GOING_TO_PICKUP,
   STATUS.PICKED_UP,
   STATUS.ON_THE_WAY,
+  STATUS.ARRIVING,
   STATUS.DELIVERED,
 ];
+
+const norm = (s: string | undefined) => (s || "").toLowerCase().trim();
+
 export default function OrdersScreen() {
   const {
     isLoading,
     orderData,
     getParceldetailsApi
   } = useOrders()
-  const [tab, setTab] = useState<"pending" | "complete">("pending");
+  const [tab, setTab] = useState<"pending" | "complete" | "cancelled">("pending");
   const nava = useNavigation()
   const [refreshing, setRefreshing] = useState(false);
-  // const data = useMemo(() => {
-  //   return orderData.filter((o) =>
-  //     tab === "pending" ? o.deliveryStatus !== "delivered" : o.deliveryStatus === "delivered"
-  //   );
-  // }, [tab]);
 
-  // 1. Filter Logic: Separate Complete from Pending
-const data = useMemo(() => {
-  return orderData.filter((o: Order) => {
-    const isDelivered =
-      o.deliveryStatus === STATUS.DELIVERED ||
-      o.deliveryStatus === STATUS.COMPLETED;
+  // Pending = all except Complete & Cancelled. Complete = delivered/completed. Cancelled = cancelled only.
+  const data = useMemo(() => {
+    return orderData.filter((o: Order) => {
+      const status = norm(o.deliveryStatus);
+      const isDelivered =
+        status === STATUS.DELIVERED || status === STATUS.COMPLETED;
+      const isCancelled = status === STATUS.CANCELLED;
 
-    const isCancelled =
-      o.deliveryStatus === STATUS.CANCELLED;
-
-    if (tab === "complete") return isDelivered;
-    if (tab === "cancelled") return isCancelled;
-
-    // pending
-    return !isDelivered && !isCancelled;
-  });
-}, [tab, orderData]);
+      if (tab === "complete") return isDelivered;
+      if (tab === "cancelled") return isCancelled;
+      return !isDelivered && !isCancelled;
+    });
+  }, [tab, orderData]);
 
 
   // 2. Pull to Refresh Logic
@@ -92,32 +95,22 @@ const data = useMemo(() => {
     }
   }, [getParceldetailsApi]);
   const OrderCard = ({ order }: { order: Order }) => {
-    const formatDate = (isoString: string) => {
+    const formatDate = (isoString: string | undefined) => {
+      if (!isoString) return "—";
       const date = new Date(isoString);
       return date.toLocaleDateString("en-US", {
-        month: "short", // "Jan"
-        day: "2-digit", // "31"
-        year: "numeric", // "2023"
+        month: "short",
+        day: "2-digit",
+        year: "numeric",
       });
     };
     return (
       <TouchableOpacity style={styles.card}
         activeOpacity={1}
         onPress={() => {
-          if (order.deliveryStatus === STATUS.DELIVERED) {
-          } 
-          // else  if (order.deliveryStatus === STATUS.ASSIGNED) {
-          //    nava.navigate(ScreenNameEnum.TripMap, {
-          //     item: order
-          //   })
-          // } 
-          
-          
-          else {
-            nava.navigate(ScreenNameEnum.ViewDetails, {
-              item: order
-            })
-          }
+          const s = norm(order.deliveryStatus);
+          if (s === STATUS.CANCELLED) return;
+          (nava as any).navigate(ScreenNameEnum.ViewDetails, { item: order });
         }}
       >
         <View style={styles.cardHeader}>
@@ -150,8 +143,10 @@ const data = useMemo(() => {
 
         <View style={styles.footerRow}>
           <StatusPill status={order.deliveryStatus} />
-          <Pressable onPress={() => console.log("View details", order.id)}>
-            <Text style={styles.viewDetails}>{order.deliveryStatus === STATUS.DELIVERED ? "Write a Review" : "View Details"}</Text>
+          <Pressable onPress={() => (nava as any).navigate(ScreenNameEnum.ViewDetails, { item: order })}>
+            <Text style={styles.viewDetails}>
+              {norm(order.deliveryStatus) === STATUS.DELIVERED || norm(order.deliveryStatus) === STATUS.COMPLETED ? "Write a Review" : "View Details"}
+            </Text>
           </Pressable>
         </View>
       </TouchableOpacity>
@@ -254,45 +249,36 @@ const SegmentedTab = ({
 // };
 
 const StatusPill = ({ status }: { status: OrderStatus }) => {
+  const s = norm(status);
   const text =
-    status === STATUS.PENDING
-      ? "Still Packaged"
-      : status === STATUS.PICKED_UP
-      ? "In Shipping"
-      : status === STATUS.ON_THE_WAY
-      ? "In Transit"
-      : status === STATUS.DELIVERED
-      ? STATUS_LABELS[STATUS.DELIVERED]
-      : status === STATUS.CANCELLED
-      ? "Canceled"
-      : STATUS_LABELS[STATUS.PENDING];
+    s === STATUS.CANCELLED
+      ? "Cancelled"
+      : STATUS_LABELS[s as keyof typeof STATUS_LABELS] ?? status ?? "Pending";
 
   const pillStyle =
-    status === STATUS.DELIVERED
+    s === STATUS.DELIVERED || s === STATUS.COMPLETED
       ? styles.pillDone
-      : status === STATUS.CANCELLED
+      : s === STATUS.CANCELLED
       ? styles.pillCancelled
       : styles.pillProgress;
 
   const textColor =
-    status === STATUS.DELIVERED
-      ? "#FFFFFF"        // white on green
-      : status === STATUS.CANCELLED
-      ? "#ff0404ff"        // white on red
-      : "#000000";       // black on yellow
+    s === STATUS.DELIVERED || s === STATUS.COMPLETED
+      ? "#FFFFFF"
+      : s === STATUS.CANCELLED
+      ? "#FFFFFF"
+      : "#000000";
 
   return (
     <View style={[styles.pill, pillStyle]}>
-      <Text style={[styles.pillText, { color: textColor }]}>
-        {text}
-      </Text>
+      <Text style={[styles.pillText, { color: textColor }]}>{text}</Text>
     </View>
   );
 };
 
 const ProgressTrack = ({ status }: { status: string }) => {
-  const currentIdx = STATUS_STEPS.indexOf(status);
-
+  const s = norm(status);
+  const currentIdx = STATUS_STEPS.indexOf(s);
   const activeIdx = currentIdx === -1 ? 0 : currentIdx;
 
   const progressPercent = (activeIdx / (STATUS_STEPS.length - 1)) * 100;
@@ -381,7 +367,7 @@ const styles = StyleSheet.create({
   },
   trackingLabel: { color: MUTED, fontFamily: font.MonolithRegular, },
   trackingId: { color: TEXT, fontFamily: font.MonolithRegular, },
-  pillCancelled: { color: TEXT, fontFamily: font.MonolithRegular, },
+  pillCancelled: { backgroundColor: "#DC2626" },
 
   trackBase: {
     height: 24,

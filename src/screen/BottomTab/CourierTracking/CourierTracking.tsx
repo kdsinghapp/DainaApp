@@ -58,6 +58,16 @@ const CourierTrackingScreen = () => {
     longitude: safeNum(item?.dropLocationLon, DEFAULT_LNG),
   };
 
+  const distanceBetween = (
+    a: { latitude: number; longitude: number },
+    b: { latitude: number; longitude: number },
+  ) => {
+    const dLat = a.latitude - b.latitude;
+    const dLng = a.longitude - b.longitude;
+    return Math.sqrt(dLat * dLat + dLng * dLng);
+  };
+  const MIN_ROUTE_DISTANCE_DEG = 0.0003;
+
   const [distance, setDistance] = useState(0);
   const [currentCoords, setCurrentCoords] = useState(() => ({
     latitude: safeNum(item?.pickupLocationLon, DEFAULT_LAT),
@@ -175,22 +185,37 @@ const CourierTrackingScreen = () => {
     return () => socket.close();
   }, [item?.trackingId]);
 
+  // Route for polyline: driver → pickup (or driver → dropoff). If origin ≈ destination, show full route pickup → dropoff so polyline always draws.
+  const routeDestination =
+    status === STATUS.ASSIGNED || status === STATUS.GOING_TO_PICKUP ? pickup : dropoff;
+  const routeOriginRaw = currentCoords ?? pickup;
+  const tooClose =
+    distanceBetween(routeOriginRaw, routeDestination) < MIN_ROUTE_DISTANCE_DEG;
+  const routeOrigin = tooClose ? pickup : routeOriginRaw;
+  const routeDestForPolyline = tooClose ? dropoff : routeDestination;
+  const isRouteToPickup =
+    (status === STATUS.ASSIGNED || status === STATUS.GOING_TO_PICKUP) && !tooClose;
+
   return (
     <View style={styles.container}>
       <StatusBarComponent />
 
-      <MapView
-        ref={mapRef}
-        provider={PROVIDER_GOOGLE}
-        style={styles.map}
-        initialRegion={initialRegion}
-        mapPadding={{ top: 60, right: 20, bottom: PANEL_PEEK_HEIGHT + 40, left: 20 }}
-      >
+      <View style={styles.mapWrap}>
+        <MapView
+          ref={mapRef}
+          provider={PROVIDER_GOOGLE}
+          style={styles.map}
+          initialRegion={initialRegion}
+          mapPadding={{ top: 60, right: 20, bottom: PANEL_PEEK_HEIGHT + 40, left: 20 }}
+        >
         <Marker coordinate={pickup} title="Pickup">
           <View style={[styles.dotMarker, { backgroundColor: "#4CAF50" }]} />
         </Marker>
-        <Marker coordinate={dropoff} title="Drop-off">
-          <View style={[styles.dotMarker, { backgroundColor: "#F44336" }]} />
+        <Marker coordinate={dropoff} title="Drop-off" 
+        
+        >
+         
+           <View style={[styles.dotMarker, { backgroundColor: "#f55448ff" }]} />  
         </Marker>
 
         <Marker.Animated
@@ -198,23 +223,19 @@ const CourierTrackingScreen = () => {
           coordinate={driverLocation as any}
           anchor={{ x: 0.5, y: 0.5 }}
         >
-          <View style={styles.courierMarker}>
-            <Image source={imageIndex.deliver} style={styles.courierImage} />
-          </View>
+          {/* <View style={styles.courierMarker}> */}
+            <Image source={imageIndex.caricon} style={styles.courierImage} />
+          {/* </View> */}
         </Marker.Animated>
 
-        {/* Rapido-style route polyline: thick visible line */}
+        {/* Route polyline: always use two distinct points so the line is drawn (fallback: full route when driver at same point as destination) */}
         <MapViewDirections
-          key={`route-${status}-${(currentCoords?.latitude ?? 0).toFixed(5)}-${(currentCoords?.longitude ?? 0).toFixed(5)}`}
-          origin={currentCoords}
-          destination={
-            status === STATUS.ASSIGNED || status === STATUS.GOING_TO_PICKUP
-              ? pickup
-              : dropoff
-          }
+          key={`route-${status}-${routeOrigin.latitude.toFixed(5)}-${routeOrigin.longitude.toFixed(5)}-${routeDestForPolyline.latitude.toFixed(5)}-${routeDestForPolyline.longitude.toFixed(5)}`}
+          origin={routeOrigin}
+          destination={routeDestForPolyline}
           apikey={GOOGLE_MAPS_APIKEY}
-          strokeWidth={8}
-          strokeColor={status === STATUS.ASSIGNED || status === STATUS.GOING_TO_PICKUP ? "#007AFF" : "#FF9500"}
+          strokeWidth={6}
+          strokeColor={isRouteToPickup ? "#007AFF" : "#FFCC00"}
           lineCap="round"
           lineJoin="round"
           precision="high"
@@ -228,7 +249,8 @@ const CourierTrackingScreen = () => {
             setEta("—");
           }}
         />
-      </MapView>
+        </MapView>
+      </View>
 
       <SafeAreaView style={styles.headerOverlay} edges={["top"]}>
         <CustomHeader label="" />
@@ -245,16 +267,7 @@ const CourierTrackingScreen = () => {
           contentContainerStyle={styles.scrollContentContainer}
           showsVerticalScrollIndicator={false}
         >
-          {/* ETA strip - Rapido style */}
-          {/* <View style={styles.etaStrip}>
-            <Text style={styles.etaStripText}>{eta}</Text>
-            <Text style={styles.etaStripDot}>•</Text>
-            <Text style={styles.etaStripDistance}>
-              {distance != null ? `${Number(distance).toFixed(1)} km away` : "—"}
-            </Text>
-          </View> */}
-
-          {/* Driver card */}
+         
           <View style={styles.driverSection}>
             <Image source={{ uri: driver?.image }} style={styles.avatar} />
             <View style={styles.driverInfo}>
@@ -343,7 +356,8 @@ export default CourierTrackingScreen;
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#F5F5F5" },
-  map: { width: width, height: height },
+  mapWrap: { flex: 1, width: "100%", minHeight: height * 0.5 },
+  map: { ...StyleSheet.absoluteFillObject },
   headerOverlay: { position: "absolute", top: 0, left: 0, right: 0, zIndex: 5 },
   dotMarker: {
     width: 14,
@@ -443,7 +457,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     borderRadius: 10,
     borderWidth: 2,
-    borderColor: "#F59E0B",
+    borderColor: "#FFCC00",
     borderStyle: "dashed",
     alignItems: "center",
     justifyContent: "center",

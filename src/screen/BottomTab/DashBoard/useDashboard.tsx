@@ -5,6 +5,22 @@ import { GetProfileApi, Parceldetails } from '../../../Api/apiRequest';
 import { loginSuccess } from '../../../redux/feature/authSlice';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { WebSocket_Url } from '../../../Api';
+import { successToast } from '../../../utils/customToast';
+
+export type CounterOfferAcceptedPayload = {
+  type: string;
+  parcelId: number;
+  offerId: number;
+  status: string;
+  acceptedBy: string;
+  deliveryUserId: number;
+  pickupOtp?: string;
+  deliveryOtp?: string;
+  timestamp?: string;
+  notifyType?: string;
+  title?: string;
+  message?: string;
+};
 
 const useDashboard = () => {
   const navigation = useNavigation();
@@ -68,20 +84,21 @@ const useDashboard = () => {
   const getParceldetailsApi = async () => {
     try {
       const response = await Parceldetails(setLoading);
-      console.log("response",response)
-    const goingToPickupData = response.parcels.filter(
-        item => item.deliveryStatus === "going_to_pickup"
-      );
-
-      setorderData(goingToPickupData);
+      console.log("response",response.parcels)
+    // const goingToPickupData = response.parcels.filter(
+    //     item => item.deliveryStatus === "going_to_pickup"
+    //   );
+      setorderData(response.parcels);
     } catch (error) {
 
     }
   };
-
- 
   const [isConnected, setIsConnected] = useState(false);
-  const [socketData, setSocketData] = useState<any>(null); // last message from WS for UI
+  const [socketData, setSocketData] = useState<any>(null);
+  const [counterOfferAcceptedModal, setCounterOfferAcceptedModal] = useState<{
+    visible: boolean;
+    data: CounterOfferAcceptedPayload | null;
+  }>({ visible: false, data: null });
   const socketRef = useRef<WebSocket | null>(null);
 
   const connectSocket = (token: string) => {
@@ -122,6 +139,20 @@ const useDashboard = () => {
             const data = JSON.parse(raw);
             console.log('📦 socket data:', data);
             setSocketData(data);
+            if (data?.type === 'new_offer') {
+              // optional: show new_offer modal later
+            }
+            if (data?.type === 'parcel_status_update') {
+              successToast(data?.type?.message ||"Parcels successfully")
+              getParceldetailsApi()
+              // optional: show new_offer modal later
+            }
+            if (data?.type === 'counter_offer_accepted') {
+              setCounterOfferAcceptedModal({
+                visible: true,
+                data: data as CounterOfferAcceptedPayload,
+              });
+            }
             if (data?.type === 'order_update' || data?.refreshOrders) {
               getParceldetailsApi();
             }
@@ -191,6 +222,9 @@ const useDashboard = () => {
     orderData,
     isConnected,
     socketData,
+    counterOfferAcceptedModal,
+    setCounterOfferAcceptedModal,
+    getParceldetailsApi,
   };
 };
 

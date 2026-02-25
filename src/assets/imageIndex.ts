@@ -49,6 +49,7 @@ tracking: require('./images/tracking.png'),
 
 black: require('./images/black.png'),
 location1: require('./images/location1.png'),
+caricon: require('./images/caricon.jpg'),
 // group: require('./images/goup2.png'),
 group: require('./images/group.png'),
  right: require('./images/arrowRight.png'),

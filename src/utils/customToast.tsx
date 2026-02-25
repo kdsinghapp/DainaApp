@@ -1,40 +1,36 @@
 import React from 'react';
-import {StyleSheet, View} from 'react-native';
+import { StyleSheet, View, Text } from 'react-native';
 import Toast from 'react-native-toast-message';
-import TextCompoent, {Size} from './Text';
 
 const toastConfig = {
-  successResponse: ({text1}: any) => (
+  successResponse: ({ text1 }: any) => (
     <View style={styles.successContainer}>
-      <TextCompoent
-        style={styles.textStyle}
-        size={Size.Small}
-        color={'black'}
-        fontWeight="700">
+      <View style={styles.iconBadgeSuccess}>
+        <Text style={styles.iconText}>✓</Text>
+      </View>
+      <Text style={[styles.textStyle, styles.textSuccess]} numberOfLines={3}>
         {text1}
-      </TextCompoent>
+      </Text>
     </View>
   ),
-  errorResponse: ({text1}: any) => (
+  errorResponse: ({ text1 }: any) => (
     <View style={styles.errorContainer}>
-      <TextCompoent
-        style={styles.textStyle}
-        size={Size.Small}
-        color={'#f30e0eff'}
-        fontWeight="700">
+      <View style={styles.iconBadgeError}>
+        <Text style={styles.iconText}>✕</Text>
+      </View>
+      <Text style={[styles.textStyle, styles.textError]} numberOfLines={3}>
         {text1}
-      </TextCompoent>
+      </Text>
     </View>
   ),
-  normalResponse: ({text1}: any) => (
+  normalResponse: ({ text1 }: any) => (
     <View style={styles.normalContainer}>
-      <TextCompoent
-        style={styles.textStyle}
-        size={Size.Small}
-        color={'#0c0c0c'}
-        fontWeight="700">
+      <View style={styles.iconBadgeNormal}>
+        <Text style={styles.iconText}>•</Text>
+      </View>
+      <Text style={[styles.textStyle, styles.textNormal]} numberOfLines={3}>
         {text1}
-      </TextCompoent>
+      </Text>
     </View>
   ),
 };
@@ -50,11 +46,15 @@ export const successToast = (message: string, time = 2000) => {
   });
 };
 
-export const errorToast = (message: string, time = 2000, position = 'top') => {
+export const errorToast = (
+  message: string,
+  time = 2000,
+  position: 'top' | 'bottom' = 'top',
+) => {
   Toast.show({
     type: 'errorResponse',
     text1: message,
-    position: position,
+    position,
     visibilityTime: time,
     topOffset: 50,
   });
@@ -71,68 +71,106 @@ export const normalToast = (message: string, time = 2000) => {
 };
 
 export default toastConfig;
+
 const styles = StyleSheet.create({
   textStyle: {
-    marginLeft: 10,
+    flex: 1,
+    marginLeft: 12,
     fontSize: 14,
-    lineHeight: 18,
+    lineHeight: 20,
+    fontWeight: '600',
+  },
+  textSuccess: { color: '#065F46' },
+  textError: { color: '#B91C1C' },
+  textNormal: { color: '#334155' },
+  iconText: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#FFF',
+  },
+  iconBadgeSuccess: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: '#059669',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  iconBadgeError: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: '#DC2626',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  iconBadgeNormal: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: '#64748B',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 
-  // ✅ SUCCESS
   successContainer: {
-    minHeight: 51,
-    width: '92%',
-    backgroundColor: '#E6F8EC',
-    borderRadius: 12,
+    minHeight: 56,
+    width: '90%',
+    maxWidth: 340,
+    alignSelf: 'center',
+    backgroundColor: '#ECFDF5',
+    borderRadius: 16,
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 16,
-    borderLeftWidth: 6,
-    borderLeftColor: '#22C55E',
-
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.15,
-    shadowRadius: 6,
-    elevation: 4,
+    paddingVertical: 14,
+    borderLeftWidth: 4,
+    borderLeftColor: '#10B981',
+    shadowColor: '#059669',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.12,
+    shadowRadius: 12,
+    elevation: 6,
   },
 
-  // ❌ ERROR
   errorContainer: {
-    minHeight: 55,
-    width: '92%',
-    backgroundColor: '#FEE2E2',
-    borderRadius: 12,
+    minHeight: 56,
+    width: '90%',
+    maxWidth: 340,
+    alignSelf: 'center',
+    backgroundColor: '#FEF2F2',
+    borderRadius: 16,
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 16,
-    borderLeftWidth: 6,
+    paddingVertical: 14,
+    borderLeftWidth: 4,
     borderLeftColor: '#EF4444',
-
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.15,
-    shadowRadius: 6,
-    elevation: 4,
+    shadowColor: '#DC2626',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.12,
+    shadowRadius: 12,
+    elevation: 6,
   },
 
-  // ℹ️ NORMAL
   normalContainer: {
-    minHeight: 48,
-    width: '92%',
-    backgroundColor: '#F3F4F6',
-    borderRadius: 12,
+    minHeight: 56,
+    width: '90%',
+    maxWidth: 340,
+    alignSelf: 'center',
+    backgroundColor: '#F8FAFC',
+    borderRadius: 16,
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 16,
-    borderLeftWidth: 6,
-    borderLeftColor: '#6B7280',
-
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.15,
-    shadowRadius: 6,
-    elevation: 4,
+    paddingVertical: 14,
+    borderLeftWidth: 4,
+    borderLeftColor: '#64748B',
+    shadowColor: '#64748B',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 12,
+    elevation: 6,
   },
 });
 

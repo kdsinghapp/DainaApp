@@ -3,8 +3,10 @@ import {
   View,
   Text,
   StyleSheet,
- 
-  Image
+  Image,
+  Modal,
+  TouchableOpacity,
+  Platform,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import font from "../../../theme/font";
@@ -28,12 +30,32 @@ const ShippingScreen = () => {
     isLoading,
     locationRef,
     currentlocation,
-    address, setAddress,
-    location, setLocation,
+    address,
+    setAddress,
+    location,
+    setLocation,
     locationModal,
     setlocationModal,
-    orderData
-  } = useDashboard()
+    orderData,
+    counterOfferAcceptedModal,
+    setCounterOfferAcceptedModal,
+    getParceldetailsApi,
+  } = useDashboard();
+
+  const closeOfferAcceptedModal = () => {
+    setCounterOfferAcceptedModal({ visible: false, data: null });
+  };
+
+  const handleViewOrder = () => {
+    const data = counterOfferAcceptedModal?.data;
+    if (data?.parcelId != null) {
+      (navigation as any).navigate(ScreenNameEnum.ViewDetails, {
+        item: { id: data.parcelId },
+      });
+      getParceldetailsApi();
+    }
+    closeOfferAcceptedModal();
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -123,6 +145,87 @@ const ShippingScreen = () => {
         onSelect={(loc) => setLocation(loc)}
         placeholder="Select your delivery address"
       />
+
+      {/* Counter offer accepted – driver accepted user's offer */}
+      <Modal
+        visible={counterOfferAcceptedModal.visible}
+        transparent
+        animationType="fade"
+      >
+        <TouchableOpacity
+          activeOpacity={1}
+          style={offerAcceptedStyles.overlay}
+          onPress={closeOfferAcceptedModal}
+        >
+          <TouchableOpacity activeOpacity={1} onPress={(e) => e.stopPropagation()}>
+            <View style={offerAcceptedStyles.modalCard}>
+              <View style={offerAcceptedStyles.accentBar} />
+              <Text style={offerAcceptedStyles.title}>
+                {counterOfferAcceptedModal?.data?.title ?? "Offer Accepted"}
+              </Text>
+              {counterOfferAcceptedModal?.data?.driver != null && (
+                <Text style={offerAcceptedStyles.extra}>
+                  {counterOfferAcceptedModal?.data?.driver?.name}
+                </Text>
+              )}
+              <Image source={{uri: counterOfferAcceptedModal?.data?.driver?.image}}
+              style={{
+                height:60,
+                width:60 ,
+                borderRadius:60
+              }}
+              />
+              <Text style={offerAcceptedStyles.message}>
+                {counterOfferAcceptedModal?.data?.message ??
+                  "Driver has accepted your counter offer."}
+              </Text>
+              {counterOfferAcceptedModal?.data?.parcelId != null && (
+                <Text style={offerAcceptedStyles.extra}>
+                  Order #{counterOfferAcceptedModal?.data?.parcelId}
+                </Text>
+              )}
+              
+              {/* {(counterOfferAcceptedModal.data?.pickupOtp ||
+                counterOfferAcceptedModal.data?.deliveryOtp) && (
+                <View style={offerAcceptedStyles.otpRow}>
+                  {counterOfferAcceptedModal.data?.pickupOtp && (
+                    <View style={offerAcceptedStyles.otpBox}>
+                      <Text style={offerAcceptedStyles.otpLabel}>Pickup OTP</Text>
+                      <Text style={offerAcceptedStyles.otpValue}>
+                        {counterOfferAcceptedModal.data.pickupOtp}
+                      </Text>
+                    </View>
+                  )}
+                  {counterOfferAcceptedModal.data?.deliveryOtp && (
+                    <View style={offerAcceptedStyles.otpBox}>
+                      <Text style={offerAcceptedStyles.otpLabel}>Delivery OTP</Text>
+                      <Text style={offerAcceptedStyles.otpValue}>
+                        {counterOfferAcceptedModal.data.deliveryOtp}
+                      </Text>
+                    </View>
+                  )}
+                </View>
+              )} */}
+              <View style={offerAcceptedStyles.buttonRow}>
+                <TouchableOpacity
+                  style={offerAcceptedStyles.btnDismiss}
+                  onPress={closeOfferAcceptedModal}
+                  activeOpacity={0.8}
+                >
+                  <Text style={offerAcceptedStyles.btnDismissText}>OK</Text>
+                </TouchableOpacity>
+                {/* <TouchableOpacity
+                  style={offerAcceptedStyles.btnView}
+                  onPress={handleViewOrder}
+                  activeOpacity={0.8}
+                >
+                  <Text style={offerAcceptedStyles.btnViewText}>View order</Text>
+                </TouchableOpacity> */}
+              </View>
+            </View>
+          </TouchableOpacity>
+        </TouchableOpacity>
+      </Modal>
     </SafeAreaView>
   );
 };
@@ -258,5 +361,120 @@ const styles = StyleSheet.create({
     color: "#555",
     fontFamily: font.MonolithRegular
 
+  },
+});
+
+const offerAcceptedStyles = StyleSheet.create({
+  overlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.5)",
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 28,
+  },
+  modalCard: {
+    width: "100%",
+    maxWidth: 360,
+    backgroundColor: "#FFFFFF",
+    borderRadius: 24,
+    paddingTop: 0,
+    paddingHorizontal: 24,
+    paddingBottom: 28,
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: "rgba(0,0,0,0.06)",
+    ...Platform.select({
+      ios: {
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 12 },
+        shadowOpacity: 0.18,
+        shadowRadius: 24,
+      },
+      android: { elevation: 16 },
+    }),
+  },
+  accentBar: {
+    width: "100%",
+    height: 4,
+    backgroundColor: "#22C55E",
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    marginBottom: 20,
+  },
+  title: {
+    fontSize: 22,
+    color: "#0F172A",
+    marginBottom: 10,
+    textAlign: "center",
+    fontFamily: font.MonolithRegular,
+  },
+  message: {
+    fontSize: 15,
+    color: "#64748B",
+    textAlign: "center",
+    lineHeight: 22,
+    marginBottom: 12,
+    paddingHorizontal: 8,
+    fontFamily: font.MonolithRegular,
+  },
+  extra: {
+    fontSize: 14,
+    color: "#475569",
+    marginBottom: 12,
+    fontFamily: font.MonolithRegular,
+  },
+  otpRow: {
+    flexDirection: "row",
+    gap: 16,
+    marginBottom: 24,
+  },
+  otpBox: {
+    backgroundColor: "#F1F5F9",
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 12,
+    alignItems: "center",
+  },
+  otpLabel: {
+    fontSize: 12,
+    color: "#64748B",
+    fontFamily: font.MonolithRegular,
+    marginBottom: 4,
+  },
+  otpValue: {
+    fontSize: 18,
+    fontWeight: "700",
+    color: "#0F172A",
+    fontFamily: font.MonolithRegular,
+  },
+  buttonRow: {
+    flexDirection: "row",
+    gap: 14,
+    width: "100%",
+  },
+  btnDismiss: {
+    flex: 1,
+    paddingVertical: 16,
+    borderRadius: 14,
+    backgroundColor: "#F1F5F9",
+    alignItems: "center",
+  },
+  btnDismissText: {
+    fontSize: 16,
+    color: "#64748B",
+    fontFamily: font.MonolithRegular,
+  },
+  btnView: {
+    flex: 1,
+    paddingVertical: 16,
+    borderRadius: 14,
+    backgroundColor: "#FFD600",
+    alignItems: "center",
+  },
+  btnViewText: {
+    fontSize: 16,
+    fontFamily: font.MonolithRegular,
+    color: "#0F172A",
+    fontWeight: "600",
   },
 });

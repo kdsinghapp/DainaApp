@@ -72,8 +72,8 @@ const TripMap = () => {
     // setActionLoading(true)
     getDetail()
   }, [])
+  
   const getDetail = async () => {
-
     // console.log(`/parcels/${item?.parcelId}/statis`)
     const param = {
       url: `/delivery/my-offers/${parcelId}`
@@ -92,14 +92,11 @@ const TripMap = () => {
     latitude: parseFloat(item?.departure_lat) || 0,
     longitude: parseFloat(item?.departure_lon) || 0,
   };
-  const destination = { latitude: parseFloat(item?.arrival_lat), longitude: parseFloat(item?.arrival_lon) }; // Indore MP
-  const driver = { latitude: parseFloat(item?.departure_lat), longitude: parseFloat(item?.departure_lon) };
-
+  
   const navigation = useNavigation()
   const getButtonConfig = () => {
     const currentStatus = item?.deliveryStatus;
-    console.log("currentStatus", currentStatus)
-    switch (currentStatus) {
+     switch (currentStatus) {
       // case STATUS.PENDING:
       //   return {
       //     title: "Send Offer",
@@ -210,8 +207,7 @@ const TripMap = () => {
     return Number.isFinite(n) ? n : fallback;
   };
 
-  // Latitude = lat, longitude = lon. Always numbers so AIRMapMarker never gets String.
-  const pickup = {
+   const pickup = {
     latitude: safeNum(parcel?.pickupLat ?? parcel?.pickupLocationLat, DEFAULT_LAT),
     longitude: safeNum(parcel?.pickupLon ?? parcel?.pickupLocationLon, DEFAULT_LNG),
   };
