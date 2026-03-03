@@ -7,8 +7,7 @@ import Geolocation from '@react-native-community/geolocation';
 import { successToast, errorToast } from '../../../../utils/customToast';
 import ScreenNameEnum from '../../../../routes/screenName.enum';
 import { STATUS } from '../../../../utils/Constant';
-import { Alert } from 'react-native';
- export const useDeliveryHome = () => {
+  export const useDeliveryHome = () => {
   const [isLoading, setIsLoading] = useState(false);
   const navigation = useNavigation()
   const [requests, setRequests] = useState([]);
@@ -325,7 +324,6 @@ import { Alert } from 'react-native';
           }
           resolve();
         };
-
         ws.onmessage = async (event: { data: string | Blob | ArrayBuffer }) => {
           if (cancelledRef.current) return;
           let raw: string;

@@ -1,12 +1,17 @@
- import React from 'react';
+import React from 'react';
+import { View } from 'react-native';
 import { createNativeStackNavigator, NativeStackNavigationOptions } from '@react-navigation/native-stack';
 import _routes from '../routes/routes';
 import ScreenNameEnum from '../routes/screenName.enum';
+import { DeliveryProvider } from '../context/DeliveryContext';
+import { DashboardProvider } from '../context/DashboardContext';
+import NewOrderNotificationModal from '../compoent/NewOrderNotificationModal';
+import OfferAcceptedModal from '../compoent/OfferAcceptedModal';
 
 export type RegistrationStackParamList = {
   [ScreenNameEnum.SPLASH_SCREEN]: undefined;
   [ScreenNameEnum.OnboardingScreen]: undefined;
-  [ScreenNameEnum.ChooseRoleScreen]: undefined;
+  [ScreenNameEnum.ChooseRole]: undefined;
   [ScreenNameEnum.ReadyScreen]: undefined;
   [ScreenNameEnum.LoginScreen]: undefined;
   [ScreenNameEnum.OtpScreen]: undefined;
@@ -55,18 +60,26 @@ const screenOptions: NativeStackNavigationOptions = {
 
 const RegistrationRoutes: React.FC = () => {
   return (
-    <Stack.Navigator screenOptions={screenOptions}>
-      {_routes.REGISTRATION_ROUTE.map((screen: RegistrationRouteType) => (
-        <Stack.Screen
-          key={screen.name}
-          name={screen.name}
-          component={screen.Component}
-          options={{
-            animation: screen.name === ScreenNameEnum.SuccessScreen ? 'fade' : 'slide_from_right',
-          }}
-        />
-      ))}
-    </Stack.Navigator>
+    <DeliveryProvider>
+      <DashboardProvider>
+        <View style={{ flex: 1 }}>
+          <Stack.Navigator screenOptions={screenOptions}>
+            {_routes.REGISTRATION_ROUTE.map((screen: RegistrationRouteType) => (
+              <Stack.Screen
+                key={screen.name}
+                name={screen.name}
+                component={screen.Component}
+                options={{
+                  animation: screen.name === ScreenNameEnum.SuccessScreen ? 'fade' : 'slide_from_right',
+                }}
+              />
+            ))}
+          </Stack.Navigator>
+          <NewOrderNotificationModal />
+          <OfferAcceptedModal />
+        </View>
+      </DashboardProvider>
+    </DeliveryProvider>
   );
 };
 

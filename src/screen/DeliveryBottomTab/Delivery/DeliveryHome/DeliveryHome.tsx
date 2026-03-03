@@ -8,9 +8,6 @@ import {
   Easing,
   FlatList,
   ScrollView,
-  Modal,
-  StyleSheet,
-  Platform,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
@@ -19,29 +16,18 @@ import HomeHeaderBar from "../../../../compoent/HomeHeaderBar";
 import imageIndex from "../../../../assets/imageIndex";
 import OnlineSlideRight from "../../../../compoent/OnlineSlideRight";
 import { successToast } from "../../../../utils/customToast";
-import { useDeliveryHome } from "./useDeliveryHome";
+import { useDeliveryContext } from "../../../../context/DeliveryContext";
 import LoadingModal from "../../../../utils/Loader";
 import { styles } from "./style";
 import CurrentLocation from "../../../../CurrentLocation";
 import { Pressable } from "react-native";
 import ScreenNameEnum from "../../../../routes/screenName.enum";
-import { STATUS } from "../../../../utils/Constant";
-import font from "../../../../theme/font";
 
 const TABS = ["Pending", "Complete", "Canceled"] as const;
 const DeliveryHome = () => {
-  const {
-    isLoading,
-    requests,
-    locationRef,
-    currentlocation,
-    address,
-    newOrderNotification,
-    setNewOrderNotification,
-    acceptCounterOffer,
-    acceptCounterOfferLoading,
-    RejectcounterOffer
-  } = useDeliveryHome();
+  const ctx = useDeliveryContext();
+  if (!ctx) return null;
+  const { isLoading, requests, locationRef, currentlocation, address } = ctx;
   // console.log("newOrderNotification",newOrderNotification?.data?.user?.name)
   const [activeTab, setActiveTab] = useState<(typeof TABS)[number]>("Pending");
   const [isOnline, setIsOnline] = useState(false);
@@ -352,303 +338,8 @@ const DeliveryHome = () => {
         </Animated.View>
       </ScrollView>
       <OnlineSlideRight onSlideSuccess={() => successToast("Online")} isOnline={isOnline} setIsOnline={setIsOnline} />
-
-      {/* New order notification modal */}
-      <Modal
-        visible={!!newOrderNotification?.visible}
-        transparent
-        animationType="fade"
-      >
-        <TouchableOpacity
-          activeOpacity={1}
-          style={newOrderStyles.overlay}
-          onPress={() => setNewOrderNotification(null)}
-        >
-          <TouchableOpacity activeOpacity={1} onPress={(e) => e.stopPropagation()}>
-            <View style={newOrderStyles.modalCard}>
-              <View style={newOrderStyles.accentBar} />
-
-              <View style={newOrderStyles.iconWrap}>
-                <Image
-                  source={imageIndex?.icons || imageIndex?.earing}
-                  style={newOrderStyles.notifIcon}
-                  resizeMode="contain"
-                />
-              </View>
-              <Text style={newOrderStyles.title}>
-                {(newOrderNotification?.data as { type?: string; title?: string })?.type === 'counter_offer'
-                  ? ((newOrderNotification?.data as { title?: string })?.title ?? 'Counter Offer Received')
-                  : 'New delivery request'}
-              </Text>
-
-              <Text style={newOrderStyles.message}>
-                {(newOrderNotification?.data as { type?: string; message?: string })?.type === 'counter_offer'
-                  ? ((newOrderNotification?.data as { message?: string })?.message ?? 'User sent a counter offer. Tap to view and respond.')
-                  : 'A parcel pickup is nearby. Tap below to see details and send your offer.'}
-              </Text>
-
-              {newOrderNotification?.data?.user?.profileImage && (
-                  <View style={{
-                flexDirection: "row",
-                alignItems: "center",
-                padding: 12,
-                backgroundColor: "#fff",
-                bottom: 20
-
-              }}>
-                <Image
-                  source={{
-                    uri: newOrderNotification?.data?.user?.profileImage
-                      ? newOrderNotification?.data?.user?.profileImage
-                      : "https://via.placeholder.com/50",
-                  }}
-                  style={newOrderStyles.profileImage}
-                />
-
-                <View style={newOrderStyles.textContainer}>
-                  <Text style={newOrderStyles.userName}>
-                    {newOrderNotification?.data?.user?.name || "Unknown User"}
-                  </Text>
-
-                </View>
-
-              </View>
-
-              )}
-            
-
-
-              <View style={newOrderStyles.buttonRow}>
-                {(newOrderNotification?.data as { type?: string })?.type === 'counter_offer' ? (
-                  <>
-                    <TouchableOpacity
-                      style={newOrderStyles.btnDismiss}
-                      // onPress={() => setNewOrderNotification(null)}
-                      onPress={() => {
-                        const offerId = (newOrderNotification?.data as { offerId?: number })?.offerId;
-                        console.log("offerId", offerId)
-
-                        if (offerId != null) {
-                          RejectcounterOffer(offerId);
-                        } else {
-                          setNewOrderNotification(null);
-                        }
-                      }}
-                      activeOpacity={0.8}
-                      disabled={acceptCounterOfferLoading}
-                    >
-                      <Text style={newOrderStyles.btnDismissText}>Cancel</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                      style={newOrderStyles.btnView}
-                      onPress={() => {
-                        const offerId = (newOrderNotification?.data as { offerId?: number })?.offerId;
-                        console.log("offerId", offerId)
-
-                        if (offerId != null) {
-                          acceptCounterOffer(offerId);
-                        } else {
-                          setNewOrderNotification(null);
-                        }
-                      }}
-                      activeOpacity={0.8}
-                      disabled={acceptCounterOfferLoading}
-                    >
-                      <Text style={newOrderStyles.btnViewText}>
-                        Accept
-                      </Text>
-                    </TouchableOpacity>
-                  </>
-                ) : (
-                  <>
-                    <TouchableOpacity
-                      style={newOrderStyles.btnDismiss}
-                      onPress={() => setNewOrderNotification(null)}
-
-                      activeOpacity={0.8}
-                    >
-                      <Text style={newOrderStyles.btnDismissText}>Later</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                      style={newOrderStyles.btnView}
-                      onPress={() => {
-                        if (newOrderNotification?.data != null) {
-                          navigation.navigate(ScreenNameEnum.ParcelDetails, {
-                            item: {
-                              data: newOrderNotification.data,
-                              deliveryStatus: STATUS.PENDING,
-                            },
-                          });
-                          setNewOrderNotification(null);
-                        }
-                      }}
-                      activeOpacity={0.8}
-                    >
-                      <Text style={newOrderStyles.btnViewText}>View order</Text>
-                    </TouchableOpacity>
-                  </>
-                )}
-              </View>
-            </View>
-          </TouchableOpacity>
-        </TouchableOpacity>
-      </Modal>
     </SafeAreaView>
   );
 };
-
-const newOrderStyles = StyleSheet.create({
-  overlay: {
-    flex: 1,
-    backgroundColor: "rgba(0,0,0,0.5)",
-    justifyContent: "center",
-    alignItems: "center",
-    padding: 28,
-  },
-  modalCard: {
-    width: "100%",
-    maxWidth: 360,
-    backgroundColor: "#FFFFFF",
-    borderRadius: 24,
-    paddingTop: 0,
-    paddingHorizontal: 24,
-    paddingBottom: 28,
-    alignItems: "center",
-    borderWidth: 1,
-    borderColor: "rgba(0,0,0,0.06)",
-    ...Platform.select({
-      ios: {
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 12 },
-        shadowOpacity: 0.18,
-        shadowRadius: 24,
-      },
-      android: { elevation: 16 },
-    }),
-  },
-  accentBar: {
-    width: "100%",
-    height: 4,
-    backgroundColor: "#22C55E",
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
-    marginBottom: 20,
-  },
-  badge: {
-    alignSelf: "center",
-    paddingHorizontal: 14,
-    paddingVertical: 6,
-    backgroundColor: "#DCFCE7",
-    borderRadius: 20,
-    marginBottom: 16,
-  },
-  badgeText: {
-    fontSize: 11,
-    fontWeight: "800",
-    color: "#166534",
-    letterSpacing: 1,
-  },
-  iconWrap: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
-    backgroundColor: "#ECFDF5",
-    justifyContent: "center",
-    alignItems: "center",
-    marginBottom: 18,
-    borderWidth: 2,
-    borderColor: "#BBF7D0",
-  },
-  notifIcon: { width: 36, height: 36 },
-  title: {
-    fontSize: 22,
-
-    color: "#0F172A",
-    marginBottom: 10,
-    textAlign: "center",
-    fontFamily: font.MonolithRegular
-  },
-  message: {
-    fontSize: 15,
-    color: "#64748B",
-    textAlign: "center",
-    lineHeight: 22,
-    marginBottom: 28,
-    paddingHorizontal: 8,
-    fontFamily: font.MonolithRegular
-
-  },
-  buttonRow: {
-    flexDirection: "row",
-    gap: 14,
-    width: "100%",
-  },
-  btnDismiss: {
-    flex: 1,
-    paddingVertical: 16,
-    borderRadius: 14,
-    backgroundColor: "#F1F5F9",
-    alignItems: "center",
-
-  },
-  btnDismissText: {
-    fontSize: 16,
-    color: "#64748B",
-    fontFamily: font.MonolithRegular
-  },
-  btnView: {
-    flex: 1,
-    paddingVertical: 16,
-    borderRadius: 14,
-    backgroundColor: "#FFCC00",
-    alignItems: "center",
-
-
-
-  },
-  btnViewText: {
-    fontSize: 16,
-    fontFamily: font.MonolithRegular
-    ,
-    color: "#FFFFFF",
-  },
-  container: {
-    flexDirection: "row",
-    alignItems: "center",
-    padding: 12,
-    backgroundColor: "#fff",
-    borderRadius: 12,
-    elevation: 3, // android shadow
-    shadowColor: "#000", // ios shadow
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    marginVertical: 8,
-  },
-
-  profileImage: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    backgroundColor: "#eee",
-  },
-
-  textContainer: {
-    marginLeft: 12,
-  },
-
-  userName: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#222",
-  },
-
-  subText: {
-    fontSize: 13,
-    color: "#666",
-    marginTop: 2,
-  },
-
-});
 
 export default DeliveryHome;
