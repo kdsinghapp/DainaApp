@@ -12,6 +12,8 @@ import {
   PanResponder,
   ScrollView,
   Platform,
+  Modal,
+  TextInput,
 } from "react-native";
 import MapView, { Marker, AnimatedRegion, PROVIDER_GOOGLE } from "react-native-maps";
 import MapViewDirections from "react-native-maps-directions";
@@ -43,6 +45,11 @@ const CourierTrackingScreen = () => {
   const [parcel, setParcel] = useState(item ?? null);
   const socketRef = useRef<WebSocket | null>(null);
   const getDetailRef = useRef<() => Promise<void>>(() => Promise.resolve());
+  const [showRatingModal, setShowRatingModal] = useState(false);
+  const [rating, setRating] = useState(0);
+  const [ratingComment, setRatingComment] = useState("");
+  const [ratingSubmitting, setRatingSubmitting] = useState(false);
+  const ratingSubmittedRef = useRef(false);
 
   const getDetail = async () => {
     const parcelId = parcel?.id ?? item?.id;
@@ -299,12 +306,95 @@ const [statusKey, setStatusKey] = useState<string | null>(null);
     };
   }, [parcel])
 );
-const statusNormKey = (statusKey ?? status ?? "").toLowerCase().trim();
+
+  const isDelivered = (parcel?.deliveryStatus ?? item?.deliveryStatus) === "delivered" || (parcel?.deliveryStatus ?? item?.deliveryStatus) === STATUS.DELIVERED;
+  useEffect(() => {
+    if (isDelivered && !ratingSubmittedRef.current) {
+      setShowRatingModal(true);
+    }
+  }, [isDelivered]);
+
+  const handleRatingSubmit = useCallback(async () => {
+    if (rating < 1) return;
+    setRatingSubmitting(true);
+    try {
+      // TODO: replace with your API e.g. POST /order/{id}/rating or /delivery/rating
+      // const parcelId = parcel?.id ?? item?.id;
+      // await PostApi({ url: `/rate-delivery`, body: { parcelId, rating, comment: ratingComment } });
+      ratingSubmittedRef.current = true;
+      setShowRatingModal(false);
+      setRating(0);
+      setRatingComment("");
+      successToast("Thanks for your rating!");
+      nav.goBack();
+    } catch (_) {
+    } finally {
+      setRatingSubmitting(false);
+    }
+  }, [rating, ratingComment, nav]);
+const na = useNavigation()
+  const closeRatingModal = useCallback(() => {
+    na.goBack()
+    setShowRatingModal(false);
+  }, []);
+
+  const statusNormKey = (statusKey ?? status ?? "").toLowerCase().trim();
   const statusLabel = STATUS_LABELS[statusNormKey] || "Unknown";
   const statusColor = STATUS_COLORS[statusNormKey] || "black";
 
   return (
     <View style={styles.container}>
+      <Modal
+        visible={showRatingModal}
+        transparent
+        animationType="fade"
+        onRequestClose={closeRatingModal}
+      >
+        <View style={styles.ratingModalOverlay}>
+          <View style={styles.ratingModalContent}>
+            <Text style={styles.ratingModalTitle}>Rate your delivery</Text>
+            <Text style={styles.ratingModalSubtitle}>How was your experience?</Text>
+            <View style={styles.starsRow}>
+              {[1, 2, 3, 4, 5].map((star) => (
+                <TouchableOpacity
+                  key={star}
+                  onPress={() => setRating(star)}
+                  style={styles.starTouch}
+                  activeOpacity={0.8}
+                >
+                  <Text style={[styles.starIcon, rating >= star ? styles.starIconFilled : styles.starIconEmpty]}>
+                    {rating >= star ? "★" : "☆"}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+            <TextInput
+              style={styles.ratingCommentInput}
+              placeholder="Add a comment (optional)"
+              placeholderTextColor="#9CA3AF"
+              value={ratingComment}
+              onChangeText={setRatingComment}
+              multiline
+              numberOfLines={3}
+              maxLength={200}
+            />
+            <View style={styles.ratingModalButtons}>
+              <TouchableOpacity style={styles.ratingModalButtonCancel} onPress={closeRatingModal}>
+                <Text style={styles.ratingModalButtonCancelText}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.ratingModalButtonSubmit, rating < 1 && styles.ratingModalButtonSubmitDisabled]}
+                onPress={handleRatingSubmit}
+                disabled={rating < 1 || ratingSubmitting}
+              >
+                <Text style={styles.ratingModalButtonSubmitText}>
+                  {ratingSubmitting ? "Submitting..." : "Submit"}
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
       <StatusBarComponent />
 
       <View style={styles.mapWrap}>
@@ -425,7 +515,14 @@ const statusNormKey = (statusKey ?? status ?? "").toLowerCase().trim();
                 </TouchableOpacity>
               </View>
             </View>
-            {(parcel?.deliveryStatus ?? item?.deliveryStatus) === "delivered" ? null : (
+            {isDelivered ? (
+              <TouchableOpacity
+                style={styles.rateDeliveryButton}
+                onPress={() => setShowRatingModal(true)}
+              >
+                <Text style={styles.rateDeliveryButtonText}>Rate delivery</Text>
+              </TouchableOpacity>
+            ) : (
               <View style={styles.otpContainer}>
                 <Text style={styles.otpLabel}>OTP</Text>
                 <Text style={styles.otpValue}>
@@ -597,11 +694,86 @@ const styles = StyleSheet.create({
   },
   otpLabel: { fontSize: 9, color: "#92400E", fontWeight: "700", textTransform: "uppercase", marginBottom: 2 },
   otpValue: { fontSize: 16, fontWeight: "800", color: "#111827", letterSpacing: 2 },
+  rateDeliveryButton: {
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    borderRadius: 10,
+    borderWidth: 2,
+    borderColor: "#FFCC00",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#FFFBEB",
+    minWidth: 72,
+  },
+  rateDeliveryButtonText: { fontSize: 12, fontWeight: "700", color: "#92400E" },
+  ratingModalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.5)",
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 24,
+  },
+  ratingModalContent: {
+    width: "100%",
+    maxWidth: 340,
+    backgroundColor: "#FFF",
+    borderRadius: 20,
+    padding: 24,
+    ...Platform.select({
+      android: { elevation: 8 },
+      ios: { shadowColor: "#000", shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, shadowRadius: 12 },
+    }),
+  },
+  ratingModalTitle: { fontSize: 20,    fontFamily:font.MonolithRegular
+, color: "#111827", textAlign: "center", marginBottom: 4 },
+  ratingModalSubtitle: { fontSize: 14, color: "#6B7280", textAlign: "center", marginBottom: 20 },
+  starsRow: { flexDirection: "row", justifyContent: "center", alignItems: "center", marginBottom: 20, gap: 8 },
+  starTouch: { padding: 4 },
+  starIcon: { fontSize: 36,    fontFamily:font.MonolithRegular
+ },
+  starIconFilled: { color: "#FFCC00" ,    fontFamily:font.MonolithRegular
+},
+  starIconEmpty: { color: "#D1D5DB" ,    fontFamily:font.MonolithRegular
+},
+  ratingCommentInput: {
+    borderWidth: 1,
+    borderColor: "#E5E7EB",
+    borderRadius: 12,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    fontSize: 14,
+    color: "#111827",
+    minHeight: 80,
+    textAlignVertical: "top",
+    marginBottom: 20,
+  },
+  ratingModalButtons: { flexDirection: "row", gap: 12 },
+  ratingModalButtonCancel: {
+    flex: 1,
+    paddingVertical: 14,
+    borderRadius: 12,
+    backgroundColor: "transparent",
+    borderWidth: 1,
+    borderColor: "#D1D5DB",
+    alignItems: "center",
+  },
+  ratingModalButtonCancelText: { fontSize: 15,    fontFamily:font.MonolithRegular
+, color: "#6B7280" },
+  ratingModalButtonSubmit: {
+    flex: 1,
+    paddingVertical: 14,
+    borderRadius: 12,
+    backgroundColor: "#FFCC00",
+    alignItems: "center",
+  },
+  ratingModalButtonSubmitDisabled: { backgroundColor: "#E5E7EB", opacity: 0.8 },
+  ratingModalButtonSubmitText: { fontSize: 15,    fontFamily:font.MonolithRegular
+, color: "#111827" },
   sectionTitle: {
     fontSize: 14,
-    fontWeight: "700",
-    color: "#374151",
+     color: "#374151",
     marginBottom: 10,
+    fontFamily:font.MonolithRegular
   },
   grid: { flexDirection: "row", gap: 10 },
   gridItem: {
@@ -642,9 +814,10 @@ const styles = StyleSheet.create({
   addressLabel: {
     fontSize: 10,
     color: "#6B7280",
-    fontWeight: "700",
-    letterSpacing: 0.5,
+     letterSpacing: 0.5,
     marginBottom: 4,
+        fontFamily:font.MonolithRegular
+
   },
   addressText: {
     fontSize: 14,

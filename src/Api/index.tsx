@@ -100,9 +100,9 @@ export const callApi = async (
 
 
 
+/** Request camera permission. On iOS, add NSCameraUsageDescription in Info.plist; system will prompt on first use. */
 export const requestCameraPermissions = async (): Promise<boolean> => {
   if (Platform.OS !== 'android') return true;
-
   try {
     const result = await PermissionsAndroid.request(
       PermissionsAndroid.PERMISSIONS.CAMERA,
@@ -114,15 +114,41 @@ export const requestCameraPermissions = async (): Promise<boolean> => {
         buttonPositive: 'OK',
       }
     );
-
-    if (result === PermissionsAndroid.RESULTS.GRANTED) return true;
-    if (result === PermissionsAndroid.RESULTS.NEVER_ASK_AGAIN) return false;
-    if (result === PermissionsAndroid.RESULTS.DENIED) return false;
-    return false;
+    return result === PermissionsAndroid.RESULTS.GRANTED;
   } catch (error) {
     console.warn('Camera permission request error:', error);
     return false;
   }
+};
+
+/** Request location permission (for map and current location). On iOS, add NSLocation*UsageDescription in Info.plist; system will prompt on first use. */
+export const requestLocationPermissions = async (): Promise<boolean> => {
+  if (Platform.OS !== 'android') return true;
+  try {
+    const result = await PermissionsAndroid.request(
+      PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+      {
+        title: 'Location Permission',
+        message: 'This app needs your location to show you on the map and for delivery tracking.',
+        buttonNeutral: 'Ask Me Later',
+        buttonNegative: 'Cancel',
+        buttonPositive: 'OK',
+      }
+    );
+    return result === PermissionsAndroid.RESULTS.GRANTED;
+  } catch (error) {
+    console.warn('Location permission request error:', error);
+    return false;
+  }
+};
+
+/** Request both camera and location (e.g. before opening map or camera). */
+export const requestCameraAndLocationPermissions = async (): Promise<{ camera: boolean; location: boolean }> => {
+  const [camera, location] = await Promise.all([
+    requestCameraPermissions(),
+    requestLocationPermissions(),
+  ]);
+  return { camera, location };
 };
 
  

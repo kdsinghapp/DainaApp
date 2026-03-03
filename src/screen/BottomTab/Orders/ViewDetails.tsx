@@ -5,14 +5,15 @@ import {
   ScrollView,
   StyleSheet,
   Image,
-  TouchableOpacity
+  TouchableOpacity,
+  Linking
 } from "react-native";
 import StatusBarComponent from "../../../compoent/StatusBarCompoent";
 import CustomHeader from "../../../compoent/CustomHeader";
 import font from "../../../theme/font";
 import imageIndex from "../../../assets/imageIndex";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useNavigation, useRoute , useFocusEffect } from "@react-navigation/native";
+import { useNavigation, useRoute, useFocusEffect } from "@react-navigation/native";
 import ScreenNameEnum from "../../../routes/screenName.enum";
 import { GetApi } from "../../../Api/apiRequest";
 import { WebSocket_Url } from "../../../Api";
@@ -37,7 +38,6 @@ const STATUS_STEPS = [
   STATUS.GOING_TO_PICKUP,
   STATUS.PICKED_UP,
   STATUS.ON_THE_WAY,
-  STATUS.ARRIVING,
   STATUS.DELIVERED,
 ];
 
@@ -68,7 +68,7 @@ export default function ViewDetails() {
   useFocusEffect(
     useCallback(() => {
       getDetailRef.current?.();
-      return () => {};
+      return () => { };
     }, []),
   );
 
@@ -84,7 +84,6 @@ export default function ViewDetails() {
       isMounted.current = false;
     };
   }, [item?.id]);
-
   useEffect(() => {
     let ws: WebSocket | null = null;
     const connectSocket = (token: string) => {
@@ -98,7 +97,7 @@ export default function ViewDetails() {
             socketRef.current = ws;
             try {
               ws?.send(JSON.stringify({ type: "ping" }));
-            } catch (_) {}
+            } catch (_) { }
             resolve();
           };
           ws.onmessage = async (event: { data: string | Blob | ArrayBuffer }) => {
@@ -117,7 +116,7 @@ export default function ViewDetails() {
               if (data?.type === "order_update" || data?.refreshOrders) {
                 getDetailRef.current?.();
               }
-            } catch (_) {}
+            } catch (_) { }
           };
           ws.onerror = (e: unknown) => {
             const msg = e && typeof e === "object" && "message" in e ? String((e as { message?: string }).message) : "WebSocket error";
@@ -137,7 +136,7 @@ export default function ViewDetails() {
         const token = await AsyncStorage.getItem("token");
         if (!token) return;
         await connectSocket(token);
-      } catch (_) {}
+      } catch (_) { }
     };
     init();
     return () => {
@@ -175,7 +174,8 @@ export default function ViewDetails() {
   const statusLabel = STATUS_LABELS[statusNorm] || "Unknown";
   const statusColor = STATUS_COLORS[statusNorm] || "black";
 
-   const navigation = useNavigation()
+  console.log("ss", parcel)
+  const navigation = useNavigation()
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "white" }}>
       <StatusBarComponent />
@@ -233,7 +233,7 @@ export default function ViewDetails() {
           </View>
 
           {/* City Info */}
-          <TouchableOpacity style={styles.row}
+          {/* <TouchableOpacity style={styles.row}
             onPress={() => {
               if (statusNorm === STATUS.PENDING) {
                 navigation.navigate(ScreenNameEnum.OfferOR, {
@@ -243,6 +243,26 @@ export default function ViewDetails() {
                 navigation.navigate(ScreenNameEnum.CourierTrackingScreen, {
                   item: parcel
                 })
+              }
+            }}
+          > */}
+          <TouchableOpacity
+            style={[
+              styles.row,
+              statusNorm === STATUS.DELIVERED && { opacity: 0.5 } // thoda fade dikhe
+            ]}
+            disabled={statusNorm === STATUS.DELIVERED}
+            onPress={() => {
+              if (statusNorm === STATUS.DELIVERED) return; // extra safety
+
+              if (statusNorm === STATUS.PENDING) {
+                navigation.navigate(ScreenNameEnum.OfferOR, {
+                  id: { parcel: parcel },
+                });
+              } else {
+                navigation.navigate(ScreenNameEnum.CourierTrackingScreen, {
+                  item: parcel,
+                });
               }
             }}
           >
@@ -256,7 +276,6 @@ export default function ViewDetails() {
               <Text style={styles.city}>{order.toCity}</Text>
             </View>
           </TouchableOpacity>
-
           <View
             style={{
               borderWidth: 0.8,
@@ -286,26 +305,120 @@ export default function ViewDetails() {
                       : "Delivered"} */}
               </Text>
             </View>
+            {statusNorm === STATUS.PENDING ? (
+              <Text style={styles.viewDetails}
+                onPress={() => {
+                  if (statusNorm === STATUS.PENDING) {
+                    navigation.navigate(ScreenNameEnum.OfferOR, {
+                      id: { parcel: parcel }
+                    })
+                  } else {
+                    navigation.navigate(ScreenNameEnum.CourierTrackingScreen, {
+                      item: parcel
+                    })
+                  }
+                }}
+              >
+                {statusNorm === STATUS.PENDING ? "View Offer" : "Track Detail"}</Text>
+            ) : (
+              <Text style={styles.viewDetails}
+                onPress={() => {
+                  if (statusNorm === STATUS.PENDING) {
+                    navigation.navigate(ScreenNameEnum.OfferOR, {
+                      id: { parcel: parcel }
+                    })
+                  } else {
+                    navigation.navigate(ScreenNameEnum.CourierTrackingScreen, {
+                      item: parcel
+                    })
+                  }
+                }}
+              >
+                Rate your delivery</Text>
+            )}
 
-            <Text style={styles.viewDetails}
-              onPress={() => {
-                if (statusNorm === STATUS.PENDING) {
-                  navigation.navigate(ScreenNameEnum.OfferOR, {
-                    id: { parcel: parcel }
-                  })
-                } else {
-                  navigation.navigate(ScreenNameEnum.CourierTrackingScreen, {
-                    item: parcel
-                  })
-                }
-              }}
-            >{statusNorm === STATUS.PENDING ? "View Offer" : "Track Detail"}</Text>
           </View>
         </TouchableOpacity>
+        <View style={{
+          justifyContent: "space-between",
+          marginHorizontal: 20,
+          marginTop: 10,
+          marginBottom: 10,
+          flexDirection: "row",
+          alignItems: "center"
+
+        }}>
+          <View style={{
+            flexDirection: "row",
+            alignItems: "center",
+
+          }}>
+            {parcel?.assignedDriver?.image ? <Image source={{ uri: parcel?.assignedDriver?.image }}
+              style={{
+                height: 60,
+                width: 60,
+                borderRadius: 50
+              }}
+            /> :
+
+
+
+              <Image source={imageIndex.dpuser}
+                style={{
+                  height: 55,
+                  width: 55,
+                }}
+              />}
+
+            <View style={{
+              marginLeft: 11
+
+            }}>
+              {parcel?.assignedDriver?.name && <Text style={{
+                fontSize: 13,
+                color: "gray",
+                fontFamily: font.MonolithRegular
+              }}>{parcel?.assignedDriver?.name}</Text>}
+              {parcel?.assignedDriver?.email &&
+                <Text style={{
+                  fontSize: 13,
+                  color: "gray",
+                  fontFamily: font.MonolithRegular
+                }}>{parcel?.assignedDriver?.email}</Text>
+              }
+              {
+                parcel?.assignedDriver?.address &&
+                <Text style={{
+                  fontSize: 13,
+                  color: "gray",
+                  fontFamily: font.MonolithRegular
+                }}>{parcel?.assignedDriver?.address}</Text>
+              }
+
+            </View>
+
+          </View>
+          <TouchableOpacity
+            onPress={() => {
+              const phone = parcel?.assignedDriver?.phone;
+              if (phone) {
+                Linking.openURL(`tel:${phone}`);
+              }
+            }}
+          >
+            <Image
+              source={imageIndex.Calls}
+              style={{
+                height: 33,
+                width: 33,
+              }}
+            />
+          </TouchableOpacity>
+        </View>
 
         {/* Tracking Package – steps with icon + label */}
         <View style={styles.sectionTitleRow}>
-          {source?.imageUrl ? (
+          {/* {source?.imageUrl ? (
             <Image
               source={{ uri: source.imageUrl }}
               style={styles.trackingSectionIcon}
@@ -313,7 +426,7 @@ export default function ViewDetails() {
             />
           ) : (
             <Image source={imageIndex.Rectangle} style={styles.trackingSectionIcon} resizeMode="contain" />
-          )}
+          )} */}
           <Text style={styles.sectionTitle}>Tracking Package</Text>
         </View>
         <View style={styles.timelineWrap}>
@@ -410,7 +523,7 @@ const styles = StyleSheet.create({
   pillProgress: { backgroundColor: "#FFCC00" },
   pillDone: { backgroundColor: "#FFCC00" },
   pillText: { fontFamily: font.MonolithRegular, fontSize: 12, color: "white" },
-  viewDetails: { color: "#FFCC00", fontFamily: font.MonolithRegular, fontSize: 12, },
+  viewDetails: { color: "black", fontFamily: font.MonolithRegular, fontSize: 12, },
 
   sectionTitleRow: { flexDirection: "row", alignItems: "center", marginTop: 18, marginHorizontal: 16, marginBottom: 12 },
   trackingSectionIcon: { width: 28, height: 28, marginRight: 10 },
@@ -420,7 +533,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     paddingHorizontal: 4,
     borderRadius: 16,
-    
+
   },
   stepRow: { flexDirection: "row", alignItems: "flex-start", marginBottom: 4 },
   stepLeft: { width: 44, alignItems: "center" },
@@ -445,6 +558,6 @@ const styles = StyleSheet.create({
   stepConnectorPending: { backgroundColor: "#E5E7EB" },
   stepContent: { flex: 1, paddingLeft: 12, paddingTop: 6, flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
   stepTitle: { fontFamily: font.MonolithRegular, fontSize: 15, color: "#6B7280" },
-  stepTitleDone: { color: TEXT, fontWeight: "600" },
+  stepTitleDone: { color: TEXT, fontFamily: font.MonolithRegular, },
   stepBadge: { fontFamily: font.MonolithRegular, fontSize: 11, color: YELLOW, backgroundColor: "#FEF9E7", paddingHorizontal: 8, paddingVertical: 4, borderRadius: 8 },
 });

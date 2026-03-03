@@ -75,7 +75,7 @@ const TripMap = () => {
     // setActionLoading(true)
     getDetail()
   }, [])
-  
+
   const getDetail = async () => {
     // console.log(`/parcels/${item?.parcelId}/statis`)
     const param = {
@@ -95,11 +95,11 @@ const TripMap = () => {
     latitude: parseFloat(item?.departure_lat) || 0,
     longitude: parseFloat(item?.departure_lon) || 0,
   };
-  
+
   const navigation = useNavigation()
   const getButtonConfig = () => {
     const currentStatus = item?.deliveryStatus;
-     switch (currentStatus) {
+    switch (currentStatus) {
       // case STATUS.PENDING:
       //   return {
       //     title: "Send Offer",
@@ -304,7 +304,7 @@ const TripMap = () => {
     }
     return await PostApi(param, setActionLoading);
   };
-  console.log("item",item)
+  console.log("item", item)
   useEffect(() => {
 
   }, [item])
@@ -339,81 +339,83 @@ const TripMap = () => {
   };
 
 
-
+  const statusKey = item.deliveryStatus;
+  const statusLabel = STATUS_LABELS[statusKey] || 'Unknown';
+  const statusColor = STATUS_COLORS[statusKey] || 'black';
   return (
     <View style={styles.container}>
       {loading && <LoadingModal />}
 
       <TouchableWithoutFeedback onPress={dismissKeyboard} accessible={false}>
         <View style={styles.mapWrap}>
-      <MapView
-        ref={mapRef}
-        provider={PROVIDER_GOOGLE}
-        style={[styles.mapView, Platform.OS === 'ios' && { height: Dimensions.get('window').height }]}
-        initialRegion={{
-          latitude: (pickup.latitude + dropoff.latitude) / 2,
-          longitude: (pickup.longitude + dropoff.longitude) / 2,
-          latitudeDelta: Math.max(0.05, Math.abs(pickup.latitude - dropoff.latitude) * 1.5),
-          longitudeDelta: Math.max(0.05, Math.abs(pickup.longitude - dropoff.longitude) * 1.5),
-        }}
-      >
-        {pickupToDropoffValid && (
-          <>
-            <Polyline
-              coordinates={[pickup, dropoff]}
-              strokeColor="#FFD700"
-              strokeWidth={8}
-              lineCap="round"
-              lineJoin="round"
-            />
-            <MapViewDirections
-              key={`polyline-pickup-dropoff-${pickup.latitude.toFixed(5)}-${pickup.longitude.toFixed(5)}-${dropoff.latitude.toFixed(5)}-${dropoff.longitude.toFixed(5)}`}
-              origin={pickup}
-              destination={dropoff}
-              apikey={GOOGLE_MAPS_APIKEY}
-              strokeWidth={8}
-              strokeColor="#FFD700"
-              lineCap="round"
-              lineJoin="round"
-              precision="high"
-              onError={(err) => console.warn('MapViewDirections error:', err)}
-            />
-          </>
-        )}
-        <Marker coordinate={pickup} title="Pickup" tracksViewChanges={false}>
-          <View style={[styles.dotMarkerLarge, { backgroundColor: "#4CAF50" }]} />
-         </Marker>
-        <Marker coordinate={dropoff} title="Drop-off" tracksViewChanges={false}>
-          <View style={[styles.dotMarkerLarge, { backgroundColor: "#F44336" }]} /> 
-        </Marker>
-        <Marker
-          key="driver-marker"
-          coordinate={driverCoordinate}
-          anchor={{ x: 0.5, y: 0.5 }}
-          tracksViewChanges={false}
-        >
-          <View style={styles.courierMarker}>
-            <Image source={imageIndex.deliver} style={styles.courierImage} />
-          </View>
-        </Marker>
-      </MapView>
+          <MapView
+            ref={mapRef}
+            provider={PROVIDER_GOOGLE}
+            style={[styles.mapView, Platform.OS === 'ios' && { height: Dimensions.get('window').height }]}
+            initialRegion={{
+              latitude: (pickup.latitude + dropoff.latitude) / 2,
+              longitude: (pickup.longitude + dropoff.longitude) / 2,
+              latitudeDelta: Math.max(0.05, Math.abs(pickup.latitude - dropoff.latitude) * 1.5),
+              longitudeDelta: Math.max(0.05, Math.abs(pickup.longitude - dropoff.longitude) * 1.5),
+            }}
+          >
+            {pickupToDropoffValid && (
+              <>
+                <Polyline
+                  coordinates={[pickup, dropoff]}
+                  strokeColor="#FFD700"
+                  strokeWidth={8}
+                  lineCap="round"
+                  lineJoin="round"
+                />
+                <MapViewDirections
+                  key={`polyline-pickup-dropoff-${pickup.latitude.toFixed(5)}-${pickup.longitude.toFixed(5)}-${dropoff.latitude.toFixed(5)}-${dropoff.longitude.toFixed(5)}`}
+                  origin={pickup}
+                  destination={dropoff}
+                  apikey={GOOGLE_MAPS_APIKEY}
+                  strokeWidth={8}
+                  strokeColor="#FFD700"
+                  lineCap="round"
+                  lineJoin="round"
+                  precision="high"
+                  onError={(err) => console.warn('MapViewDirections error:', err)}
+                />
+              </>
+            )}
+            <Marker coordinate={pickup} title="Pickup" tracksViewChanges={false}>
+              <View style={[styles.dotMarkerLarge, { backgroundColor: "#4CAF50" }]} />
+            </Marker>
+            <Marker coordinate={dropoff} title="Drop-off" tracksViewChanges={false}>
+              <View style={[styles.dotMarkerLarge, { backgroundColor: "#F44336" }]} />
+            </Marker>
+            <Marker
+              key="driver-marker"
+              coordinate={driverCoordinate}
+              anchor={{ x: 0.5, y: 0.5 }}
+              tracksViewChanges={false}
+            >
+              <View style={styles.courierMarker}>
+                <Image source={imageIndex.deliver} style={styles.courierImage} />
+              </View>
+            </Marker>
+          </MapView>
         </View>
       </TouchableWithoutFeedback>
 
-       <View style={styles.infoCard} >
-         <TouchableOpacity  
-      onPress={()=>{
-        navigation.goBack()
-      }}
+      <View style={styles.infoCard} >
+        <TouchableOpacity
+          onPress={() => {
+            navigation.goBack()
+          }}
         >
-        <Image source={imageIndex.back}
-        style={{
-          height:42,
-          width:42,
-          bottom:5
-        }}
-        resizeMode='contain'
-        />
+          <Image source={imageIndex.back}
+            style={{
+              height: 42,
+              width: 42,
+              bottom: 5
+            }}
+            resizeMode='contain'
+          />
         </TouchableOpacity>
         <TouchableOpacity style={styles.locationRow}
         // onPress={()=>setLocationModal(true)}
@@ -439,10 +441,10 @@ const TripMap = () => {
           </Text>
         </TouchableOpacity>
       </View>
-  <TouchableWithoutFeedback onPress={dismissKeyboard} accessible={false}>
-      {/* Bottom Driver Card - sits above keyboard when open */}
-      <View style={[styles.driverCard, { bottom: keyboardHeight }]}>
-        {/* {!end &&
+      <TouchableWithoutFeedback onPress={dismissKeyboard} accessible={false}>
+        {/* Bottom Driver Card - sits above keyboard when open */}
+        <View style={[styles.driverCard, { bottom: keyboardHeight }]}>
+          {/* {!end &&
           <>
             <Text style={styles.arrivingText}>Driver is Arriving...</Text>
             <Text style={styles.timeText}>2 ss</Text>
@@ -450,114 +452,115 @@ const TripMap = () => {
           </>
         } */}
 
-        <View style={styles.driverRow}>
-          {item?.user?.image ? (
-            <Image
-              source={{
-                uri: item?.user?.image || item?.user?.imagem ? item?.user?.image : item?.user?.image,
-              }}
-              style={styles.avatar}
-            />
+          <View style={styles.driverRow}>
+            {item?.user?.image ? (
+              <Image
+                source={{
+                  uri: item?.user?.image || item?.user?.imagem ? item?.user?.image : item?.user?.image,
+                }}
+                style={styles.avatar}
+              />
 
-          ) : (
-            <Image
-              source={imageIndex.dpuser}
-              style={styles.avatar}
-            />
+            ) : (
+              <Image
+                source={imageIndex.dpuser}
+                style={styles.avatar}
+              />
 
+            )}
+
+            <View>
+
+              {/* <Text style={styles.driverName}>Marcus Aminoff</Text> */}
+              <Text style={styles.driverName}>{item?.user?.firstName || event?.sender.name || ""}</Text>
+              <Text style={styles.carDetails}>{item?.user?.phone}</Text>
+              <Text style={styles.carDetails}>{item?.patient_details?.mobile_number}</Text>
+
+            </View>
+            <Text style={[styles.timeText, { right: 0, color: statusColor }]}>{statusLabel}</Text>
+
+          </View>
+
+          <View style={styles.buttonRow}>
+
+            <TouchableOpacity onPress={() =>
+              Alert.alert(
+                "Confirmation",
+                "Are you sure you want to cancel?",
+                [
+                  {
+                    text: "No",
+                    style: "cancel",
+                    onPress: () => console.log("User chose No"),
+                  },
+                  {
+                    text: "Yes",
+                    onPress: () => {
+                      console.log("User chose Yes");
+                      handleStatusUpdate(STATUS.CANCELLED);
+                    },
+                  },
+                ],
+                { cancelable: false }
+              )
+            }>
+              <Image source={imageIndex.Closed} style={styles.iconBtn} />
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => {
+              let url = `tel:${item?.user?.phobe}`;
+              Linking.openURL(url);
+            }}>
+              <Image source={imageIndex.Calblack} style={styles.iconBtn} />
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => {
+              let url = `sms:${item?.user?.phone || event?.sender.phone}`;
+              Linking.openURL(url);
+            }}>
+              <Image source={imageIndex.MessageBlack} style={styles.iconBtn} />
+            </TouchableOpacity>
+          </View>
+          {/* {end && */}
+          {/* <CustomButton onPress={Submit} title={"Finish"} /> */}
+          {/* } */}
+
+          {item?.deliveryStatus === STATUS.GOING_TO_PICKUP && (
+            <OtpSection
+              label="Enter Pickup OTP shared by customer"
+              value={pickupOtp}
+              onChange={setPickupOtp}
+            />
           )}
 
-          <View>
-            {/* <Text style={styles.driverName}>Marcus Aminoff</Text> */}
-            <Text style={styles.driverName}>{item?.user?.firstName || event?.sender.name || ""}</Text>
-            <Text style={styles.carDetails}>{item?.user?.phone}</Text>
-            <Text style={styles.carDetails}>{item?.patient_details?.mobile_number}</Text>
-          </View>
-          {/* {end &&
-            <Text style={[styles.timeText, { right: 0 }]}>2 xxx</Text>
-          } */}
-        </View>
-
-        <View style={styles.buttonRow}>
-
-          <TouchableOpacity onPress={() =>
-            Alert.alert(
-              "Confirmation",
-              "Are you sure you want to cancel?",
-              [
-                {
-                  text: "No",
-                  style: "cancel",
-                  onPress: () => console.log("User chose No"),
-                },
-                {
-                  text: "Yes",
-                  onPress: () => {
-                    console.log("User chose Yes");
-                    handleStatusUpdate(STATUS.CANCELLED);
-                  },
-                },
-              ],
-              { cancelable: false }
-            )
-          }>
-            <Image source={imageIndex.Closed} style={styles.iconBtn} />
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => {
-            let url = `tel:${item?.user?.phobe}`;
-            Linking.openURL(url);
-          }}>
-            <Image source={imageIndex.Calblack} style={styles.iconBtn} />
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => {
-            let url = `sms:${item?.user?.phone || event?.sender.phone}`;
-            Linking.openURL(url);
-          }}>
-            <Image source={imageIndex.MessageBlack} style={styles.iconBtn} />
-          </TouchableOpacity>
-        </View>
-        {/* {end && */}
-        {/* <CustomButton onPress={Submit} title={"Finish"} /> */}
-        {/* } */}
-
-        {item?.deliveryStatus === STATUS.GOING_TO_PICKUP && (
-          <OtpSection
-            label="Enter Pickup OTP shared by customer"
-            value={pickupOtp}
-            onChange={setPickupOtp}
-          />
-        )}
-
-        {item?.deliveryStatus === STATUS.ON_THE_WAY && (
-          <OtpSection
-            label="Enter delivery OTP shared by customer"
-            value={deliveryOtp}
-            onChange={setDeliveryOtp}
-          />
-        )}
-
-        <CustomButton
-          title={actionLoading ? "Processing..." : buttonConfig.title}
-          onPress={buttonConfig.onPress}
-          disabled={actionLoading || buttonConfig.disabled}
-          style={{
-            // backgroundColor: buttonConfig.color,
-            backgroundColor: color.primary,
-            opacity: (actionLoading || buttonConfig.disabled) ? 0.6 : 1,
-
-          }}
-          // txtcolor={'white'}
-          icon={
-            <Icon
-              name={buttonConfig.icon}
-              size={20}
-              color="#fff"
-              style={{ marginRight: 8 }}
+          {item?.deliveryStatus === STATUS.ON_THE_WAY && (
+            <OtpSection
+              label="Enter delivery OTP shared by customer"
+              value={deliveryOtp}
+              onChange={setDeliveryOtp}
             />
-          }
-        />
-      </View>
-</TouchableWithoutFeedback>
+          )}
+
+          <CustomButton
+            title={actionLoading ? "Processing..." : buttonConfig.title}
+            onPress={buttonConfig.onPress}
+            disabled={actionLoading || buttonConfig.disabled}
+            style={{
+              // backgroundColor: buttonConfig.color,
+              backgroundColor: color.primary,
+              opacity: (actionLoading || buttonConfig.disabled) ? 0.6 : 1,
+
+            }}
+            // txtcolor={'white'}
+            icon={
+              <Icon
+                name={buttonConfig.icon}
+                size={20}
+                color="#fff"
+                style={{ marginRight: 8 }}
+              />
+            }
+          />
+        </View>
+      </TouchableWithoutFeedback>
       {/* <LocationPicker
       visible={locationModal}
       apiKey={MapApiKey}// replace with actual key
@@ -722,7 +725,7 @@ const styles = StyleSheet.create({
     borderRadius: 11,
     borderWidth: 3,
     borderColor: "#FFF",
-   
+
   },
   courierMarker: {
     width: 44,

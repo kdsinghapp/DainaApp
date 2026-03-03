@@ -31,14 +31,14 @@
 		<key>NSAllowsLocalNetworking</key>
 		<true/>
 	</dict>
+	<key>NSCameraUsageDescription</key>
+	<string>This app needs camera access to take photos for your parcel or profile.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-<string>This app needs your location to show map</string>
-
-<key>NSLocationAlwaysUsageDescription</key>
-<string>This app needs your location to show map</string>
-
-<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-<string>This app needs your location to show map</string>
+	<string>This app needs your current location to show you on the map, track delivery, and find nearby services.</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>This app needs your location in background to update delivery status and show you on the map.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>This app needs your current location to show you on the map, track delivery, and find nearby services.</string>
 
 	<key>UIAppFonts</key>
 	<array>

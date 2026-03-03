@@ -95,7 +95,7 @@ const CreateParcelFrom = () => {
     { label: "Fast", value: "fast" },
   ];
 
-  const [packageSize, setPackageSize] = useState("500-1000");
+  const [packageSize, setPackageSize] = useState("");
 
   // Validation functions
   const validateField = (fieldName: string, value: any): boolean => {
@@ -407,8 +407,7 @@ const CreateParcelFrom = () => {
             onPress={() =>
               navgatoon.navigate(ScreenNameEnum.PickupLocationRapido, {
                 onLocationSelect: (data) => {
-                  console.log("Received location:", data);
-                  setDropLocation(data?.address);
+                   setDropLocation(data?.address);
                   sedroplat({
                     latitude: data.latitude,
                     longitude: data.longitude,
@@ -623,14 +622,20 @@ const CreateParcelFrom = () => {
           {image?.uri ? (
             <TouchableOpacity
               onPress={() => setIsModalVisible(true)}
-              style={[styles.imageUploadButton, styles.imageUploadButtonFilled]}
+              style={{
+                borderWidth:0.6,
+                padding:15,
+                borderStyle:"dotted",
+                borderRadius:10,
+                borderColor:"#ADA4A5",
+                alignItems:"center"
+              }}
               activeOpacity={0.7}
             >
               <Image
                 source={image ? { uri: image?.uri || image } : imageIndex.prfile}
                 style={styles.parcelImage}
-                resizeMode="contain"
-              />
+               />
             </TouchableOpacity>
           ) : (
             <TouchableOpacity
@@ -638,8 +643,8 @@ const CreateParcelFrom = () => {
               style={[styles.imageUploadButton, styles.imageUploadButtonEmpty]}
               activeOpacity={0.7}
             >
-              <Text style={styles.imageUploadPlaceholderText}>Add Parcel Image +</Text>
-            </TouchableOpacity>
+              <Text style={styles.imageUploadPlaceholderText}>Add Parcel Image </Text>
+             </TouchableOpacity>
           )}
 
 

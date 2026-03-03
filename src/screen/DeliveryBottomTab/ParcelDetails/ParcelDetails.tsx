@@ -252,6 +252,7 @@ const ParcelDetails = () => {
     return () => showSub.remove();
   }, []);
 
+
   return (
     <View style={styles.container}>
       <KeyboardAvoidingView
@@ -360,7 +361,7 @@ const ParcelDetails = () => {
                     <Text style={styles.value}>{item?.shipmentType || item?.data?.shipmentType || ''}</Text>
                   </View>
                 </View>
-                {item?.proposedPrice && 
+                {item?.proposedPrice || item?.data?.proposedPrice && 
                    <View style={styles.infoRow}>
                   <View style={styles.inputContainer}>
                     <Text style={styles.label}>Price</Text>

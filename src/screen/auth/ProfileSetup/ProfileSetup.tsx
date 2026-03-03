@@ -12,7 +12,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { launchImageLibrary } from "react-native-image-picker";
 import { openCamera } from "../../../utils/cameraHelper";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useRoute } from "@react-navigation/native";
 import { useDispatch, useSelector } from "react-redux";
 
 import StatusBarComponent from "../../../compoent/StatusBarCompoent";
@@ -24,13 +24,14 @@ import imageIndex from "../../../assets/imageIndex";
 import { GetProfileApi, UpdateProfile } from "../../../Api/apiRequest";
 import { loginSuccess } from "../../../redux/feature/authSlice";
 import LoadingModal from "../../../utils/Loader";
+ import { errorToast } from "../../../utils/customToast";
 import ScreenNameEnum from "../../../routes/screenName.enum";
-import { errorToast } from "../../../utils/customToast";
 
 const ProfileSetup = () => {
   const navigation = useNavigation();
   const userData: any = useSelector((state: any) => state.auth.userData);
-
+const  route :any = useRoute()
+const {type} = route ||""
   const [fullName, setFullName] = useState(userData?.firstName || "");
   const [email, setEmail] = useState(userData?.email || "");
   const [address, setAddress] = useState(userData?.address || "");
@@ -133,7 +134,13 @@ navigation.goBack()
     setIsLoading(false);
   }
 };
-
+const  onSkipe =()=>{
+        if (userData?.type === "Delivery") {
+        navigation.navigate(ScreenNameEnum.DeliveryTabNavigator);
+      } else {
+        navigation.navigate(ScreenNameEnum.TabNavigator);
+      }
+}
   return (
     <SafeAreaView style={styles.safeArea}>
       <StatusBarComponent />
@@ -200,7 +207,12 @@ navigation.goBack()
           />
         </ScrollView>
       </KeyboardAvoidingView>
-
+{type ==="otp" && (
+    <View style={styles.buttonContainer}>
+        <CustomButton title="sKIP" onPress={onSkipe} loading={isLoading} />
+      </View>
+)}
+    
       <View style={styles.buttonContainer}>
         <CustomButton title="Update" onPress={handleSave} loading={isLoading} />
       </View>

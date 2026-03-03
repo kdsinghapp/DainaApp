@@ -91,8 +91,7 @@ export const useParcelDetails = () => {
       return;
     }
     const result: any = await makeOffer(item?.id || item?.data.parcelId, amountValue, message.trim());
-    console.log("result", result)
-    if (result?.data?.status == 1) {
+     if (result?.data?.status == 1) {
       successToast(result?.data?.message)
       navigation.goBack()
 

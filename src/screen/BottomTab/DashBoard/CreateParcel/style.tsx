@@ -16,7 +16,7 @@ import font from "../../../../theme/font";
   input: {
      borderWidth: 1.5,
     borderColor: "#F0F0F0",
-    borderRadius: 15,
+    borderRadius: 10,
     paddingHorizontal: 15,
     height:55,
     backgroundColor: "#fff",
@@ -45,7 +45,7 @@ import font from "../../../../theme/font";
     width: "30%",
     paddingVertical: 40,
     borderWidth: 1.5,
-    borderRadius: 20,
+    borderRadius: 10,
     borderColor: "#EAEAEA",
     justifyContent: "center",
     alignItems: "center",
@@ -68,7 +68,7 @@ import font from "../../../../theme/font";
   submitBtn: {
     marginTop: 30,
     backgroundColor: "#FFD600",
-    borderRadius: 15,
+    borderRadius: 10,
     paddingVertical: 15,
     alignItems: "center",
   },
@@ -93,7 +93,7 @@ import font from "../../../../theme/font";
     padding: 24,
     alignItems: "center",
     justifyContent: "center",
-    borderRadius: 12,
+    borderRadius: 10,
     borderStyle: "dotted",
     marginTop: 5,
     marginBottom: 11,
@@ -105,8 +105,11 @@ import font from "../../../../theme/font";
     borderColor: "#EAEAEA",
   },
   parcelImage: {
-    height: 120,
-    width: "90%",
+    height: 150,
+    width: "100%",
+    borderRadius:10
+
+
   },
   imageUploadPlaceholderText: {
     fontSize: 18,

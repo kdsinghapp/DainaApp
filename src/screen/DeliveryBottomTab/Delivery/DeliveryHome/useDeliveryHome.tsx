@@ -28,6 +28,7 @@ import { Alert } from 'react-native';
   const [isConnected, setIsConnected] = useState(false);
   const socketRef = useRef<WebSocket | null>(null);
   const socketLiveRef = useRef<WebSocket | null>(null);
+  const cancelledRef = useRef(false);
 
   // Store lat/long for API; only updates when user moves ≥20m (see watchPosition)
   const [coords, setCoords] = useState<{ lat: number; lon: number } | null>(null);
@@ -92,15 +93,18 @@ import { Alert } from 'react-native';
             ...item,
             deliveryStatus: item?.status
           }));
+            setIsLoading(false);
         setRequests(validRequests || []);
       } else {
         setRequests([]);
+          setIsLoading(false);
       }
     } catch (error) {
       console.error(
         'Error fetching available requests:',
         error?.response?.data || error?.message,
       );
+        setIsLoading(false);
       setRequests([]);
     } finally {
       setIsLoading(false);
@@ -187,17 +191,29 @@ import { Alert } from 'react-native';
         const ws = new WebSocket(wsUrl);
 
         ws.onopen = () => {
+          if (cancelledRef.current) {
+            ws.close();
+            return;
+          }
           console.log('✅ WebSocket connected');
           setIsConnected(true);
           socketRef.current = ws;
           resolve();
         };
 
-        ws.onmessage = (event) => {
+        ws.onmessage = async (event: { data: string | Blob | ArrayBuffer }) => {
+          if (cancelledRef.current) return;
+          let raw: string;
+          const d = event.data;
+          if (typeof d === 'string') raw = d;
+          else if (d && typeof (d as Blob).text === 'function') raw = await (d as Blob).text();
+          else if (d instanceof ArrayBuffer) raw = new TextDecoder().decode(d);
+          else raw = String(d);
           try {
-            const data = JSON.parse(event.data);
+            const data = JSON.parse(raw);
 
             if (data?.type === 'new_offer') {
+              if (cancelledRef.current) return;
               const parcel = data?.parcel ?? data;
               const parcelObj = parcel && typeof parcel === 'object' ? { ...parcel } : {};
               const { type: _t, ...rest } = parcelObj as { type?: string; [k: string]: unknown };
@@ -219,21 +235,22 @@ import { Alert } from 'react-native';
                 }
                 return arr as never[];
               });
-              setNewOrderNotification({ visible: true, data });
+              if (!cancelledRef.current) setNewOrderNotification({ visible: true, data });
               return;
             }
 
             if (data?.type === 'counter_offer') {
-              setNewOrderNotification({ visible: true, data });
+              if (!cancelledRef.current) setNewOrderNotification({ visible: true, data });
               return;
             }
 
             if (data?.type === "offer_accepted") {
+              if (cancelledRef.current) return;
               setAcceptModal(true);
               setuserInfromation(data);
-               navigation.navigate(ScreenNameEnum.TripMap, {
-                item: {...data?.parcel, deliveryStatus:STATUS.ASSIGNED },
-                event: data ,
+              navigation.navigate(ScreenNameEnum.TripMap, {
+                item: { ...data?.parcel, deliveryStatus: STATUS.ASSIGNED },
+                event: data,
               });
             }
             if (data?.type == "parcelStatusUpdate") {
@@ -246,14 +263,16 @@ import { Alert } from 'react-native';
         ws.onerror = (event) => {
           const msg = (event && typeof event === 'object' && 'message' in event) ? String((event as { message?: string }).message) : 'WebSocket error';
           console.error('❌ WebSocket Error:', msg);
-          setIsConnected(false);
+          if (!cancelledRef.current) setIsConnected(false);
           reject(new Error(msg));
         };
 
         ws.onclose = () => {
           console.log('⚠️ WebSocket Closed');
-          setIsConnected(false);
-          socketRef.current = null;
+          if (!cancelledRef.current) {
+            setIsConnected(false);
+            socketRef.current = null;
+          }
         };
 
       } catch (error) {
@@ -280,6 +299,10 @@ import { Alert } from 'react-native';
         const ws = new WebSocket(wsUrl);
 
         ws.onopen = () => {
+          if (cancelledRef.current) {
+            ws.close();
+            return;
+          }
           console.log('✅ Nearby parcels / live WebSocket connected');
           socketLiveRef.current = ws;
           const { lat, lon } = coordsRef.current ?? {};
@@ -288,6 +311,7 @@ import { Alert } from 'react-native';
           } else {
             Geolocation.getCurrentPosition(
               (pos) => {
+                if (cancelledRef.current) return;
                 const la = pos?.coords?.latitude;
                 const lo = pos?.coords?.longitude;
                 if (la != null && lo != null && socketLiveRef.current === ws) {
@@ -302,15 +326,20 @@ import { Alert } from 'react-native';
           resolve();
         };
 
-        ws.onmessage = (event) => {
-          const raw = event?.data;
+        ws.onmessage = async (event: { data: string | Blob | ArrayBuffer }) => {
+          if (cancelledRef.current) return;
+          let raw: string;
+          const d = event?.data;
+          if (typeof d === 'string') raw = d;
+          else if (d && typeof (d as Blob).text === 'function') raw = await (d as Blob).text();
+          else if (d instanceof ArrayBuffer) raw = new TextDecoder().decode(d);
+          else raw = String(d ?? '');
           try {
-            const data = typeof raw === 'string' ? JSON.parse(raw) : raw;
-               console.log("------ 111",data?.type)
+            const data = JSON.parse(raw);
             if (!data || typeof data !== 'object') return;
-  
+
             if (data?.type === 'nearby_parcel') {
- 
+              if (cancelledRef.current) return;
               const parcel = data?.parcel ?? data;
               const parcelObj = parcel && typeof parcel === 'object' ? { ...parcel } : {};
               const { type: _t, ...rest } = parcelObj as { type?: string; [k: string]: unknown };
@@ -337,9 +366,7 @@ import { Alert } from 'react-native';
             }
 
             const list = data?.requests ?? data?.parcels ?? data?.data ?? data?.result;
-                                      console.log("------ 4444",list)
-
-            if (Array.isArray(list)) {
+            if (Array.isArray(list) && !cancelledRef.current) {
               const validRequests = list
                 .filter((item: { trackingId?: string | null }) => item?.trackingId != null && item?.trackingId !== '')
                 .map((item: Record<string, unknown> & { status?: string }) => ({
@@ -355,8 +382,6 @@ import { Alert } from 'react-native';
         };
 
         ws.onerror = (event) => {
-                      console.warn('event:', event);
-
           const msg =
             event && typeof event === 'object' && 'message' in event
               ? String((event as { message?: string }).message)
@@ -367,7 +392,7 @@ import { Alert } from 'react-native';
 
         ws.onclose = () => {
           console.log('⚠️ Live/nearby WebSocket Closed');
-          socketLiveRef.current = null;
+          if (!cancelledRef.current) socketLiveRef.current = null;
         };
       } catch (error) {
         reject(error instanceof Error ? error : new Error(String(error)));
@@ -381,15 +406,18 @@ import { Alert } from 'react-native';
  
 
   useEffect(() => {
+    cancelledRef.current = false;
+
     const init = async () => {
       try {
         handleGetLocation();
         const token = await AsyncStorage.getItem('token');
-        if (!token) {
+        if (!token || cancelledRef.current) {
           console.log('❌ No token in storage');
           return;
         }
         await connectSocket(token);
+        if (cancelledRef.current) return;
         try {
           await connectLiveLocationSocket(token);
         } catch (liveErr) {
@@ -403,12 +431,17 @@ import { Alert } from 'react-native';
     init();
 
     return () => {
+      cancelledRef.current = true;
       console.log('🛑 Disconnect WebSockets');
       try {
-        socketRef.current?.close();
-        socketRef.current = null;
-        socketLiveRef.current?.close();
-        socketLiveRef.current = null;
+        if (socketRef.current) {
+          socketRef.current.close();
+          socketRef.current = null;
+        }
+        if (socketLiveRef.current) {
+          socketLiveRef.current.close();
+          socketLiveRef.current = null;
+        }
       } catch (_) {}
     };
   }, []);

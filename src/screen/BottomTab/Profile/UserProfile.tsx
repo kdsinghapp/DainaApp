@@ -158,13 +158,13 @@ const ProfileScreen: React.FC<Props> = ({
            }}
           />
           <ItemDivider />
-          <ListItem
+          {/* <ListItem
             icon={<SvgIndex.Edit   />}
             label="My Address"
             onPress={()=>{
               navigation.navigate(ScreenNameEnum.AddressScreen)
            }}
-          />
+          /> */}
           <ItemDivider />
           <ListItem
             icon={<SvgIndex.Box  />}
