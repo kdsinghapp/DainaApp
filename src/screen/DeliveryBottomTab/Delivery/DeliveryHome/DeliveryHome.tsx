@@ -22,12 +22,13 @@ import { styles } from "./style";
 import CurrentLocation from "../../../../CurrentLocation";
 import { Pressable } from "react-native";
 import ScreenNameEnum from "../../../../routes/screenName.enum";
+import useDashboard from "../../../BottomTab/DashBoard/useDashboard";
 
 const TABS = ["Pending", "Complete", "Canceled"] as const;
 const DeliveryHome = () => {
   const ctx = useDeliveryContext();
   if (!ctx) return null;
-  const { isLoading, requests, locationRef, currentlocation, address } = ctx;
+  const { isLoading, requests,      } = ctx;
   // console.log("newOrderNotification",newOrderNotification?.data?.user?.name)
   const [activeTab, setActiveTab] = useState<(typeof TABS)[number]>("Pending");
   const [isOnline, setIsOnline] = useState(false);
@@ -92,6 +93,7 @@ const DeliveryHome = () => {
         return requests;
     }
   }, [activeTab, requests]);
+  const {locationRef ,address ,currentlocation}= useDashboard()
   return (
     <SafeAreaView style={styles.container}>
       <StatusBarComponent />

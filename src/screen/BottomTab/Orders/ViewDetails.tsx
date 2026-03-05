@@ -21,6 +21,8 @@ import { STATUS, STATUS_LABELS, STATUS_ICONS, STATUS_COLORS } from "../../../uti
 import Icon from "react-native-vector-icons/Ionicons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { successToast } from "../../../utils/customToast";
+import { color } from "../../../constant";
+import RatingModal from "../../../compoent/RatingModal";
 
 type Order = {
   id: string;
@@ -45,7 +47,34 @@ const norm = (s: string | undefined) => (s || "").toLowerCase().trim();
 
 
 export default function ViewDetails() {
+  const nav = useNavigation()
   const route: any = useRoute();
+  const [showRatingModal, setShowRatingModal] = useState(false);
+  const [ratingSubmitting, setRatingSubmitting] = useState(false);
+  const ratingSubmittedRef = useRef(false);
+  const closeRatingModal = useCallback(() => {
+    setShowRatingModal(false);
+   }, [nav]);
+  const handleRatingSubmit = useCallback(
+    async (rating: number, comment: string) => {
+      if (rating < 1) return;
+      setRatingSubmitting(true);
+      try {
+        // TODO: replace with your API e.g. POST /order/{id}/rating or /delivery/rating
+        // const parcelId = parcel?.id ?? item?.id;
+        // await PostApi({ url: `/rate-delivery`, body: { parcelId, rating, comment } });
+        ratingSubmittedRef.current = true;
+        setShowRatingModal(false);
+        successToast("Thanks for your rating!");
+        nav.goBack();
+      } catch (_) {
+      } finally {
+        setRatingSubmitting(false);
+      }
+    },
+    [nav]
+  );
+
   const { item } = route?.params || {};
   const [loading, setLoading] = useState(false);
   const [parcel, setParcel] = useState(item ?? null);
@@ -284,7 +313,12 @@ export default function ViewDetails() {
               marginBottom: 10,
             }}
           />
-
+          <RatingModal
+            visible={showRatingModal}
+            onClose={closeRatingModal}
+            onSubmit={handleRatingSubmit}
+            isSubmitting={ratingSubmitting}
+          />
           {/* Footer */}
           <View style={styles.footerRow}>
             <View
@@ -305,23 +339,30 @@ export default function ViewDetails() {
                       : "Delivered"} */}
               </Text>
             </View>
-            {statusNorm === STATUS.PENDING ? (
-              <Text style={styles.viewDetails}
+            {statusNorm === STATUS.DELIVERED ? (
+              <TouchableOpacity
+
                 onPress={() => {
-                  if (statusNorm === STATUS.PENDING) {
-                    navigation.navigate(ScreenNameEnum.OfferOR, {
-                      id: { parcel: parcel }
-                    })
-                  } else {
-                    navigation.navigate(ScreenNameEnum.CourierTrackingScreen, {
-                      item: parcel
-                    })
-                  }
+                  setShowRatingModal(true)
                 }}
-              >
-                {statusNorm === STATUS.PENDING ? "View Offer" : "Track Detail"}</Text>
+                style={{
+                  backgroundColor: color.baground,
+                  padding: 5,
+                  borderRadius: 20,
+                  paddingVertical: 7
+                }}>
+                <Text style={[styles.viewDetails, {
+                  color: "white",
+                  fontFamily: font.MonolithRegular
+                }]}
+
+                >
+                  Rate your delivery</Text>
+              </TouchableOpacity>
+
             ) : (
-              <Text style={styles.viewDetails}
+
+              <TouchableOpacity
                 onPress={() => {
                   if (statusNorm === STATUS.PENDING) {
                     navigation.navigate(ScreenNameEnum.OfferOR, {
@@ -333,9 +374,23 @@ export default function ViewDetails() {
                     })
                   }
                 }}
+                activeOpacity={0.5}
+                style={{
+                  backgroundColor: color.baground,
+                  padding: 5,
+                  borderRadius: 20,
+                  paddingVertical: 7
+                }}
               >
-                Rate your delivery</Text>
+                <Text style={[styles.viewDetails, {
+                  color: "white"
+                }]}
+
+                >
+                  {statusNorm === STATUS.PENDING ? "View Offer" : "Track Detail"}</Text>
+              </TouchableOpacity>
             )}
+
 
           </View>
         </TouchableOpacity>

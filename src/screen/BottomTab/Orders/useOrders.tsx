@@ -30,6 +30,7 @@ const useOrders = () => {
   const [currentlocation, setcurrentlocation] = useState(null);
   const [isLoading, setLoading] = useState(false);
   const [orderData, setorderData] = useState([]);
+  
   useEffect(() => {
     getParceldetailsApi()
   }, [])
