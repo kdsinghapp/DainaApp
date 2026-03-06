@@ -75,8 +75,7 @@ const RegistrationRoutes: React.FC = () => {
               />
             ))}
           </Stack.Navigator>
-          <NewOrderNotificationModal />
-          <OfferAcceptedModal />
+       
         </View>
       </DashboardProvider>
     </DeliveryProvider>
