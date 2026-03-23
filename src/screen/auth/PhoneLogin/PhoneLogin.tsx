@@ -15,9 +15,9 @@ import { LogiApi } from "../../../Api/apiRequest";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import LoadingModal from "../../../utils/Loader";
 const PhoneLogin = () => {
-   const [phoneNumber, setPhoneNumber] = useState("98976549778");  
+  //  const [phoneNumber, setPhoneNumber] = useState("9565466565");  
  //  user
- //  const [phoneNumber, setPhoneNumber] = useState("99999999");  
+   const [phoneNumber, setPhoneNumber] = useState("87564545");  
 //  delver=
    const [countryCode, setCountryCode] = useState("IN");
   const [callingCode, setCallingCode] = useState("+91");

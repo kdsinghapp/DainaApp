@@ -198,7 +198,7 @@ export default function InboxDeliver() {
           {/* Name + time */}
           <View style={styles.nameTimeRow}>
             <Text style={styles.name} numberOfLines={1}>
-              {displayName}
+              {displayName}   {item?.parcelId}
             </Text>
             <Text style={styles.time}>{lastMsgTime}</Text>
           </View>

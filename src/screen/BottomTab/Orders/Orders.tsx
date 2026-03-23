@@ -16,7 +16,7 @@ import StatusBarComponent from "../../../compoent/StatusBarCompoent";
 import { useNavigation } from "@react-navigation/native";
 import ScreenNameEnum from "../../../routes/screenName.enum";
 import LoadingModal from "../../../utils/Loader";
- import { STATUS, STATUS_COLORS, STATUS_LABELS } from "../../../utils/Constant";
+import { STATUS, STATUS_COLORS, STATUS_LABELS } from "../../../utils/Constant";
 import useOrders from "./useOrders";
 
 type OrderStatus = "packaged" | "shipped" | "inTransit" | "delivered";
@@ -181,7 +181,7 @@ export default function OrdersScreen() {
           contentContainerStyle={{ paddingBottom: 120, marginTop: 11 }}
           // data={orderData}
           data={data}
-          keyExtractor={(item:any) => item.id}
+          keyExtractor={(item: any) => item.id}
           renderItem={({ item }) => <OrderCard order={item} />}
           ItemSeparatorComponent={() => <View style={{ height: 14 }} />}
           showsVerticalScrollIndicator={false}
@@ -259,20 +259,20 @@ const StatusPill = ({ status }: { status: OrderStatus }) => {
     s === STATUS.DELIVERED || s === STATUS.COMPLETED
       ? styles.pillDone
       : s === STATUS.CANCELLED
-      ? styles.pillCancelled
-      : styles.pillProgress;
+        ? styles.pillCancelled
+        : styles.pillProgress;
 
   const textColor =
     s === STATUS.DELIVERED || s === STATUS.COMPLETED
       ? "#FFFFFF"
       : s === STATUS.CANCELLED
-      ? "#FFFFFF"
-      : "#000000";
-   const statusKey =  s;
-    const statusLabel = STATUS_LABELS[statusKey] || 'Unknown';
-    const statusColor = STATUS_COLORS[statusKey] || 'black';
+        ? "#FFFFFF"
+        : "#000000";
+  const statusKey = s;
+  const statusLabel = STATUS_LABELS[statusKey] || 'Unknown';
+  const statusColor = STATUS_COLORS[statusKey] || 'black';
   return (
-    <View style={[styles.pill,  ]}>
+    <View style={[styles.pill,]}>
       <Text style={[styles.pillText, { color: statusColor }]}>{statusLabel}</Text>
     </View>
   );
@@ -358,7 +358,7 @@ const styles = StyleSheet.create({
   tabTextActive: { color: "#000", fontSize: 14, fontFamily: font.MonolithRegular, },
 
   card: {
-      backgroundColor: CARD,
+    backgroundColor: CARD,
     borderRadius: 16,
     padding: 14,
     borderWidth: 1,
@@ -369,9 +369,9 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.15,
     shadowRadius: 10,
-margin:6,
+    margin: 6,
     // Android
-   },
+  },
   cardHeader: {
     flexDirection: "row",
     justifyContent: "space-between",

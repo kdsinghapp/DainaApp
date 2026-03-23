@@ -9,6 +9,7 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   RefreshControl,
+  ScrollView,
 } from "react-native";
 import StatusBarComponent from "../../../compoent/StatusBarCompoent";
 import { SafeAreaView ,  } from "react-native-safe-area-context";
@@ -258,7 +259,7 @@ export default function ChatInboxScreen() {
               style={[styles.name, hasUnread && styles.nameUnread]}
               numberOfLines={1}
             >
-              {driverName}
+              {driverName}.     {item?.parcelId}
             </Text>
             {msgTime ? (
               <Text style={styles.time}>{msgTime}</Text>
@@ -295,7 +296,7 @@ export default function ChatInboxScreen() {
       <StatusBarComponent />
 
       <Text style={styles.header}>Inbox</Text>
-
+<ScrollView>
       {/* Search */}
       <View style={styles.searchBox}>
          <TextInput
@@ -325,11 +326,12 @@ export default function ChatInboxScreen() {
         <FlatList
           data={filteredChats}                          // ✅ filtered list
           style={styles.list}
+
           keyExtractor={(item) => String(item.parcelId)} // ✅ correct key
           renderItem={renderItem}
           ItemSeparatorComponent={() => <View style={styles.separator} />}
           contentContainerStyle={[
-            { paddingBottom: 24 },
+            { paddingBottom: 24 , marginBottom:120 },
             filteredChats.length === 0 && styles.emptyContainer,
           ]}
           showsVerticalScrollIndicator={false}
@@ -344,6 +346,7 @@ export default function ChatInboxScreen() {
           }
         />
       )}
+      </ScrollView>
     </SafeAreaView>
   );
 }
