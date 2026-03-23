@@ -109,7 +109,7 @@ export default function OfferOR() {
     );
   };
   const nav = useNavigation()
-
+console.log("offerData",offerData)
   return (
     <SafeAreaView style={styles.container}>
       <StatusBarComponent />
@@ -131,13 +131,16 @@ export default function OfferOR() {
             </Text>
           )}
 
-          data={offerData}
+          data={offerData?.offers}
           keyExtractor={(item) => item.id}
-          renderItem={({ item }) => (
-            <OfferCard item={item} onCounterPress={
+          renderItem={({ item }) => {
+            console.log("sssss",item)
+            return(
+                  <OfferCard item={item} onCounterPress={
 
               () => setOpen(true)} />
-          )}
+            )
+          }}
           showsVerticalScrollIndicator={false}
         />
       </View>

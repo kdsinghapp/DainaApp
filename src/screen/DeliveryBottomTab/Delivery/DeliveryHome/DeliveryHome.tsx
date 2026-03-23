@@ -28,7 +28,7 @@ const TABS = ["Pending", "Complete", "Canceled"] as const;
 const DeliveryHome = () => {
   const ctx = useDeliveryContext();
   if (!ctx) return null;
-  const { isLoading, requests,      } = ctx;
+  const { isLoading, requests, coords, newOrderNotification } = ctx;
   // console.log("newOrderNotification",newOrderNotification?.data?.user?.name)
   const [activeTab, setActiveTab] = useState<(typeof TABS)[number]>("Pending");
   const [isOnline, setIsOnline] = useState(false);
@@ -92,21 +92,19 @@ const DeliveryHome = () => {
       default:
         return requests;
     }
-  }, [activeTab, requests]);
+  }, [activeTab, requests]); 
+  console.log("filteredRequests",filteredRequests)
   const {locationRef ,address ,currentlocation}= useDashboard()
   return (
     <SafeAreaView style={styles.container}>
       <StatusBarComponent />
       <LoadingModal visible={isLoading} />
       <CurrentLocation ref={locationRef} />
-
-      <HomeHeaderBar
-        location={currentlocation || address}
-        // onLocationPress={() => setlocationModal(true)}
-        onNotificationPress={() => console.log("Notifications clicked")}
-        hasNotification={true}
-      />
-
+<HomeHeaderBar
+  location={currentlocation || address}
+  onNotificationPress={() => console.log("Notifications clicked")}
+  hasNotification={false}
+ />
       {/* 
       <HomeHeaderBar
         location={ "Wallace, Australia"}
@@ -263,6 +261,7 @@ const DeliveryHome = () => {
             showsVerticalScrollIndicator={false}
             contentContainerStyle={{ paddingBottom: 20 }}
             renderItem={({ item }) => {
+              console.log("sssss",item)
               return (
                 <TouchableOpacity
                   style={styles.card}
@@ -321,11 +320,11 @@ const DeliveryHome = () => {
                     <View style={{ flex: 1, marginLeft: 10 }}>
                       <Text style={styles.label}>From</Text>
                       <Text style={[styles.value, { marginTop: 6 }]}>
-                        {item?.pickupLocation}
+                        {item?.pickupLocation || item?.pickup?.location}
                       </Text>
                       <Text style={[styles.label, { marginTop: 10 }]}>To</Text>
                       <Text style={[styles.value, { marginTop: 6 }]}>
-                        {item?.dropLocation}
+                        {item?.dropLocation ||   item?.drop?.location}
                       </Text>
 
                     </View>
@@ -339,7 +338,7 @@ const DeliveryHome = () => {
           />
         </Animated.View>
       </ScrollView>
-      <OnlineSlideRight onSlideSuccess={() => successToast("Online")} isOnline={isOnline} setIsOnline={setIsOnline} />
+      <OnlineSlideRight coords={coords} onSlideSuccess={() => successToast("Online")} isOnline={isOnline} setIsOnline={setIsOnline} />
     </SafeAreaView>
   );
 };

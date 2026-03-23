@@ -64,12 +64,11 @@ const ShippingScreen = () => {
 
       <CurrentLocation ref={locationRef} />
 
-      <HomeHeaderBar
-        location={currentlocation || address}
-        // onLocationPress={() => setlocationModal(true)}
-        onNotificationPress={() => console.log("Notifications clicked")}
-        hasNotification={true}
-      />
+ <HomeHeaderBar
+  location={currentlocation || address}
+  onNotificationPress={() => console.log("Notifications clicked")}
+  hasNotification={false}
+/>
 
       {/* <TouchableOpacity style={styles.inputBox} 
       onPress={()=> navigation.navigate(ScreenNameEnum.PickupLocation)}

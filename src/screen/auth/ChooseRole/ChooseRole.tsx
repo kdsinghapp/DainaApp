@@ -131,7 +131,7 @@ const ChooseRole = () => {
                     source={item.image}
                     style={[
                       styles.optionIcon,
-                      { tintColor: isSelected ? 'white' : '#FFCC00' },
+                      { tintColor: isSelected ? '#FFCC00' : '#FFCC00' },
                     ]}
                     resizeMode="contain"
                   />

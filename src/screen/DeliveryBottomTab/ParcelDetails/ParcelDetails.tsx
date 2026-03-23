@@ -85,6 +85,7 @@ const ParcelDetails = () => {
     updateParcelStatus
   } = useParcelDetails();
   const [actionLoading, setActioLoading] = useState(false);
+  console.log("sss",item)
   // Get button configuration based on status - CORRECTED COLOR ACCESS
   const getButtonConfig = () => {
     const currentStatus = item?.deliveryStatus || item?.deliveryStatus;
@@ -188,7 +189,7 @@ const ParcelDetails = () => {
   }, [item?.parcelId])
   // Handle status update
   const handleStatusUpdate = async (newStatus: any) => {
-    console.log("newStatus",newStatus)
+    console.log("newStatus", newStatus)
     try {
       if (newStatus == STATUS.PICKED_UP && pickupOtp == '') {
         Alert.alert('Please enter pickup OTP shared by customer')
@@ -314,28 +315,27 @@ const ParcelDetails = () => {
               <View style={styles.locationDetails}>
                 <View style={styles.locationItem}>
                   <Text style={styles.locationTitle}>Pickup Location</Text>
-                  <Text style={styles.locationValue}>{item?.pickupLocation || item?.data?.pickup?.location || ''}</Text>
+                  <Text style={styles.locationValue}>{item?.pickupLocation || item?.data?.pickup?.location || item?.pickup?.location ||""}</Text>
                 </View>
                 <View style={styles.locationItem}>
                   <Text style={styles.locationTitle}>Drop Location</Text>
-                  <Text style={styles.locationValue}>{item?.dropLocation || item?.data?.drop?.location || ''}</Text>
+                  <Text style={styles.locationValue}>{item?.dropLocation || item?.data?.drop?.location ||item?.drop?.location || ''}</Text>
                 </View>
               </View>
             </View>
 
-            {/* Parcel Details - Show for all statuses */}
-            {item?.deliveryStatus === STATUS.PENDING && (
+            {item?.deliveryStatus === STATUS?.PENDING && (
               <View style={styles.sectionContainer}>
                 <Text style={styles.sectionTitle}>Parcel Information</Text>
 
                 <View style={styles.infoRow}>
                   <View style={styles.inputContainer}>
                     <Text style={styles.label}>Sender Name</Text>
-                    <Text style={styles.value}>{item?.senderName || item?.data?.sender?.name || ''}</Text>
+                    <Text style={styles.value}>{item?.senderName || item?.data?.sender?.name ||item?.sender?.name ||  ''}  </Text>
                   </View>
                   <View style={styles.inputContainer}>
                     <Text style={styles.label}>Receiver Name</Text>
-                    <Text style={styles.value}>{item?.receiver?.name || item?.data?.receiver?.name || ''}</Text>
+                    <Text style={styles.value}>{item?.receiver?.name || item?.data?.receiver?.name || item?.receiver?.name || ''}</Text>
                   </View>
                 </View>
 
@@ -361,19 +361,21 @@ const ParcelDetails = () => {
                     <Text style={styles.value}>{item?.shipmentType || item?.data?.shipmentType || ''}</Text>
                   </View>
                 </View>
-                {item?.proposedPrice || item?.data?.proposedPrice && 
-                   <View style={styles.infoRow}>
-                  <View style={styles.inputContainer}>
-                    <Text style={styles.label}>Price</Text>
-                    <Text style={styles.value}>{item?.proposedPrice || item?.data?.proposedPrice || ''}</Text>
-                  </View>
-                  <View style={styles.inputContainer}>
-                    <Text style={styles.label}>Delivery Type</Text>
-                    <Text style={styles.value}>{item?.deliveryType || item?.data?.deliveryType || ''}</Text>
-                  </View>
-                </View>
-                }
-             
+                {/* {item?.proposedPrice || item?.data?.proposedPrice &&
+                  (
+                    <View style={styles.infoRow}>
+                      <View style={styles.inputContainer}>
+                        <Text style={styles.label}>Price</Text>
+                        <Text style={styles.value}>{item?.proposedPrice || item?.data?.proposedPrice || ''}</Text>
+                      </View>
+                      <View style={styles.inputContainer}>
+                        <Text style={styles.label}>Delivery Type</Text>
+                        <Text style={styles.value}>{item?.deliveryType || item?.data?.deliveryType || ''}</Text>
+                      </View>
+                    </View>
+                  )
+                } */}
+
 
                 {/* <View style={styles.inputContainer}>
                   <Text style={styles.label}>Sender Address</Text>

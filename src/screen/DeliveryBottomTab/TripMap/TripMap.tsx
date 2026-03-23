@@ -15,21 +15,19 @@ import {
 } from 'react-native';
 import MapView, { Marker, Polyline, PROVIDER_GOOGLE } from 'react-native-maps';
 import Geolocation from '@react-native-community/geolocation';
-import ScreenNameEnum from '../../../routes/screenName.enum';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import LoadingModal from '../../../utils/Loader';
 import imageIndex from '../../../assets/imageIndex';
 import CustomButton from '../../../compoent/CustomButton';
 import { GetApi, PostApi } from '../../../Api/apiRequest';
-import { GOOGLE_MAPS_APIKEY, image_url } from '../../../Api';
+import { GOOGLE_MAPS_APIKEY, } from '../../../Api';
 import { STATUS, STATUS_COLORS, STATUS_LABELS } from '../../../utils/Constant';
 import Icon from '../../../compoent/Icon';
 import { color } from '../../../constant';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import font from '../../../theme/font';
 import MapViewDirections from 'react-native-maps-directions';
-import { successToast } from '../../../utils/customToast';
-import CustomHeader from '../../../compoent/CustomHeader';
+import { errorToast, successToast } from '../../../utils/customToast';
 
 
 const TripMap = () => {
@@ -312,7 +310,7 @@ const TripMap = () => {
     try {
       setActionLoading(true);
       if (newStatus == STATUS.PICKED_UP && pickupOtp == '') {
-        Alert.alert('Please enter pickup OTP shared by customer')
+        errorToast("Please enter pickup OTP shared by customer")
         return;
       }
       if (newStatus == STATUS.DELIVERED && deliveryOtp == '') {
@@ -364,7 +362,7 @@ const TripMap = () => {
                 <Polyline
                   coordinates={[pickup, dropoff]}
                   strokeColor="#FFD700"
-                  strokeWidth={8}
+                  strokeWidth={5}
                   lineCap="round"
                   lineJoin="round"
                 />
@@ -383,10 +381,27 @@ const TripMap = () => {
               </>
             )}
             <Marker coordinate={pickup} title="Pickup" tracksViewChanges={false}>
-              <View style={[styles.dotMarkerLarge, { backgroundColor: "#4CAF50" }]} />
+              <Image source={imageIndex.caricon}
+
+                style={{
+                  height: 35,
+                  width: 35
+                }}
+
+                resizeMode='contain'
+              />
+              {/* <View style={[styles.dotMarkerLarge, { backgroundColor: "#4CAF50" }]} /> */}
             </Marker>
             <Marker coordinate={dropoff} title="Drop-off" tracksViewChanges={false}>
-              <View style={[styles.dotMarkerLarge, { backgroundColor: "#F44336" }]} />
+              <Image source={imageIndex.locationpin}
+                resizeMode='center'
+
+                style={{
+                  height: 55,
+                  width: 55
+                }}
+              />
+
             </Marker>
             <Marker
               key="driver-marker"
@@ -523,7 +538,7 @@ const TripMap = () => {
           {/* <CustomButton onPress={Submit} title={"Finish"} /> */}
           {/* } */}
 
-          {item?.deliveryStatus === STATUS.GOING_TO_PICKUP && (
+          {item?.deliveryStatus === STATUS?.GOING_TO_PICKUP && (
             <OtpSection
               label="Enter Pickup OTP shared by customer"
               value={pickupOtp}
@@ -531,7 +546,7 @@ const TripMap = () => {
             />
           )}
 
-          {item?.deliveryStatus === STATUS.ON_THE_WAY && (
+          {item?.deliveryStatus === STATUS?.ON_THE_WAY && (
             <OtpSection
               label="Enter delivery OTP shared by customer"
               value={deliveryOtp}
@@ -542,7 +557,7 @@ const TripMap = () => {
           <CustomButton
             title={actionLoading ? "Processing..." : buttonConfig.title}
             onPress={buttonConfig.onPress}
-            disabled={actionLoading || buttonConfig.disabled}
+            disabled={actionLoading || buttonConfig?.disabled}
             style={{
               // backgroundColor: buttonConfig.color,
               backgroundColor: color.primary,

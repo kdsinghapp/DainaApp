@@ -1,6 +1,7 @@
 // style.ts
 import { Dimensions, StyleSheet } from 'react-native';
 import font from '../../../theme/font';
+import { color } from '../../../constant';
  const { width, height } = Dimensions.get('window');
 export const styles = StyleSheet.create({
   safeArea: {
@@ -35,7 +36,7 @@ export const styles = StyleSheet.create({
   },
   option: {
     height: 67,
-    borderRadius: 10,
+    borderRadius: 13,
     marginBottom: 18,
     backgroundColor: '#fff',
     flexDirection: 'row',
@@ -47,13 +48,17 @@ export const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 6,
     // elevation: 4,
-    borderWidth: 0.8,
-    borderColor: '#e0e0e0',
+    borderWidth: 0.1,
+    borderColor: color.grey,
+    
   },
   optionSelected: {
-    backgroundColor: 'black',
-    shadowColor: 'black',
-    borderColor: 'black',
+     shadowColor: color.baground,
+    borderColor: color.baground,
+        borderWidth: 0.5,
+            borderRadius: 13,
+
+
    },
   optionIcon: {
     height: 35,
@@ -66,14 +71,18 @@ export const styles = StyleSheet.create({
     fontFamily: font.MonolithRegular,
   },
   optionTextSelected: {
-    color: '#fff',
+        color: '#333',
+
+        fontFamily: font.MonolithRegular,
+        fontSize:14
+
   },
   bottomButtonContainer: {
     marginHorizontal: 24,
     marginBottom: 25,
   },
   nextButton: {
-    backgroundColor: 'black',
+    backgroundColor:color.baground,
     borderRadius: 30,
     height: 55,
   },

@@ -120,7 +120,7 @@ const ChatScreen = () => {
   const navigation = useNavigation();
   const route = useRoute();
   const { item } = (route?.params as any) || {};
-  const parcelId = item?.parcelId ;
+  const parcelId = item?.parcelId ?? 529;
 
   const userData: any = useSelector((state: any) => state.auth.userData);
 
@@ -363,10 +363,11 @@ const ChatScreen = () => {
       </View>
     );
   };
-   // ── Delivery agent info from API response chattingWith ────────────────────
-  const chattingWith = item?.chatngWith;
-  const agentName = item?.carrierName ?? item?.parcelOwner?.name ?? "Delivery Agent";
-  const agentImage = item?.deliveryUser?.profile_image ?? item?.parcelOwner?.image ?? null;
+
+  // ── Delivery agent info from API response chattingWith ────────────────────
+  const chattingWith = item?.chattingWith;
+  const agentName = chattingWith?.name ?? item?.deliveryUser?.name ?? "Delivery Agent";
+  const agentImage = chattingWith?.image ?? item?.deliveryUser?.profile_image ?? null;
 
   // ─── UI ───────────────────────────────────────────────────────────────────
   return (
@@ -384,16 +385,16 @@ const ChatScreen = () => {
         ) : (
           <View style={styles.avatarFallback}>
             <Text style={styles.avatarInitial}>
-              {agentName.charAt(0).toUpperCase()}. 
+              {agentName.charAt(0).toUpperCase()}
             </Text>
           </View>
         )}
 
         <View style={{ flex: 1 }}>
           <Text style={styles.name} numberOfLines={1}>
-            {agentName}  {parcelId}
+            {agentName}
           </Text>
-          {/* <View style={styles.statusRow}>
+          <View style={styles.statusRow}>
             <View
               style={[
                 styles.statusDot,
@@ -403,7 +404,7 @@ const ChatScreen = () => {
             <Text style={[styles.statusText, { color: connected ? "#4CAF50" : "#aaa" }]}>
               {connected ? "Online" : "Offline"}
             </Text>
-          </View> */}
+          </View>
         </View>
 
         {/* Parcel badge */}
@@ -495,7 +496,11 @@ const styles = StyleSheet.create({
     borderBottomColor: "#f0f0f0",
     gap: 10,
     // subtle shadow
- 
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.06,
+    shadowRadius: 4,
+    elevation: 2,
   },
   backBtn: {
     padding: 2,

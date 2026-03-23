@@ -613,7 +613,7 @@ console.log("FormData:", formdata);
 };
 
 const GetApi = async (param: any, setLoading: (loading: boolean) => void) => {
-    console.log("API PARAM:", param);
+    // console.log("API PARAM:", param);
 
     try {
         setLoading(true);
@@ -637,14 +637,13 @@ const token = await AsyncStorage.getItem("token");
         const resText = await response.text();
         const result = JSON.parse(resText);
 
-        console.log("API RESPONSE:", result);
+        // console.log("API RESPONSE:", result);
 
         setLoading(false);
         return result;
 
     } catch (error) {
-        console.log("API ERROR:", error);
-        setLoading(false);
+         setLoading(false);
         errorToast("Network error");
         return null;
     }

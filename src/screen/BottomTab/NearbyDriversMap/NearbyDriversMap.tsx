@@ -167,6 +167,8 @@ const NearbyDriversMap: React.FC = () => {
       );
       const json = await response.json();
       if (json?.drivers && Array.isArray(json.drivers)) {
+
+        console.log("json.drivers",json.drivers)
         setDrivers(json.drivers);
       } else {
         setDrivers([]);

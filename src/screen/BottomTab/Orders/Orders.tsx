@@ -358,16 +358,20 @@ const styles = StyleSheet.create({
   tabTextActive: { color: "#000", fontSize: 14, fontFamily: font.MonolithRegular, },
 
   card: {
-    backgroundColor: CARD,
+      backgroundColor: CARD,
     borderRadius: 16,
     padding: 14,
     borderWidth: 1,
     borderColor: BORDER,
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
+
+    // iOS
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-  },
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 10,
+margin:6,
+    // Android
+   },
   cardHeader: {
     flexDirection: "row",
     justifyContent: "space-between",

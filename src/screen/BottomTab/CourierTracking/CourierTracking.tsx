@@ -1,4 +1,4 @@
- 
+
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   View,
@@ -13,7 +13,7 @@ import {
   ScrollView,
   Platform,
 } from "react-native";
-import MapView, { Marker, AnimatedRegion, PROVIDER_GOOGLE } from "react-native-maps";
+import MapView, { Marker, AnimatedRegion, Polyline, PROVIDER_GOOGLE } from "react-native-maps";
 import MapViewDirections from "react-native-maps-directions";
 import StatusBarComponent from "../../../compoent/StatusBarCompoent";
 import CustomHeader from "../../../compoent/CustomHeader";
@@ -36,18 +36,22 @@ const PANEL_CLOSED_Y = height - PANEL_PEEK_HEIGHT;
 
 const CourierTrackingScreen = () => {
   const nav = useNavigation();
-    const [loading, setLoading] = useState(false);
-    const isMounted = useRef(true);
-  
+  const [loading, setLoading] = useState(false);
+  const isMounted = useRef(true);
   const rou: any = useRoute();
   const { item } = rou.params || {};
   const [parcel, setParcel] = useState(item ?? null);
   const socketRef = useRef<WebSocket | null>(null);
   const getDetailRef = useRef<() => Promise<void>>(() => Promise.resolve());
+  const parcelIdRef = useRef<number | undefined>(parcel?.id ?? item?.id);
+  const driverLocationRef = useRef<any>(null);
+  const setCurrentCoordsRef = useRef<((c: { latitude: number; longitude: number }) => void) | null>(null);
+  const fitMapToRouteRef = useRef<() => void>(() => { });
   const [showRatingModal, setShowRatingModal] = useState(false);
   const [ratingSubmitting, setRatingSubmitting] = useState(false);
   const ratingSubmittedRef = useRef(false);
 
+  // console.log("parcel",parcel)
   const getDetail = async () => {
     const parcelId = parcel?.id ?? item?.id;
     if (!parcelId) return;
@@ -58,7 +62,7 @@ const CourierTrackingScreen = () => {
     }
   };
   getDetailRef.current = getDetail;
-
+  parcelIdRef.current = parcel?.id ?? item?.id;
   useEffect(() => {
     isMounted.current = true;
     getDetail();
@@ -66,7 +70,6 @@ const CourierTrackingScreen = () => {
       isMounted.current = false;
     };
   }, [item?.id]);
-
   useEffect(() => {
     let ws: WebSocket | null = null;
     const connectSocket = (token: string) => {
@@ -80,7 +83,7 @@ const CourierTrackingScreen = () => {
             socketRef.current = ws;
             try {
               ws?.send(JSON.stringify({ type: "ping" }));
-            } catch (_) {}
+            } catch (_) { }
             resolve();
           };
           ws.onmessage = async (event: { data: string | Blob | ArrayBuffer }) => {
@@ -92,14 +95,37 @@ const CourierTrackingScreen = () => {
             else raw = String(d);
             try {
               const data = JSON.parse(raw);
+
               if (data?.type === "parcel_status_update") {
-                successToast(data?.message ?? "ttttt updated");
+                successToast(data?.message ?? "updated");
                 getDetailRef.current?.();
+              }
+
+              if (data?.type === "driver_location") {
+                const pId = parcelIdRef.current;
+                const match = pId != null && Number(data?.parcelId) === Number(pId);
+                const lat = parseFloat(data?.lat);
+                const lon = parseFloat(data?.lon);
+                if (match && Number.isFinite(lat) && Number.isFinite(lon)) {
+                  const newPoint = { latitude: lat, longitude: lon };
+                  setCurrentCoordsRef.current?.(newPoint);
+                  const region = driverLocationRef.current;
+                  if (region) {
+                    (region as any).timing({
+                      ...newPoint,
+                      latitudeDelta: 0.01,
+                      longitudeDelta: 0.01,
+                      duration: 2000,
+                      useNativeDriver: false,
+                    }).start();
+                  }
+                  setTimeout(() => fitMapToRouteRef.current?.(), 100);
+                }
               }
               if (data?.type === "order_update" || data?.refreshOrders) {
                 getDetailRef.current?.();
               }
-            } catch (_) {}
+            } catch (_) { }
           };
           ws.onerror = (e: unknown) => {
             const msg = e && typeof e === "object" && "message" in e ? String((e as { message?: string }).message) : "WebSocket error";
@@ -119,7 +145,7 @@ const CourierTrackingScreen = () => {
         const token = await AsyncStorage.getItem("token");
         if (!token) return;
         await connectSocket(token);
-      } catch (_) {}
+      } catch (_) { }
     };
     init();
     return () => {
@@ -129,54 +155,58 @@ const CourierTrackingScreen = () => {
   }, []);
   const driver = parcel?.assignedDriver ?? item?.assignedDriver;
   const status = parcel?.deliveryStatus ?? item?.deliveryStatus;
-  // 1. Static driver coords only used when no item coords (fallback)
   const staticDriverCoords = {
     latitude: 33.95,
     longitude: 117.4028,
   };
-
   const DEFAULT_LAT = 28.6139;
   const DEFAULT_LNG = 77.209;
   const safeNum = (v: any, fallback: number) => {
     const n = parseFloat(v);
     return Number.isFinite(n) ? n : fallback;
   };
-  // Pickup: API sends lat→Lon and lon→Lat (see apiRequest), so read swapped. Dropoff is correct.
+  const source = parcel ?? item;
+  // API sometimes has Lat/Lon swapped (Lat holds longitude, Lon holds latitude). Match TripMap logic.
   const pickup = {
-    latitude: safeNum(item?.pickupLocationLon, DEFAULT_LAT),
-    longitude: safeNum(item?.pickupLocationLat, DEFAULT_LNG),
+    latitude: safeNum(
+      source?.pickupLocationLon ?? source?.pickupLon ?? source?.pickup_location_lon ?? source?.pickupLocationLat ?? source?.pickupLat,
+      DEFAULT_LAT,
+    ),
+    longitude: safeNum(
+      source?.pickupLocationLat ?? source?.pickupLat ?? source?.pickup_location_lat ?? source?.pickupLocationLon ?? source?.pickupLon,
+      DEFAULT_LNG,
+    ),
   };
   const dropoff = {
-    latitude: safeNum(item?.dropLocationLat, DEFAULT_LAT),
-    longitude: safeNum(item?.dropLocationLon, DEFAULT_LNG),
+    latitude: safeNum(source?.dropLocationLat ?? source?.dropLat ?? source?.drop_location_lat, DEFAULT_LAT),
+    longitude: safeNum(source?.dropLocationLon ?? source?.dropLon ?? source?.drop_location_lon, DEFAULT_LNG),
   };
-
   const distanceBetween = (
     a: { latitude: number; longitude: number },
     b: { latitude: number; longitude: number },
   ) => {
-    const dLat = a.latitude - b.latitude;
+    const dLat = a?.latitude - b.latitude;
     const dLng = a.longitude - b.longitude;
     return Math.sqrt(dLat * dLat + dLng * dLng);
   };
   const MIN_ROUTE_DISTANCE_DEG = 0.0003;
-
   const [distance, setDistance] = useState(0);
   const [currentCoords, setCurrentCoords] = useState(() => ({
-    latitude: safeNum(item?.pickupLocationLon, DEFAULT_LAT),
-    longitude: safeNum(item?.pickupLocationLat, DEFAULT_LNG),
+    latitude: safeNum(item?.pickupLocationLon ?? item?.pickupLon ?? item?.pickupLocationLat ?? item?.pickupLat, DEFAULT_LAT),
+    longitude: safeNum(item?.pickupLocationLat ?? item?.pickupLat ?? item?.pickupLocationLon ?? item?.pickupLon, DEFAULT_LNG),
   }));
   const [driverLocation] = useState(
     () =>
       new AnimatedRegion({
-        latitude: safeNum(item?.pickupLocationLon, DEFAULT_LAT),
-        longitude: safeNum(item?.pickupLocationLat, DEFAULT_LNG),
+        latitude: safeNum(item?.pickupLocationLon ?? item?.pickupLon ?? item?.pickupLocationLat ?? item?.pickupLat, DEFAULT_LAT),
+        longitude: safeNum(item?.pickupLocationLat ?? item?.pickupLat ?? item?.pickupLocationLon ?? item?.pickupLon, DEFAULT_LNG),
         latitudeDelta: 0.01,
         longitudeDelta: 0.01,
       }),
   );
+  driverLocationRef.current = driverLocation;
+  setCurrentCoordsRef.current = setCurrentCoords;
   const [eta, setEta] = useState("Calculating...");
-
   // Route bounds for initial region and auto-zoom
   const centerLat = (pickup.latitude + dropoff.latitude) / 2;
   const centerLng = (pickup.longitude + dropoff.longitude) / 2;
@@ -188,14 +218,12 @@ const CourierTrackingScreen = () => {
     latitudeDelta: Math.max(0.05, latSpan),
     longitudeDelta: Math.max(0.05, lngSpan),
   };
-
   const EDGE_PADDING = {
     top: 80,
     right: 50,
     bottom: PANEL_PEEK_HEIGHT + 60,
     left: 50,
   };
-
   const fitMapToRoute = useCallback(() => {
     const origin = currentCoords ?? pickup;
     const points = [origin, pickup, dropoff].filter(
@@ -215,6 +243,7 @@ const CourierTrackingScreen = () => {
     dropoff.latitude,
     dropoff.longitude,
   ]);
+  fitMapToRouteRef.current = fitMapToRoute;
 
   const mapRef = useRef<MapView>(null);
   const pan = useRef(new Animated.Value(PANEL_CLOSED_Y)).current;
@@ -246,7 +275,13 @@ const CourierTrackingScreen = () => {
   // When item/pickup is available, sync driver position to pickup so route draws correctly
   useEffect(() => {
     setCurrentCoords(pickup);
-    driverLocation.timing({ ...pickup, duration: 0, useNativeDriver: false }).start();
+    (driverLocation as any).timing({
+      ...pickup,
+      latitudeDelta: 0.01,
+      longitudeDelta: 0.01,
+      duration: 0,
+      useNativeDriver: false,
+    }).start();
   }, [pickup.latitude, pickup.longitude]);
 
   // Auto-zoom once on mount so route + all markers fit
@@ -267,8 +302,14 @@ const CourierTrackingScreen = () => {
             longitude: parseFloat(data.longitude),
           };
           setCurrentCoords(newPoint);
-          driverLocation
-            .timing({ ...newPoint, duration: 2000, useNativeDriver: false })
+          (driverLocation as any)
+            .timing({
+              ...newPoint,
+              latitudeDelta: 0.01,
+              longitudeDelta: 0.01,
+              duration: 2000,
+              useNativeDriver: false,
+            })
             .start();
         }
       } catch (err) {
@@ -288,21 +329,26 @@ const CourierTrackingScreen = () => {
   const routeDestForPolyline = tooClose ? dropoff : routeDestination;
   const isRouteToPickup =
     (status === STATUS.ASSIGNED || status === STATUS.GOING_TO_PICKUP) && !tooClose;
-const [statusKey, setStatusKey] = useState<string | null>(null);
+  // Polyline always visible: need distinct points (min distance)
+  const routePointsValid =
+    distanceBetween(routeOrigin, routeDestForPolyline) >= MIN_ROUTE_DISTANCE_DEG;
+  const polylineStrokeColor = isRouteToPickup ? "#007AFF" : "#FFCC00";
+
+  const [statusKey, setStatusKey] = useState<string | null>(null);
 
   useEffect(() => {
     const key = parcel?.deliveryStatus ?? item?.deliveryStatus ?? null;
     setStatusKey(key);
   }, [parcel?.deliveryStatus, item?.deliveryStatus]);
- useFocusEffect(
-  useCallback(() => {
-    getDetail(); // 👈 screen focus hote hi call hoga
+  useFocusEffect(
+    useCallback(() => {
+      getDetail(); // 👈 screen focus hote hi call hoga
 
-    return () => {
-      // optional cleanup (agar chahiye)
-    };
-  }, [parcel])
-);
+      return () => {
+        // optional cleanup (agar chahiye)
+      };
+    }, [parcel])
+  );
 
   const isDelivered = (parcel?.deliveryStatus ?? item?.deliveryStatus) === "delivered" || (parcel?.deliveryStatus ?? item?.deliveryStatus) === STATUS.DELIVERED;
   useEffect(() => {
@@ -358,47 +404,58 @@ const [statusKey, setStatusKey] = useState<string | null>(null);
           initialRegion={initialRegion}
           mapPadding={{ top: 60, right: 20, bottom: PANEL_PEEK_HEIGHT + 40, left: 20 }}
         >
-        <Marker coordinate={pickup} title="Pickup">
-          <View style={[styles.dotMarker, { backgroundColor: "#4CAF50" }]} />
-        </Marker>
-        <Marker coordinate={dropoff} title="Drop-off" 
-        
-        >
-         
-           <View style={[styles.dotMarker, { backgroundColor: "#f55448ff" }]} />  
-        </Marker>
+          <Marker coordinate={pickup} title="Pickup">
+            <View style={[styles.dotMarker, { backgroundColor: "#4CAF50" }]} />
+          </Marker>
+          <Marker coordinate={dropoff} title="Drop-off"
 
-        <Marker.Animated
-          key="driver-marker"
-          coordinate={driverLocation as any}
-          anchor={{ x: 0.5, y: 0.5 }}
-        >
-          {/* <View style={styles.courierMarker}> */}
+          >
+
+            <View style={[styles.dotMarker, { backgroundColor: "#f55448ff" }]} />
+          </Marker>
+
+          <Marker.Animated
+            key="driver-marker"
+            coordinate={driverLocation as any}
+            anchor={{ x: 0.5, y: 0.5 }}
+          >
             <Image source={imageIndex.caricon} style={styles.courierImage} />
-          {/* </View> */}
-        </Marker.Animated>
+          </Marker.Animated>
 
-        {/* Route polyline: always use two distinct points so the line is drawn (fallback: full route when driver at same point as destination) */}
-        <MapViewDirections
-          key={`route-${status}-${routeOrigin.latitude.toFixed(5)}-${routeOrigin.longitude.toFixed(5)}-${routeDestForPolyline.latitude.toFixed(5)}-${routeDestForPolyline.longitude.toFixed(5)}`}
-          origin={routeOrigin}
-          destination={routeDestForPolyline}
-          apikey={GOOGLE_MAPS_APIKEY}
-          strokeWidth={6}
-          strokeColor={isRouteToPickup ? "#007AFF" : "#FFCC00"}
-          lineCap="round"
-          lineJoin="round"
-          precision="high"
-          onReady={(res) => {
-            setDistance(res?.distance ?? 0);
-            setEta(`${Math.ceil(res?.duration ?? 0)} mins`);
-            fitMapToRoute();
-          }}
-          onError={(err) => {
-            console.warn("MapViewDirections error:", err);
-            setEta("—");
-          }}
-        />
+          {/* Polyline fallback: shows immediately so route is always visible */}
+          {routePointsValid && (
+            <Polyline
+              coordinates={[routeOrigin, routeDestForPolyline]}
+              strokeColor={polylineStrokeColor}
+              strokeWidth={5}
+              lineCap="round"
+              lineJoin="round"
+            />
+          )}
+
+          {/* MapViewDirections: road-following route (overlays polyline when loaded) */}
+          {routePointsValid && (
+            <MapViewDirections
+              key={`route-${status}-${routeOrigin.latitude.toFixed(5)}-${routeOrigin.longitude.toFixed(5)}-${routeDestForPolyline.latitude.toFixed(5)}-${routeDestForPolyline.longitude.toFixed(5)}`}
+              origin={routeOrigin}
+              destination={routeDestForPolyline}
+              apikey={GOOGLE_MAPS_APIKEY}
+              strokeWidth={8}
+              strokeColor={polylineStrokeColor}
+              lineCap="round"
+              lineJoin="round"
+              precision="high"
+              onReady={(res) => {
+                setDistance(res?.distance ?? 0);
+                setEta(`${Math.ceil(res?.duration ?? 0)} mins`);
+                fitMapToRoute();
+              }}
+              onError={(err) => {
+                console.warn("MapViewDirections error:", err);
+                setEta("—");
+              }}
+            />
+          )}
         </MapView>
       </View>
 
@@ -407,7 +464,7 @@ const [statusKey, setStatusKey] = useState<string | null>(null);
       </SafeAreaView>
 
       {/* Rapido-style bottom sheet */}
-      <Animated.View style={[styles.draggablePanel, { top: pan }]}>
+      <View style={[styles.draggablePanel,]}>
         <View {...panResponder.panHandlers} style={styles.dragArea}>
           <View style={styles.handleBar} />
         </View>
@@ -417,42 +474,49 @@ const [statusKey, setStatusKey] = useState<string | null>(null);
           contentContainerStyle={styles.scrollContentContainer}
           showsVerticalScrollIndicator={false}
         >
-         
+          {/* Rapido-style ETA strip: X mins • Y km */}
+          {routePointsValid && (
+            <View style={styles.etaStrip}>
+              <Text style={styles.etaStripText}>{eta}</Text>
+              <Text style={styles.etaStripDot}>•</Text>
+              <Text style={styles.etaStripDistance}>{(distance != null ? distance.toFixed(1) : "—")} km</Text>
+            </View>
+          )}
           <View style={styles.driverSection}>
             {driver?.image ? (
-                <Image source={{ uri: driver?.image }} style={styles.avatar} />
-            ) :(
-                <Image source={imageIndex.dpuser} style={styles.avatar} />
+              <Image source={{ uri: driver?.image }} style={styles.avatar} />
+            ) : (
+              <Image source={imageIndex.dpuser} style={styles.avatar} />
             )}
-          
+
             <View style={[styles.driverInfo,]}>
-              <Text style={[styles.driverName,{
-                flex:1
+              <Text style={[styles.driverName, {
+                flex: 1
               }]} numberOfLines={1}>
                 {driver?.name || "Assigning driver..."}
               </Text>
-             
-             <Text
-                        style={[
-                           
-                          {
-                            textTransform: "capitalize",
-                            fontSize: 15,
-                            fontFamily: font.TrialMedium,
-                            color: statusColor
-                          
-                          },
-                        ]}
-                      >
-                        {statusLabel}
-                      </Text>
-              {driver?.vehicle?.vehicleType || driver?.vehicle?.vehicleNumber &&  
-              
-                 <Text style={styles.vehicleInfo} numberOfLines={1}>
-                {driver?.vehicle?.vehicleType}   {driver?.vehicle?.vehicleNumber || ""}
+
+              <Text
+                style={[
+
+                  {
+                    textTransform: "capitalize",
+                    fontSize: 15,
+                    fontFamily: font.TrialMedium,
+                    color: statusColor
+
+                  },
+                ]}
+              >
+                {statusLabel}
               </Text>
+              {driver?.vehicle?.vehicleType || driver?.vehicle?.vehicleNumber &&
+
+                <Text style={styles.vehicleInfo} numberOfLines={1}>
+                  {driver?.vehicle?.vehicleType}   {driver?.vehicle?.vehicleNumber || ""}
+                </Text>
               }
-           
+
               <View style={styles.actionButtons}>
                 <TouchableOpacity
                   style={styles.btnCall}
@@ -460,12 +524,12 @@ const [statusKey, setStatusKey] = useState<string | null>(null);
                 >
                   <Image source={imageIndex.Calls} style={styles.iconBtn} />
                 </TouchableOpacity>
-                <TouchableOpacity
+                {/* <TouchableOpacity
                   style={styles.btnChat}
                   onPress={() => nav.navigate(ScreenNameEnum.ChatScreen)}
                 >
                   <Image source={imageIndex.messtrcker} style={styles.iconBtn} />
-                </TouchableOpacity>
+                </TouchableOpacity> */}
               </View>
             </View>
             {isDelivered ? (
@@ -480,21 +544,21 @@ const [statusKey, setStatusKey] = useState<string | null>(null);
                 <Text style={styles.otpLabel}>OTP</Text>
                 <Text style={styles.otpValue}>
                   {(parcel?.deliveryStatus ?? item?.deliveryStatus) === STATUS.ASSIGNED ||
-                  (parcel?.deliveryStatus ?? item?.deliveryStatus) === STATUS.GOING_TO_PICKUP
+                    (parcel?.deliveryStatus ?? item?.deliveryStatus) === STATUS.GOING_TO_PICKUP
                     ? (parcel?.pickupOtp ?? item?.pickupOtp ?? "—")
                     : (parcel?.deliveryOtp ?? item?.deliveryOtp ?? "—")}
                 </Text>
               </View>
             )}
-         
+
           </View>
 
-           <View style={styles.parcelCard}>
+          <View style={styles.parcelCard}>
             <Text style={styles.sectionTitle}>Parcel details</Text>
             <View style={styles.grid}>
-              <StatBox label="Size" value={item?.packageSize ?? "—"} />
-              <StatBox label="Type" value={item?.consignmentType ?? "—"} />
-              <StatBox label="Service" value={item?.deliveryType ?? "—"} />
+              <StatBox label="Size" value={item?.packageSize ?? ""} />
+              <StatBox label="Type" value={item?.consignmentType ?? ""} />
+              <StatBox label="Service" value={item?.deliveryType ?? ""} />
             </View>
           </View>
 
@@ -506,22 +570,21 @@ const [statusKey, setStatusKey] = useState<string | null>(null);
               </View>
               <View style={styles.addressTextContainer}>
                 <Text style={styles.addressLabel}>PICKUP</Text>
-                <Text style={styles.addressText} numberOfLines={2}>{item?.pickupLocation ?? "—"}</Text>
+                <Text style={styles.addressText} numberOfLines={2}>{item?.pickupLocation ?? ""}</Text>
               </View>
             </View>
-            <View style={styles.vLineContainer} />
             <View style={styles.addressRow}>
               <View style={styles.addressIconWrap}>
                 <View style={[styles.addressDot, { backgroundColor: "#EF4444" }]} />
               </View>
               <View style={styles.addressTextContainer}>
                 <Text style={styles.addressLabel}>DROP</Text>
-                <Text style={styles.addressText} numberOfLines={2}>{item?.dropLocation ?? "—"}</Text>
+                <Text style={styles.addressText} numberOfLines={2}>{item?.dropLocation ?? ""}</Text>
               </View>
             </View>
           </View>
         </ScrollView>
-      </Animated.View>
+      </View>
     </View>
   );
 };
@@ -595,9 +658,9 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#FDE68A",
   },
-  etaStripText: { fontSize: 16, fontWeight: "700", color: "#B45309" },
-  etaStripDot: { fontSize: 14, color: "#D1D5DB", marginHorizontal: 8 },
-  etaStripDistance: { fontSize: 14, fontWeight: "600", color: "#6B7280" },
+  etaStripText: { fontSize: 16, fontFamily: font.MonolithRegular, color: "#B45309" },
+  etaStripDot: { fontSize: 14, fontFamily: font.MonolithRegular, color: "#D1D5DB", marginHorizontal: 8 },
+  etaStripDistance: { fontSize: 14, fontFamily: font.MonolithRegular, color: "#6B7280" },
   driverSection: {
     flexDirection: "row",
     alignItems: "center",
@@ -613,8 +676,8 @@ const styles = StyleSheet.create({
     backgroundColor: "#E5E7EB",
   },
   driverInfo: { flex: 1, minWidth: 0 },
-  driverName: { fontSize: 17, fontWeight: "700", color: "#111827" },
-  vehicleInfo: { fontSize: 13, color: "#6B7280", marginTop: 2 },
+  driverName: { fontSize: 17, fontFamily: font.MonolithRegular, color: "#111827" },
+  vehicleInfo: { fontSize: 13, color: "#6B7280", fontFamily: font.MonolithRegular, marginTop: 2 },
   actionButtons: { flexDirection: "row", gap: 10, marginTop: 10 },
   btnCall: {
     width: 42,
@@ -645,8 +708,8 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFFBEB",
     minWidth: 72,
   },
-  otpLabel: { fontSize: 9, color: "#92400E", fontWeight: "700", textTransform: "uppercase", marginBottom: 2 },
-  otpValue: { fontSize: 16, fontWeight: "800", color: "#111827", letterSpacing: 2 },
+  otpLabel: { fontSize: 9, color: "#92400E", fontFamily: font.MonolithRegular, textTransform: "uppercase", marginBottom: 2 },
+  otpValue: { fontSize: 16, fontFamily: font.MonolithRegular, color: "#111827", letterSpacing: 2 },
   rateDeliveryButton: {
     paddingHorizontal: 12,
     paddingVertical: 10,
@@ -658,12 +721,12 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFFBEB",
     minWidth: 72,
   },
-  rateDeliveryButtonText: { fontSize: 12, fontWeight: "700", color: "#92400E" },
+  rateDeliveryButtonText: { fontSize: 12, fontFamily: font.MonolithRegular, color: "#92400E" },
   sectionTitle: {
     fontSize: 14,
-     color: "#374151",
+    color: "#374151",
     marginBottom: 10,
-    fontFamily:font.MonolithRegular
+    fontFamily: font.MonolithRegular
   },
   grid: { flexDirection: "row", gap: 10 },
   gridItem: {
@@ -674,8 +737,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 6,
     borderRadius: 10,
   },
-  gridLabel: { fontSize: 10, color: "#6B7280", marginBottom: 4 },
-  gridValue: { fontSize: 12, fontWeight: "600", color: "#111827" },
+  gridLabel: { fontSize: 10, color: "#6B7280", fontFamily: font.MonolithRegular, marginBottom: 4 },
+  gridValue: { fontSize: 12, fontFamily: font.MonolithRegular, color: "#111827" },
   parcelCard: { marginTop: 18 },
   addressBox: {
     marginTop: 18,
@@ -704,9 +767,9 @@ const styles = StyleSheet.create({
   addressLabel: {
     fontSize: 10,
     color: "#6B7280",
-     letterSpacing: 0.5,
+    letterSpacing: 0.5,
     marginBottom: 4,
-        fontFamily:font.MonolithRegular
+    fontFamily: font.MonolithRegular
 
   },
   addressText: {
