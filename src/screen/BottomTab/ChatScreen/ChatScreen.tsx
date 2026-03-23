@@ -21,6 +21,10 @@ import { base_url } from "../../../Api";
 import { useSelector } from "react-redux";
 import { Alert } from "react-native";
 import { Linking } from "react-native";
+import CounterOfferModal from "../../../compoent/MakeCounterModal";
+import AcceptOfferModal from "../../../compoent/AcceptOfferModal";
+import { errorToast, successToast } from "../../../utils/customToast";
+import ScreenNameEnum from "../../../routes/screenName.enum";
 
 // ─── Config ──────────────────────────────────────────────────────────────────
 const WS_BASE = "wss://aitechnotech.in/DAINA/ws/chat";
@@ -122,10 +126,75 @@ const ChatScreen = () => {
   const navigation = useNavigation();
   const route = useRoute();
   const { item } = (route?.params as any) || {};
-  const parcelId = item?.parcelId ;
+  const parcelId = item?.parcelId;
+
+  const [counterModalVisible, setCounterModalVisible] = useState(false);
+  const [offerModalVisible, setOfferModalVisible] = useState(false);
+
+  const onAcceptOffer = async (id: any) => {
+    try {
+      const token = await AsyncStorage.getItem('token');
+      if (!token) return;
+
+      const apiUrl = `https://aitechnotech.in/DAINA/api/offers/${id}/accept`;
+      const response = await fetch(apiUrl, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({}),
+      });
+
+      const result = await response.json();
+      if (response.ok) {
+        successToast("Offer accepted successfully!");
+        (navigation as any).navigate(ScreenNameEnum.TabNavigator);
+      } else {
+        errorToast(result?.message || "Failed to accept offer");
+      }
+    } catch (error) {
+      console.error("Error accepting offer:", error);
+      errorToast("Something went wrong");
+    }
+  };
+
+  const onCounterOffer = async (id: number, amount: number) => {
+    try {
+      const token = await AsyncStorage.getItem("token");
+      if (!token) return;
+
+      const apiUrl = `${base_url}/offers/${id}/counter-offer`;
+      const body = new URLSearchParams({
+        counterAmount: String(amount),
+        counterMessage: "hi",
+      }).toString();
+
+      const response = await fetch(apiUrl, {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${token}`,
+          "Accept": "application/json",
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body,
+      });
+
+      const result = await response.json();
+      if (response.ok && (result.status == 1 || result.success === true)) {
+        successToast("Counter offer sent successfully!");
+        setCounterModalVisible(false);
+        navigation.goBack();
+      } else {
+        errorToast(result?.message || "Failed to send counter offer");
+      }
+    } catch (error) {
+      console.log("Counter offer error:", error);
+      errorToast("Something went wrong");
+    }
+  };
 
   const userData: any = useSelector((state: any) => state.auth.userData);
-
   const [messages, setMessages] = useState<Message[]>([]);
   // Store raw ISO dates keyed by message id for day-separator calculation
   const rawDatesRef = useRef<Record<string, string>>({});
@@ -365,45 +434,45 @@ const ChatScreen = () => {
       </View>
     );
   };
-   // ── Delivery agent info from API response chattingWith ────────────────────
+  // ── Delivery agent info from API response chattingWith ────────────────────
   const chattingWith = item?.chatngWith;
-const agentName =
-  item?.carrierName ??
-  item?.parcelOwner?.name ??
-  item?.driver?.name ??
-  "Delivery Agent";
+  const agentName =
+    item?.carrierName ??
+    item?.parcelOwner?.name ??
+    item?.driver?.name ??
+    "Delivery Agent";
 
-const agentImage =
-  item?.deliveryUser?.profile_image ??
-  item?.parcelOwner?.image ??
-  item?.driver?.image ??
-  null;
-  console.log("item",item)
-const handleCall = (phone: number) => {
-  if (!phone) {
-    Alert.alert("Error", "Phone number not available");
-    return;
-  }
+  const agentImage =
+    item?.deliveryUser?.profile_image ??
+    item?.parcelOwner?.image ??
+    item?.driver?.image ??
+    null;
+  console.log("item", item)
+  const handleCall = (phone: number) => {
+    if (!phone) {
+      Alert.alert("Error", "Phone number not available");
+      return;
+    }
 
-  let phoneNumber = '';
+    let phoneNumber = '';
 
-  if (Platform.OS === 'android') {
-    phoneNumber = `tel:${phone}`;
-  } else {
-    // iOS ke liye
-    phoneNumber = `telprompt:${phone}`;
-  }
+    if (Platform.OS === 'android') {
+      phoneNumber = `tel:${phone}`;
+    } else {
+      // iOS ke liye
+      phoneNumber = `telprompt:${phone}`;
+    }
 
-  Linking.canOpenURL(phoneNumber)
-    .then((supported) => {
-      if (!supported) {
-        Alert.alert('Error', 'Phone call not supported');
-      } else {
-        return Linking.openURL(phoneNumber);
-      }
-    })
-    .catch((err) => console.log('Call Error:', err));
-};
+    Linking.canOpenURL(phoneNumber)
+      .then((supported) => {
+        if (!supported) {
+          Alert.alert('Error', 'Phone call not supported');
+        } else {
+          return Linking.openURL(phoneNumber);
+        }
+      })
+      .catch((err) => console.log('Call Error:', err));
+  };
   // ─── UI ───────────────────────────────────────────────────────────────────
   return (
     <SafeAreaView style={styles.container}>
@@ -442,17 +511,26 @@ const handleCall = (phone: number) => {
           </View> */}
         </View>
 
+        {/* Offer button */}
+        {item?.offerAmount && userData?.type !== "Delivery" && (
+          <TouchableOpacity
+            onPress={() => setOfferModalVisible(true)}
+            style={styles.headerOfferBtn}>
+            <Text style={styles.headerOfferText}>Order Open</Text>
+            {/* <Text style={styles.headerOfferText}>Offer: ${item?.offerAmount}</Text> */}
+          </TouchableOpacity>
+        )}
         {/* Parcel badge */}
-      <TouchableOpacity onPress={() => handleCall(item?.parcelOwner?.phone)}>
+        <TouchableOpacity onPress={() => handleCall(item?.parcelOwner?.phone)}>
 
           <Image source={imageIndex.Calblack}
-          style={{
-            height:33,
-            width:33,
-            resizeMode:"contain"
-          }}
+            style={{
+              height: 33,
+              width: 33,
+              resizeMode: "contain"
+            }}
           />
-         </TouchableOpacity>
+        </TouchableOpacity>
       </View>
 
       <KeyboardAvoidingView
@@ -511,6 +589,54 @@ const handleCall = (phone: number) => {
           </TouchableOpacity>
         </View>
       </KeyboardAvoidingView>
+
+
+      <AcceptOfferModal
+        visible={offerModalVisible}
+        offerAmount={item?.offerAmount}
+        message={item?.message}
+        onCancel={() => setOfferModalVisible(false)}
+        onAccept={() => {
+          setOfferModalVisible(false);
+          onAcceptOffer(item?.id || item?.offerId);
+        }}
+        onCounterPress={() => {
+          setOfferModalVisible(false);
+          // setCounterModalVisible(true);
+        }}
+      />
+      {/* <AcceptOfferModal
+        visible={offerModalVisible}
+        offerAmount={item?.offerAmount}
+        
+        message={item?.message}
+        onCancel={() => setOfferModalVisible(false)}
+        onAccept={() => {
+          setOfferModalVisible(false);
+          onAcceptOffer(item?.id || item?.offerId);
+        }}
+        onCounterPress={() => {
+          setOfferModalVisible(false);
+          setCounterModalVisible(true);
+        }}
+      /> */}
+
+      <CounterOfferModal
+        visible={counterModalVisible}
+        defaultValue={"1"}
+        currency="$"
+        min={1}
+        max={50000}
+        onCancel={() => setCounterModalVisible(false)}
+        onSubmit={(amount: any) => {
+          const id = item?.id || item?.offerId;
+          if (id) {
+            onCounterOffer(id, amount);
+          } else {
+            errorToast("Invalid offer ID");
+          }
+        }}
+      />
     </SafeAreaView>
   );
 };
@@ -538,7 +664,7 @@ const styles = StyleSheet.create({
     borderBottomColor: "#f0f0f0",
     gap: 10,
     // subtle shadow
- 
+
   },
   backBtn: {
     padding: 2,
@@ -551,7 +677,7 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-   },
+  },
   avatarFallback: {
     width: 44,
     height: 44,
@@ -747,6 +873,192 @@ const styles = StyleSheet.create({
     height: 20,
     width: 20,
     tintColor: "#fff",
+  },
+  offerBanner: {
+    backgroundColor: '#FFFBE6',
+    paddingHorizontal: 15,
+    paddingVertical: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    borderBottomWidth: 1,
+    borderBottomColor: '#F0E6D2',
+  },
+  offerBannerText: {
+    fontFamily: font.MonolithRegular,
+    fontSize: 14,
+    color: '#4A4A4A',
+  },
+  offerBannerAmount: {
+    fontWeight: 'bold',
+    color: '#E6A23C',
+    fontSize: 16,
+  },
+  offerBannerSubText: {
+    fontFamily: font.MonolithRegular,
+    fontSize: 12,
+    color: '#8C8C8C',
+    marginTop: 2,
+  },
+  offerBannerActions: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  offerBannerAcceptBtn: {
+    backgroundColor: '#FFCC00',
+    paddingHorizontal: 14,
+    paddingVertical: 7,
+    borderRadius: 6,
+    elevation: 1,
+  },
+  offerBannerAcceptText: {
+    color: '#000',
+    fontSize: 12,
+    fontWeight: '700',
+    fontFamily: font.MonolithRegular,
+  },
+  offerBannerCounterBtn: {
+    backgroundColor: '#FFF',
+    borderWidth: 1,
+    borderColor: '#FFCC00',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 6,
+  },
+  offerBannerCounterText: {
+    color: '#FFCC00',
+    fontSize: 12,
+    fontWeight: '700',
+    fontFamily: font.MonolithRegular,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.4)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContent: {
+    width: '85%',
+    backgroundColor: '#fff',
+    borderRadius: 16,
+    padding: 20,
+    elevation: 10,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowOffset: { width: 0, height: 4 },
+    shadowRadius: 10,
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingBottom: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f0f0f0',
+  },
+  modalTitle: {
+    fontFamily: font.MonolithRegular,
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#333',
+  },
+  offerSection: {
+    marginTop: 15,
+  },
+  offerLabel: {
+    fontFamily: font.MonolithRegular,
+    fontSize: 12,
+    color: '#888',
+  },
+  offerValue: {
+    fontFamily: font.MonolithRegular,
+    fontSize: 26,
+    fontWeight: 'bold',
+    color: '#FF9800',
+    marginTop: 4,
+  },
+  offerMessage: {
+    fontFamily: font.MonolithRegular,
+    fontSize: 14,
+    color: '#555',
+    fontStyle: 'italic',
+    marginTop: 4,
+  },
+  modalActions: {
+    marginTop: 25,
+    gap: 12,
+  },
+  modalAcceptBtn: {
+    backgroundColor: '#FFCC00',
+    paddingVertical: 13,
+    borderRadius: 8,
+    alignItems: 'center',
+    elevation: 2,
+  },
+  modalAcceptText: {
+    color: '#000',
+    fontWeight: '700',
+    fontSize: 14,
+    fontFamily: font.MonolithRegular,
+  },
+  modalCounterBtn: {
+    backgroundColor: '#fff',
+    borderWidth: 1.5,
+    borderColor: '#FFCC00',
+    paddingVertical: 12,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  modalCounterText: {
+    color: '#FFCC00',
+    fontWeight: '700',
+    fontSize: 14,
+    fontFamily: font.MonolithRegular,
+  },
+  headerOfferBtn: {
+    backgroundColor: '#FFCC00',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: '#FFCC00',
+    marginRight: 6,
+  },
+  headerOfferText: {
+    fontFamily: font.MonolithRegular,
+    fontSize: 12,
+    color: 'white',
+  },
+  headerAcceptBtn: {
+    backgroundColor: '#FFCC00',
+    paddingHorizontal: 12,
+    paddingVertical: 7,
+    borderRadius: 8,
+    elevation: 2,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  headerAcceptText: {
+    color: '#000',
+    fontWeight: '700',
+    fontSize: 12,
+    fontFamily: font.MonolithRegular,
+  },
+  headerCounterBtn: {
+    backgroundColor: '#fff',
+    borderWidth: 1.5,
+    borderColor: '#FFCC00',
+    paddingHorizontal: 11,
+    paddingVertical: 6,
+    borderRadius: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  headerCounterText: {
+    color: '#FFCC00',
+    fontWeight: '700',
+    fontSize: 12,
+    fontFamily: font.MonolithRegular,
   },
 });
 
