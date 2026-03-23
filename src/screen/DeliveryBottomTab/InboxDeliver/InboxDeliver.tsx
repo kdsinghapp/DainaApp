@@ -11,7 +11,7 @@ import {
   RefreshControl,
 } from "react-native";
 import StatusBarComponent from "../../../compoent/StatusBarCompoent";
-import { SafeAreaView ,  } from "react-native-safe-area-context";
+import { SafeAreaView } from "react-native-safe-area-context";
 import font from "../../../theme/font";
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import ScreenNameEnum from "../../../routes/screenName.enum";
@@ -22,11 +22,11 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 
 type LastMessage = {
   text: string;
-  senderRole: "user" | "delivery";
+  senderRole: "delivery" | "user";
   time: string;
-} | null;
+};
 
-type Driver = {
+type ParcelOwner = {
   id: number;
   name: string;
   phone: string;
@@ -39,81 +39,45 @@ type Parcel = {
   dropLocation: string;
   pickupDate: string | null;
   pickupTime: string | null;
-  deliveryPrice: string | null;
+  deliveryPrice: number | null;
 };
 
 type ChatItem = {
   parcelId: number;
   trackingId: string;
   deliveryStatus: string;
-  offerId: number;
-  offerStatus: string;
-  offerAmount: string;
   totalMessages: number;
   unreadCount: number;
   lastMessage: LastMessage;
-  driver: Driver;
+  parcelOwner: ParcelOwner;
   parcel: Parcel;
+  // driver may exist on some items
+  driver?: {
+    id: number;
+    name: string;
+    image: string;
+  };
 };
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-/**
- * Format ISO timestamp → "HH:MM" or "Mon DD" if older than today
- */
-function formatTime(isoString: string | null | undefined): string {
-  if (!isoString) return "";
-  const date = new Date(isoString);
-  const now = new Date();
-  const isToday =
-    date.getDate() === now.getDate() &&
-    date.getMonth() === now.getMonth() &&
-    date.getFullYear() === now.getFullYear();
+const toTimeString = (raw: string | undefined): string => {
+  if (!raw) return "";
+  const date = new Date(raw);
+  if (isNaN(date.getTime())) return raw;
+  return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+};
 
-  if (isToday) {
-    return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+const statusColor = (status: string): string => {
+  switch (status?.toLowerCase()) {
+    case "pending":   return "#f59e0b";
+    case "delivered": return "#22c55e";
+    case "cancelled": return "#ef4444";
+    default:          return "#64748b";
   }
-  return date.toLocaleDateString([], { month: "short", day: "numeric" });
-}
-
-/** Capitalize first letter of a string */
-function capitalize(str: string) {
-  if (!str) return "";
-  return str.charAt(0).toUpperCase() + str.slice(1);
-}
-
-// ─── Status Badge ─────────────────────────────────────────────────────────────
-
-const STATUS_COLORS: Record<string, { bg: string; text: string }> = {
-  pending:  { bg: "#fff7ed", text: "#ea580c" },
-  assigned: { bg: "#f0fdf4", text: "#16a34a" },
-  accepted: { bg: "#eff6ff", text: "#2563eb" },
-  default:  { bg: "#f8fafc", text: "#64748b" },
 };
 
-const StatusBadge = ({ status }: { status: string }) => {
-  const colors = STATUS_COLORS[status] ?? STATUS_COLORS.default;
-  return (
-    <View style={[styles.badge, { backgroundColor: colors.bg }]}>
-      <Text style={[styles.badgeText, { color: colors.text }]}>
-        {capitalize(status)}
-      </Text>
-    </View>
-  );
-};
-
-// ─── Unread Count Badge ───────────────────────────────────────────────────────
-
-const UnreadBadge = ({ count }: { count: number }) => {
-  if (!count || count === 0) return null;
-  return (
-    <View style={styles.unreadBadge}>
-      <Text style={styles.unreadBadgeText}>{count > 99 ? "99+" : count}</Text>
-    </View>
-  );
-};
-
-// ─── Empty State ──────────────────────────────────────────────────────────────
+// ─── Placeholder ──────────────────────────────────────────────────────────────
 
 const EmptyState = () => (
   <View style={styles.emptyWrap}>
@@ -123,54 +87,35 @@ const EmptyState = () => (
   </View>
 );
 
-// ─── Avatar with fallback ─────────────────────────────────────────────────────
+// ─── Fallback avatar ──────────────────────────────────────────────────────────
 
-const Avatar = ({ uri, name }: { uri?: string; name?: string }) => {
-  const [hasError, setHasError] = useState(false);
-  const initials = (name ?? "?")
-    .split(" ")
-    .map((w) => w[0])
-    .slice(0, 2)
-    .join("")
-    .toUpperCase();
-
-  if (!uri || hasError) {
-    return (
-      <View style={[styles.avatar, styles.avatarFallback]}>
-        <Text style={styles.avatarInitials}>{initials}</Text>
-      </View>
-    );
-  }
-
-  return (
-    <Image
-      source={{ uri }}
-      style={styles.avatar}
-      onError={() => setHasError(true)}
-    />
-  );
-};
+const FallbackAvatar = ({ name }: { name: string }) => (
+  <View style={[styles.avatar, styles.fallbackAvatar]}>
+    <Text style={styles.fallbackText}>
+      {name ? name.charAt(0).toUpperCase() : "?"}
+    </Text>
+  </View>
+);
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 
-export default function ChatInboxScreen() {
+export default function InboxDeliver() {
   const navigation = useNavigation<any>();
 
-  const [chats, setChats] = useState<ChatItem[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [chats, setChats]         = useState<ChatItem[]>([]);
+  const [loading, setLoading]     = useState(false);
   const [refreshing, setRefreshing] = useState(false);
-  const [query, setQuery] = useState("");
-  const [error, setError] = useState<string | null>(null);
+  const [query, setQuery]         = useState("");
+  const [error, setError]         = useState<string | null>(null);
 
   // ── Fetch ───────────────────────────────────────────────────────────────────
-
   const fetchChats = useCallback(async (isRefresh = false) => {
     try {
       isRefresh ? setRefreshing(true) : setLoading(true);
       setError(null);
 
       const token = await AsyncStorage.getItem("token");
-      const url = `${base_url}/chat/history`;
+      const url   = `${base_url}/chat/history`;
 
       const response = await fetch(url, {
         method: "GET",
@@ -188,6 +133,7 @@ export default function ChatInboxScreen() {
       if (!response.ok) throw new Error(`Server error: ${response.status}`);
 
       const json = await response.json();
+      // API shape: { status, message, count, chats: [...] }
       setChats(Array.isArray(json?.chats) ? json.chats : []);
     } catch (err: any) {
       console.error("fetchChats error:", err);
@@ -202,37 +148,27 @@ export default function ChatInboxScreen() {
       fetchChats();
     }, [fetchChats])
   );
+  useEffect(() => { fetchChats(); }, [fetchChats]);
 
-  useEffect(() => {
-    fetchChats();
-  }, [fetchChats]);
-
-  // ── Search filter ───────────────────────────────────────────────────────────
-
-  const filteredChats = query.trim()
-    ? chats.filter(
-        (c) =>
-          c.driver?.name?.toLowerCase().includes(query.toLowerCase()) ||
-          c.trackingId?.toLowerCase().includes(query.toLowerCase()) ||
-          c.lastMessage?.text?.toLowerCase().includes(query.toLowerCase())
+  // ── Filtered list ───────────────────────────────────────────────────────────
+  const filtered = query.trim()
+    ? chats.filter((c) =>
+        c.parcelOwner?.name?.toLowerCase().includes(query.toLowerCase()) ||
+        c.trackingId?.toLowerCase().includes(query.toLowerCase())
       )
     : chats;
 
   // ── Render row ──────────────────────────────────────────────────────────────
-
   const renderItem = ({ item }: { item: ChatItem }) => {
-    // Show parcelOwner image when last message came from delivery side,
-    // otherwise show driver image. Since parcelOwner isn't in the API response,
-    // we always fall back to driver image safely.
-    const avatarUri =
-      item.lastMessage?.senderRole === "delivery"
-        ? item.driver?.image   // fallback – parcelOwner not in current API shape
-        : item.driver?.image;
+    // For "delivery" side: show parcelOwner info; otherwise show driver (if exists)
+    const isDeliverySender = item?.lastMessage?.senderRole === "delivery";
 
-    const driverName = item.driver?.name ?? "Unknown";
-    const lastMsgText = item.lastMessage?.text ?? "No messages yet";
-    const msgTime = formatTime(item.lastMessage?.time);
-    const hasUnread = (item.unreadCount ?? 0) > 0;
+    // Avatar: always show parcelOwner image (delivery-side inbox = parcelOwner is the customer)
+    const avatarUri   = item?.parcelOwner?.image;
+    const displayName = item?.parcelOwner?.name ?? "Unknown";
+    const lastMsgText = item?.lastMessage?.text ?? "No messages yet";
+    const lastMsgTime = toTimeString(item?.lastMessage?.time);
+    const hasUnread   = (item?.unreadCount ?? 0) > 0;
 
     return (
       <TouchableOpacity
@@ -241,47 +177,59 @@ export default function ChatInboxScreen() {
         onPress={() =>
           navigation.navigate(ScreenNameEnum.ChatScreen, {
             item,
-            chatName: driverName,
+            chatName: displayName,
           })
         }
       >
         {/* Avatar */}
         <View style={styles.avatarWrap}>
-          <Avatar uri={avatarUri} name={driverName} />
+          {avatarUri ? (
+            <Image
+              source={{ uri: avatarUri }}
+              style={styles.avatar}
+            />
+          ) : (
+            <FallbackAvatar name={displayName} />
+          )}
         </View>
 
-        {/* Text column */}
+        {/* Text content */}
         <View style={styles.textCol}>
-          {/* Row 1 – name + time */}
+          {/* Name + time */}
           <View style={styles.nameTimeRow}>
-            <Text
-              style={[styles.name, hasUnread && styles.nameUnread]}
-              numberOfLines={1}
-            >
-              {driverName}
+            <Text style={styles.name} numberOfLines={1}>
+              {displayName}
             </Text>
-            {msgTime ? (
-              <Text style={styles.time}>{msgTime}</Text>
-            ) : null}
+            <Text style={styles.time}>{lastMsgTime}</Text>
           </View>
 
-          {/* Row 2 – tracking ID */}
+          {/* Tracking ID */}
           <Text style={styles.trackingId} numberOfLines={1}>
-            #{item.trackingId}
+            🏷 {item.trackingId}
           </Text>
 
-          {/* Row 3 – last message + status + unread */}
+          {/* Last message + badge */}
           <View style={styles.messageRow}>
             <Text
-              style={[styles.lastMessage, hasUnread && styles.lastMessageUnread]}
+              style={[styles.lastMessage, hasUnread && styles.unreadMessage]}
               numberOfLines={1}
             >
+              {isDeliverySender ? "You: " : ""}
               {lastMsgText}
             </Text>
 
-            <StatusBadge status={item.deliveryStatus} />
+            {hasUnread && (
+              <View style={styles.badge}>
+                <Text style={styles.badgeText}>{item.unreadCount}</Text>
+              </View>
+            )}
+          </View>
 
-            <UnreadBadge count={item.unreadCount} />
+          {/* Delivery status pill */}
+          <View style={[styles.statusPill, { borderColor: statusColor(item.deliveryStatus) }]}>
+            <Text style={[styles.statusText, { color: statusColor(item.deliveryStatus) }]}>
+              {item.deliveryStatus}
+            </Text>
           </View>
         </View>
       </TouchableOpacity>
@@ -289,7 +237,6 @@ export default function ChatInboxScreen() {
   };
 
   // ── UI ──────────────────────────────────────────────────────────────────────
-
   return (
     <SafeAreaView style={styles.container}>
       <StatusBarComponent />
@@ -298,14 +245,13 @@ export default function ChatInboxScreen() {
 
       {/* Search */}
       <View style={styles.searchBox}>
-         <TextInput
-          placeholder="Search by name, tracking ID…"
+        <TextInput
+          placeholder="Search by name or tracking ID…"
           placeholderTextColor="#9aa0a6"
           value={query}
           onChangeText={setQuery}
           style={styles.input}
           returnKeyType="search"
-          clearButtonMode="while-editing"
         />
       </View>
 
@@ -323,14 +269,14 @@ export default function ChatInboxScreen() {
         </View>
       ) : (
         <FlatList
-          data={filteredChats}                          // ✅ filtered list
+          data={filtered}
           style={styles.list}
-          keyExtractor={(item) => String(item.parcelId)} // ✅ correct key
+          keyExtractor={(item) => String(item.parcelId)}
           renderItem={renderItem}
           ItemSeparatorComponent={() => <View style={styles.separator} />}
           contentContainerStyle={[
-            { paddingBottom: 24 },
-            filteredChats.length === 0 && styles.emptyContainer,
+            { paddingBottom: 16 },
+            filtered.length === 0 && styles.emptyContainer,
           ]}
           showsVerticalScrollIndicator={false}
           ListEmptyComponent={<EmptyState />}
@@ -366,35 +312,27 @@ const styles = StyleSheet.create({
     fontFamily: font.MonolithRegular,
   },
   searchBox: {
-    flexDirection: "row",
-    alignItems: "center",
     backgroundColor: "white",
     borderRadius: 10,
-    paddingHorizontal: 12,
+    paddingHorizontal: 14,
     marginBottom: 8,
     height: 48,
+    justifyContent: "center",
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
+    shadowOpacity: 0.1,
     shadowRadius: 4,
-    elevation: 6,
-    borderWidth: 0.5,
+    elevation: 2,
+    borderWidth: 1,
     borderColor: "#eee",
   },
-  searchIcon: {
-    fontSize: 16,
-    marginRight: 8,
-  },
   input: {
-    flex: 1,
     fontSize: 15,
     color: "black",
     fontFamily: font.MonolithRegular,
     paddingVertical: 0,
   },
-  list: {
-    marginTop: 8,
-  },
+  list: { marginTop: 8 },
   separator: {
     height: 1,
     backgroundColor: "#eef2f7",
@@ -402,8 +340,8 @@ const styles = StyleSheet.create({
   },
   row: {
     flexDirection: "row",
-    alignItems: "center",
-    paddingVertical: 12,
+    alignItems: "flex-start",
+    paddingVertical: 14,
   },
   avatarWrap: {
     width: AVATAR_SIZE,
@@ -416,37 +354,33 @@ const styles = StyleSheet.create({
     borderRadius: AVATAR_SIZE / 2,
     backgroundColor: "#f0f0f0",
   },
-  avatarFallback: {
+  fallbackAvatar: {
     backgroundColor: "#FFCC00",
     justifyContent: "center",
     alignItems: "center",
   },
-  avatarInitials: {
-    fontSize: 16,
+  fallbackText: {
+    fontSize: 20,
     fontFamily: font.MonolithRegular,
     color: "#0f172a",
     fontWeight: "700",
   },
-  textCol: {
-    flex: 1,
-  },
+  textCol: { flex: 1 },
   nameTimeRow: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
+    marginBottom: 2,
   },
   name: {
     flex: 1,
-    fontSize: 15,
+    fontSize: 16,
     fontFamily: font.MonolithRegular,
     color: "#0f172a",
-  },
-  nameUnread: {
-    fontWeight: "700",
+    fontWeight: "600",
   },
   time: {
-    fontSize: 11,
-    color: "#94a3b8",
+    fontSize: 12,
+    color: "#64748b",
     marginLeft: 8,
     fontFamily: font.MonolithRegular,
   },
@@ -454,13 +388,13 @@ const styles = StyleSheet.create({
     fontSize: 11,
     color: "#94a3b8",
     fontFamily: font.MonolithRegular,
-    marginTop: 2,
     marginBottom: 4,
   },
   messageRow: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 6,
+    gap: 8,
+    marginBottom: 6,
   },
   lastMessage: {
     flex: 1,
@@ -468,21 +402,11 @@ const styles = StyleSheet.create({
     color: "#64748b",
     fontFamily: font.MonolithRegular,
   },
-  lastMessageUnread: {
+  unreadMessage: {
     color: "#0f172a",
     fontWeight: "600",
   },
   badge: {
-    borderRadius: 6,
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-  },
-  badgeText: {
-    fontSize: 10,
-    fontFamily: font.MonolithRegular,
-    fontWeight: "600",
-  },
-  unreadBadge: {
     backgroundColor: "#FFCC00",
     borderRadius: 10,
     paddingHorizontal: 6,
@@ -490,30 +414,37 @@ const styles = StyleSheet.create({
     minWidth: 20,
     alignItems: "center",
   },
-  unreadBadgeText: {
+  badgeText: {
     color: "#0f172a",
-    fontSize: 10,
+    fontSize: 11,
     fontFamily: font.MonolithRegular,
     fontWeight: "700",
+  },
+  statusPill: {
+    alignSelf: "flex-start",
+    borderWidth: 1,
+    borderRadius: 20,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+  },
+  statusText: {
+    fontSize: 11,
+    fontFamily: font.MonolithRegular,
+    textTransform: "capitalize",
   },
   loaderWrap: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
   },
-  emptyContainer: {
-    flex: 1,
-  },
+  emptyContainer: { flex: 1 },
   emptyWrap: {
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
     paddingTop: 80,
   },
-  emptyIcon: {
-    fontSize: 48,
-    marginBottom: 12,
-  },
+  emptyIcon: { fontSize: 48, marginBottom: 12 },
   emptyTitle: {
     fontSize: 18,
     color: "#0f172a",

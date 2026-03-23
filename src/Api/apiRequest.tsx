@@ -128,9 +128,18 @@ const Verifyotp = async (param: any, setLoading: any, dispatch: any) => {
       dispatch(loginSuccess({ userData: parsedResponse, token: parsedResponse?.token }));
        await saveAuthData(parsedResponse, parsedResponse?.token);
        if(parsedResponse?.type === "Delivery"){
-        param.navigation.navigate(ScreenNameEnum.DeliveryTabNavigator);
+         param.navigation.navigate(ScreenNameEnum.ProfileSetup,{
+          type:"otp"
+         });
+        // param.navigation.navigate(ScreenNameEnum.DeliveryTabNavigator);
        }else{
-        param.navigation.navigate(ScreenNameEnum.TabNavigator);
+                 param.navigation.navigate(ScreenNameEnum.ProfileSetup,{
+                                     type:"otp"
+
+
+                 });
+
+        // param.navigation.navigate(ScreenNameEnum.TabNavigator);
        }
       // console.log(first)
         //  param.navigation.navigate(ScreenNameEnum.ProfileSetup);
@@ -353,7 +362,7 @@ const GetProfileApi = async (
     console.log("parsedResponse", parsedResponse);
 
     if (parsedResponse?.status === 1) {
-      successToast(parsedResponse?.message);
+      // successToast(parsedResponse?.message);
       return parsedResponse; // ✅ Return the data
     } else {
       errorToast(parsedResponse?.message);

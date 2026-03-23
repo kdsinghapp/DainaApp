@@ -8,7 +8,7 @@ import StatusBarComponent from '../../compoent/StatusBarCompoent';
 import CustomHeader from '../../compoent/CustomHeader';
  import { hp } from '../../utils/Constant';
 import font from '../../theme/font';
-import { Privacypolicy, Termsconditions } from '../../Api/apiRequest';
+import {   Termsconditions } from '../../Api/apiRequest';
 import LoadingModal from '../../utils/Loader';
 
 const LegalPoliciesScreen = () => {
@@ -87,8 +87,7 @@ const styles = StyleSheet.create({
             fontSize: 14,
             color: '#333',
             lineHeight: 24,
-             fontWeight: '500',
-            marginTop: 8,
+             marginTop: 8,
             fontFamily: font.MonolithRegular,
         },
         h1: {

@@ -11,6 +11,7 @@ import Inbox from '../screen/BottomTab/Inbox/Inbox';
 import DeliveryProfile from '../screen/DeliveryBottomTab/DeliveryProfile/DeliveryProfile';
 import NewOrderNotificationModal from '../compoent/NewOrderNotificationModal';
 import OfferAcceptedModal from '../compoent/OfferAcceptedModal';
+import InboxDeliver from '../screen/DeliveryBottomTab/InboxDeliver/InboxDeliver';
 
 const Tab = createBottomTabNavigator();
 
@@ -102,7 +103,7 @@ export default function DeliveryTabNavigator() {
       >
         <Tab.Screen name="Home" component={DeliveryHome} />
         <Tab.Screen name="Orders" component={DeliverOrders} />
-        <Tab.Screen name="Inbox" component={Inbox} />
+        <Tab.Screen name="Inbox" component={InboxDeliver} />
         <Tab.Screen name="Profile" component={DeliveryProfile} />
       </Tab.Navigator>
       <NewOrderNotificationModal />

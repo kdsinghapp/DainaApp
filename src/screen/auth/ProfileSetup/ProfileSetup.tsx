@@ -31,7 +31,9 @@ const ProfileSetup = () => {
   const navigation = useNavigation();
   const userData: any = useSelector((state: any) => state.auth.userData);
 const  route :any = useRoute()
-const {type} = route ||""
+   const type = route?.params?.type;
+
+console.log("type",type)
   const [fullName, setFullName] = useState(userData?.firstName || "");
   const [email, setEmail] = useState(userData?.email || "");
   const [address, setAddress] = useState(userData?.address || "");
@@ -121,12 +123,14 @@ if (!emailRegex.test(email.trim())) {
     const response = await UpdateProfile(params, setIsLoading);
     if (response) {
       await getProfileApi();
-navigation.goBack()
-      // if (userData?.type === "Delivery") {
-      //   navigation.navigate(ScreenNameEnum.UploadDocumentsScreen);
-      // } else {
-      //   navigation.navigate(ScreenNameEnum.TabNavigator);
-      // }
+// navigation.goBack()
+      if (userData?.type === "Delivery") {
+                navigation.navigate(ScreenNameEnum.DeliveryTabNavigator);
+
+        // navigation.navigate(ScreenNameEnum.UploadDocumentsScreen);
+      } else {
+        navigation.navigate(ScreenNameEnum.TabNavigator);
+      }
     }
   } catch (error) {
     console.error("Error while saving profile:", error);
@@ -207,15 +211,16 @@ const  onSkipe =()=>{
           />
         </ScrollView>
       </KeyboardAvoidingView>
-{type ==="otp" && (
-    <View style={styles.buttonContainer}>
-        <CustomButton title="sKIP" onPress={onSkipe} loading={isLoading} />
-      </View>
-)}
+
     
       <View style={styles.buttonContainer}>
         <CustomButton title="Update" onPress={handleSave} loading={isLoading} />
       </View>
+      {type ==="otp" && (
+    <View style={styles.buttonContainer}>
+        <CustomButton title="Skip" onPress={onSkipe}  />
+      </View>
+)}
     </SafeAreaView>
   );
 };

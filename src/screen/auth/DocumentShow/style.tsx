@@ -1,8 +1,9 @@
 // style.ts
 import { Dimensions, StyleSheet } from 'react-native';
- const { width, height } = Dimensions.get('window');
+import font from '../../../theme/font';
+const { width, height } = Dimensions.get('window');
 export const styles = StyleSheet.create({
-    container: {
+  container: {
     flex: 1,
     backgroundColor: '#fbfbfbff',
   },
@@ -77,7 +78,8 @@ export const styles = StyleSheet.create({
   },
   cardTitle: {
     fontSize: 18,
-    fontWeight: '600',
+    fontFamily: font.MonolithRegular
+    ,
     color: '#1A1A1A',
   },
   statusBadge: {
@@ -93,24 +95,25 @@ export const styles = StyleSheet.create({
   },
   statusText: {
     fontSize: 12,
-    fontWeight: '600',
+    fontFamily: font.MonolithRegular
+    ,
   },
   cardBody: {
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 12,
-    justifyContent:"center"
+    justifyContent: "center"
   },
   imageContainer: {
- 
- justifyContent:"center" ,
- alignItems:"center"
+
+    justifyContent: "center",
+    alignItems: "center"
   },
   image: {
     width: 220,
     height: 200,
-    borderRadius:20
-   },
+    borderRadius: 20
+  },
   placeholderOverlay: {
     ...StyleSheet.absoluteFillObject,
     backgroundColor: '#F8F9FA',
@@ -121,7 +124,8 @@ export const styles = StyleSheet.create({
   placeholderText: {
     fontSize: 14,
     color: '#666',
-    fontWeight: '600',
+    fontFamily: font.MonolithRegular
+    ,
     marginTop: 8,
     textAlign: 'center',
   },
@@ -166,12 +170,14 @@ export const styles = StyleSheet.create({
   },
   actionBtnText: {
     color: '#FFFFFF',
-    fontWeight: '600',
+    fontFamily: font.MonolithRegular
+    ,
     fontSize: 14,
   },
   downloadBtnText: {
     color: '#007AFF',
-    fontWeight: '600',
+    fontFamily: font.MonolithRegular
+    ,
     fontSize: 14,
   },
   disabledText: {
@@ -249,7 +255,8 @@ export const styles = StyleSheet.create({
   },
   retryText: {
     color: '#FFFFFF',
-    fontWeight: '600',
+    fontFamily: font.MonolithRegular
+    ,
     fontSize: 16,
   },
   emptyContainer: {
@@ -259,7 +266,6 @@ export const styles = StyleSheet.create({
   },
   emptyTitle: {
     fontSize: 20,
-    fontWeight: '600',
     color: '#666',
     marginTop: 16,
     marginBottom: 8,
@@ -279,8 +285,9 @@ export const styles = StyleSheet.create({
   },
   uploadBtnText: {
     color: '#FFFFFF',
-    fontWeight: '600',
     fontSize: 16,
+    fontFamily: font.MonolithRegular
+    ,
   },
   modalContainer: {
     flex: 1,
@@ -326,9 +333,10 @@ export const styles = StyleSheet.create({
   },
   modalActionText: {
     color: '#FFFFFF',
-    fontWeight: '600',
+    fontFamily: font.MonolithRegular
+    ,
     fontSize: 16,
     marginLeft: 8,
   },
 
- });
+});

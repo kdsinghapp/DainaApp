@@ -23,12 +23,7 @@ const EarningsScreen = () => {
           cashTrip: 22.48,
         },
         breakdown: [
-          { label: "Trip fares", value: 40.25 },
-          { label: "YellowTaxi Fee", value: 20.0 },
-          { label: "Tax", value: 400.5 },
-          { label: "Tolls", value: 400.5 },
-          { label: "Surge", value: 40.25 },
-          { label: "Discount(-)", value: -20.0 },
+         
         ],
       });
       setLoading(false);
@@ -64,9 +59,9 @@ const EarningsScreen = () => {
       {/* Header */}
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Total Earnings</Text>
-        <Text style={styles.amount}>${earnings.total.toFixed(2)}</Text>
+        <Text style={styles.amount}>$ 00</Text>
       </View>
-      <Text style={styles.growth}>↑ {earnings.growth}% This Week</Text>
+      <Text style={styles.growth}>↑ 0% This Week</Text>
 
       {/* Chart */}
       <View style={{
@@ -84,7 +79,7 @@ const EarningsScreen = () => {
       <View style={styles.chartWrapper}>
         <Svg height={chartHeight + 20} width="100%">
           {/* Grid Lines */}
-          {[0.25, 0.5, 0.75, 1].map((p, i) => (
+          {[0].map((p, i) => (
             <Line
               key={i}
               x1="0"
@@ -124,15 +119,15 @@ const EarningsScreen = () => {
       {/* Stats */}
       <View style={styles.statsRow}>
         <View style={styles.statBox}>
-          <Text style={styles.statValue}>{earnings.stats.hours}</Text>
+          <Text style={styles.statValue}>00</Text>
           <Text style={styles.statLabel}>Online Hrs</Text>
         </View>
         <View style={styles.statBox}>
-          <Text style={styles.statValue}>{earnings.stats.trips}</Text>
+          <Text style={styles.statValue}>0</Text>
           <Text style={styles.statLabel}>Trips</Text>
         </View>
         <View style={styles.statBox}>
-          <Text style={styles.statValue}>${earnings.stats.cashTrip}</Text>
+          <Text style={styles.statValue}>$ 00</Text>
           <Text style={styles.statLabel}>Cash Trip</Text>
         </View>
       </View>
@@ -152,7 +147,8 @@ const EarningsScreen = () => {
             Total Earnings
           </Text>
           <Text style={[styles.breakdownValue, { fontWeight: "bold", color: "green" }]}>
-            ${(earnings.total + 0).toFixed(2)}
+            $ 00
+             {/* {(earnings.total + 0).toFixed(2)} */}
           </Text>
         </View>
       </View>

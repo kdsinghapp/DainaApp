@@ -144,9 +144,9 @@ export default function DocumentShow() {
       <Text style={styles.emptySubtitle}>
         It seems you haven't uploaded any documents yet.
       </Text>
-      <TouchableOpacity style={styles.uploadBtn} activeOpacity={0.7}>
+      {/* <TouchableOpacity style={styles.uploadBtn} activeOpacity={0.7}>
         <Text style={styles.uploadBtnText}>Upload Documents</Text>
-      </TouchableOpacity>
+      </TouchableOpacity> */}
     </View>
   );
 
@@ -159,24 +159,7 @@ export default function DocumentShow() {
     );
   }
 
-  if (error && !documents.drivingLicense && !documents.idDocument && !documents.vehiclePapers) {
-    return (
-      <View style={styles.center}>
-        <View style={styles.errorContainer}>
-          <Icon name="error-outline" size={64} color="#FF6B6B" />
-          <Text style={styles.errorText}>{error}</Text>
-          <TouchableOpacity 
-            style={styles.retryBtn} 
-            onPress={fetchDocuments}
-            activeOpacity={0.7}
-          >
-            <Text style={styles.retryText}>Try Again</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-    );
-  }
-
+  
   return (
     <SafeAreaView style={styles.container}>
       <StatusBarComponent />

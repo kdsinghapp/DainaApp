@@ -19,6 +19,8 @@ import { useNavigation, useRoute } from "@react-navigation/native";
 import font from "../../../theme/font";
 import { base_url } from "../../../Api";
 import { useSelector } from "react-redux";
+import { Alert } from "react-native";
+import { Linking } from "react-native";
 
 // ─── Config ──────────────────────────────────────────────────────────────────
 const WS_BASE = "wss://aitechnotech.in/DAINA/ws/chat";
@@ -353,11 +355,11 @@ const ChatScreen = () => {
             >
               {msg.time}
             </Text>
-            {isMe && (
+            {/* {isMe && (
               <Text style={styles.readTick}>
                 {msg.isRead ? "✓✓" : "✓"}
               </Text>
-            )}
+            )} */}
           </View>
         </View>
       </View>
@@ -365,9 +367,43 @@ const ChatScreen = () => {
   };
    // ── Delivery agent info from API response chattingWith ────────────────────
   const chattingWith = item?.chatngWith;
-  const agentName = item?.carrierName ?? item?.parcelOwner?.name ?? "Delivery Agent";
-  const agentImage = item?.deliveryUser?.profile_image ?? item?.parcelOwner?.image ?? null;
+const agentName =
+  item?.carrierName ??
+  item?.parcelOwner?.name ??
+  item?.driver?.name ??
+  "Delivery Agent";
 
+const agentImage =
+  item?.deliveryUser?.profile_image ??
+  item?.parcelOwner?.image ??
+  item?.driver?.image ??
+  null;
+  console.log("item",item)
+const handleCall = (phone: number) => {
+  if (!phone) {
+    Alert.alert("Error", "Phone number not available");
+    return;
+  }
+
+  let phoneNumber = '';
+
+  if (Platform.OS === 'android') {
+    phoneNumber = `tel:${phone}`;
+  } else {
+    // iOS ke liye
+    phoneNumber = `telprompt:${phone}`;
+  }
+
+  Linking.canOpenURL(phoneNumber)
+    .then((supported) => {
+      if (!supported) {
+        Alert.alert('Error', 'Phone call not supported');
+      } else {
+        return Linking.openURL(phoneNumber);
+      }
+    })
+    .catch((err) => console.log('Call Error:', err));
+};
   // ─── UI ───────────────────────────────────────────────────────────────────
   return (
     <SafeAreaView style={styles.container}>
@@ -384,7 +420,7 @@ const ChatScreen = () => {
         ) : (
           <View style={styles.avatarFallback}>
             <Text style={styles.avatarInitial}>
-              {agentName.charAt(0).toUpperCase()}. 
+              {agentName.charAt(0).toUpperCase()}
             </Text>
           </View>
         )}
@@ -407,9 +443,16 @@ const ChatScreen = () => {
         </View>
 
         {/* Parcel badge */}
-        {/* <View style={styles.parcelBadge}>
-          <Text style={styles.parcelBadgeText}>#{parcelId}</Text>
-        </View> */}
+      <TouchableOpacity onPress={() => handleCall(item?.parcelOwner?.phone)}>
+
+          <Image source={imageIndex.Calblack}
+          style={{
+            height:33,
+            width:33,
+            resizeMode:"contain"
+          }}
+          />
+         </TouchableOpacity>
       </View>
 
       <KeyboardAvoidingView
@@ -508,9 +551,7 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    borderWidth: 2,
-    borderColor: YELLOW,
-  },
+   },
   avatarFallback: {
     width: 44,
     height: 44,
