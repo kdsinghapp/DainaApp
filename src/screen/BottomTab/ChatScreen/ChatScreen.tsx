@@ -10,6 +10,8 @@ import {
   KeyboardAvoidingView,
   Platform,
   ActivityIndicator,
+  Alert,
+  Linking,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -19,8 +21,6 @@ import { useNavigation, useRoute } from "@react-navigation/native";
 import font from "../../../theme/font";
 import { base_url } from "../../../Api";
 import { useSelector } from "react-redux";
-import { Alert } from "react-native";
-import { Linking } from "react-native";
 import CounterOfferModal from "../../../compoent/MakeCounterModal";
 import AcceptOfferModal from "../../../compoent/AcceptOfferModal";
 import { errorToast, successToast } from "../../../utils/customToast";
@@ -34,7 +34,7 @@ interface Message {
   id: string;
   text: string;
   sender: "me" | "other";
-  time: string;         // display string  e.g. "11:30 AM"
+  time: string;
   isRead?: boolean;
 }
 
@@ -44,12 +44,12 @@ interface ApiMessage {
   senderRole: string;
   message: string;
   isRead: boolean;
-  isMine: boolean;           // ✅ use this field from API
-  createdAt: string;         // ISO string
+  isMine: boolean;
+  createdAt: string;
 }
 
 interface WsIncoming {
-  message: string;
+  message?: string;
   sender_type?: string;
   is_mine?: boolean;
   created_at?: string;
@@ -57,15 +57,8 @@ interface WsIncoming {
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
-
-/**
- * Convert ISO timestamp → "hh:mm AM/PM"
- * Works for both UTC and local ISO strings from the API.
- */
 const toTimeString = (iso?: string): string => {
   if (!iso) return new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-  // The API returns timestamps without 'Z', but they are UTC — append Z so
-  // the browser/JS engine parses them correctly as UTC.
   const normalized = iso.endsWith("Z") || iso.includes("+") ? iso : `${iso}Z`;
   return new Date(normalized).toLocaleTimeString([], {
     hour: "2-digit",
@@ -73,16 +66,12 @@ const toTimeString = (iso?: string): string => {
   });
 };
 
-/**
- * Convert ISO → Date label like "Today", "Yesterday", or "Mar 18"
- */
 const toDayLabel = (iso: string): string => {
   const normalized = iso.endsWith("Z") || iso.includes("+") ? iso : `${iso}Z`;
   const d = new Date(normalized);
   const today = new Date();
   const yesterday = new Date();
   yesterday.setDate(today.getDate() - 1);
-
   const sameDay = (a: Date, b: Date) =>
     a.getFullYear() === b.getFullYear() &&
     a.getMonth() === b.getMonth() &&
@@ -131,17 +120,28 @@ const ChatScreen = () => {
   const [counterModalVisible, setCounterModalVisible] = useState(false);
   const [offerModalVisible, setOfferModalVisible] = useState(false);
 
+  const userData: any = useSelector((state: any) => state.auth.userData);
+  const [messages, setMessages] = useState<Message[]>([]);
+  const rawDatesRef = useRef<Record<string, string>>({});
+  const [inputText, setInputText] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [connected, setConnected] = useState(false);
+  const [token, setToken] = useState<string | null>(null);
+  const [tokenLoaded, setTokenLoaded] = useState(false);
+  const wsRef = useRef<WebSocket | null>(null);
+  const flatListRef = useRef<FlatList>(null);
+
+  // ── Accept Offer ──────────────────────────────────────────────────────────
   const onAcceptOffer = async (id: any) => {
     try {
-      const token = await AsyncStorage.getItem('token');
-      if (!token) return;
+      const storedToken = await AsyncStorage.getItem("token");
+      if (!storedToken) return;
 
-      const apiUrl = `https://aitechnotech.in/DAINA/api/offers/${id}/accept`;
-      const response = await fetch(apiUrl, {
-        method: 'POST',
+      const response = await fetch(`https://aitechnotech.in/DAINA/api/offers/${id}/accept`, {
+        method: "POST",
         headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
+          Authorization: `Bearer ${storedToken}`,
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({}),
       });
@@ -159,22 +159,22 @@ const ChatScreen = () => {
     }
   };
 
+  // ── Counter Offer ─────────────────────────────────────────────────────────
   const onCounterOffer = async (id: number, amount: number) => {
     try {
-      const token = await AsyncStorage.getItem("token");
-      if (!token) return;
+      const storedToken = await AsyncStorage.getItem("token");
+      if (!storedToken) return;
 
-      const apiUrl = `${base_url}/offers/${id}/counter-offer`;
       const body = new URLSearchParams({
         counterAmount: String(amount),
         counterMessage: "hi",
       }).toString();
 
-      const response = await fetch(apiUrl, {
+      const response = await fetch(`${base_url}/offers/${id}/counter-offer`, {
         method: "POST",
         headers: {
-          "Authorization": `Bearer ${token}`,
-          "Accept": "application/json",
+          Authorization: `Bearer ${storedToken}`,
+          Accept: "application/json",
           "Content-Type": "application/x-www-form-urlencoded",
         },
         body,
@@ -193,18 +193,6 @@ const ChatScreen = () => {
       errorToast("Something went wrong");
     }
   };
-
-  const userData: any = useSelector((state: any) => state.auth.userData);
-  const [messages, setMessages] = useState<Message[]>([]);
-  // Store raw ISO dates keyed by message id for day-separator calculation
-  const rawDatesRef = useRef<Record<string, string>>({});
-  const [inputText, setInputText] = useState("");
-  const [loading, setLoading] = useState(true);
-  const [connected, setConnected] = useState(false);
-  const [token, setToken] = useState<string | null>(null);
-  const [tokenLoaded, setTokenLoaded] = useState(false);
-  const wsRef = useRef<WebSocket | null>(null);
-  const flatListRef = useRef<FlatList>(null);
 
   // ── 0. Load & clean token ─────────────────────────────────────────────────
   useEffect(() => {
@@ -231,8 +219,7 @@ const ChatScreen = () => {
     const fetchMessages = async () => {
       try {
         setLoading(true);
-        const url = `${base_url}/chat/${parcelId}/messages`;
-        const response = await fetch(url, {
+        const response = await fetch(`${base_url}/chat/${parcelId}/messages`, {
           method: "GET",
           headers: {
             Authorization: `Bearer ${token}`,
@@ -247,19 +234,18 @@ const ChatScreen = () => {
         }
 
         const json = await response.json();
-        // ✅ API returns { messages: [...] }  OR  a plain array
+
         const raw: ApiMessage[] = Array.isArray(json) ? json : json?.messages ?? [];
 
         const dates: Record<string, string> = {};
 
         const mapped: Message[] = raw.map((m) => {
           const id = String(m.id);
-          dates[id] = m.createdAt; // store raw ISO for day-label
+          dates[id] = m.createdAt;
           return {
             id,
             text: m.message,
-            // ✅ isMine from the API is the single source of truth
-            sender: m.isMine ? "me" : "other",
+            sender: m.isMine ? "me" : "other",  // ✅ isMine is single source of truth
             time: toTimeString(m.createdAt),
             isRead: m.isRead,
           };
@@ -298,19 +284,26 @@ const ChatScreen = () => {
       return;
     }
 
-    ws.onopen = () => setConnected(true);
+    ws.onopen = () => {
+      console.log("WebSocket connected");
+      setConnected(true);
+    };
 
     ws.onmessage = (event) => {
       try {
         const data: WsIncoming = JSON.parse(event.data);
 
-        // ✅ Use is_mine flag if present; otherwise fall back to sender_type
+        // ✅ FIX 1: Guard against empty/ping frames — skip if no message text
+        if (!data.message || data.message.trim() === "") return;
+
+        // ✅ FIX 2: Correct isMine detection using your actual role
+        const myRole = userData?.type?.toLowerCase(); // e.g. "delivery" or "user"
         const isMine =
           data.is_mine !== undefined
             ? data.is_mine
-            : data.sender_type === "user";   // adjust to your backend's value
+            : data.sender_type?.toLowerCase() === myRole;
 
-        // If the server echoes our own messages we skip them to avoid duplicates
+        // ✅ FIX 3: Skip echoed own messages to avoid duplicates
         if (isMine) return;
 
         const iso = data.created_at ?? data.timestamp ?? new Date().toISOString();
@@ -331,6 +324,7 @@ const ChatScreen = () => {
     };
 
     ws.onerror = (e) => console.error("WS error:", e);
+
     ws.onclose = (e) => {
       console.log("WS closed:", e.code, e.reason);
       setConnected(false);
@@ -380,7 +374,46 @@ const ChatScreen = () => {
     }
   }, [inputText]);
 
-  // ── Render helpers ────────────────────────────────────────────────────────
+  // ── Handle Phone Call ─────────────────────────────────────────────────────
+  const handleCall = (phone: string | number | undefined) => {
+    if (!phone) {
+      Alert.alert("Error", "Phone number not available");
+      return;
+    }
+    const phoneNumber =
+      Platform.OS === "android" ? `tel:${phone}` : `telprompt:${phone}`;
+    Linking.canOpenURL(phoneNumber)
+      .then((supported) => {
+        if (!supported) {
+          Alert.alert("Error", "Phone call not supported");
+        } else {
+          return Linking.openURL(phoneNumber);
+        }
+      })
+      .catch((err) => console.log("Call Error:", err));
+  };
+
+  // ── Derive agent info ─────────────────────────────────────────────────────
+  // ✅ FIX 4: Use chattingWith from API response (passed via route params)
+  const chattingWith = item?.chattingWith;
+  const agentName =
+    chattingWith?.name ??
+    item?.carrierName ??
+    item?.parcelOwner?.name ??
+    item?.driver?.name ??
+    item?.user?.firstName ?? "Delivery Agent";
+
+  const agentImage =
+    chattingWith?.image ??
+    item?.deliveryUser?.profile_image ??
+    item?.parcelOwner?.image ??
+    item?.driver?.image ?? item?.user?.image
+  null;
+
+  const agentPhone =
+    chattingWith?.phone ??
+    item?.parcelOwner?.phone ?? item?.user?.phone
+  null;
   const listItems = buildListItems(messages, rawDatesRef.current);
 
   const renderItem = ({ item: listItem }: { item: ListItem }) => {
@@ -411,10 +444,8 @@ const ChatScreen = () => {
           ]}
         >
           <Text style={isMe ? styles.myMessageText : styles.otherMessageText}>
-            {msg.text}
+            {msg?.text}
           </Text>
-
-          {/* Time + read receipt row */}
           <View style={styles.metaRow}>
             <Text
               style={[
@@ -422,62 +453,16 @@ const ChatScreen = () => {
                 { color: isMe ? "rgba(255,255,255,0.75)" : "#aaa" },
               ]}
             >
-              {msg.time}
+              {msg?.time}
             </Text>
-            {/* {isMe && (
-              <Text style={styles.readTick}>
-                {msg.isRead ? "✓✓" : "✓"}
-              </Text>
-            )} */}
           </View>
         </View>
       </View>
     );
   };
-  // ── Delivery agent info from API response chattingWith ────────────────────
-  const chattingWith = item?.chatngWith;
-  const agentName =
-    item?.carrierName ??
-    item?.parcelOwner?.name ??
-    item?.driver?.name ??
-    "Delivery Agent";
-
-  const agentImage =
-    item?.deliveryUser?.profile_image ??
-    item?.parcelOwner?.image ??
-    item?.driver?.image ??
-    null;
-  console.log("item", item)
-  const handleCall = (phone: number) => {
-    if (!phone) {
-      Alert.alert("Error", "Phone number not available");
-      return;
-    }
-
-    let phoneNumber = '';
-
-    if (Platform.OS === 'android') {
-      phoneNumber = `tel:${phone}`;
-    } else {
-      // iOS ke liye
-      phoneNumber = `telprompt:${phone}`;
-    }
-
-    Linking.canOpenURL(phoneNumber)
-      .then((supported) => {
-        if (!supported) {
-          Alert.alert('Error', 'Phone call not supported');
-        } else {
-          return Linking.openURL(phoneNumber);
-        }
-      })
-      .catch((err) => console.log('Call Error:', err));
-  };
-  // ─── UI ───────────────────────────────────────────────────────────────────
-  return (
+   return (
     <SafeAreaView style={styles.container}>
       <StatusBarComponent />
-
       {/* ── Header ── */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
@@ -496,46 +481,40 @@ const ChatScreen = () => {
 
         <View style={{ flex: 1 }}>
           <Text style={styles.name} numberOfLines={1}>
-            {agentName}  {parcelId}
+            {agentName}{"  "}
           </Text>
-          {/* <View style={styles.statusRow}>
-            <View
-              style={[
-                styles.statusDot,
-                { backgroundColor: connected ? "#4CAF50" : "#aaa" },
-              ]}
-            />
-            <Text style={[styles.statusText, { color: connected ? "#4CAF50" : "#aaa" }]}>
-              {connected ? "Online" : "Offline"}
-            </Text>
-          </View> */}
+          <Text style={styles.name} numberOfLines={1}>
+            {item?.trackingId}
+          </Text>
         </View>
 
-        {/* Offer button */}
+        {/* Offer button — only show for non-delivery users */}
         {item?.offerAmount && userData?.type !== "Delivery" && (
-          <TouchableOpacity
-            onPress={() => setOfferModalVisible(true)}
-            style={styles.headerOfferBtn}>
-            <Text style={styles.headerOfferText}>Order Open</Text>
-            {/* <Text style={styles.headerOfferText}>Offer: ${item?.offerAmount}</Text> */}
-          </TouchableOpacity>
-        )}
-        {/* Parcel badge */}
-        <TouchableOpacity onPress={() => handleCall(item?.parcelOwner?.phone)}>
 
-          <Image source={imageIndex.Calblack}
-            style={{
-              height: 33,
-              width: 33,
-              resizeMode: "contain"
-            }}
+          <>
+
+            {item?.offerStatus != "assigned" ? <TouchableOpacity
+              onPress={() => setOfferModalVisible(true)}
+              style={styles.headerOfferBtn}
+            >
+              <Text style={styles.headerOfferText}>Order Open</Text>
+            </TouchableOpacity> : null}
+          </>
+
+        )}
+
+        {/* Call button */}
+        <TouchableOpacity onPress={() => handleCall(agentPhone)}>
+          <Image
+            source={imageIndex.Calblack}
+            style={{ height: 33, width: 33, resizeMode: "contain" }}
           />
         </TouchableOpacity>
       </View>
 
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
-        keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 0}
+        keyboardVerticalOffset={0}
         style={{ flex: 1 }}
       >
         {/* ── Messages ── */}
@@ -575,26 +554,20 @@ const ChatScreen = () => {
           />
           <TouchableOpacity
             onPress={sendMessage}
-            style={[
-              styles.sendButton,
-              { opacity: inputText.trim() ? 1 : 0.4 },
-            ]}
+            style={[styles.sendButton, { opacity: inputText.trim() ? 1 : 0.4 }]}
             activeOpacity={0.7}
             disabled={!inputText.trim()}
           >
-            <Image
-              source={imageIndex.Messagesend}
-              style={styles.sendIcon}
-            />
+            <Image source={imageIndex.Messagesend} style={styles.sendIcon} />
           </TouchableOpacity>
         </View>
       </KeyboardAvoidingView>
 
-
+      {/* ── Modals ── */}
       <AcceptOfferModal
         visible={offerModalVisible}
         offerAmount={item?.offerAmount}
-        message={item?.message}
+        message={""}
         onCancel={() => setOfferModalVisible(false)}
         onAccept={() => {
           setOfferModalVisible(false);
@@ -602,24 +575,8 @@ const ChatScreen = () => {
         }}
         onCounterPress={() => {
           setOfferModalVisible(false);
-          // setCounterModalVisible(true);
         }}
       />
-      {/* <AcceptOfferModal
-        visible={offerModalVisible}
-        offerAmount={item?.offerAmount}
-        
-        message={item?.message}
-        onCancel={() => setOfferModalVisible(false)}
-        onAccept={() => {
-          setOfferModalVisible(false);
-          onAcceptOffer(item?.id || item?.offerId);
-        }}
-        onCounterPress={() => {
-          setOfferModalVisible(false);
-          setCounterModalVisible(true);
-        }}
-      /> */}
 
       <CounterOfferModal
         visible={counterModalVisible}
@@ -652,8 +609,6 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#fff",
   },
-
-  // ── Header
   header: {
     flexDirection: "row",
     alignItems: "center",
@@ -663,8 +618,6 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: "#f0f0f0",
     gap: 10,
-    // subtle shadow
-
   },
   backBtn: {
     padding: 2,
@@ -712,22 +665,6 @@ const styles = StyleSheet.create({
     fontSize: 11,
     fontFamily: font.MonolithRegular,
   },
-  parcelBadge: {
-    backgroundColor: YELLOW_LIGHT,
-    borderRadius: 20,
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderWidth: 1,
-    borderColor: YELLOW,
-  },
-  parcelBadgeText: {
-    fontSize: 11,
-    color: "#7a5f00",
-    fontFamily: font.MonolithRegular,
-    fontWeight: "600",
-  },
-
-  // ── Loader / Empty
   loaderContainer: {
     flex: 1,
     justifyContent: "center",
@@ -755,8 +692,6 @@ const styles = StyleSheet.create({
     fontFamily: font.MonolithRegular,
     fontSize: 14,
   },
-
-  // ── Day separator
   separatorRow: {
     flexDirection: "row",
     alignItems: "center",
@@ -776,8 +711,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     paddingHorizontal: 6,
   },
-
-  // ── Chat
   chatContainer: {
     paddingHorizontal: 12,
     paddingTop: 10,
@@ -832,13 +765,6 @@ const styles = StyleSheet.create({
     fontSize: 10,
     fontFamily: font.MonolithRegular,
   },
-  readTick: {
-    fontSize: 10,
-    color: "rgba(255,255,255,0.8)",
-    fontWeight: "600",
-  },
-
-  // ── Input
   inputContainer: {
     flexDirection: "row",
     alignItems: "center",
@@ -854,7 +780,7 @@ const styles = StyleSheet.create({
     backgroundColor: GRAY_BG,
     borderRadius: 24,
     paddingHorizontal: 16,
-    paddingVertical: Platform.OS === "ios" ? 10 : 8,
+    paddingVertical: Platform.OS === "ios" ? 17 : 15,
     marginRight: 8,
     fontFamily: font.MonolithRegular,
     fontSize: 14,
@@ -874,93 +800,121 @@ const styles = StyleSheet.create({
     width: 20,
     tintColor: "#fff",
   },
+  headerOfferBtn: {
+    backgroundColor: "#FFCC00",
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: "#FFCC00",
+    marginRight: 6,
+  },
+  headerOfferText: {
+    fontFamily: font.MonolithRegular,
+    fontSize: 12,
+    color: "white",
+  },
+  parcelBadge: {
+    backgroundColor: YELLOW_LIGHT,
+    borderRadius: 20,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderWidth: 1,
+    borderColor: YELLOW,
+  },
+  parcelBadgeText: {
+    fontSize: 11,
+    color: "#7a5f00",
+    fontFamily: font.MonolithRegular,
+    fontWeight: "600",
+  },
   offerBanner: {
-    backgroundColor: '#FFFBE6',
+    backgroundColor: "#FFFBE6",
     paddingHorizontal: 15,
     paddingVertical: 12,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
     borderBottomWidth: 1,
-    borderBottomColor: '#F0E6D2',
+    borderBottomColor: "#F0E6D2",
   },
   offerBannerText: {
     fontFamily: font.MonolithRegular,
     fontSize: 14,
-    color: '#4A4A4A',
+    color: "#4A4A4A",
   },
   offerBannerAmount: {
-    fontWeight: 'bold',
-    color: '#E6A23C',
+    fontWeight: "bold",
+    color: "#E6A23C",
     fontSize: 16,
   },
   offerBannerSubText: {
     fontFamily: font.MonolithRegular,
     fontSize: 12,
-    color: '#8C8C8C',
+    color: "#8C8C8C",
     marginTop: 2,
   },
   offerBannerActions: {
-    flexDirection: 'row',
+    flexDirection: "row",
     gap: 8,
   },
   offerBannerAcceptBtn: {
-    backgroundColor: '#FFCC00',
+    backgroundColor: "#FFCC00",
     paddingHorizontal: 14,
     paddingVertical: 7,
     borderRadius: 6,
     elevation: 1,
   },
   offerBannerAcceptText: {
-    color: '#000',
+    color: "#000",
     fontSize: 12,
-    fontWeight: '700',
+    fontWeight: "700",
     fontFamily: font.MonolithRegular,
   },
   offerBannerCounterBtn: {
-    backgroundColor: '#FFF',
+    backgroundColor: "#FFF",
     borderWidth: 1,
-    borderColor: '#FFCC00',
+    borderColor: "#FFCC00",
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 6,
   },
   offerBannerCounterText: {
-    color: '#FFCC00',
+    color: "#FFCC00",
     fontSize: 12,
-    fontWeight: '700',
+    fontWeight: "700",
     fontFamily: font.MonolithRegular,
   },
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.4)',
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: "rgba(0, 0, 0, 0.4)",
+    justifyContent: "center",
+    alignItems: "center",
   },
   modalContent: {
-    width: '85%',
-    backgroundColor: '#fff',
+    width: "85%",
+    backgroundColor: "#fff",
     borderRadius: 16,
     padding: 20,
     elevation: 10,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOpacity: 0.1,
     shadowOffset: { width: 0, height: 4 },
     shadowRadius: 10,
   },
   modalHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     paddingBottom: 15,
     borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
+    borderBottomColor: "#f0f0f0",
   },
   modalTitle: {
     fontFamily: font.MonolithRegular,
     fontSize: 16,
-    fontWeight: 'bold',
-    color: '#333',
+    fontWeight: "bold",
+    color: "#333",
   },
   offerSection: {
     marginTop: 15,
@@ -968,20 +922,20 @@ const styles = StyleSheet.create({
   offerLabel: {
     fontFamily: font.MonolithRegular,
     fontSize: 12,
-    color: '#888',
+    color: "#888",
   },
   offerValue: {
     fontFamily: font.MonolithRegular,
     fontSize: 26,
-    fontWeight: 'bold',
-    color: '#FF9800',
+    fontWeight: "bold",
+    color: "#FF9800",
     marginTop: 4,
   },
   offerMessage: {
     fontFamily: font.MonolithRegular,
     fontSize: 14,
-    color: '#555',
-    fontStyle: 'italic',
+    color: "#555",
+    fontStyle: "italic",
     marginTop: 4,
   },
   modalActions: {
@@ -989,74 +943,60 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   modalAcceptBtn: {
-    backgroundColor: '#FFCC00',
+    backgroundColor: "#FFCC00",
     paddingVertical: 13,
     borderRadius: 8,
-    alignItems: 'center',
+    alignItems: "center",
     elevation: 2,
   },
   modalAcceptText: {
-    color: '#000',
-    fontWeight: '700',
+    color: "#000",
+    fontWeight: "700",
     fontSize: 14,
     fontFamily: font.MonolithRegular,
   },
   modalCounterBtn: {
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     borderWidth: 1.5,
-    borderColor: '#FFCC00',
+    borderColor: "#FFCC00",
     paddingVertical: 12,
     borderRadius: 8,
-    alignItems: 'center',
+    alignItems: "center",
   },
   modalCounterText: {
-    color: '#FFCC00',
-    fontWeight: '700',
+    color: "#FFCC00",
+    fontWeight: "700",
     fontSize: 14,
     fontFamily: font.MonolithRegular,
   },
-  headerOfferBtn: {
-    backgroundColor: '#FFCC00',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: '#FFCC00',
-    marginRight: 6,
-  },
-  headerOfferText: {
-    fontFamily: font.MonolithRegular,
-    fontSize: 12,
-    color: 'white',
-  },
   headerAcceptBtn: {
-    backgroundColor: '#FFCC00',
+    backgroundColor: "#FFCC00",
     paddingHorizontal: 12,
     paddingVertical: 7,
     borderRadius: 8,
     elevation: 2,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   headerAcceptText: {
-    color: '#000',
-    fontWeight: '700',
+    color: "#000",
+    fontWeight: "700",
     fontSize: 12,
     fontFamily: font.MonolithRegular,
   },
   headerCounterBtn: {
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     borderWidth: 1.5,
-    borderColor: '#FFCC00',
+    borderColor: "#FFCC00",
     paddingHorizontal: 11,
     paddingVertical: 6,
     borderRadius: 8,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   headerCounterText: {
-    color: '#FFCC00',
-    fontWeight: '700',
+    color: "#FFCC00",
+    fontWeight: "700",
     fontSize: 12,
     fontFamily: font.MonolithRegular,
   },

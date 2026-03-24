@@ -259,7 +259,7 @@ export default function ChatInboxScreen() {
               style={[styles.name, hasUnread && styles.nameUnread]}
               numberOfLines={1}
             >
-              {driverName}.     {item?.parcelId}
+              {driverName}
             </Text>
             {msgTime ? (
               <Text style={styles.time}>{msgTime}</Text>
@@ -296,7 +296,7 @@ export default function ChatInboxScreen() {
       <StatusBarComponent />
 
       <Text style={styles.header}>Inbox</Text>
-<ScrollView>
+<ScrollView showsVerticalScrollIndicator={false}>
       {/* Search */}
       <View style={styles.searchBox}>
          <TextInput

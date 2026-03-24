@@ -28,6 +28,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import font from '../../../theme/font';
 import MapViewDirections from 'react-native-maps-directions';
 import { errorToast, successToast } from '../../../utils/customToast';
+import ScreenNameEnum from '../../../routes/screenName.enum';
 
 
 const TripMap = () => {
@@ -302,7 +303,7 @@ const TripMap = () => {
     }
     return await PostApi(param, setActionLoading);
   };
-  console.log("item", item)
+   const navgation = useNavigation()
   useEffect(() => {
 
   }, [item])
@@ -527,9 +528,10 @@ const TripMap = () => {
             }}>
               <Image source={imageIndex.Calblack} style={styles.iconBtn} />
             </TouchableOpacity>
-            <TouchableOpacity onPress={() => {
-              let url = `sms:${item?.user?.phone || event?.sender.phone}`;
-              Linking.openURL(url);
+            <TouchableOpacity   onPress={() => {
+              navgation.navigate(ScreenNameEnum.ChatScreen, {
+                item: item,
+              })
             }}>
               <Image source={imageIndex.MessageBlack} style={styles.iconBtn} />
             </TouchableOpacity>

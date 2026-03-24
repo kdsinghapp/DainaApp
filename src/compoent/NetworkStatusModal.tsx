@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, Modal, StyleSheet, TouchableOpacity, Linking, Platform, Image } from 'react-native';
+import font from '../theme/font';
 
 type Props = {
   isConnected?: boolean | null;
@@ -77,23 +78,24 @@ const styles = StyleSheet.create({
   },
   text: {
     fontSize: 18,
-    fontWeight: '600',
-    color: '#333',
+     color: '#333',
     textAlign: 'center',
     marginBottom: 15,
-    lineHeight:20
+    lineHeight:20 ,
+    fontFamily:font.MonolithRegular
   },
   button: {
     marginTop: 10,
     paddingVertical: 12,
     paddingHorizontal: 25,
-    backgroundColor: 'rgba(21, 190, 119, 1)', // Friendly green button
+    backgroundColor: '#FFCC00', // Friendly green button
     borderRadius: 20,
   },
   buttonText: {
     fontSize: 16,
     color: 'white',
-    fontWeight: '600',
+      fontFamily:font.MonolithRegular
+
   },
 });
 

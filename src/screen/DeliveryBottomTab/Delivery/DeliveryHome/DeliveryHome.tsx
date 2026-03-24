@@ -261,8 +261,7 @@ const DeliveryHome = () => {
             showsVerticalScrollIndicator={false}
             contentContainerStyle={{ paddingBottom: 20 }}
             renderItem={({ item }) => {
-              console.log("sssss",item)
-              return (
+               return (
                 <TouchableOpacity
                   style={styles.card}
                   onPress={() => {

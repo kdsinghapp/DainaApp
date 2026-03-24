@@ -11,7 +11,7 @@ import {
 import font from '../theme/font';
 
 const PillButton = ({ label, onPress, variant = 'primary', disabled }: any) => {
-  const bg = variant === 'primary' ? '#F2C200' : '#2D3A3A';
+  const bg = variant === 'primary' ? '#F2C200' : 'gray';
   const text = variant === 'primary' ? '#1A1A1A' : '#FFFFFF';
   return (
     <Pressable
@@ -123,18 +123,22 @@ const styles = StyleSheet.create({
   section: {
     marginBottom: 14,
     paddingHorizontal: 4,
+    textAlign:"center"
   },
   label: {
     fontSize: 13,
     color: '#6B7280',
     fontFamily: font.MonolithRegular,
+        textAlign:"center"
+
   },
   value: {
     fontSize: 26,
-    fontWeight: 'bold',
-    color: '#F2C200',
+     color: 'black',
     marginTop: 4,
     fontFamily: font.MonolithRegular,
+        textAlign:"center"
+
   },
   message: {
     fontSize: 15,
@@ -158,6 +162,5 @@ const styles = StyleSheet.create({
   buttonLabel: {
     fontSize: 16,
     fontFamily: font.MonolithRegular,
-    fontWeight: '600',
-  },
+   },
 });

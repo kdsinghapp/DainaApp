@@ -586,7 +586,7 @@ const AddParcelApi = async (param: any, setLoading: (loading: boolean) => void) 
 
     if (param.pickupLat) formdata.append("pickupLat", param.pickupLat.toString());
      if (param.droplat) formdata.append("droplat", param.droplat.toString());
-console.log("FormData:", formdata);
+console.log("FormData ---- :", formdata);
     const headers: any = {
       Accept: "application/json",
       Authorization: `Bearer ${token}`,

@@ -133,6 +133,7 @@ export default function InboxDeliver() {
       if (!response.ok) throw new Error(`Server error: ${response.status}`);
 
       const json = await response.json();
+      console.log("dddd",json?.chats)
       // API shape: { status, message, count, chats: [...] }
       setChats(Array.isArray(json?.chats) ? json.chats : []);
     } catch (err: any) {
@@ -198,14 +199,14 @@ export default function InboxDeliver() {
           {/* Name + time */}
           <View style={styles.nameTimeRow}>
             <Text style={styles.name} numberOfLines={1}>
-              {displayName}   {item?.parcelId}
+              {displayName}    
             </Text>
             <Text style={styles.time}>{lastMsgTime}</Text>
           </View>
 
           {/* Tracking ID */}
           <Text style={styles.trackingId} numberOfLines={1}>
-            🏷 {item.trackingId}
+    {item.trackingId}
           </Text>
 
           {/* Last message + badge */}
@@ -214,8 +215,7 @@ export default function InboxDeliver() {
               style={[styles.lastMessage, hasUnread && styles.unreadMessage]}
               numberOfLines={1}
             >
-              {isDeliverySender ? "You: " : ""}
-              {lastMsgText}
+               {lastMsgText}
             </Text>
 
             {hasUnread && (
@@ -226,7 +226,7 @@ export default function InboxDeliver() {
           </View>
 
           {/* Delivery status pill */}
-          <View style={[styles.statusPill, { borderColor: statusColor(item.deliveryStatus) }]}>
+          <View style={[styles.statusPill,  ]}>
             <Text style={[styles.statusText, { color: statusColor(item.deliveryStatus) }]}>
               {item.deliveryStatus}
             </Text>
@@ -422,8 +422,7 @@ const styles = StyleSheet.create({
   },
   statusPill: {
     alignSelf: "flex-start",
-    borderWidth: 1,
-    borderRadius: 20,
+     borderRadius: 20,
     paddingHorizontal: 8,
     paddingVertical: 2,
   },

@@ -20,7 +20,7 @@ export const useParcelDetails = () => {
   const navigation = useNavigation()
   console.log("item",item)
   const fullImageUrl = `https://aitechnotech.in/DAINA${item?.imageUrl}`;
-  const makeOffer = async (amount: any, message: any) => {
+  const makeOffer = async ( amount: any, message: any) => {
     try {
       setIsLoading(true);
       const token = await AsyncStorage.getItem('token');
@@ -35,6 +35,7 @@ export const useParcelDetails = () => {
       formData.append('amount', amount);
       formData.append('message', message);
       //  formData.append('phoneCall', Phone);
+      console.log("formData",formData)
       const response = await axios.post(
         `${base_url}/delivery/make-offer`,
         formData,
@@ -90,8 +91,9 @@ export const useParcelDetails = () => {
       Alert.alert("Error", "Please enter a valid amount");
       return;
     }
-    const result: any = await makeOffer(item?.id || item?.data.parcelId, amountValue, message.trim());
-     if (result?.data?.status == 1) {
+    
+    const result: any = await makeOffer(amountValue, message);
+      if (result?.data?.status == 1) {
       successToast(result?.data?.message)
       navigation.goBack()
 

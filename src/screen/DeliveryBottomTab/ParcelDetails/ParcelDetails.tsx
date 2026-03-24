@@ -85,7 +85,6 @@ const ParcelDetails = () => {
     updateParcelStatus
   } = useParcelDetails();
   const [actionLoading, setActioLoading] = useState(false);
-  console.log("sss",item)
   // Get button configuration based on status - CORRECTED COLOR ACCESS
   const getButtonConfig = () => {
     const currentStatus = item?.deliveryStatus || item?.deliveryStatus;
@@ -289,7 +288,10 @@ const ParcelDetails = () => {
                   <ActivityIndicator size="large" color="#fff" />
                 </View>
               )}
-              <CustomHeader label="Parcel Details" />
+              <View>
+                <SafeAreaView edges={['top']} />
+                <CustomHeader label="Parcel Details" />
+              </View>
             </ImageBackground>
           ) : (
             <ImageBackground
@@ -315,11 +317,11 @@ const ParcelDetails = () => {
               <View style={styles.locationDetails}>
                 <View style={styles.locationItem}>
                   <Text style={styles.locationTitle}>Pickup Location</Text>
-                  <Text style={styles.locationValue}>{item?.pickupLocation || item?.data?.pickup?.location || item?.pickup?.location ||""}</Text>
+                  <Text style={styles.locationValue}>{item?.pickupLocation || item?.data?.pickup?.location || item?.pickup?.location || ""}</Text>
                 </View>
                 <View style={styles.locationItem}>
                   <Text style={styles.locationTitle}>Drop Location</Text>
-                  <Text style={styles.locationValue}>{item?.dropLocation || item?.data?.drop?.location ||item?.drop?.location || ''}</Text>
+                  <Text style={styles.locationValue}>{item?.dropLocation || item?.data?.drop?.location || item?.drop?.location || ''}</Text>
                 </View>
               </View>
             </View>
@@ -328,10 +330,16 @@ const ParcelDetails = () => {
               <View style={styles.sectionContainer}>
                 <Text style={styles.sectionTitle}>Parcel Information</Text>
 
+                {item?.proposedPrice || item?.data?.price && <Text style={styles.sectionTitle}>Price {item?.proposedPrice || item?.data?.price} ($)
+
+                </Text>
+                }
+
+
                 <View style={styles.infoRow}>
                   <View style={styles.inputContainer}>
                     <Text style={styles.label}>Sender Name</Text>
-                    <Text style={styles.value}>{item?.senderName || item?.data?.sender?.name ||item?.sender?.name ||  ''}  </Text>
+                    <Text style={styles.value}>{item?.senderName || item?.data?.sender?.name || item?.sender?.name || ''}  </Text>
                   </View>
                   <View style={styles.inputContainer}>
                     <Text style={styles.label}>Receiver Name</Text>
@@ -342,8 +350,10 @@ const ParcelDetails = () => {
                 <View style={styles.infoRow}>
                   <View style={styles.inputContainer}>
                     <Text style={styles.label}>Receiver Phone</Text>
-                    <Text style={styles.value}>{item?.receiver?.mobileNumber || item?.data?.receiver?.phone
-                      || ''}</Text>
+                    <Text style={styles.value}>{item?.receiver?.mobileNumber || item?.data?.receiver?.phone || item?.senderPhone ||
+                      ''}
+
+                    </Text>
                   </View>
                   <View style={styles.inputContainer}>
                     <Text style={styles.label}>Package Size</Text>
@@ -582,17 +592,22 @@ const styles = StyleSheet.create({
     paddingTop: 20,
   },
   locationBox: {
-    backgroundColor: "#FAFAFA",
+    backgroundColor: "#FFFFFF", // pure white better shadow deta hai
     borderRadius: 16,
     padding: 14,
     marginBottom: 20,
-    borderWidth: 0.5,
-    borderColor: "#eee",
+
+    // Border (optional soft look)
+    borderColor: "#F0F0F0",
+
+    // iOS Shadow
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    elevation: 2,
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.08,
+    shadowRadius: 6,
+
+    elevation: 5, // 2 se increase karo
+
     flexDirection: "row",
   },
   dotLine: {
@@ -622,7 +637,8 @@ const styles = StyleSheet.create({
     marginBottom: 15,
   },
   locationTitle: {
-    fontWeight: "600",
+    fontFamily: font.MonolithRegular
+    ,
     color: "#000",
     fontSize: 16,
     marginBottom: 4,
@@ -636,9 +652,9 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 18,
-    fontWeight: '700',
     color: '#2c3e50',
     marginBottom: 15,
+    fontFamily: font.MonolithRegular
   },
   infoRow: {
     flexDirection: "row",
@@ -653,7 +669,8 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#3B4051",
     marginBottom: 6,
-    fontWeight: "700"
+    fontFamily: font.MonolithRegular
+
   },
   value: {
     color: "#666",
@@ -671,12 +688,12 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#3B4051",
     marginBottom: 8,
-    fontWeight: "700"
+    fontFamily: font.MonolithRegular
+
   },
   textInput: {
     color: "#000",
     fontSize: 14,
-    fontWeight: "500",
     fontFamily: font.MonolithRegular,
     padding: 0,
   },
@@ -699,7 +716,8 @@ const styles = StyleSheet.create({
   },
   cancelButtonText: {
     fontSize: 16,
-    fontWeight: '600',
+    fontFamily: font.MonolithRegular
+
   },
   progressContainer: {
     marginTop: 20,
