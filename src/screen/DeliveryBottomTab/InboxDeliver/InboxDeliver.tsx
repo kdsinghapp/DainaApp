@@ -108,8 +108,7 @@ export default function InboxDeliver() {
   const [query, setQuery]         = useState("");
   const [error, setError]         = useState<string | null>(null);
 
-  // ── Fetch ───────────────────────────────────────────────────────────────────
-  const fetchChats = useCallback(async (isRefresh = false) => {
+   const fetchChats = useCallback(async (isRefresh = false) => {
     try {
       isRefresh ? setRefreshing(true) : setLoading(true);
       setError(null);
@@ -133,8 +132,7 @@ export default function InboxDeliver() {
       if (!response.ok) throw new Error(`Server error: ${response.status}`);
 
       const json = await response.json();
-      console.log("dddd",json?.chats)
-      // API shape: { status, message, count, chats: [...] }
+       // API shape: { status, message, count, chats: [...] }
       setChats(Array.isArray(json?.chats) ? json.chats : []);
     } catch (err: any) {
       console.error("fetchChats error:", err);
@@ -270,14 +268,20 @@ export default function InboxDeliver() {
       ) : (
         <FlatList
           data={filtered}
-          style={styles.list}
+        style={[
+    styles.list,
+    {
+      marginBottom: 11,
+      flex: 1, // ✅ IMPORTANT
+    },
+  ]}
           keyExtractor={(item) => String(item.parcelId)}
           renderItem={renderItem}
           ItemSeparatorComponent={() => <View style={styles.separator} />}
-          contentContainerStyle={[
-            { paddingBottom: 16 },
-            filtered.length === 0 && styles.emptyContainer,
-          ]}
+      contentContainerStyle={[
+    { paddingBottom: 75 },
+    filtered.length === 0 && styles.emptyContainer,
+  ]}
           showsVerticalScrollIndicator={false}
           ListEmptyComponent={<EmptyState />}
           refreshControl={

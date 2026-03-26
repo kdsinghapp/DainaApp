@@ -42,7 +42,7 @@ export const styles = StyleSheet.create({
     marginHorizontal: 2,
     marginTop: 5,
     borderColor: "#9DB2BF",
-    borderWidth: 0.7
+    borderWidth: 0.2,
   },
   carrierText: {
     fontSize: 14,
@@ -58,8 +58,7 @@ export const styles = StyleSheet.create({
 
   },
   bold: {
-    fontWeight: "600",
-    color: "#111",
+     color: "#111",
     fontFamily: font.MonolithRegular
 
   },
@@ -87,7 +86,9 @@ export const styles = StyleSheet.create({
   },
   acceptText: {
     color: "#fff",
-    fontWeight: "600",
+    fontFamily: font.MonolithRegular ,
+ 
+
   },
   counterText: {
     color: "#fff",
@@ -97,7 +98,9 @@ export const styles = StyleSheet.create({
   },
   chatText: {
     color: "#fff",
-    fontWeight: "600",
+      fontFamily: font.MonolithRegular ,
+ 
+
   },
 
 

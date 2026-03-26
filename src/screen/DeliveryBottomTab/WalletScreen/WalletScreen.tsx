@@ -22,12 +22,7 @@ const WalletScreen = () => {
   const [amount, setAmount] = useState("");
 
   const transactions = [
-    { id: "1", name: "Abram Cullbane", amount: 50, date: "6 June 2024", type: "out" },
-    { id: "2", name: "Markey Press", amount: 26, date: "6 June 2024", type: "in" },
-    { id: "3", name: "M. Patrick", amount: 43, date: "6 June 2024", type: "in" },
-    { id: "4", name: "Rajna Weaslewt", amount: 15, date: "9 June 2024", type: "out" },
-    { id: "5", name: "Koach Borjiso", amount: 63, date: "9 June 2024", type: "in" },
-    { id: "6", name: "Hanna Ekstorm Bothman", amount: 10, date: "9 June 2024", type: "out" },
+ 
   ];
 
   const handleConfirm = () => {
@@ -80,7 +75,7 @@ const WalletScreen = () => {
       {/* Balance Card */}
       <View style={styles.balanceCard}>
         <Text style={styles.balanceText}>Your Available Balance</Text>
-        <Text style={styles.balanceAmount}>${balance.toLocaleString()}</Text>
+        <Text style={styles.balanceAmount}>$ 00</Text>
         <View style={styles.buttonRow}>
           <TouchableOpacity
             style={styles.withdrawBtn}

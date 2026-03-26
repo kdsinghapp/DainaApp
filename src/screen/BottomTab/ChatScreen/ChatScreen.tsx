@@ -115,12 +115,11 @@ const ChatScreen = () => {
   const navigation = useNavigation();
   const route = useRoute();
   const { item } = (route?.params as any) || {};
-  const parcelId = item?.parcelId;
-
+  const parcelId = item?.parcelId || item?.id;
   const [counterModalVisible, setCounterModalVisible] = useState(false);
   const [offerModalVisible, setOfferModalVisible] = useState(false);
 
-  const userData: any = useSelector((state: any) => state.auth.userData);
+  const userData: any = useSelector((state: any) => state?.auth?.userData);
   const [messages, setMessages] = useState<Message[]>([]);
   const rawDatesRef = useRef<Record<string, string>>({});
   const [inputText, setInputText] = useState("");
@@ -401,20 +400,19 @@ const ChatScreen = () => {
     item?.carrierName ??
     item?.parcelOwner?.name ??
     item?.driver?.name ??
-    item?.user?.firstName ?? "Delivery Agent";
+    item?.user?.firstName ?? item?.assignedDriver?.name ?? "Delivery Agent";
 
   const agentImage =
     chattingWith?.image ??
     item?.deliveryUser?.profile_image ??
     item?.parcelOwner?.image ??
-    item?.driver?.image ?? item?.user?.image
+    item?.driver?.image ?? item?.user?.image ?? item?.assignedDriver?.image
   null;
 
-  const agentPhone =
-    chattingWith?.phone ??
-    item?.parcelOwner?.phone ?? item?.user?.phone
+  const agentPhone =chattingWith?.phone ??
+    item?.parcelOwner?.phone ?? item?.user?.phone ?? item?.assignedDriver?.phone
   null;
-  const listItems = buildListItems(messages, rawDatesRef.current);
+  const listItems = buildListItems(messages, rawDatesRef?.current);
 
   const renderItem = ({ item: listItem }: { item: ListItem }) => {
     if (listItem.type === "separator") {
@@ -460,7 +458,7 @@ const ChatScreen = () => {
       </View>
     );
   };
-   return (
+  return (
     <SafeAreaView style={styles.container}>
       <StatusBarComponent />
       {/* ── Header ── */}

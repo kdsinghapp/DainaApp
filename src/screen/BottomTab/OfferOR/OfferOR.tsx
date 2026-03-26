@@ -35,7 +35,7 @@ export default function OfferOR() {
 
   const OfferCard = ({ item, onCounterPress }: any) => {
     console.log("item",item)
-    return (
+     return (
       <View style={styles.card}>
         <View style={{
           flexDirection: "row",
@@ -52,8 +52,8 @@ export default function OfferOR() {
             <Image source={imageIndex.Calls}
 
               style={{
-                height: 25,
-                width: 25,
+                height: 36,
+                width: 36,
 
               }}
             />

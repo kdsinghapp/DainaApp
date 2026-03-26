@@ -337,8 +337,8 @@ const TripMap = () => {
     }
   };
 
-
-  const statusKey = item.deliveryStatus;
+console.log("item trip",item)
+  const statusKey = item?.deliveryStatus;
   const statusLabel = STATUS_LABELS[statusKey] || 'Unknown';
   const statusColor = STATUS_COLORS[statusKey] || 'black';
   return (
@@ -348,6 +348,7 @@ const TripMap = () => {
       <TouchableWithoutFeedback onPress={dismissKeyboard} accessible={false}>
         <View style={styles.mapWrap}>
           <MapView
+          mapType='standard'
             ref={mapRef}
             provider={PROVIDER_GOOGLE}
             style={[styles.mapView, Platform.OS === 'ios' && { height: Dimensions.get('window').height }]}
@@ -488,14 +489,16 @@ const TripMap = () => {
             <View>
 
               {/* <Text style={styles.driverName}>Marcus Aminoff</Text> */}
-              <Text style={styles.driverName}>{item?.user?.firstName || event?.sender.name || ""}</Text>
+              <Text style={styles.driverName}>{item?.user?.firstName || event?.sender.name || ""}. </Text>
               <Text style={styles.carDetails}>{item?.user?.phone}</Text>
+              <Text style={styles.carDetails}>{item?.trackingId}</Text>
               <Text style={styles.carDetails}>{item?.patient_details?.mobile_number}</Text>
 
             </View>
             <Text style={[styles.timeText, { right: 0, color: statusColor }]}>{statusLabel}</Text>
-
+ 
           </View>
+              
 
           <View style={styles.buttonRow}>
 

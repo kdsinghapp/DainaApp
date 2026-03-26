@@ -296,7 +296,10 @@ export default function ChatInboxScreen() {
       <StatusBarComponent />
 
       <Text style={styles.header}>Inbox</Text>
-<ScrollView showsVerticalScrollIndicator={false}>
+<ScrollView 
+
+
+showsVerticalScrollIndicator={false}>
       {/* Search */}
       <View style={styles.searchBox}>
          <TextInput

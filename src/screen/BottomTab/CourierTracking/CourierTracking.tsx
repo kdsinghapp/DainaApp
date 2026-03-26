@@ -475,13 +475,13 @@ const CourierTrackingScreen = () => {
           showsVerticalScrollIndicator={false}
         >
           {/* Rapido-style ETA strip: X mins • Y km */}
-          {routePointsValid && (
+          {/* {routePointsValid && (
             <View style={styles.etaStrip}>
               <Text style={styles.etaStripText}>{eta}</Text>
               <Text style={styles.etaStripDot}>•</Text>
               <Text style={styles.etaStripDistance}>{(distance != null ? distance.toFixed(1) : "—")} km</Text>
             </View>
-          )}
+          )} */}
           <View style={styles.driverSection}>
             {driver?.image ? (
               <Image source={{ uri: driver?.image }} style={styles.avatar} />
@@ -494,6 +494,13 @@ const CourierTrackingScreen = () => {
                 flex: 1
               }]} numberOfLines={1}>
                 {driver?.name || "Assigning driver..."}
+              </Text>
+              <Text style={[styles.driverName, {
+                flex: 1
+              }]}
+                numberOfLines={1}
+              >
+                {item?.trackingId || ""}
               </Text>
 
               <Text
@@ -524,12 +531,16 @@ const CourierTrackingScreen = () => {
                 >
                   <Image source={imageIndex.Calls} style={styles.iconBtn} />
                 </TouchableOpacity>
-                {/* <TouchableOpacity
+                <TouchableOpacity
                   style={styles.btnChat}
-                  onPress={() => nav.navigate(ScreenNameEnum.ChatScreen)}
+                  onPress={() => {
+                    nav.navigate(ScreenNameEnum.ChatScreen, {
+                      item: parcel,
+                    })
+                  }}
                 >
                   <Image source={imageIndex.messtrcker} style={styles.iconBtn} />
-                </TouchableOpacity> */}
+                </TouchableOpacity>
               </View>
             </View>
             {isDelivered ? (
@@ -680,22 +691,12 @@ const styles = StyleSheet.create({
   vehicleInfo: { fontSize: 13, color: "#6B7280", fontFamily: font.MonolithRegular, marginTop: 2 },
   actionButtons: { flexDirection: "row", gap: 10, marginTop: 10 },
   btnCall: {
-    width: 42,
-    height: 42,
-    borderRadius: 21,
-    backgroundColor: "#D1FAE5",
-    justifyContent: "center",
-    alignItems: "center",
+
   },
   btnChat: {
-    width: 42,
-    height: 42,
-    borderRadius: 21,
-    backgroundColor: "#DBEAFE",
-    justifyContent: "center",
-    alignItems: "center",
+
   },
-  iconBtn: { width: 20, height: 20, resizeMode: "contain" },
+  iconBtn: { width: 45, height: 45, resizeMode: "contain" },
   otpContainer: {
     paddingHorizontal: 12,
     paddingVertical: 10,
@@ -726,7 +727,8 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#374151",
     marginBottom: 10,
-    fontFamily: font.MonolithRegular
+    fontFamily: font.MonolithRegular,
+
   },
   grid: { flexDirection: "row", gap: 10 },
   gridItem: {
