@@ -8,5 +8,7 @@
 	<true/>
 	<key>com.apple.developer.location.push</key>
 	<true/>
+	<key>com.apple.developer.push-to-talk</key>
+	<true/>
 </dict>
 </plist>

@@ -1,10 +1,7 @@
+// babel.config.js
 module.exports = {
   presets: ['module:@react-native/babel-preset'],
   plugins: [
-    'react-native-reanimated/plugin', // <-- required for Reanimated 2+
+    'react-native-reanimated/plugin', // ← Yeh LAST mein hona chahiye
   ],
-  // plugins: [
-  //   ["react-native-worklets-core/plugin"],
-  //   // other plugins like 'react-native-reanimated/plugin' if used
-  // ],
 };

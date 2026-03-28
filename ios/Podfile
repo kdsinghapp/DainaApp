@@ -1,9 +1,111 @@
-# Resolve react_native_pods.rb with node to allow for hoisting
 # require Pod::Executable.execute_command('node', ['-p',
 #   'require.resolve(
 #     "react-native/scripts/react_native_pods.rb",
 #     {paths: [process.argv[1]]},
 #   )', __dir__]).strip
+
+# platform :ios, '15.1'
+# prepare_react_native_project!
+
+# # ✅ MOVED OUTSIDE - always apply static frameworks
+
+# target 'ChewbeApp' do
+#   config = use_native_modules!
+# use_frameworks! :linkage => :static
+
+#   # ✅ Firebase static framework flag - must be before pods
+#   $RNFirebaseAsStaticFramework = true
+
+#   # ✅ Firebase pods with modular headers
+#   pod 'FirebaseCore', :modular_headers => true
+#   pod 'FirebaseMessaging', :modular_headers => true
+#   pod 'FirebaseInstallations', :modular_headers => true
+#   pod 'GoogleUtilities', :modular_headers => true
+
+#   # ✅ Google Maps
+#   pod 'react-native-google-maps', :path => '../node_modules/react-native-maps'
+
+#   use_react_native!(
+#     :path => config[:reactNativePath],
+#     :fabric_enabled => true,
+#     :hermes_enabled => true,
+#     :app_path => "#{Pod::Config.instance.installation_root}/.."
+#   )
+
+#   post_install do |installer|
+#     react_native_post_install(
+#       installer,
+#       config[:reactNativePath],
+#       :mac_catalyst_enabled => false
+#     )
+
+#     installer.pods_project.targets.each do |target|
+#       target.build_configurations.each do |config|
+#         config.build_settings['CLANG_ALLOW_NON_MODULAR_INCLUDES_IN_FRAMEWORK_MODULES'] = 'YES'
+#         # ✅ ADD THESE - fixes DarwinFoundation / UIKit module errors
+#         config.build_settings['SWIFT_VERSION'] = '5.0'
+#         config.build_settings['BUILD_LIBRARY_FOR_DISTRIBUTION'] = 'NO'
+#       end
+#     end
+#   end
+# end
+
+
+
+
+# require Pod::Executable.execute_command('node', ['-p',
+#   'require.resolve(
+#     "react-native/scripts/react_native_pods.rb",
+#     {paths: [process.argv[1]]},
+#   )', __dir__]).strip
+
+# platform :ios, '15.1'
+# prepare_react_native_project!
+
+# target 'ChewbeApp' do
+#   config = use_native_modules!
+
+#   # ✅ Pehle flag set karo
+#   $RNFirebaseAsStaticFramework = true
+
+#   # ✅ Phir frameworks declare karo
+#   use_frameworks! :linkage => :static
+
+#   # ✅ Firebase pods
+#   pod 'FirebaseCore', :modular_headers => true
+#   pod 'FirebaseMessaging', :modular_headers => true
+#   pod 'FirebaseInstallations', :modular_headers => true
+#   pod 'GoogleUtilities', :modular_headers => true
+
+#   # ✅ Google Maps
+#   pod 'react-native-google-maps', :path => '../node_modules/react-native-maps'
+
+#   use_react_native!(
+#     :path => config[:reactNativePath],
+#     :fabric_enabled => true,
+#     :hermes_enabled => true,
+#     :app_path => "#{Pod::Config.instance.installation_root}/.."
+#   )
+
+#   post_install do |installer|
+#     react_native_post_install(
+#       installer,
+#       config[:reactNativePath],
+#       :mac_catalyst_enabled => false
+#     )
+
+#     installer.pods_project.targets.each do |target|
+#       target.build_configurations.each do |config|
+#         config.build_settings['CLANG_ALLOW_NON_MODULAR_INCLUDES_IN_FRAMEWORK_MODULES'] = 'YES'
+#         config.build_settings['SWIFT_VERSION'] = '5.0'
+#         config.build_settings['BUILD_LIBRARY_FOR_DISTRIBUTION'] = 'NO'
+#       end
+#     end
+#   end
+# end
+
+
+
 require Pod::Executable.execute_command('node', ['-p',
   'require.resolve(
     "react-native/scripts/react_native_pods.rb",
@@ -13,32 +115,39 @@ require Pod::Executable.execute_command('node', ['-p',
 platform :ios, '15.1'
 prepare_react_native_project!
 
-# Google Maps for iOS (fixes map + polyline not showing on iOS)
-pod 'react-native-google-maps', :path => '../node_modules/react-native-maps'
-
-linkage = ENV['USE_FRAMEWORKS'] 
-if linkage != nil
-  Pod::UI.puts "Configuring Pod with #{linkage}ally linked Frameworks".green
-  # use_frameworks! :linkage => linkage.to_sym
-  use_frameworks! :linkage => :static
-
-end
+# ✅ Target block se BAHAR - yahi fix hai
+$RNFirebaseAsStaticFramework = true
 
 target 'ChewbeApp' do
   config = use_native_modules!
-  # Firebase related pods removed
-  # $RNFirebaseAsStaticFramework = true
-  # pod 'FirebaseCore', :modular_headers => true
-  # pod 'FirebaseMessaging', :modular_headers => true
-  # pod 'FirebaseInstallations', :modular_headers => true
-  # pod 'GoogleUtilities', :modular_headers => true
 
+  # ✅ Frameworks declare karo
+  use_frameworks! :linkage => :static
+
+  # ✅ Firebase pods
+  pod 'FirebaseCore', :modular_headers => true
+  pod 'FirebaseMessaging', :modular_headers => true
+  pod 'FirebaseInstallations', :modular_headers => true
+  pod 'GoogleUtilities', :modular_headers => true
+
+  # ✅ Google Maps
+  pod 'react-native-google-maps', :path => '../node_modules/react-native-maps'
+
+  # use_react_native!(
+  #   :path => config[:reactNativePath],
+  #   :fabric_enabled => false,
+  #   :hermes_enabled => true,
+  # # Yeh line comment karo ya false karo
+  #   :new_arch_enabled => false
+  #   :app_path => "#{Pod::Config.instance.installation_root}/.."
+  # )
   use_react_native!(
-    :path => config[:reactNativePath],
-    :fabric_enabled => true,
-    :hermes_enabled => true,
-    :app_path => "#{Pod::Config.instance.installation_root}/.."
-  )
+  :path => config[:reactNativePath],
+  :fabric_enabled => false,
+  :hermes_enabled => true,
+  :new_arch_enabled => false,
+  :app_path => "#{Pod::Config.instance.installation_root}/.."
+)
 
   post_install do |installer|
     react_native_post_install(
@@ -50,6 +159,8 @@ target 'ChewbeApp' do
     installer.pods_project.targets.each do |target|
       target.build_configurations.each do |config|
         config.build_settings['CLANG_ALLOW_NON_MODULAR_INCLUDES_IN_FRAMEWORK_MODULES'] = 'YES'
+        config.build_settings['SWIFT_VERSION'] = '5.0'
+        config.build_settings['BUILD_LIBRARY_FOR_DISTRIBUTION'] = 'NO'
       end
     end
   end

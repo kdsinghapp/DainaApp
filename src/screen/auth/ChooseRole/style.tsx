@@ -88,8 +88,8 @@ export const styles = StyleSheet.create({
   },
   nextButtonText: {
     color: 'white',
-    fontSize: 18,
-    fontWeight: '900',
-  },
+    fontSize: 16,
+    fontFamily:font.MonolithRegular
+   },
 
  });

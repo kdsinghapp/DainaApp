@@ -330,10 +330,11 @@ const ParcelDetails = () => {
               <View style={styles.sectionContainer}>
                 <Text style={styles.sectionTitle}>Parcel Information</Text>
 
-                {item?.proposedPrice || item?.data?.price && <Text style={styles.sectionTitle}>Price {item?.proposedPrice || item?.data?.price} ($)
+                 
+                <Text style={styles.sectionTitle}>Price {item?.proposedPrice || item?.data?.price}  
 
                 </Text>
-                }
+          
 
 
                 <View style={styles.infoRow}>

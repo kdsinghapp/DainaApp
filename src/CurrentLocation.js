@@ -67,8 +67,7 @@ const CurrentLocation = forwardRef(({ onLocationFetched }, ref) => {
     });
   };
 
-  // Expose the function to parent
-  useImperativeHandle(ref, () => ({
+   useImperativeHandle(ref, () => ({
     fetchLocation,
   }));
 

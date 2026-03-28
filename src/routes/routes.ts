@@ -1,17 +1,17 @@
- import SocialLogin from "../screen/auth/SocialLogin/SocialLogin";
-  import OnboardingScreen from "../screen/auth/Onboarding/Onboarding";
-  import ScreenNameEnum from "./screenName.enum";
- import TabNavigator from "../navigators/TabNavigation";
- import NotificationsScreen from "../screen/Notification/Notification";
- import Sinup from "../screen/auth/sinup/Sinup";
- import ChangePassword from "../screen/Profile/ChangePassword/ChangePassword";
+import SocialLogin from "../screen/auth/SocialLogin/SocialLogin";
+import OnboardingScreen from "../screen/auth/Onboarding/Onboarding";
+import ScreenNameEnum from "./screenName.enum";
+import TabNavigator from "../navigators/TabNavigation";
+import NotificationsScreen from "../screen/Notification/Notification";
+// import Sinup from "../screen/auth/sinup/Sinup";
+import ChangePassword from "../screen/Profile/ChangePassword/ChangePassword";
 import HelpScreen from "../screen/Profile/Help/Helps";
 import Splash from "../screen/auth/Splash/Splash";
 import UploadDocumentsScreen from "../screen/auth/UploadDocumentsScreen/UploadDocumentsScreen";
 import PhoneLogin from "../screen/auth/PhoneLogin/PhoneLogin";
 import OtpScreen from "../screen/auth/OTPScreen/OtpScreen";
 import ProfileSetup from "../screen/auth/ProfileSetup/ProfileSetup";
- import OfferOR from "../screen/BottomTab/OfferOR/OfferOR";
+import OfferOR from "../screen/BottomTab/OfferOR/OfferOR";
 import ViewDetails from "../screen/BottomTab/Orders/ViewDetails";
 import LegalPoliciesScreen from "../screen/Profile/LegalPoliciesScreen";
 import PrivacyPolicy from "../screen/Profile/PrivacyPolicy";
@@ -21,7 +21,7 @@ import ChatScreen from "../screen/BottomTab/ChatScreen/ChatScreen";
 import OrdersPrfile from "../screen/Profile/OrdersPrfile/OrdersPrfile";
 import CourierTrackingScreen from "../screen/BottomTab/CourierTracking/CourierTracking";
 import DeliveryTabNavigator from "../navigators/DeliveryTabNavigator";
- import TripMap from "../screen/DeliveryBottomTab/TripMap/TripMap";
+import TripMap from "../screen/DeliveryBottomTab/TripMap/TripMap";
 import WalletScreen from "../screen/DeliveryBottomTab/WalletScreen/WalletScreen";
 import EarningsScreen from "../screen/DeliveryBottomTab/EarningsScreen/EarningsScreen";
 import HelpSupport from "../screen/DeliveryBottomTab/HelpSupport/HelpSupport";
@@ -36,16 +36,13 @@ import DeliveryRequest from "../screen/DeliveryBottomTab/Delivery/DeliveryHome/D
 import PickupLocationRapido from "../screen/BottomTab/PickupLocationRapido/PickupLocationRapido";
 import CreateParcelFrom from "../screen/BottomTab/DashBoard/CreateParcel/CreateParcelFrom";
 import NearbyDriversMap from "../screen/BottomTab/NearbyDriversMap/NearbyDriversMap";
-  const _routes: any = {
+const _routes: any = {
   REGISTRATION_ROUTE: [
     {
       name: ScreenNameEnum.SPLASH_SCREEN,
       Component: Splash,
     },
-    {
-      name: ScreenNameEnum.Sinup,
-      Component: Sinup,
-    },
+  
     {
       name: ScreenNameEnum.ChooseRole,
       Component: ChooseRole,
@@ -58,7 +55,7 @@ import NearbyDriversMap from "../screen/BottomTab/NearbyDriversMap/NearbyDrivers
       name: ScreenNameEnum.NotificationsSetting,
       Component: NotificationsSetting,
     },
-       {
+    {
       name: ScreenNameEnum.CreateParcelFrom,
       Component: CreateParcelFrom,
     },
@@ -75,25 +72,25 @@ import NearbyDriversMap from "../screen/BottomTab/NearbyDriversMap/NearbyDrivers
       Component: EarningsScreen,
     },
 
-    
+
     {
       name: ScreenNameEnum.DocumentShow,
       Component: DocumentShow,
     },
 
-    
-    
+
+
     {
       name: ScreenNameEnum.NearbyDriversMap,
       Component: NearbyDriversMap,
     },
 
-    
+
     {
       name: ScreenNameEnum.ProfileSetup,
       Component: ProfileSetup,
     },
-    
+
     {
       name: ScreenNameEnum.UploadDocumentsScreen,
       Component: UploadDocumentsScreen,
@@ -135,78 +132,78 @@ import NearbyDriversMap from "../screen/BottomTab/NearbyDriversMap/NearbyDrivers
       name: ScreenNameEnum.PhoneLogin,
       Component: PhoneLogin,
     },
-   
+
     {
       name: ScreenNameEnum.changePassword,
       Component: ChangePassword,
     },
-    
+
     {
       name: ScreenNameEnum.Help,
       Component: HelpScreen,
     },
-       {
+    {
       name: ScreenNameEnum.TabNavigator,
       Component: TabNavigator,
     },
-     
-       {
+
+    {
       name: ScreenNameEnum.PrivacyPolicy,
       Component: PrivacyPolicy,
     },
-       {
+    {
       name: ScreenNameEnum.LegalPoliciesScreen,
       Component: LegalPoliciesScreen,
     },
-       {
+    {
       name: ScreenNameEnum.PickupLocationRapido,
       Component: PickupLocationRapido,
     },
- 
-       {
+
+    {
       name: ScreenNameEnum.ViewDetails,
       Component: ViewDetails,
     },
- 
-  
-     {
+
+
+    {
       name: ScreenNameEnum.NotificationsScreen,
       Component: NotificationsScreen,
     },
-  
-     {
+
+    {
       name: ScreenNameEnum.OfferOR,
       Component: OfferOR,
     },
-  
-     {
+
+    {
       name: ScreenNameEnum.DeliveryRequest,
       Component: DeliveryRequest,
     },
-    
-     {
+
+    {
       name: ScreenNameEnum.PickupFromLocation,
       Component: CreateParcelFrom,
     },
-     {
+    {
       name: ScreenNameEnum.DeliveryTabNavigator,
       Component: DeliveryTabNavigator,
     },
-    
-     {
+
+    {
       name: ScreenNameEnum.TripMap,
       Component: TripMap,
     },
-    
-     {
+
+    {
       name: ScreenNameEnum.ParcelDetails,
       Component: ParcelDetails,
     },
-     {
+    {
       name: ScreenNameEnum.AllOrder,
       Component: AllOrder,
     },
-     {
+    {
       name: ScreenNameEnum.RequestLoading,
       Component: RequestLoading,
     },
@@ -214,7 +211,7 @@ import NearbyDriversMap from "../screen/BottomTab/NearbyDriversMap/NearbyDrivers
     //   name: ScreenNameEnum.DocumentShow,
     //   Component: DocumentShow,
     // },
-    
+
   ],
 
 

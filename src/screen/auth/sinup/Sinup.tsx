@@ -2,8 +2,7 @@ import React from 'react';
 import { View, StyleSheet, SafeAreaView } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useNavigation } from '@react-navigation/native';
-import FastImage from 'react-native-fast-image';
-
+ 
 import imageIndex from '../../../assets/imageIndex';
 import { color } from '../../../constant';
 import StatusBarComponent from '../../../compoent/StatusBarCompoent';
@@ -22,11 +21,11 @@ const Sinup: React.FC = () => {
     <SafeAreaView style={styles.safeArea}>
       <StatusBarComponent backgroundColor={color.baground} />
       <View style={styles.container}>
-        <FastImage
+        {/* <FastImage
           style={styles.logo}
           source={imageIndex.appLogo}
           resizeMode={FastImage.resizeMode.contain}
-        />
+        /> */}
         {/* Empty View to push button to bottom */}
         <View style={styles.flexGrow} />
         <View style={styles.buttonContainer}>

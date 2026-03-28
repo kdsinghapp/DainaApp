@@ -1,34 +1,89 @@
 import UIKit
 import React
 import React_RCTAppDelegate
-import ReactAppDependencyProvider
+import Firebase
+import FirebaseMessaging
+import UserNotifications
 import GoogleMaps
 
 @main
-class AppDelegate: RCTAppDelegate {
-  override func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
-    // Google Maps SDK for iOS (required for map + polyline on iOS)
+class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate, MessagingDelegate {
+
+  override func application(
+    _ application: UIApplication,
+    didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
+  ) -> Bool {
+
+    NSLog("🚀 AppDelegate: application didFinishLaunchingWithOptions started")
+
+    // ✅ Initialize Google Maps
     GMSServices.provideAPIKey("AIzaSyDgFGS91BvviXh_f-nmvtEggUHJcaGyUwA")
 
-    self.moduleName = "ChewbeApp"
-    self.dependencyProvider = RCTAppDependencyProvider()
+    // ✅ Configure Firebase (Manual initialization as fallback for missing plist bundle resource)
+    if FirebaseApp.app() == nil {
+        let options = FirebaseOptions(googleAppID: "1:611091033833:ios:43e2501ab537782dcd4a78",
+                                     gcmSenderID: "611091033833")
+        options.apiKey = "AIzaSyDBzgFyCmQOJXoUJc20w1lxa8UTgpXgF1s"
+        options.projectID = "dainaapp-e287f"
+        options.storageBucket = "dainaapp-e287f.firebasestorage.app"
+        options.bundleID = "com.KMMPRPE"
+        FirebaseApp.configure(options: options)
+        NSLog("✅ AppDelegate: Firebase manual configuration applied successfully.")
+    } else {
+        NSLog("ℹ️ AppDelegate: Firebase already configured.")
+    }
 
-    // You can add your custom initial props in the dictionary below.
-    // They will be passed down to the ViewController used by React Native.
+    // ✅ Push Notification Setup
+    UNUserNotificationCenter.current().delegate = self
+    Messaging.messaging().delegate = self
+    application.registerForRemoteNotifications()
+
+    self.moduleName = "ChewbeApp"
     self.initialProps = [:]
 
+    NSLog("🏁 AppDelegate: Calling super.application")
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
   }
 
+  @objc override func application(_ application: UIApplication,
+                            didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
+    Messaging.messaging().apnsToken = deviceToken
+    NSLog("✅ AppDelegate: APNs token set successfully.")
+  }
+
+  @objc override func application(_ application: UIApplication,
+                            didFailToRegisterForRemoteNotificationsWithError error: Error) {
+    NSLog("❌ AppDelegate: APNs registration failed: (error.localizedDescription)")
+  }
+
+  // ✅ MessagingDelegate
+  func messaging(_ messaging: Messaging, didReceiveRegistrationToken fcmToken: String?) {
+    NSLog("✅ AppDelegate: FCM Token received: \(fcmToken ?? "none")")
+  }
+
+  // ✅ Foreground notification
+  func userNotificationCenter(_ center: UNUserNotificationCenter,
+                               willPresent notification: UNNotification,
+                               withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
+    completionHandler([.banner, .sound, .badge])
+  }
+
+  // ✅ Notification tap
+  func userNotificationCenter(_ center: UNUserNotificationCenter,
+                               didReceive response: UNNotificationResponse,
+                               withCompletionHandler completionHandler: @escaping () -> Void) {
+    completionHandler()
+  }
+
   override func sourceURL(for bridge: RCTBridge) -> URL? {
-    self.bundleURL()
+    return self.bundleURL()
   }
 
   override func bundleURL() -> URL? {
-#if DEBUG
-    RCTBundleURLProvider.sharedSettings().jsBundleURL(forBundleRoot: "index")
-#else
-    Bundle.main.url(forResource: "main", withExtension: "jsbundle")
-#endif
+    #if DEBUG
+    return RCTBundleURLProvider.sharedSettings().jsBundleURL(forBundleRoot: "index")
+    #else
+    return Bundle.main.url(forResource: "main", withExtension: "jsbundle")
+    #endif
   }
 }

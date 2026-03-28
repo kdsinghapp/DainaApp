@@ -1,5 +1,5 @@
 // PhoneLoginScreen.js
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { 
   View, Text, Image, TextInput, TouchableOpacity, StyleSheet, 
   KeyboardAvoidingView, Platform, Modal, FlatList 
@@ -14,8 +14,10 @@ import Constcounty from "./Constcounty";
 import { LogiApi } from "../../../Api/apiRequest";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import LoadingModal from "../../../utils/Loader";
+import NotificationService from "../../../services/NotificationService";
 const PhoneLogin = () => {
-  const [phoneNumber, setPhoneNumber] = useState("");  
+  const [phoneNumber, setPhoneNumber] = useState("654765435434");  
+  // const [phoneNumber, setPhoneNumber] = useState("9445433323");  
   // const [phoneNumber, setPhoneNumber] = useState("9565466565");  
  //  user
   //  const [phoneNumber, setPhoneNumber] = useState("");  
@@ -28,6 +30,39 @@ const PhoneLogin = () => {
   const [filteredCountries, setFilteredCountries] = useState(Constcounty);
 const navigation  = useNavigation();
   const [error, setError] = useState(""); // For error message
+ 
+  // useEffect(() => {
+  //   initNotifications();
+
+  
+  // }, []);
+
+  const initNotifications = async () => {
+    try {
+      // Step 1: iOS ke liye register
+      await NotificationService.registerAppWithFCM();
+
+      // Step 2: Permission maango
+      const granted = await NotificationService.requestPermission();
+      if (!granted) {
+        console.log('Notification permission denied — stopping init');
+        return;
+      }
+
+      // Step 3: Android notification channel banao
+      await NotificationService.createChannel();
+
+      // Step 4: FCM token lo
+      await NotificationService.getFcmToken();
+
+      // Step 5: Foreground listeners setup karo
+      const unsubscribe = NotificationService.setupListeners();
+ 
+      console.log('Notifications initialized successfully');
+    } catch (error) {
+      console.log('Notification init error:', error);
+    }
+  };
 
   useEffect(() => {
     if (searchText === "") {

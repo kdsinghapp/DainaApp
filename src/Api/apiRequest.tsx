@@ -97,13 +97,15 @@ const LogiApi = async (
 
 const Verifyotp = async (param: any, setLoading: any, dispatch: any) => {
   setLoading(true);
-
+    const fcmToken = await AsyncStorage.getItem('fcmToken');
+console.log("fcmToken --- ",fcmToken)
   try {
     // ✅ Create FormData
     const formdata = new FormData();
     formdata.append('countryCode', param?.code || '');
     formdata.append('phoneNumber', param?.phone || '');
     formdata.append('otp', param?.otp || '');
+    formdata.append('fcmToken', fcmToken || '');
         // formdata.append('otp', "9999" || '');
 
     const response = await fetch(`${base_url}/verify-otp`, {

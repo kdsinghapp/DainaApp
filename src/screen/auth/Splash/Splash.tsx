@@ -1,9 +1,8 @@
 import React, { useEffect, useRef } from 'react';
-import { Animated, ImageBackground, View, Text } from 'react-native';
+import { Animated, ImageBackground, View, Text, Image } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useNavigation } from '@react-navigation/native';
-import FastImage from 'react-native-fast-image';
-import ScreenNameEnum from '../../../routes/screenName.enum';
+ import ScreenNameEnum from '../../../routes/screenName.enum';
 import { color } from '../../../constant';
 import imageIndex from '../../../assets/imageIndex';
 import StatusBarComponent from '../../../compoent/StatusBarCompoent';
@@ -68,11 +67,16 @@ const Splash: React.FC = () => {
       {/* Center content */}
       <View style={styles.centerContent}>
         <Animated.View style={{ opacity: fadeAnim }}>
-          <FastImage
+          <Image 
+             source={imageIndex.appLogo1}
+                         style={styles.logo}
+
+          />
+          {/* <FastImage
             style={styles.logo}
             source={imageIndex.appLogo1}
             resizeMode={FastImage.resizeMode.contain}
-          />
+          /> */}
         </Animated.View>
       </View>
 

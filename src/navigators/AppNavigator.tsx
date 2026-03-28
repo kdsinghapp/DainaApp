@@ -11,7 +11,6 @@ import toastConfig from '../utils/customToast';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 import 'react-native-reanimated';
-
 const AppNavigator: React.FC = () => {
   const [isConnected, setIsConnected] = useState<boolean>(true);
 
@@ -28,16 +27,14 @@ const AppNavigator: React.FC = () => {
     <Provider store={store}>
       <PersistGate loading={null} persistor={persistor}>
         <GestureHandlerRootView  >
-
           <NavigationContainer>
             <NetworkStatusModal
               modalVisible={!isConnected}
               offlineText="No Internet! Please check your connection."
             />
-
+           
             <RegistrationRoutes />
             <Toast config={toastConfig} />
-
           </NavigationContainer>
         </GestureHandlerRootView>
 
