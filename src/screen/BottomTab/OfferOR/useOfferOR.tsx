@@ -51,7 +51,8 @@ export const useOfferOR = () => {
         return;
       }
         //  const apiUrl = `${base_url}/ooffers/${id}/accept`;
-       const apiUrl = `https://aitechnotech.in/DAINA/api/offers/${id}/accept`;
+        const apiUrl = `${base_url}/offers/${id}/accept`;
+      //  const apiUrl = `https://aitechnotech.in/DAINA/api/offers/${id}/accept`;
       const response = await fetch(apiUrl, {
         method: 'POST',
         headers: {

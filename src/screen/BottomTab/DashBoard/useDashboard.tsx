@@ -41,6 +41,10 @@ const useDashboard = () => {
     }
   }, [ctx]);
 
+  useEffect(()=>{
+  getParceldetailsApi(setLoading)
+  },[])
+
   useEffect(() => {
     if (ctx) {
       registerOrderUpdateCallback(() => getParceldetailsApi(setLoading));

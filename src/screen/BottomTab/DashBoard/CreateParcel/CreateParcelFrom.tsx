@@ -215,9 +215,12 @@ const CreateParcelFrom = () => {
         //   parcelId: response,
         //   pickupLocation: pickupLocation?.address
         // })
-        navgatoon.replace(ScreenNameEnum.RequestLoading, {
+        navgatoon.replace(ScreenNameEnum.NearbyDriversMap, {
           parcelId: response,
         })
+        // navgatoon.replace(ScreenNameEnum.RequestLoading, {
+        //   parcelId: response,
+        // })
         successToast("Pickup request submitted successfully!");
       }
     } else {

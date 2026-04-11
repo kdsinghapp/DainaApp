@@ -20,6 +20,7 @@ import ScreenNameEnum from '../../../../routes/screenName.enum';
 import CustomHeader from '../../../../compoent/CustomHeader';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import font from '../../../../theme/font';
+import { WebSocket_Url } from '../../../../Api';
 
 const { width, height } = Dimensions.get('window');
 const ACCEPT_TIMEOUT_SEC = 30;
@@ -89,10 +90,10 @@ const RequestLoading = () => {
       if (!parcelId?.parcel?.id) {
         throw new Error('Parcel ID not found');
       }
-
-      const wsUrl = `wss://aitechnotech.in/DAINA/ws/parcel/${parcelId.parcel.id}?token=${token}&role=user`;
+const wsUrl = `${WebSocket_Url}/parcel/${parcelId?.parcel?.id}?token=${token}&role=user`;
+      // const wsUrl = ` {WebSocket_Url}/parcel/${parcelId.parcel.id}?token=${token}&role=user`;
+      // const wsUrl = `wss://aitechnotech.in/DAINA/ws/parcel/${parcelId.parcel.id}?token=${token}&role=user`;
       const ws = new WebSocket(wsUrl);
-
       ws.onopen = () => {
         setIsConnected(true);
         setError(null);

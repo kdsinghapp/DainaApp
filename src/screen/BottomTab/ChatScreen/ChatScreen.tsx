@@ -19,7 +19,7 @@ import StatusBarComponent from "../../../compoent/StatusBarCompoent";
 import imageIndex from "../../../assets/imageIndex";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import font from "../../../theme/font";
-import { base_url } from "../../../Api";
+import { base_url, WebSocket_Url } from "../../../Api";
 import { useSelector } from "react-redux";
 import CounterOfferModal from "../../../compoent/MakeCounterModal";
 import AcceptOfferModal from "../../../compoent/AcceptOfferModal";
@@ -27,7 +27,7 @@ import { errorToast, successToast } from "../../../utils/customToast";
 import ScreenNameEnum from "../../../routes/screenName.enum";
 
 // ─── Config ──────────────────────────────────────────────────────────────────
-const WS_BASE = "wss://aitechnotech.in/DAINA/ws/chat";
+// const WS_BASE = "wss://aitechnotech.in/DAINA/ws/chat";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface Message {
@@ -265,8 +265,9 @@ const ChatScreen = () => {
   // ── 2. Connect WebSocket ──────────────────────────────────────────────────
   useEffect(() => {
     if (!tokenLoaded || !parcelId || !token) return;
-
-    const wsUrl = `${WS_BASE}/${parcelId}?token=${token}`;
+const wsUrl = `${WebSocket_Url}/chat/${parcelId}?token=${token}`;
+    // const wsUrl = `${WebSocket_Url}/chat${parcelId}?token=${token}`;
+// const WS_BASE = "wss://aitechnotech.in/DAINA/ws/chat";
 
     if (wsRef.current) {
       wsRef.current.onclose = null;

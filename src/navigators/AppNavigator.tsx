@@ -28,10 +28,10 @@ const AppNavigator: React.FC = () => {
       <PersistGate loading={null} persistor={persistor}>
         <GestureHandlerRootView  >
           <NavigationContainer>
-            <NetworkStatusModal
+            {/* <NetworkStatusModal
               modalVisible={!isConnected}
               offlineText="No Internet! Please check your connection."
-            />
+            /> */}
            
             <RegistrationRoutes />
             <Toast config={toastConfig} />

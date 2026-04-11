@@ -9,9 +9,17 @@ export interface ApiRequest {
   token?: string;
   redirect?:any
 }
+// https://python.aitechnotech.in/DAINA/docs
+// DAINA API - Swagger UI
+ 
+// wss://python.aitechnotech.in/DAINA/ws
+ 
+// DAINA API - Swagger UI
+ 
+export const base_url = 'https://python.aitechnotech.in/DAINA/api';
+export const WebSocket_Url =`wss://python.aitechnotech.in/DAINA/ws`
 
-export const base_url = 'https://aitechnotech.in/DAINA/api';
-
+// export const base_url = 'https://aitechnotech.in/DAINA/api';
 // Prepr CMS (headless) – GraphQL client and helpers
 export {
   preprRequest,
@@ -21,8 +29,7 @@ export {
   PREPR_GRAPHQL_URL,
 } from './prepr';
 export type { PreprGraphQLVariables, PreprGraphQLResponse } from './prepr';
-export const WebSocket_Url =`wss://aitechnotech.in/DAINA/ws`
-export const image_url = 'https://aitechnotech.in/DAINA';
+export const image_url = 'https://python.aitechnotech.in/DAINA';
 export const GoogleClientId = '43208932533-6ktmlm2uusaqdgv42pj9u94eq9q6q8h7.apps.googleusercontent.com';
  export const GOOGLE_MAPS_APIKEY = 'AIzaSyDgFGS91BvviXh_f-nmvtEggUHJcaGyUwA'; // Replace with your Key
 export const callMultipleApis = async (requests: ApiRequest[]) => {

@@ -19,6 +19,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import font from '../../../theme/font';
 import { errorToast } from '../../../utils/customToast';
 import { styles } from './style';
+import NotificationService from '../../../services/NotificationService';
+
  
 const ChooseRole = () => {
   const [selected, setSelected] = useState<any>(null);
@@ -77,9 +79,11 @@ const ChooseRole = () => {
       errorToast('Please select your role before proceeding.');
        return;
     }
+    await NotificationService.requestPermission();
     await AsyncStorage.setItem('selectedRole', selected.type);
     navigation.navigate(ScreenNameEnum.SocialLogin);
   };
+
 
   return (
     <SafeAreaView style={styles.safeArea}>

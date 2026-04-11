@@ -18,8 +18,9 @@ export const useParcelDetails = () => {
   const [message, setMessage] = useState("");
   const { item } = rout?.params || ""
   const navigation = useNavigation()
-  console.log("item",item)
-  const fullImageUrl = `https://aitechnotech.in/DAINA${item?.imageUrl}`;
+ const fullImageUrl = `https://python.aitechnotech.in/DAINA${item?.imageUrl || item?.data?.imageUrl}`;  console.log("fullImageUrl",fullImageUrl)
+  console.log("item",item?.data?.imageUrl)
+  console.log("item",fullImageUrl)
   const makeOffer = async ( amount: any, message: any) => {
     try {
       setIsLoading(true);

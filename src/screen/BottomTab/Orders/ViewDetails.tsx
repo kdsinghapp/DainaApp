@@ -16,13 +16,13 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation, useRoute, useFocusEffect } from "@react-navigation/native";
 import ScreenNameEnum from "../../../routes/screenName.enum";
 import { GetApi } from "../../../Api/apiRequest";
-import { WebSocket_Url } from "../../../Api";
-import { STATUS, STATUS_LABELS, STATUS_ICONS, STATUS_COLORS } from "../../../utils/Constant";
+ import { STATUS, STATUS_LABELS, STATUS_ICONS, STATUS_COLORS } from "../../../utils/Constant";
 import Icon from "react-native-vector-icons/Ionicons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { successToast } from "../../../utils/customToast";
 import { color } from "../../../constant";
 import RatingModal from "../../../compoent/RatingModal";
+import { WebSocket_Url } from "../../../Api";
 
 type Order = {
   id: string;

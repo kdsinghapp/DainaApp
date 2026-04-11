@@ -29,7 +29,7 @@ const HomeHeaderBar = ({
           >
             {location}
           </Text>
-          <Image source={imageIndex.arrowqdown} style={styles.iconSmall} />
+          {/* <Image source={imageIndex.arrowqdown} style={styles.iconSmall} /> */}
         </TouchableOpacity>
 
         <TouchableOpacity

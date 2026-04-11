@@ -93,12 +93,11 @@ const DeliveryHome = () => {
         return requests;
     }
   }, [activeTab, requests]); 
-  console.log("filteredRequests",filteredRequests)
-  const {locationRef ,address ,currentlocation}= useDashboard()
+   const {locationRef ,address ,currentlocation}= useDashboard()
   return (
     <SafeAreaView style={styles.container}>
       <StatusBarComponent />
-      <LoadingModal visible={isLoading} />
+      {/* <LoadingModal visible={isLoading} /> */}
       <CurrentLocation ref={locationRef} />
 <HomeHeaderBar
   location={currentlocation || address}

@@ -15,8 +15,9 @@ import { LogiApi } from "../../../Api/apiRequest";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import LoadingModal from "../../../utils/Loader";
 import NotificationService from "../../../services/NotificationService";
+import { getMessaging } from "@react-native-firebase/messaging";
 const PhoneLogin = () => {
-  const [phoneNumber, setPhoneNumber] = useState("654765435434");  
+  const [phoneNumber, setPhoneNumber] = useState("");  
   // const [phoneNumber, setPhoneNumber] = useState("9445433323");  
   // const [phoneNumber, setPhoneNumber] = useState("9565466565");  
  //  user
@@ -30,39 +31,34 @@ const PhoneLogin = () => {
   const [filteredCountries, setFilteredCountries] = useState(Constcounty);
 const navigation  = useNavigation();
   const [error, setError] = useState(""); // For error message
- 
-  // useEffect(() => {
-  //   initNotifications();
 
-  
-  // }, []);
+  useEffect(()=>{
+    getFcmToken()
+  },[])
+   const getFcmToken = async () => {
+  try {
+    // Step 1: Token lo
+    const fcmToken = await getMessaging().getToken();
 
-  const initNotifications = async () => {
-    try {
-      // Step 1: iOS ke liye register
-      await NotificationService.registerAppWithFCM();
-
-      // Step 2: Permission maango
-      const granted = await NotificationService.requestPermission();
-      if (!granted) {
-        console.log('Notification permission denied — stopping init');
-        return;
-      }
-
-      // Step 3: Android notification channel banao
-      await NotificationService.createChannel();
-
-      // Step 4: FCM token lo
-      await NotificationService.getFcmToken();
-
-      // Step 5: Foreground listeners setup karo
-      const unsubscribe = NotificationService.setupListeners();
- 
-      console.log('Notifications initialized successfully');
-    } catch (error) {
-      console.log('Notification init error:', error);
+    if (fcmToken) {
+      // Step 2: Save in storage
+      await AsyncStorage.setItem('fcmToken', fcmToken);
+      console.log('✅ FCM Token:', fcmToken);
+      return fcmToken;
+    } else {
+      throw new Error('FCM Token not received');
     }
-  };
+
+  } catch (error) {
+    console.log(`❌ FCM Token Error | Retries left:  `, error);
+
+     
+
+    return null;
+  }
+};
+  
+ 
 
   useEffect(() => {
     if (searchText === "") {

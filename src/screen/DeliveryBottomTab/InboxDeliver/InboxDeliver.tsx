@@ -70,10 +70,10 @@ const toTimeString = (raw: string | undefined): string => {
 
 const statusColor = (status: string): string => {
   switch (status?.toLowerCase()) {
-    case "pending":   return "#f59e0b";
+    case "pending": return "#f59e0b";
     case "delivered": return "#22c55e";
     case "cancelled": return "#ef4444";
-    default:          return "#64748b";
+    default: return "#64748b";
   }
 };
 
@@ -102,19 +102,19 @@ const FallbackAvatar = ({ name }: { name: string }) => (
 export default function InboxDeliver() {
   const navigation = useNavigation<any>();
 
-  const [chats, setChats]         = useState<ChatItem[]>([]);
-  const [loading, setLoading]     = useState(false);
+  const [chats, setChats] = useState<ChatItem[]>([]);
+  const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
-  const [query, setQuery]         = useState("");
-  const [error, setError]         = useState<string | null>(null);
+  const [query, setQuery] = useState("");
+  const [error, setError] = useState<string | null>(null);
 
-   const fetchChats = useCallback(async (isRefresh = false) => {
+  const fetchChats = useCallback(async (isRefresh = false) => {
     try {
       isRefresh ? setRefreshing(true) : setLoading(true);
       setError(null);
 
       const token = await AsyncStorage.getItem("token");
-      const url   = `${base_url}/chat/history`;
+      const url = `${base_url}/chat/history`;
 
       const response = await fetch(url, {
         method: "GET",
@@ -132,7 +132,7 @@ export default function InboxDeliver() {
       if (!response.ok) throw new Error(`Server error: ${response.status}`);
 
       const json = await response.json();
-       // API shape: { status, message, count, chats: [...] }
+      // API shape: { status, message, count, chats: [...] }
       setChats(Array.isArray(json?.chats) ? json.chats : []);
     } catch (err: any) {
       console.error("fetchChats error:", err);
@@ -152,9 +152,9 @@ export default function InboxDeliver() {
   // ── Filtered list ───────────────────────────────────────────────────────────
   const filtered = query.trim()
     ? chats.filter((c) =>
-        c.parcelOwner?.name?.toLowerCase().includes(query.toLowerCase()) ||
-        c.trackingId?.toLowerCase().includes(query.toLowerCase())
-      )
+      c.parcelOwner?.name?.toLowerCase().includes(query.toLowerCase()) ||
+      c.trackingId?.toLowerCase().includes(query.toLowerCase())
+    )
     : chats;
 
   // ── Render row ──────────────────────────────────────────────────────────────
@@ -163,11 +163,11 @@ export default function InboxDeliver() {
     const isDeliverySender = item?.lastMessage?.senderRole === "delivery";
 
     // Avatar: always show parcelOwner image (delivery-side inbox = parcelOwner is the customer)
-    const avatarUri   = item?.parcelOwner?.image;
-    const displayName = item?.parcelOwner?.name ?? "Unknown";
+    const avatarUri = item?.parcelOwner?.image;
+    const displayName = item?.parcelOwner?.name ?? "User";
     const lastMsgText = item?.lastMessage?.text ?? "No messages yet";
     const lastMsgTime = toTimeString(item?.lastMessage?.time);
-    const hasUnread   = (item?.unreadCount ?? 0) > 0;
+    const hasUnread = (item?.unreadCount ?? 0) > 0;
 
     return (
       <TouchableOpacity
@@ -197,14 +197,14 @@ export default function InboxDeliver() {
           {/* Name + time */}
           <View style={styles.nameTimeRow}>
             <Text style={styles.name} numberOfLines={1}>
-              {displayName}    
+              {displayName}
             </Text>
             <Text style={styles.time}>{lastMsgTime}</Text>
           </View>
 
           {/* Tracking ID */}
           <Text style={styles.trackingId} numberOfLines={1}>
-    {item.trackingId}
+            {item.trackingId}
           </Text>
 
           {/* Last message + badge */}
@@ -213,7 +213,7 @@ export default function InboxDeliver() {
               style={[styles.lastMessage, hasUnread && styles.unreadMessage]}
               numberOfLines={1}
             >
-               {lastMsgText}
+              {lastMsgText}
             </Text>
 
             {hasUnread && (
@@ -224,7 +224,7 @@ export default function InboxDeliver() {
           </View>
 
           {/* Delivery status pill */}
-          <View style={[styles.statusPill,  ]}>
+          <View style={[styles.statusPill,]}>
             <Text style={[styles.statusText, { color: statusColor(item.deliveryStatus) }]}>
               {item.deliveryStatus}
             </Text>
@@ -268,20 +268,20 @@ export default function InboxDeliver() {
       ) : (
         <FlatList
           data={filtered}
-        style={[
-    styles.list,
-    {
-      marginBottom: 11,
-      flex: 1, // ✅ IMPORTANT
-    },
-  ]}
+          style={[
+            styles.list,
+            {
+              marginBottom: 11,
+              flex: 1, // ✅ IMPORTANT
+            },
+          ]}
           keyExtractor={(item) => String(item.parcelId)}
           renderItem={renderItem}
           ItemSeparatorComponent={() => <View style={styles.separator} />}
-      contentContainerStyle={[
-    { paddingBottom: 75 },
-    filtered.length === 0 && styles.emptyContainer,
-  ]}
+          contentContainerStyle={[
+            { paddingBottom: 75 },
+            filtered.length === 0 && styles.emptyContainer,
+          ]}
           showsVerticalScrollIndicator={false}
           ListEmptyComponent={<EmptyState />}
           refreshControl={
@@ -367,8 +367,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontFamily: font.MonolithRegular,
     color: "#0f172a",
-    fontWeight: "700",
-  },
+   },
   textCol: { flex: 1 },
   nameTimeRow: {
     flexDirection: "row",
@@ -380,8 +379,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontFamily: font.MonolithRegular,
     color: "#0f172a",
-    fontWeight: "600",
-  },
+   },
   time: {
     fontSize: 12,
     color: "#64748b",
@@ -408,7 +406,8 @@ const styles = StyleSheet.create({
   },
   unreadMessage: {
     color: "#0f172a",
-    fontWeight: "600",
+      fontFamily: font.MonolithRegular,
+
   },
   badge: {
     backgroundColor: "#FFCC00",
@@ -422,11 +421,11 @@ const styles = StyleSheet.create({
     color: "#0f172a",
     fontSize: 11,
     fontFamily: font.MonolithRegular,
-    fontWeight: "700",
+   
   },
   statusPill: {
     alignSelf: "flex-start",
-     borderRadius: 20,
+    borderRadius: 20,
     paddingHorizontal: 8,
     paddingVertical: 2,
   },

@@ -421,7 +421,7 @@ const FloatingOnlineButton: React.FC<Props> = ({ isOnline, setIsOnline }) => {
               disabled={loading}
             />
             <Text style={[styles.buttonText, {
-              color: isOnline ? 'black' : 'white'
+              color:   'white'
             }]}>
 
               {isOnline ? 'GO \n OFFLINE' : 'GO \n ONLINE'}
