@@ -19,6 +19,7 @@ enum ScreenNameEnum {
   DeliveryTabNavigator="DeliveryTabNavigator",
   EditProfile="EditProfile",
   VehicleSetupScreen="VehicleSetupScreen",
+  BankSetupScreen="BankSetupScreen",
   PickupLocation="PickupLocation",
   ParcelDetails="ParcelDetails",
   HelpSupport="HelpSupport",

@@ -61,8 +61,8 @@ export default function DocumentShow() {
       const result = await response.json();
       console.log('API Response:', result);
 
-      if (result.status === 1) {
-        setDocuments(result?.documents || {});
+      if (result.status == 1) {
+        setDocuments(result?.data || {});
       } else {
         setError(result?.message || 'Failed to load documents');
       }

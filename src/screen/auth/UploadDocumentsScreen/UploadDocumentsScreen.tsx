@@ -7,7 +7,7 @@ import {
   ScrollView,
   TouchableOpacity,
 } from "react-native";
-import { pick, types } from "@react-native-documents/picker";
+import { launchImageLibrary } from "react-native-image-picker";
 import imageIndex from "../../../assets/imageIndex";
 import StatusBarComponent from "../../../compoent/StatusBarCompoent";
 import CustomHeader from "../../../compoent/CustomHeader";
@@ -37,26 +37,35 @@ const UploadDocumentsScreen = () => {
   const navigation: any = useNavigation();
 
   const pickDocument = async (type: string) => {
-    try {
-      const [res] = await pick({ type: [types.allFiles] });
+    const options: any = {
+      mediaType: "photo",
+      quality: 0.6, // Compressing image to 60% quality
+      maxWidth: 1200, // Resizing to 1200px width
+    };
 
-      if (res) {
+    try {
+      const result: any = await launchImageLibrary(options);
+
+      if (result.didCancel) {
+        console.log("User cancelled image selection");
+      } else if (result.errorCode) {
+        console.log("ImagePicker Error: ", result.errorMessage);
+        errorToast("Error picking image");
+      } else if (result.assets && result.assets.length > 0) {
+        const res = result.assets[0];
         const fileObj = {
           uri: res.uri,
-          name: res.name,
-          type: res.type || "application/octet-stream",
+          name: res.fileName || `doc_${Date.now()}.jpg`,
+          type: res.type || "image/jpeg",
         };
 
         if (type === "id") setIdDoc(fileObj);
         if (type === "license") setLicenseDoc(fileObj);
         if (type === "vehicle") setVehicleDoc(fileObj);
       }
-    } catch (err: any) {
-      if (err?.message?.includes("cancelled")) {
-        console.log("User cancelled upload");
-      } else {
-        console.log("Error picking document:", err);
-      }
+    } catch (err) {
+      console.log("Error picking document:", err);
+      errorToast("Something went wrong");
     }
   };
 
@@ -66,30 +75,6 @@ const UploadDocumentsScreen = () => {
       return;
     }
 
-    // if (!licenseNumber.trim()) {
-    //   errorToast(strings.EnterLicenseNumberError);
-    //   return;
-    // }
-
-    // if (!phoneNumber.trim()) {
-    //   errorToast(strings.EnterPhoneNumberError);
-    //   return;
-    // }
-
-    // if (!bankName.trim()) {
-    //   errorToast(strings.EnterBankNameError);
-    //   return;
-    // }
-
-    // if (!accountNumber.trim()) {
-    //   errorToast(strings.EnterAccountNumberError);
-    //   return;
-    // }
-
-    // if (!ifscCode.trim()) {
-    //   errorToast(strings.EnterIFSCCodeError);
-    //   return;
-    // }
 
     const params = {
       idDocument: idDoc,
@@ -98,7 +83,7 @@ const UploadDocumentsScreen = () => {
 
     };
     const response = await DeliveryUploadDocument(params, setIsLoading);
-    console.log("response status ", response);
+    console.log("response status ", JSON.stringify(response));
     if (response && response.status == "1") {
       navigation.replace(ScreenNameEnum.VehicleSetupScreen);
     }
@@ -170,35 +155,7 @@ const UploadDocumentsScreen = () => {
           )}
         </TouchableOpacity>
 
-        <View style={{ width: '90%', marginBottom: 20 }}>
-          <CustomInput
-            placeholder={strings.DrivingLicenseNumber}
-            value={licenseNumber}
-            onChangeText={setLicenseNumber}
-          />
-          <CustomInput
-            placeholder={strings.PhoneNumber}
-            value={phoneNumber}
-            onChangeText={setPhoneNumber}
-            keyboardType="phone-pad"
-          />
-          <CustomInput
-            placeholder={strings.BankName}
-            value={bankName}
-            onChangeText={setBankName}
-          />
-          <CustomInput
-            placeholder={strings.AccountNumber}
-            value={accountNumber}
-            onChangeText={setAccountNumber}
-            keyboardType="numeric"
-          />
-          <CustomInput
-            placeholder={strings.IFSCCode}
-            value={ifscCode}
-            onChangeText={setIfscCode}
-          />
-        </View>
+
       </ScrollView>
 
       <View style={styles.buttonWrapper}>

@@ -37,11 +37,16 @@ import PickupLocationRapido from "../screen/BottomTab/PickupLocationRapido/Picku
 import CreateParcelFrom from "../screen/BottomTab/DashBoard/CreateParcel/CreateParcelFrom";
 import NearbyDriversMap from "../screen/BottomTab/NearbyDriversMap/NearbyDriversMap";
 import LanguageSelection from "../screen/Profile/LanguageSelection/LanguageSelection";
+import BankSetupScreen from "../screen/auth/BankSetup/BankSetupScreen";
 const _routes: any = {
   REGISTRATION_ROUTE: [
     {
       name: ScreenNameEnum.SPLASH_SCREEN,
       Component: Splash,
+    },
+    {
+      name: ScreenNameEnum.BankSetupScreen,
+      Component: BankSetupScreen,
     },
   
     {

@@ -74,7 +74,7 @@ const VehicleSetupScreen = () => {
     };
     const response = await DeliveryVehicleDocument(params, setIsLoading);
     if (response?.status == "1") {
-      navigation.replace(ScreenNameEnum.DeliveryTabNavigator);
+      navigation.replace(ScreenNameEnum.BankSetupScreen);
     }
   };
 

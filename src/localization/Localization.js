@@ -1,4 +1,4 @@
- import LocalizedStrings from 'react-native-localization';
+import LocalizedStrings from 'react-native-localization';
 
 const strings = new LocalizedStrings({
   en: {
@@ -244,6 +244,11 @@ const strings = new LocalizedStrings({
     Confirmation: "Confirmation",
     Yes: "Yes",
     No: "No",
+    BankSetup: "Bank Setup",
+    EnterBankName: "Enter bank name",
+    EnterAccountNumber: "Enter account number",
+    EnterIFSCCode: "Enter IFSC code",
+    SaveAndFinish: "Save & Finish",
     Message: "Message",
     RateYourDelivery: "Rate your delivery",
     ViewOffer: "View Offer",

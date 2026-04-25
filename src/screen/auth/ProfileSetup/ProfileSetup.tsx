@@ -86,25 +86,25 @@ const ProfileSetup = () => {
         errorToast(strings.EnterFullNameError);
         return;
       }
-      if (!email || !email.trim()) {
-        errorToast(strings.EnterEmailError);
-        return;
-      }
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(email.trim())) {
-        errorToast(strings.ValidEmailError);
-        return;
-      }
+      // if (!email || !email.trim()) {
+      //   errorToast(strings.EnterEmailError);
+      //   return;
+      // }
+      // const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      // if (!emailRegex.test(email.trim())) {
+      //   errorToast(strings.ValidEmailError);
+      //   return;
+      // }
 
       if (!address?.trim()) {
         errorToast(strings.EnterAddressError);
         return;
       }
 
-      if (!image) {
-        errorToast(strings.UploadProfileImageError);
-        return;
-      }
+      // if (!image) {
+      //   errorToast(strings.UploadProfileImageError);
+      //   return;
+      // }
 
       const params = {
         username: fullName,
@@ -117,7 +117,9 @@ const ProfileSetup = () => {
       if (response) {
         await getProfileApi();
         if (userData?.type === "Delivery") {
-          navigation.navigate(ScreenNameEnum.DeliveryTabNavigator);
+          // param.navigation.navigate(ScreenNameEnum.UploadDocumentsScreen);
+
+          navigation.navigate(ScreenNameEnum.UploadDocumentsScreen);
         } else {
           navigation.navigate(ScreenNameEnum.TabNavigator);
         }

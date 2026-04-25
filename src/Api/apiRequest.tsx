@@ -130,16 +130,13 @@ const Verifyotp = async (param: any, setLoading: any, dispatch: any) => {
       dispatch(loginSuccess({ userData: parsedResponse, token: parsedResponse?.token }));
       await saveAuthData(parsedResponse, parsedResponse?.token);
       if (parsedResponse?.type === "Delivery") {
+        if (parsedResponse?.completionStatus?.isDocumentsUploaded === true) {
+          param.navigation.navigate(ScreenNameEnum.DeliveryTabNavigator);
+        } else {
+          // Agar documents upload nahi hue
+          param.navigation.navigate(ScreenNameEnum.ProfileSetup);
+        }
 
-        param.navigation.navigate(ScreenNameEnum.UploadDocumentsScreen);
-
-        // param.navigation.navigate(ScreenNameEnum.ProfileSetup, {
-        //   type: "otp"
-        // });
-        // param.navigation.navigate(ScreenNameEnum.ProfileSetup, {
-        //   type: "otp"
-        // });
-        // param.navigation.navigate(ScreenNameEnum.DeliveryTabNavigator);
       } else {
         param.navigation.navigate(ScreenNameEnum.ProfileSetup, {
           type: "otp"
@@ -423,34 +420,31 @@ const DeliveryUploadDocument = async (
 
 
 
-    const headers = {
-      Accept: "application/json",
-      Authorization: `Bearer ${token}`,
-    };
-
-    const response = await fetch(`${base_url}/upload-document`, {
-      method: "POST",
-      headers,
-      body: formdata,
+    const response = await axios.post(`${base_url}/upload-document`, formdata, {
+      headers: {
+        Accept: "application/json",
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "multipart/form-data",
+      },
     });
-    console.log("response -----  ", response);
 
-    const textResponse = await response.text();
-    let parsedResponse;
-    try {
-      parsedResponse = JSON.parse(textResponse);
-    } catch {
-      throw new Error("Invalid server response");
-    }
-    console.log("parsedResponse", parsedResponse);
-    if (parsedResponse.status == "1") {
-      successToast(parsedResponse.message);
+    console.log("Upload Success Response:", response.data);
+    if (response.data.status == "1" || response.data.status == 1) {
+      successToast(response.data.message || "Documents uploaded successfully");
+    } else {
+      errorToast(response.data.message || "Upload failed");
     }
 
-    return parsedResponse;
-  } catch (error) {
-    console.error("DeliveryUploadDocument error:", error);
-    errorToast("Something went wrong. Please try again.");
+    return response.data;
+  } catch (error: any) {
+    console.log("Upload Error Details:", error.response?.data || error.message);
+
+    // Handle 422 Validation Errors specifically if they exist
+    const errorMessage = error.response?.data?.message ||
+      error.response?.data?.detail?.[0]?.msg ||
+      "Something went wrong. Please try again.";
+
+    errorToast(errorMessage);
     return null;
   } finally {
     setLoading(false);
@@ -515,6 +509,52 @@ const DeliveryVehicleDocument = async (
     return parsedResponse;
   } catch (error) {
     console.error("DeliveryVehicleDocument error:", error);
+    errorToast("Something went wrong. Please try again.");
+    return null;
+  } finally {
+    setLoading(false);
+  }
+};
+
+const DeliveryBankSetup = async (
+  param: any,
+  setLoading: (loading: boolean) => void
+) => {
+  try {
+    setLoading(true);
+    const token = await AsyncStorage.getItem("token");
+
+    const body = `bankName=${encodeURIComponent(param.bankName)}&bankAccountNumber=${encodeURIComponent(param.bankAccountNumber)}&bankIfscCode=${encodeURIComponent(param.bankIfscCode)}`;
+
+    const headers = {
+      Accept: "application/json",
+      "Content-Type": "application/x-www-form-urlencoded",
+      Authorization: `Bearer ${token}`,
+    };
+
+    const response = await fetch(`${base_url}/bank-setup`, {
+      method: "POST",
+      headers,
+      body,
+    });
+
+    const textResponse = await response.text();
+    let parsedResponse;
+    try {
+      parsedResponse = JSON.parse(textResponse);
+    } catch {
+      throw new Error("Invalid server response");
+    }
+
+    if (parsedResponse.status == "1" || parsedResponse.status == 1) {
+      successToast(parsedResponse.message);
+    } else {
+      errorToast(parsedResponse.message);
+    }
+
+    return parsedResponse;
+  } catch (error) {
+    console.error("DeliveryBankSetup error:", error);
     errorToast("Something went wrong. Please try again.");
     return null;
   } finally {
@@ -788,6 +828,7 @@ export {
   UpdateProfile,
   DeliveryUploadDocument,
   DeliveryVehicleDocument,
+  DeliveryBankSetup,
   GetuploadDocument,
   AddParcelApi,
   Parceldetails,
