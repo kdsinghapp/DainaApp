@@ -71,7 +71,7 @@ export const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 12,
-    backgroundColor: '#F0F7FF',
+    backgroundColor: '#FFF9E6',
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 12,
@@ -92,6 +92,9 @@ export const styles = StyleSheet.create({
   },
   pendingBadge: {
     backgroundColor: '#FFF3E0',
+  },
+  reviewBadge: {
+    backgroundColor: '#E3F2FD',
   },
   statusText: {
     fontSize: 12,
@@ -154,12 +157,12 @@ export const styles = StyleSheet.create({
     borderWidth: 1,
   },
   viewBtn: {
-    backgroundColor: '#007AFF',
-    borderColor: '#007AFF',
+    backgroundColor: '#FFCC00',
+    borderColor: '#FFCC00',
   },
   downloadBtn: {
     backgroundColor: 'transparent',
-    borderColor: '#007AFF',
+    borderColor: '#FFCC00',
   },
   disabledBtn: {
     backgroundColor: '#F5F5F5',
@@ -175,7 +178,7 @@ export const styles = StyleSheet.create({
     fontSize: 14,
   },
   downloadBtnText: {
-    color: '#007AFF',
+    color: '#FFCC00',
     fontFamily: font.MonolithRegular
     ,
     fontSize: 14,
@@ -248,13 +251,13 @@ export const styles = StyleSheet.create({
     lineHeight: 22,
   },
   retryBtn: {
-    backgroundColor: '#007AFF',
+    backgroundColor: '#FFCC00',
     paddingHorizontal: 32,
     paddingVertical: 12,
     borderRadius: 12,
   },
   retryText: {
-    color: '#FFFFFF',
+    color: '#000000',
     fontFamily: font.MonolithRegular
     ,
     fontSize: 16,
@@ -278,13 +281,13 @@ export const styles = StyleSheet.create({
     lineHeight: 20,
   },
   uploadBtn: {
-    backgroundColor: '#007AFF',
+    backgroundColor: '#FFCC00',
     paddingHorizontal: 32,
     paddingVertical: 12,
     borderRadius: 12,
   },
   uploadBtnText: {
-    color: '#FFFFFF',
+    color: '#000000',
     fontSize: 16,
     fontFamily: font.MonolithRegular
     ,
@@ -325,7 +328,7 @@ export const styles = StyleSheet.create({
   modalActionBtn: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(255,255,255,0.1)',
+    backgroundColor: 'rgba(255,204,0,0.15)',
     paddingHorizontal: 20,
     paddingVertical: 12,
     borderRadius: 12,
@@ -333,10 +336,63 @@ export const styles = StyleSheet.create({
   },
   modalActionText: {
     color: '#FFFFFF',
-    fontFamily: font.MonolithRegular
-    ,
+    fontFamily: font.MonolithRegular,
     fontSize: 16,
     marginLeft: 8,
   },
-
+  infoRowDetail: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 4,
+  },
+  infoLabel: {
+    fontSize: 14,
+    color: '#666',
+    fontFamily: font.MonolithRegular,
+  },
+  infoValue: {
+    fontSize: 16,
+    color: '#1A1A1A',
+    fontWeight: '600',
+    fontFamily: font.MonolithRegular,
+  },
+  imageOverlayText: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    paddingVertical: 4,
+    alignItems: 'center',
+    borderBottomLeftRadius: 20,
+    borderBottomRightRadius: 20,
+  },
+  tabContainer: {
+    flexDirection: 'row',
+    backgroundColor: '#FFF',
+    padding: 6,
+    borderRadius: 14,
+    marginBottom: 24,
+    borderWidth: 1,
+    borderColor: '#F0F0F0',
+  },
+  tabButton: {
+    flex: 1,
+    paddingVertical: 10,
+    alignItems: 'center',
+    borderRadius: 10,
+  },
+  activeTabButton: {
+    backgroundColor: '#FFCC00',
+  },
+  tabText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#666',
+    fontFamily: font.MonolithRegular,
+  },
+  activeTabText: {
+    color: '#000',
+  },
 });

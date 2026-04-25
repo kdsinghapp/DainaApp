@@ -14,11 +14,11 @@ export const useParcelDetails = () => {
   const [amount, setAmount] = useState("");
   const [Phone, setPhoneNumber] = useState("");
   const [imgloading, setImgloading] = useState(true);
-
+  // https://api.daina.tech/
   const [message, setMessage] = useState("");
   const { item } = rout?.params || ""
   const navigation = useNavigation()
-  const fullImageUrl = `https://python.aitechnotech.in/DAINA${item?.imageUrl || item?.data?.imageUrl}`; console.log("fullImageUrl", fullImageUrl)
+  const fullImageUrl = `https://api.daina.tech${item?.imageUrl || item?.data?.imageUrl}`; console.log("fullImageUrl", fullImageUrl)
   console.log("item", item?.data?.imageUrl)
   console.log("item", fullImageUrl)
   const makeOffer = async (amount: any, message: any) => {
