@@ -4,7 +4,6 @@ import ScreenNameEnum from "./screenName.enum";
 import TabNavigator from "../navigators/TabNavigation";
 import NotificationsScreen from "../screen/Notification/Notification";
 // import Sinup from "../screen/auth/sinup/Sinup";
-import ChangePassword from "../screen/Profile/ChangePassword/ChangePassword";
 import HelpScreen from "../screen/Profile/Help/Helps";
 import Splash from "../screen/auth/Splash/Splash";
 import UploadDocumentsScreen from "../screen/auth/UploadDocumentsScreen/UploadDocumentsScreen";
@@ -48,7 +47,7 @@ const _routes: any = {
       name: ScreenNameEnum.BankSetupScreen,
       Component: BankSetupScreen,
     },
-  
+
     {
       name: ScreenNameEnum.ChooseRole,
       Component: ChooseRole,
@@ -139,10 +138,6 @@ const _routes: any = {
       Component: PhoneLogin,
     },
 
-    {
-      name: ScreenNameEnum.changePassword,
-      Component: ChangePassword,
-    },
 
     {
       name: ScreenNameEnum.Help,

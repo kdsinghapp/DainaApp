@@ -32,7 +32,7 @@ const AppNavigator: React.FC = () => {
               modalVisible={!isConnected}
               offlineText="No Internet! Please check your connection."
             /> */}
-           
+
             <RegistrationRoutes />
             <Toast config={toastConfig} />
           </NavigationContainer>

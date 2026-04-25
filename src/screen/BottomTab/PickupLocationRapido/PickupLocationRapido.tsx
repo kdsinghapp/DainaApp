@@ -98,8 +98,8 @@ const PickupLocationRapido = () => {
     };
     console.log(locationData)
     // Trigger the callback from params
-    if (route.params?.onLocationSelect) {
-      route.params.onLocationSelect(locationData);
+    if (route?.params?.onLocationSelect) {
+      route?.params?.onLocationSelect(locationData);
     }
 
     navigation.goBack();
@@ -114,7 +114,7 @@ const PickupLocationRapido = () => {
     debounceTimer.current = setTimeout(async () => {
       try {
         const json = await Geocoder.from(newRegion.latitude, newRegion.longitude);
-        const addressComponent = json.results?.[0]?.formatted_address || 'Unknown Location';
+        const addressComponent = json?.results?.[0]?.formatted_address || 'Unknown Location';
         setAddress(addressComponent);
         // Sync search bar text with map movement
         searchRef.current?.setAddressText(addressComponent);

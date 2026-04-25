@@ -76,7 +76,6 @@ const TripMap = () => {
   }, [])
 
   const getDetail = async () => {
-    // console.log(`/parcels/${item?.parcelId}/statis`)
     const param = {
       url: `/delivery/my-offers/${parcelId}`
     }
@@ -244,11 +243,11 @@ const TripMap = () => {
   const routePointsValid = distanceBetween(routeOrigin, routeDest) >= MIN_DIST;
   // Full path green→red: show polyline between pickup and dropoff so driver sees where to go
   const pickupToDropoffValid =
-    Number.isFinite(pickup.latitude) &&
-    Number.isFinite(pickup.longitude) &&
-    Number.isFinite(dropoff.latitude) &&
-    Number.isFinite(dropoff.longitude) &&
-    (pickup.latitude !== dropoff.latitude || pickup.longitude !== dropoff.longitude);
+    Number.isFinite(pickup?.latitude) &&
+    Number.isFinite(pickup?.longitude) &&
+    Number.isFinite(dropoff?.latitude) &&
+    Number.isFinite(dropoff?.longitude) &&
+    (pickup?.latitude !== dropoff?.latitude || pickup?.longitude !== dropoff?.longitude);
 
   useEffect(() => {
     setCurrentCoords(driverCoords);
@@ -268,7 +267,7 @@ const TripMap = () => {
   }, []);
 
   useEffect(() => {
-    const showOtp = item?.deliveryStatus === STATUS.GOING_TO_PICKUP || item?.deliveryStatus === STATUS.ON_THE_WAY;
+    const showOtp = item?.deliveryStatus === STATUS?.GOING_TO_PICKUP || item?.deliveryStatus === STATUS.ON_THE_WAY;
     if (!showOtp) {
       Keyboard.dismiss();
       setKeyboardHeight(0);
@@ -281,8 +280,8 @@ const TripMap = () => {
   };
 
   const driverCoordinate = {
-    latitude: safeNum(driverCoords.latitude, DEFAULT_LAT),
-    longitude: safeNum(driverCoords.longitude, DEFAULT_LNG),
+    latitude: safeNum(driverCoords?.latitude, DEFAULT_LAT),
+    longitude: safeNum(driverCoords?.longitude, DEFAULT_LNG),
   };
 
   const buttonConfig = getButtonConfig();
@@ -319,7 +318,7 @@ const TripMap = () => {
         return;
       }
 
-      const result = await updateParcelStatus(item?.parcelId || item.id, newStatus, newStatus == STATUS.DELIVERED ? deliveryOtp : pickupOtp);
+      const result = await updateParcelStatus(item?.parcelId || item?.id, newStatus, newStatus == STATUS.DELIVERED ? deliveryOtp : pickupOtp);
       console.log(result)
       if (result.status == 1) {
         successToast(`Success, Status updated to ${STATUS_LABELS[newStatus]}`)
@@ -353,10 +352,10 @@ const TripMap = () => {
             provider={PROVIDER_GOOGLE}
             style={[styles.mapView, Platform.OS === 'ios' && { height: Dimensions.get('window').height }]}
             initialRegion={{
-              latitude: (pickup.latitude + dropoff.latitude) / 2,
-              longitude: (pickup.longitude + dropoff.longitude) / 2,
-              latitudeDelta: Math.max(0.05, Math.abs(pickup.latitude - dropoff.latitude) * 1.5),
-              longitudeDelta: Math.max(0.05, Math.abs(pickup.longitude - dropoff.longitude) * 1.5),
+              latitude: (pickup?.latitude + dropoff?.latitude) / 2,
+              longitude: (pickup?.longitude + dropoff?.longitude) / 2,
+              latitudeDelta: Math.max(0.05, Math.abs(pickup?.latitude - dropoff?.latitude) * 1.5),
+              longitudeDelta: Math.max(0.05, Math.abs(pickup?.longitude - dropoff?.longitude) * 1.5),
             }}
           >
             {pickupToDropoffValid && (
@@ -369,7 +368,7 @@ const TripMap = () => {
                   lineJoin="round"
                 />
                 <MapViewDirections
-                  key={`polyline-pickup-dropoff-${pickup.latitude.toFixed(5)}-${pickup.longitude.toFixed(5)}-${dropoff.latitude.toFixed(5)}-${dropoff.longitude.toFixed(5)}`}
+                  key={`polyline-pickup-dropoff-${pickup?.latitude.toFixed(5)}-${pickup?.longitude.toFixed(5)}-${dropoff?.latitude.toFixed(5)}-${dropoff?.longitude.toFixed(5)}`}
                   origin={pickup}
                   destination={dropoff}
                   apikey={GOOGLE_MAPS_APIKEY}

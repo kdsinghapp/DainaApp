@@ -18,7 +18,9 @@ import { getMessaging } from "@react-native-firebase/messaging";
 import strings from "../../../localization/Localization";
 
 const PhoneLogin = () => {
-  const [phoneNumber, setPhoneNumber] = useState("9773967567677");
+  // const [phoneNumber, setPhoneNumber] = useState("9440589340");
+  const [phoneNumber, setPhoneNumber] = useState("");
+  // const [phoneNumber, setPhoneNumber] = useState("9773967567677");
   const [countryCode, setCountryCode] = useState("IN");
   const [callingCode, setCallingCode] = useState("+91");
   const [loading, setLoading] = useState(false);
@@ -62,8 +64,8 @@ const PhoneLogin = () => {
   }, [searchText]);
 
   const handleSelectCountry = (country) => {
-    setCountryCode(country.code);
-    setCallingCode(country.dial_code);
+    setCountryCode(country?.code);
+    setCallingCode(country?.dial_code);
     setModalVisible(false);
     setSearchText(""); // reset search
   };
@@ -113,8 +115,8 @@ const PhoneLogin = () => {
             resizeMode="contain"
           />
         </View>
-        <Text style={styles.title}>{strings.PhoneQuestion}</Text>
-        <Text style={styles.subtitle}>{strings.PhoneSubtitle}</Text>
+        <Text style={styles.title}>{strings?.PhoneQuestion}</Text>
+        <Text style={styles.subtitle}>{strings?.PhoneSubtitle}</Text>
         {/* Phone Input */}
         <Text style={{
           color: "#FFCC00",

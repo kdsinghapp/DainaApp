@@ -14,7 +14,6 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
 import StatusBarComponent from "../../../../compoent/StatusBarCompoent";
 import imageIndex from "../../../../assets/imageIndex";
-import font from "../../../../theme/font";
 import ScreenNameEnum from "../../../../routes/screenName.enum";
 import { useDeliveryHome } from "./useDeliveryHome";
 import LoadingModal from "../../../../utils/Loader";
@@ -102,7 +101,7 @@ const AllOrder = () => {
       <NewOrderNotificationModal />
       <OfferAcceptedModal />
       <View style={styles.tabs}>
-        {TABS.map((tab) => {
+        {TABS?.map((tab) => {
           const active = tab === activeTab;
           return (
             <Pressable
@@ -171,7 +170,7 @@ const AllOrder = () => {
                   />
                   <Text style={[styles.cardDate, {
                     marginLeft: 5
-                  }]}>{item.date}</Text>
+                  }]}>{item?.date}</Text>
 
                   <View style={{ flex: 1 }} />
                   <Image source={imageIndex.more_vert}

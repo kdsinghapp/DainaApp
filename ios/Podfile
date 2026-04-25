@@ -133,6 +133,9 @@ target 'ChewbeApp' do
   # ✅ Google Maps
   pod 'react-native-google-maps', :path => '../node_modules/react-native-maps'
 
+  # ✅ Vector Icons
+  pod 'RNVectorIcons', :path => '../node_modules/react-native-vector-icons'
+
   # use_react_native!(
   #   :path => config[:reactNativePath],
   #   :fabric_enabled => false,

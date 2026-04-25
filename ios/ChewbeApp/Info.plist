@@ -42,6 +42,48 @@
 
 	<key>UIAppFonts</key>
 	<array>
+		<string>AntDesign.ttf</string>
+		<string>Entypo.ttf</string>
+		<string>EvilIcons.ttf</string>
+		<string>Feather.ttf</string>
+		<string>FontAwesome.ttf</string>
+		<string>FontAwesome5_Brands.ttf</string>
+		<string>FontAwesome5_Regular.ttf</string>
+		<string>FontAwesome5_Solid.ttf</string>
+		<string>FontAwesome6_Brands.ttf</string>
+		<string>FontAwesome6_Regular.ttf</string>
+		<string>FontAwesome6_Solid.ttf</string>
+		<string>Fontisto.ttf</string>
+		<string>Foundation.ttf</string>
+		<string>Ionicons.ttf</string>
+		<string>MaterialCommunityIcons.ttf</string>
+		<string>MaterialIcons.ttf</string>
+		<string>Monolith Regular.otf</string>
+		<string>Octicons.ttf</string>
+		<string>Panton-Trial-SemiBold.ttf</string>
+		<string>SimpleLineIcons.ttf</string>
+		<string>TT Neoris Trial Black Italic.ttf</string>
+		<string>TT Neoris Trial Black.ttf</string>
+		<string>TT Neoris Trial Bold Italic.ttf</string>
+		<string>TT Neoris Trial Bold.ttf</string>
+		<string>TT Neoris Trial DemiBold Italic.ttf</string>
+		<string>TT Neoris Trial DemiBold.ttf</string>
+		<string>TT Neoris Trial ExtraBold Italic.ttf</string>
+		<string>TT Neoris Trial ExtraBold.ttf</string>
+		<string>TT Neoris Trial ExtraLight Italic.ttf</string>
+		<string>TT Neoris Trial ExtraLight.ttf</string>
+		<string>TT Neoris Trial Hairline Italic.ttf</string>
+		<string>TT Neoris Trial Hairline.ttf</string>
+		<string>TT Neoris Trial Italic.ttf</string>
+		<string>TT Neoris Trial Light Italic.ttf</string>
+		<string>TT Neoris Trial Light.ttf</string>
+		<string>TT Neoris Trial Medium Italic.ttf</string>
+		<string>TT Neoris Trial Medium.ttf</string>
+		<string>TT Neoris Trial Regular.ttf</string>
+		<string>TT Neoris Trial Thin Italic.ttf</string>
+		<string>TT Neoris Trial Thin.ttf</string>
+		<string>TT Neoris Trial Variable.ttf</string>
+		<string>Zocial.ttf</string>
 	</array>
 
 	<key>UIBackgroundModes</key>

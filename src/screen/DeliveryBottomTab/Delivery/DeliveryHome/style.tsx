@@ -1,10 +1,8 @@
 import { StyleSheet } from "react-native";
 import font from "../../../../theme/font";
- 
-
 
 export const styles = StyleSheet.create({
-   container: {
+  container: {
     flex: 1,
     padding: 12,
     backgroundColor: "#fff",
@@ -66,24 +64,24 @@ export const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     color: "black",
-     fontWeight: "700",
+    fontWeight: "700",
   },
-    sectionTitle1: {
+  sectionTitle1: {
     fontSize: 15,
     color: "black",
-     fontWeight: "600",
+    fontWeight: "600",
   },
 
   tabs: {
     flexDirection: "row",
     backgroundColor: "#F5F5F5",
-     padding: 6,
+    padding: 6,
     borderRadius: 30,
     marginBottom: 12,
-    height:55,
-    justifyContent:"center" ,
-    alignItems:"center",
-    marginTop:10
+    height: 55,
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 10
 
   },
   tab: {
@@ -94,31 +92,31 @@ export const styles = StyleSheet.create({
   },
   tabActive: {
     backgroundColor: "#000000",
-     height:45,
+    height: 45,
     borderRadius: 30,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.06,
     shadowRadius: 2,
-    justifyContent:"center",
-    alignItems:"center"
+    justifyContent: "center",
+    alignItems: "center"
   },
   tabText: {
     fontSize: 14,
-    color: "#1C1B1B",    fontWeight: "400",
+    color: "#1C1B1B", fontWeight: "400",
 
-   },
+  },
   tabTextActive: {
     color: "white",
     fontWeight: "700",
-     fontSize: 15,
+    fontSize: 15,
 
 
   },
   container1: {
     flexDirection: "row",
     justifyContent: "space-between",
-     marginTop: 20,
+    marginTop: 20,
   },
   card1: {
     flex: 1,
@@ -126,7 +124,7 @@ export const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 16,
     marginHorizontal: 6,
-     shadowColor: "#000",
+    shadowColor: "#000",
     shadowOpacity: 0.2,
     shadowOffset: { width: 0, height: 2 },
     shadowRadius: 4,
@@ -136,30 +134,30 @@ export const styles = StyleSheet.create({
     height: 28,
     width: 28,
     marginBottom: 11,
-   },
+  },
   title: {
     color: "#EDEDED",
     fontSize: 14,
-     marginTop:8
+    marginTop: 8
   },
- 
+
 
   card: {
     backgroundColor: "#fff",
-   borderRadius: 16,
-  padding: 17,
-  marginBottom: 16,
-  borderColor: "#eee",
-  borderWidth: 1,
+    borderRadius: 16,
+    padding: 17,
+    marginBottom: 16,
+    borderColor: "#eee",
+    borderWidth: 1,
 
-  // ✅ iOS shadow
-  shadowColor: "#000",
-  shadowOffset: { width: 0, height: 0 },
-  shadowOpacity: 0.1,
-  shadowRadius: 6,
+    // ✅ iOS shadow
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
 
-  // ✅ Android shadow
-   },
+    // ✅ Android shadow
+  },
   cardTop: {
     flexDirection: "row",
     alignItems: "center",
@@ -178,7 +176,7 @@ export const styles = StyleSheet.create({
     marginRight: 8,
     color: "black",
   },
-  bold: { fontWeight: "700",  fontSize:16,color:"black"},
+  bold: { fontWeight: "700", fontSize: 16, color: "black" },
   cardDate: {
     marginLeft: "auto",
     fontSize: 13,
@@ -189,7 +187,7 @@ export const styles = StyleSheet.create({
   routeRow: {
     flexDirection: "row",
     alignItems: "flex-start",
-    marginLeft:35
+    marginLeft: 35
   },
   label: {
     fontSize: 14,
@@ -200,7 +198,7 @@ export const styles = StyleSheet.create({
     fontSize: 14,
     color: "#76889A",
     fontFamily: font.MonolithRegular,
-        marginTop: 10,
+    marginTop: 10,
 
   },
   statusRow: {

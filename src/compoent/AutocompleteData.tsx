@@ -7,7 +7,6 @@ import {
   FlatList,
   TouchableOpacity,
   StyleSheet,
-  Dimensions,
   StatusBar,
   ActivityIndicator,
   Keyboard,
@@ -18,13 +17,13 @@ import imageIndex from "../assets/imageIndex";
 import { GOOGLE_MAPS_APIKEY } from "../Api";
 import Geolocation from '@react-native-community/geolocation';
 
- 
+
 const AddressModalInput = ({ modalVisible, setModalVisible, value, onChange, onSelect }: any) => {
   const [searchText, setSearchText] = useState(value || "");
   const [suggestions, setSuggestions] = useState([]);
   const [loading, setLoading] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
-   
+
   const [countryCode, setCountryCode] = useState("MN");
 
   useEffect(() => {
@@ -77,7 +76,7 @@ const AddressModalInput = ({ modalVisible, setModalVisible, value, onChange, onS
 
       const response = await fetch(url);
       const data = await response.json();
-      
+
       if (data.status === "OK") {
         setSuggestions(data.predictions);
       } else {
@@ -124,10 +123,10 @@ const AddressModalInput = ({ modalVisible, setModalVisible, value, onChange, onS
         <View style={styles.header}>
           <View style={styles.headerContent}>
             <View>
-                <Text style={styles.title}>Search Address</Text>
-                {/* <Text style={styles.countryHint}>Searching in {countryCode.toUpperCase()}</Text> */}
+              <Text style={styles.title}>Search Address</Text>
+              {/* <Text style={styles.countryHint}>Searching in {countryCode.toUpperCase()}</Text> */}
             </View>
-            <TouchableOpacity 
+            <TouchableOpacity
               style={styles.closeButton}
               onPress={() => setModalVisible(false)}
             >
@@ -185,10 +184,10 @@ const AddressModalInput = ({ modalVisible, setModalVisible, value, onChange, onS
               ItemSeparatorComponent={() => <View style={styles.separator} />}
               ListEmptyComponent={() => (
                 hasSearched && searchText.length > 0 ? (
-                    <View style={styles.emptyState}>
-                        <Text style={styles.emptyStateTitle}>No results in this region</Text>
-                        {/* <Text style={styles.emptyStateText}>We only found addresses within {countryCode.toUpperCase()}.</Text> */}
-                    </View>
+                  <View style={styles.emptyState}>
+                    <Text style={styles.emptyStateTitle}>No results in this region</Text>
+                    {/* <Text style={styles.emptyStateText}>We only found addresses within {countryCode.toUpperCase()}.</Text> */}
+                  </View>
                 ) : null
               )}
             />

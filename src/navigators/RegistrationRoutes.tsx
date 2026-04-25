@@ -87,7 +87,7 @@ const RegistrationRoutes: React.FC = () => {
                 name={screen.name}
                 component={screen.Component}
                 options={{
-                  animation: screen.name === ScreenNameEnum.SuccessScreen ? 'fade' : 'slide_from_right',
+                  animation: screen?.name === ScreenNameEnum.SuccessScreen ? 'fade' : 'slide_from_right',
                 }}
               />
             ))}

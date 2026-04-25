@@ -330,11 +330,11 @@ const ParcelDetails = () => {
               <View style={styles.sectionContainer}>
                 <Text style={styles.sectionTitle}>Parcel Information</Text>
 
-                 
-                <Text style={styles.sectionTitle}>Price {item?.proposedPrice || item?.data?.price}  
+
+                <Text style={styles.sectionTitle}>Price {item?.proposedPrice || item?.data?.price}
 
                 </Text>
-          
+
 
 
                 <View style={styles.infoRow}>
@@ -469,7 +469,7 @@ const ParcelDetails = () => {
               />
 
               {/* Cancel Button (for certain statuses) */}
-              {canCancel && !buttonConfig.disabled && (
+              {canCancel && !buttonConfig?.disabled && (
                 <TouchableOpacity
                   style={[styles.cancelButton, { borderColor: STATUS_COLORS[STATUS.CANCELLED] }]}
                   onPress={handleCancelOrder}

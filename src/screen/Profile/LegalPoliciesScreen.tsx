@@ -6,9 +6,9 @@ import Loading from '../../utils/Loader';
 import imageIndex from '../../assets/imageIndex';
 import StatusBarComponent from '../../compoent/StatusBarCompoent';
 import CustomHeader from '../../compoent/CustomHeader';
- import { hp } from '../../utils/Constant';
+import { hp } from '../../utils/Constant';
 import font from '../../theme/font';
-import {   Termsconditions } from '../../Api/apiRequest';
+import { Termsconditions } from '../../Api/apiRequest';
 import LoadingModal from '../../utils/Loader';
 import strings from '../../localization/Localization';
 
@@ -21,26 +21,26 @@ const LegalPoliciesScreen = () => {
         getPrivacyPolicy();
     }, []);
 
-const getPrivacyPolicy = async () => {
-  try {
-    const response = await Termsconditions(setLoading);
-    if (response && response?.content) {
-      setContent(response.content); // ✅ content is now set correctly
-    } else {
-      setContent(`<p>${strings.NoContentAvailable}</p>`);
-    }
-  } catch (error) {
-    setContent(`<p>${strings.NoContentAvailable}</p>`);
-  }
-};
+    const getPrivacyPolicy = async () => {
+        try {
+            const response = await Termsconditions(setLoading);
+            if (response && response?.content) {
+                setContent(response.content); // ✅ content is now set correctly
+            } else {
+                setContent(`<p>${strings.NoContentAvailable}</p>`);
+            }
+        } catch (error) {
+            setContent(`<p>${strings.NoContentAvailable}</p>`);
+        }
+    };
 
     return (
         <SafeAreaView style={styles.container}>
             {isLoading && <Loading />}
             <StatusBarComponent />
-                          <LoadingModal visible ={isLoading}/>
+            <LoadingModal visible={isLoading} />
 
-            <CustomHeader     label={strings.TermsConditions} />
+            <CustomHeader label={strings.TermsConditions} />
             <ScrollView
                 showsVerticalScrollIndicator={false}
                 contentContainerStyle={styles.contentContainer}
@@ -88,7 +88,7 @@ const styles = StyleSheet.create({
             fontSize: 14,
             color: '#333',
             lineHeight: 24,
-             marginTop: 8,
+            marginTop: 8,
             fontFamily: font.MonolithRegular,
         },
         h1: {
@@ -111,7 +111,7 @@ const styles = StyleSheet.create({
         fontSize: 14,
         lineHeight: 20,
         color: '#666',
-         fontFamily: font.MonolithRegular,
+        fontFamily: font.MonolithRegular,
     },
 });
 

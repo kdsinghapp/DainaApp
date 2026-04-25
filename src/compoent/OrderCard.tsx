@@ -27,35 +27,35 @@ const OrderCard = ({ order, onPress }: { order: any; onPress: () => void }) => {
     });
   };
 
-  const statusKey = order.deliveryStatus;
-  const statusLabel = STATUS_LABELS[statusKey] || strings.StatusPending;
+  const statusKey = order?.deliveryStatus;
+  const statusLabel = STATUS_LABELS[statusKey] || strings?.StatusPending;
   const statusColor = STATUS_COLORS[statusKey] || 'black';
 
   return (
-    <TouchableOpacity 
-      activeOpacity={0.9} 
-      style={styles.card} 
+    <TouchableOpacity
+      activeOpacity={0.9}
+      style={styles.card}
       onPress={() => onPress()}
     >
       {/* Top Header Section */}
       <View style={styles.cardTop}>
         <View style={styles.iconBox}>
-          <Image 
+          <Image
             source={imageIndex.icons} // This is the parcel/box icon
             style={styles.headerIcon}
           />
         </View>
         <View style={styles.headerText}>
-          <Text style={styles.cardId}>#{order.trackingId || order.id} <Text style={{color:MUTED, fontFamily: font.MonolithRegular}}> •</Text></Text>
-           <Text style={styles.cardDate}> {formatDateTime(order.createdAt)}</Text>
+          <Text style={styles.cardId}>#{order?.trackingId || order?.id} <Text style={{ color: MUTED, fontFamily: font.MonolithRegular }}> •</Text></Text>
+          <Text style={styles.cardDate}> {formatDateTime(order?.createdAt)}</Text>
         </View>
       </View>
 
       {/* Location Section with Vertical Vector */}
       <View style={styles.locationSection}>
         {/* Vertical Line Image */}
-        <Image 
-          source={imageIndex.Vector} 
+        <Image
+          source={imageIndex.Vector}
           style={styles.vectorLine}
           resizeMode="contain"
         />
@@ -63,17 +63,17 @@ const OrderCard = ({ order, onPress }: { order: any; onPress: () => void }) => {
         <View style={styles.locationContent}>
           {/* Pickup */}
           <View style={styles.locationBlock}>
-            <Text style={styles.label}>{strings.From || "From"}</Text>
+            <Text style={styles.label}>{strings?.From || "From"}</Text>
             <Text style={styles.value} numberOfLines={2}>
-              {order.pickupLocation}
+              {order?.pickupLocation}
             </Text>
           </View>
 
           {/* Drop */}
           <View style={[styles.locationBlock, { marginTop: 15 }]}>
-            <Text style={styles.label}>{strings.To || "To"}</Text>
+            <Text style={styles.label}>{strings?.To || "To"}</Text>
             <Text style={styles.value} numberOfLines={2}>
-              {order.dropLocation}
+              {order?.dropLocation}
             </Text>
           </View>
         </View>
@@ -98,7 +98,7 @@ const OrderCard = ({ order, onPress }: { order: any; onPress: () => void }) => {
         justifyContent: "center"
       }}>
         <Text style={[styles.viewDetailsText, { color: "black" }]}>
-          {strings.ViewDetails}
+          {strings?.ViewDetails}
         </Text>
       </View>
     </TouchableOpacity>
@@ -115,7 +115,7 @@ const styles = StyleSheet.create({
     marginBottom: 15,
     borderWidth: 1,
     borderColor: BORDER,
-     shadowColor: "#000",
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
@@ -137,13 +137,13 @@ const styles = StyleSheet.create({
   headerText: {
     flex: 1,
     marginLeft: 12,
-    flexDirection:'row'
+    flexDirection: 'row'
   },
   cardId: {
     fontFamily: font.MonolithRegular,
     fontSize: 15,
     color: TEXT,
-   },
+  },
   cardDate: {
     fontFamily: font.MonolithRegular,
     fontSize: 12,
@@ -159,7 +159,7 @@ const styles = StyleSheet.create({
   priceText: {
     fontFamily: font.MonolithRegular,
     color: YELLOW,
-  
+
   },
   locationSection: {
     flexDirection: "row",
@@ -186,7 +186,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: TEXT,
     fontFamily: font.MonolithRegular,
-     marginTop: 2,
+    marginTop: 2,
   },
   footer: {
     flexDirection: "row",
@@ -209,12 +209,12 @@ const styles = StyleSheet.create({
   statusValue: {
     fontSize: 16,
     color: "#4CAF50", // Green for status
-     fontFamily: font.MonolithRegular,
+    fontFamily: font.MonolithRegular,
   },
   viewDetailsText: {
-  fontSize: 14,
+    fontSize: 14,
     color: color.baground,
     // textDecorationLine: "underline",
-     fontFamily: font.MonolithRegular,
+    fontFamily: font.MonolithRegular,
   },
 });
