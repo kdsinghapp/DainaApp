@@ -18,7 +18,7 @@ import { useDeliveryContext } from '../context/DeliveryContext';
 const NewOrderNotificationModal: React.FC = () => {
   const ctx = useDeliveryContext();
   const navigation = useNavigation();
-
+  console.log("ctx  --- ", ctx)
   if (!ctx) return null;
 
   const {
@@ -28,6 +28,10 @@ const NewOrderNotificationModal: React.FC = () => {
     acceptCounterOfferLoading,
     RejectcounterOffer,
   } = ctx;
+
+  console.log("newOrderNotification ---- ", newOrderNotification)
+  console.log("acceptCounterOffer ---- ", acceptCounterOffer)
+  console.log("acceptCounterOfferLoading ---- ", acceptCounterOfferLoading)
 
   if (!newOrderNotification?.visible) return null;
 

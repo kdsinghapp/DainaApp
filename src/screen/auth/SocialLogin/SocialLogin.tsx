@@ -6,6 +6,7 @@ import CustomButton from '../../../compoent/CustomButton';
  import ScreenNameEnum from '../../../routes/screenName.enum';
 import StatusBarComponent from '../../../compoent/StatusBarCompoent';
 import useChooseRoleScreen from './useChooseRoleScreen';
+import strings from '../../../localization/Localization';
  
 const SocialLogin = () => {
      const { 
@@ -27,7 +28,7 @@ const SocialLogin = () => {
         resizeMode="contain"
       />
         <CustomButton
-        title="Continue with Number"
+        title={strings.ContinueWithNumber}
         bgColor="#FFCC00"
         txtcolor="#000"
         height={60}
@@ -46,7 +47,7 @@ const SocialLogin = () => {
      
 
           <CustomButton
-        title="Continue with Google"
+        title={strings.ContinueWithGoogle}
         bgColor="#fff"
         txtcolor="#000"
         height={60}

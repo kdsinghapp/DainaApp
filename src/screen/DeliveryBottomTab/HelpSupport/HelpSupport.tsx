@@ -15,6 +15,7 @@ import StatusBarComponent from '../../../compoent/StatusBarCompoent';
 import LoadingModal from '../../../utils/Loader';
 import CustomButton from '../../../compoent/CustomButton';
 import imageIndex from '../../../assets/imageIndex';
+import strings from '../../../localization/Localization';
 
 
 const HelpSupport = () => {
@@ -43,7 +44,7 @@ const HelpSupport = () => {
 
                 <CustomHeader
                    
-                 label="Help & Support" />
+                 label={strings.Support} />
 
                 <View style={{ marginHorizontal: 15, }}>
                     <View style={styles.illustrationContainer}>
@@ -69,7 +70,7 @@ const HelpSupport = () => {
                             marginLeft: 10,
                             marginTop: 5,
                             fontWeight: "800"
-                        }}>How can we help?</Text>
+                        }}>{strings.HowCanWeHelp}</Text>
                         <TextInput
                         value={SupportHelp}
                         onChangeText={setSupportHelp}
@@ -82,7 +83,7 @@ const HelpSupport = () => {
                                 bottom: 10,
                                 textAlignVertical: 'top', // Ensures text starts at the top in Android
                             }}
-                            placeholder="Type Here..."
+                            placeholder={strings.TypeHere}
                             placeholderTextColor="rgba(84, 84, 84, 1)"
                             multiline
                         />
@@ -93,7 +94,7 @@ const HelpSupport = () => {
 
                     }}>
                         <CustomButton
-                            title="Submit"
+                            title={strings.Submit}
                             onPress={()=>handleSubmit()}
 
                         />

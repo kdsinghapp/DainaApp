@@ -1,8 +1,7 @@
-// PhoneLoginScreen.js
 import React, { useState, useEffect, useRef } from "react";
-import { 
-  View, Text, Image, TextInput, TouchableOpacity, StyleSheet, 
-  KeyboardAvoidingView, Platform, Modal, FlatList 
+import {
+  View, Text, Image, TextInput, TouchableOpacity, StyleSheet,
+  KeyboardAvoidingView, Platform, Modal, FlatList
 } from "react-native";
 import CustomButton from "../../../compoent/CustomButton";
 import imageIndex from "../../../assets/imageIndex";
@@ -16,49 +15,40 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import LoadingModal from "../../../utils/Loader";
 import NotificationService from "../../../services/NotificationService";
 import { getMessaging } from "@react-native-firebase/messaging";
+import strings from "../../../localization/Localization";
+
 const PhoneLogin = () => {
-  const [phoneNumber, setPhoneNumber] = useState("");  
-  // const [phoneNumber, setPhoneNumber] = useState("9445433323");  
-  // const [phoneNumber, setPhoneNumber] = useState("9565466565");  
- //  user
-  //  const [phoneNumber, setPhoneNumber] = useState("");  
-//  delver=
-   const [countryCode, setCountryCode] = useState("IN");
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [countryCode, setCountryCode] = useState("IN");
   const [callingCode, setCallingCode] = useState("+91");
   const [loading, setLoading] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [searchText, setSearchText] = useState("");
   const [filteredCountries, setFilteredCountries] = useState(Constcounty);
-const navigation  = useNavigation();
+  const navigation = useNavigation();
   const [error, setError] = useState(""); // For error message
 
-  useEffect(()=>{
+  useEffect(() => {
     getFcmToken()
-  },[])
-   const getFcmToken = async () => {
-  try {
-    // Step 1: Token lo
-    const fcmToken = await getMessaging().getToken();
+  }, [])
 
-    if (fcmToken) {
-      // Step 2: Save in storage
-      await AsyncStorage.setItem('fcmToken', fcmToken);
-      console.log('✅ FCM Token:', fcmToken);
-      return fcmToken;
-    } else {
-      throw new Error('FCM Token not received');
+  const getFcmToken = async () => {
+    try {
+      const fcmToken = await getMessaging().getToken();
+
+      if (fcmToken) {
+        await AsyncStorage.setItem('fcmToken', fcmToken);
+        console.log('✅ FCM Token:', fcmToken);
+        return fcmToken;
+      } else {
+        throw new Error('FCM Token not received');
+      }
+
+    } catch (error) {
+      console.log(`❌ FCM Token Error: `, error);
+      return null;
     }
-
-  } catch (error) {
-    console.log(`❌ FCM Token Error | Retries left:  `, error);
-
-     
-
-    return null;
-  }
-};
-  
- 
+  };
 
   useEffect(() => {
     if (searchText === "") {
@@ -78,91 +68,84 @@ const navigation  = useNavigation();
     setSearchText(""); // reset search
   };
 
-  const handleContinue = async() => {
+  const handleContinue = async () => {
     const trimmedNumber = phoneNumber.replace(/\D/g, ""); // Remove non-digit characters
-   const userType = await AsyncStorage.getItem('selectedRole');
+    const userType = await AsyncStorage.getItem('selectedRole');
 
     // Validation
     if (!trimmedNumber) {
-      setError("Please enter your phone number.");
+      setError(strings.PleaseEnterPhone);
       return;
     } else if (trimmedNumber.length < 6 || trimmedNumber.length > 15) {
-      setError("Please enter a valid phone number (6-15 digits).");
+      setError(strings.PleaseEnterValidPhone);
       return;
     }
     // Clear error if valid
     setError("");
-    let data ={
-        code: `${callingCode}`,
+    let data = {
+      code: `${callingCode}`,
       phone: phoneNumber,
-      navigation:navigation,
-      type:userType
+      navigation: navigation,
+      type: userType
     }
 
-         try {
-    await LogiApi(data, setLoading);
-  } catch (err) {
-    console.log("API call error:", err);
-  }
+    try {
+      await LogiApi(data, setLoading);
+    } catch (err) {
+      console.log("API call error:", err);
+    }
   };
-
-
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBarComponent/>
-      
+      <StatusBarComponent />
+
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : undefined}
         style={styles.container}
       >
-              <LoadingModal visible ={loading}/>
+        <LoadingModal visible={loading} />
         {/* Logo */}
         <View style={styles.logoContainer}>
-          <Image 
-            source={imageIndex.phonLogoapp} 
-            style={styles.logo} 
+          <Image
+            source={imageIndex.phonLogoapp}
+            style={styles.logo}
             resizeMode="contain"
           />
         </View>
-        <Text style={styles.title}>What's your phone number?</Text>
-        <Text style={styles.subtitle}>We'll send you a code to verify it</Text>
+        <Text style={styles.title}>{strings.PhoneQuestion}</Text>
+        <Text style={styles.subtitle}>{strings.PhoneSubtitle}</Text>
         {/* Phone Input */}
         <Text style={{
-          color:"#FFCC00",
-          fontSize:15,
-          marginBottom:15
-
-        }}>Phone Number</Text>
+          color: "#FFCC00",
+          fontSize: 15,
+          marginBottom: 15
+        }}>{strings.PhoneNumber}</Text>
         <View style={styles.inputContainer}>
           <TouchableOpacity onPress={() => setModalVisible(true)} style={styles.countryPicker}>
             <Text style={styles.callingCode}>{callingCode}</Text>
-            <Image 
-              source={imageIndex.dounArroww} 
-              style={{ height: 22, width: 22, marginLeft: 5 }} 
+            <Image
+              source={imageIndex.dounArroww}
+              style={{ height: 22, width: 22, marginLeft: 5 }}
             />
-            <View style={styles.separator}/>
+            <View style={styles.separator} />
           </TouchableOpacity>
 
           <TextInput
             style={styles.input}
             keyboardType="number-pad"
-            placeholder="Phone Number"
+            placeholder={strings.PhoneNumber}
             value={phoneNumber}
             onChangeText={setPhoneNumber}
             placeholderTextColor={"black"}
           />
         </View>
-      {error ? <Text style={styles.errorText}>{error}</Text> : null}
+        {error ? <Text style={styles.errorText}>{error}</Text> : null}
 
         {/* Continue Button */}
         <View style={{ marginTop: 20 }}>
-          <CustomButton title={"Continue"} onPress={handleContinue} />
+          <CustomButton title={strings.Continue} onPress={handleContinue} />
         </View>
-
-        {/* <TouchableOpacity>
-          <Text style={styles.emailText}>Prefer to sign in with email?</Text>
-        </TouchableOpacity> */}
 
         {/* Custom Country Modal */}
         <Modal visible={modalVisible} animationType="slide" transparent={true}>
@@ -170,18 +153,18 @@ const navigation  = useNavigation();
             <View style={styles.modalContent}>
               {/* Header */}
               <View style={styles.modalHeader}>
-                <Text style={styles.modalTitle}>Select Country</Text>
+                <Text style={styles.modalTitle}>{strings.SelectCountry}</Text>
                 <TouchableOpacity onPress={() => setModalVisible(false)}>
-                  <Text style={styles.modalCancel}>Cancel</Text>
+                  <Text style={styles.modalCancel}>{strings.Cancel}</Text>
                 </TouchableOpacity>
               </View>
 
               {/* Search Input */}
               <TextInput
-                placeholder="Search country"
+                placeholder={strings.SearchCountry}
                 value={searchText}
                 onChangeText={setSearchText}
-                style={styles.searchInput} 
+                style={styles.searchInput}
                 placeholderTextColor={"#999"}
               />
 
@@ -192,8 +175,8 @@ const navigation  = useNavigation();
                 showsVerticalScrollIndicator={false}
                 style={{ marginTop: 10 }}
                 renderItem={({ item }) => (
-                  <TouchableOpacity 
-                    style={styles.modalItem} 
+                  <TouchableOpacity
+                    style={styles.modalItem}
                     onPress={() => handleSelectCountry(item)}
                   >
                     <Text style={styles.countryText}>
@@ -214,16 +197,16 @@ export default PhoneLogin;
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#fff", paddingHorizontal: 12, paddingTop: 45 },
-  logoContainer: { justifyContent:"center", alignItems:"center", marginBottom:50 },
+  logoContainer: { justifyContent: "center", alignItems: "center", marginBottom: 50 },
   logo: { height: 96, width: 167 },
-  title: { marginBottom:5, fontSize: 22, color:"black", fontFamily:font.MonolithRegular, textAlign: "center" },
-  subtitle: { fontFamily:font.MonolithRegular, fontSize: 14, textAlign: "center", color: "#9DB2BF", marginBottom: 30, marginTop:10 },
+  title: { marginBottom: 5, fontSize: 22, color: "black", fontFamily: font.MonolithRegular, textAlign: "center" },
+  subtitle: { fontFamily: font.MonolithRegular, fontSize: 14, textAlign: "center", color: "#9DB2BF", marginBottom: 30, marginTop: 10 },
   inputContainer: { flexDirection: "row", alignItems: "center", borderWidth: 1.2, borderColor: "#FFCC00", borderRadius: 40, paddingHorizontal: 10, marginBottom: 20 },
-  countryPicker: { marginRight: 5, alignItems:"center", flexDirection:"row" },
-  callingCode: { fontSize: 16, color:"black", fontFamily:font.MonolithRegular },
-  separator: { borderWidth:0.5, height:22, borderColor:"#FFCC00", marginLeft:5 },
-  input: { fontFamily:font.MonolithRegular, flex: 1, height: 50, fontSize: 16, marginLeft:5, color:"black" },
-  emailText: { color: "black", textAlign: "center", fontSize: 16, marginTop:20, fontFamily:font.MonolithRegular },
+  countryPicker: { marginRight: 5, alignItems: "center", flexDirection: "row" },
+  callingCode: { fontSize: 16, color: "black", fontFamily: font.MonolithRegular },
+  separator: { borderWidth: 0.5, height: 22, borderColor: "#FFCC00", marginLeft: 5 },
+  input: { fontFamily: font.MonolithRegular, flex: 1, height: 50, fontSize: 16, marginLeft: 5, color: "black" },
+  emailText: { color: "black", textAlign: "center", fontSize: 16, marginTop: 20, fontFamily: font.MonolithRegular },
 
   /* Modal Styles */
   modalOverlay: { flex: 1, backgroundColor: "rgba(0,0,0,0.5)", justifyContent: "center", alignItems: "center" },
@@ -233,11 +216,11 @@ const styles = StyleSheet.create({
   modalCancel: { fontFamily: font.MonolithRegular, fontSize: 15, color: "#FFCC00" },
   searchInput: { fontFamily: font.MonolithRegular, borderWidth: 1, borderColor: "#ccc", borderRadius: 10, paddingHorizontal: 12, paddingVertical: 8, fontSize: 14, color: "#000" },
   modalItem: { paddingVertical: 12, borderBottomWidth: 0.5, borderBottomColor: "#ddd" },
-  countryText: { fontSize: 16, color: "#000", fontFamily: font.MonolithRegular } ,
-    errorText: {
+  countryText: { fontSize: 16, color: "#000", fontFamily: font.MonolithRegular },
+  errorText: {
     color: "red",
-    marginBottom: 10, 
-    fontSize:14,
-    fontFamily:font.MonolithRegular
+    marginBottom: 10,
+    fontSize: 14,
+    fontFamily: font.MonolithRegular
   },
 });

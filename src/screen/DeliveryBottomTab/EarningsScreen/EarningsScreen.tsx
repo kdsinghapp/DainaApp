@@ -5,6 +5,7 @@ import Svg, { Rect, Line } from "react-native-svg";
 import StatusBarComponent from "../../../compoent/StatusBarCompoent";
 import font from "../../../theme/font";
 import CustomHeader from "../../../compoent/CustomHeader";
+import strings from "../../../localization/Localization";
 
 const EarningsScreen = () => {
   const [loading, setLoading] = useState(true);
@@ -50,7 +51,7 @@ const EarningsScreen = () => {
       backgroundColor:"white"
     }}>
          <StatusBarComponent />
-      <CustomHeader label="Earnings" />
+      <CustomHeader label={strings.Earnings} />
 
     <ScrollView  
     
@@ -58,10 +59,10 @@ const EarningsScreen = () => {
     style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>Total Earnings</Text>
+        <Text style={styles.headerTitle}>{strings.TotalEarnings}</Text>
         <Text style={styles.amount}>$ 00</Text>
       </View>
-      <Text style={styles.growth}>↑ 0% This Week</Text>
+      <Text style={styles.growth}>↑ 0% {strings.ThisWeek}</Text>
 
       {/* Chart */}
       <View style={{
@@ -74,7 +75,7 @@ const EarningsScreen = () => {
               <Text style={{
                 color:"#4D4D4D" ,
                 marginTop:20
-              }}>Activity</Text>
+              }}>{strings.Activity}</Text>
 
       <View style={styles.chartWrapper}>
         <Svg height={chartHeight + 20} width="100%">
@@ -108,7 +109,7 @@ const EarningsScreen = () => {
           })}
         </Svg>
         <View style={styles.chartLabels}>
-          {["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"].map((d, i) => (
+          {[strings.Sun, strings.Mon, strings.Tue, strings.Wed, strings.Thu, strings.Fri, strings.Sat].map((d, i) => (
             <Text key={i} style={styles.dayLabel}>
               {d}
             </Text>
@@ -120,15 +121,15 @@ const EarningsScreen = () => {
       <View style={styles.statsRow}>
         <View style={styles.statBox}>
           <Text style={styles.statValue}>00</Text>
-          <Text style={styles.statLabel}>Online Hrs</Text>
+          <Text style={styles.statLabel}>{strings.OnlineHrs}</Text>
         </View>
         <View style={styles.statBox}>
           <Text style={styles.statValue}>0</Text>
-          <Text style={styles.statLabel}>Trips</Text>
+          <Text style={styles.statLabel}>{strings.Trips}</Text>
         </View>
         <View style={styles.statBox}>
           <Text style={styles.statValue}>$ 00</Text>
-          <Text style={styles.statLabel}>Cash Trip</Text>
+          <Text style={styles.statLabel}>{strings.CashTrip}</Text>
         </View>
       </View>
 
@@ -144,7 +145,7 @@ const EarningsScreen = () => {
         ))}
         <View style={styles.breakdownRow}>
           <Text style={[styles.breakdownLabel, { fontWeight: "bold", color: "green" }]}>
-            Total Earnings
+            {strings.TotalEarnings}
           </Text>
           <Text style={[styles.breakdownValue, { fontWeight: "bold", color: "green" }]}>
             $ 00

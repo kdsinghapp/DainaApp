@@ -4,7 +4,7 @@ import {
   Text,
   StyleSheet,
   ActivityIndicator,
-   TouchableOpacity,
+  TouchableOpacity,
   Image,
   Modal,
   Pressable,
@@ -15,7 +15,8 @@ import {
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import imageIndex from '../../../assets/imageIndex';
- import StatusBarComponent from '../../../compoent/StatusBarCompoent';
+import { base_url } from '../../../Api';
+import StatusBarComponent from '../../../compoent/StatusBarCompoent';
 import CustomHeader from '../../../compoent/CustomHeader';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { styles } from './style';
@@ -49,7 +50,7 @@ export default function DocumentShow() {
       setLoading(true);
       const token = await AsyncStorage.getItem('token');
 
-      const response = await fetch('https://aitechnotech.in/DAINA/api/upload-document', {
+      const response = await fetch(`${base_url}/upload-document`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -74,21 +75,21 @@ export default function DocumentShow() {
     }
   };
 
- 
 
-  const handleDownload = (imageUrl, title:any) => {
+
+  const handleDownload = (imageUrl, title: any) => {
     Alert.alert('Download', `Download ${title}?`, [
       { text: 'Cancel', style: 'cancel' },
       { text: 'Download', onPress: () => console.log('Download:', imageUrl) }
     ]);
   };
 
-  const DocumentCard = ({ title, imageUrl, icon, status = 'verified' }:any) => (
+  const DocumentCard = ({ title, imageUrl, icon, status = 'verified' }: any) => (
     <Animated.View style={[styles.card, { opacity: fadeAnim }]}>
       <View style={styles.cardHeader}>
         <View style={styles.titleContainer}>
           <View style={styles.iconTitleWrapper}>
-            
+
             <Text style={styles.cardTitle}>{title}</Text>
           </View>
           <View style={[
@@ -101,9 +102,9 @@ export default function DocumentShow() {
           </View>
         </View>
       </View>
-      
+
       <View style={styles.cardBody}>
-        <TouchableOpacity 
+        <TouchableOpacity
           style={styles.imageContainer}
           onPress={() => imageUrl && setSelectedImage(imageUrl)}
           activeOpacity={0.8}
@@ -113,26 +114,26 @@ export default function DocumentShow() {
             style={styles.image}
             resizeMode="cover"
           />
-           
+
         </TouchableOpacity>
- 
+
       </View>
- 
+
     </Animated.View>
   );
 
-  const getDocumentIcon = (title:any) => {
+  const getDocumentIcon = (title: any) => {
     const iconMap = {
       'Driving License': 'directions-car',
       'ID Document': 'badge',
       'Vehicle Papers': 'description',
     };
-    
+
     return (
-      <Icon 
-        name={iconMap[title] || 'insert-drive-file'} 
-        size={24} 
-        color="#007AFF" 
+      <Icon
+        name={iconMap[title] || 'insert-drive-file'}
+        size={24}
+        color="#007AFF"
       />
     );
   };
@@ -159,36 +160,36 @@ export default function DocumentShow() {
     );
   }
 
-  
+
   return (
     <SafeAreaView style={styles.container}>
       <StatusBarComponent />
       <CustomHeader label="My Documents" />
- 
-      <ScrollView 
+
+      <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
-        
+
       >
-       
+
 
         {/* Documents List */}
         {documents.drivingLicense || documents.idDocument || documents.vehiclePapers ? (
           <>
-            <DocumentCard 
-              title="Driving License" 
+            <DocumentCard
+              title="Driving License"
               imageUrl={documents?.drivingLicense}
               icon={getDocumentIcon('Driving License')}
               status="verified"
             />
-            <DocumentCard 
-              title="ID Document" 
+            <DocumentCard
+              title="ID Document"
               imageUrl={documents?.idDocument}
               icon={getDocumentIcon('ID Document')}
               status="verified"
             />
-            <DocumentCard 
-              title="Vehicle Papers" 
+            <DocumentCard
+              title="Vehicle Papers"
               imageUrl={documents?.vehiclePapers}
               icon={getDocumentIcon('Vehicle Papers')}
               status="pending"
@@ -198,13 +199,13 @@ export default function DocumentShow() {
           <EmptyState />
         )}
 
-       
+
       </ScrollView>
 
       {/* Enhanced Image Modal */}
-      <Modal 
-        visible={!!selectedImage} 
-        transparent 
+      <Modal
+        visible={!!selectedImage}
+        transparent
         animationType="slide"
         statusBarTranslucent
       >
@@ -218,7 +219,7 @@ export default function DocumentShow() {
               <Icon name="close" size={24} color="#FFF" />
             </TouchableOpacity>
           </View>
-          
+
           <View style={styles.imageContainerModal}>
             <Image
               source={{ uri: selectedImage }}
@@ -228,7 +229,7 @@ export default function DocumentShow() {
           </View>
 
           <View style={styles.modalFooter}>
-            <TouchableOpacity 
+            <TouchableOpacity
               style={styles.modalActionBtn}
               onPress={() => handleDownload(selectedImage, 'Document')}
               activeOpacity={0.7}
@@ -236,8 +237,8 @@ export default function DocumentShow() {
               <Icon name="file-download" size={20} color="#007AFF" />
               <Text style={styles.modalActionText}>Download</Text>
             </TouchableOpacity>
-            
-            <TouchableOpacity 
+
+            <TouchableOpacity
               style={styles.modalActionBtn}
               activeOpacity={0.7}
             >
@@ -250,4 +251,3 @@ export default function DocumentShow() {
     </SafeAreaView>
   );
 }
- 

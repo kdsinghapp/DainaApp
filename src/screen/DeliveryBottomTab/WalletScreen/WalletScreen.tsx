@@ -14,6 +14,7 @@ import StatusBarComponent from "../../../compoent/StatusBarCompoent";
 import CustomHeader from "../../../compoent/CustomHeader";
 import font from "../../../theme/font";
 import imageIndex from "../../../assets/imageIndex";
+import strings from "../../../localization/Localization";
 
 const WalletScreen = () => {
   const [balance, setBalance] = useState(12256.0);
@@ -68,13 +69,13 @@ const WalletScreen = () => {
   return (
     <SafeAreaView style={styles.container}>
       <StatusBarComponent />
-      <CustomHeader label="Wallet" />
+      <CustomHeader label={strings.Wallet} />
 <View style={{
   marginHorizontal:15
 }}>
       {/* Balance Card */}
       <View style={styles.balanceCard}>
-        <Text style={styles.balanceText}>Your Available Balance</Text>
+        <Text style={styles.balanceText}>{strings.AvailableBalance}</Text>
         <Text style={styles.balanceAmount}>$ 00</Text>
         <View style={styles.buttonRow}>
           <TouchableOpacity
@@ -84,7 +85,7 @@ const WalletScreen = () => {
               setModalVisible(true);
             }}
           >
-            <Text style={styles.btnText}>Withdraw</Text>
+            <Text style={styles.btnText}>{strings.Withdraw}</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.addBtn}
@@ -93,7 +94,7 @@ const WalletScreen = () => {
               setModalVisible(true);
             }}
           >
-            <Text style={styles.btnText}>Add Amount</Text>
+            <Text style={styles.btnText}>{strings.AddAmount}</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -116,12 +117,12 @@ const WalletScreen = () => {
         <View style={styles.modalOverlay}>
           <View style={styles.modalCard}>
             <Text style={styles.modalTitle}>
-              {modalType === "add" ? "💳 Add Money" : "🏧 Withdraw Money"}
+              {modalType === "add" ? `💳 ${strings.AddMoney}` : `🏧 ${strings.WithdrawMoney}`}
             </Text>
 
             <TextInput
               style={styles.input}
-              placeholder="Enter amount"
+              placeholder={strings.EnterAmount}
               keyboardType="numeric"
               value={amount}
               onChangeText={setAmount}
@@ -136,7 +137,7 @@ const WalletScreen = () => {
                 }}
               >
                 <Text style={[styles.modalBtnText, { color: "#333" }]}>
-                  Cancel
+                  {strings.Cancel}
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity
@@ -144,7 +145,7 @@ const WalletScreen = () => {
                 onPress={handleConfirm}
               >
                 <Text style={[styles.modalBtnText, { color: "#000" }]}>
-                  Confirm
+                  {strings.Confirm}
                 </Text>
               </TouchableOpacity>
             </View>

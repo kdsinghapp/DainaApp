@@ -475,14 +475,14 @@ const CourierTrackingScreen = () => {
           showsVerticalScrollIndicator={false}
         >
           {/* Rapido-style ETA strip: X mins • Y km */}
-          {/* {routePointsValid && (
+          {routePointsValid && (
             <View style={styles.etaStrip}>
               <Text style={styles.etaStripText}>{eta}</Text>
               <Text style={styles.etaStripDot}>•</Text>
               <Text style={styles.etaStripDistance}>{(distance != null ? distance.toFixed(1) : "—")} km</Text>
             </View>
-          )} */}
-          <View style={styles.driverSection}>
+          )}
+          {/* <View style={styles.driverSection}>
             {driver?.image ? (
               <Image source={{ uri: driver?.image }} style={styles.avatar} />
             ) : (
@@ -562,8 +562,115 @@ const CourierTrackingScreen = () => {
               </View>
             )}
 
-          </View>
+          </View> */}
+          <View style={styles.driverSection}>
+            {/* Driver Image */}
+            <Image
+              source={
+                driver?.image
+                  ? { uri: driver.image }
+                  : imageIndex.dpuser
+              }
+              style={styles.avatar}
+            />
 
+            <View style={styles.driverInfo}>
+
+              {/* Driver Name */}
+              <Text style={styles.driverName} numberOfLines={1}>
+                {driver?.name || "Assigning driver..."}
+              </Text>
+
+              {/* Tracking ID */}
+              <Text style={styles.driverName} numberOfLines={1}>
+                {item?.trackingId || ""}
+              </Text>
+
+              {/* Status */}
+              <Text
+                style={{
+                  textTransform: "capitalize",
+                  fontSize: 15,
+                  fontFamily: font.TrialMedium,
+                  color: statusColor,
+                }}
+              >
+                {statusLabel}
+              </Text>
+
+              {/* Vehicle Info (FIXED CONDITION) */}
+              {(driver?.vehicle?.vehicleType || driver?.vehicle?.vehicleNumber) && (
+                <Text style={styles.vehicleInfo} numberOfLines={1}>
+                  {driver?.vehicle?.vehicleType || ""}
+                  {" "}
+                  {driver?.vehicle?.vehicleNumber || ""}
+                </Text>
+              )}
+
+              {/* Action Buttons */}
+              <View style={styles.actionButtons}>
+
+                {/* Call Button */}
+                <TouchableOpacity
+                  style={styles.btnCall}
+                  onPress={() => {
+                    if (driver?.phone) {
+                      Linking.openURL(`tel:${driver.phone}`);
+                    }
+                  }}
+                >
+                  <Image source={imageIndex.Calls} style={styles.iconBtn} />
+                </TouchableOpacity>
+
+                {/* Chat Button */}
+                <TouchableOpacity
+                  style={styles.btnChat}
+                  onPress={() => {
+                    if (parcel) {
+                      nav.navigate(ScreenNameEnum.ChatScreen, {
+                        item: parcel,
+                      });
+                    }
+                  }}
+                >
+                  <Image source={imageIndex.messtrcker} style={styles.iconBtn} />
+                </TouchableOpacity>
+
+              </View>
+            </View>
+
+            {/* Right Side Section */}
+            {isDelivered ? (
+              <TouchableOpacity
+                style={styles.rateDeliveryButton}
+                onPress={() => setShowRatingModal(true)}
+              >
+                <Text style={styles.rateDeliveryButtonText}>
+                  Rate delivery
+                </Text>
+              </TouchableOpacity>
+            ) : (
+              <View style={styles.otpContainer}>
+                <Text style={styles.otpLabel}>OTP</Text>
+
+                <Text style={styles.otpValue}>
+                  {(() => {
+                    const status =
+                      parcel?.deliveryStatus ?? item?.deliveryStatus;
+
+                    if (
+                      status === STATUS.ASSIGNED ||
+                      status === STATUS.GOING_TO_PICKUP
+                    ) {
+                      return parcel?.pickupOtp ?? item?.pickupOtp ?? "—";
+                    }
+
+                    return parcel?.deliveryOtp ?? item?.deliveryOtp ?? "—";
+                  })()}
+                </Text>
+              </View>
+            )}
+          </View>
           <View style={styles.parcelCard}>
             <Text style={styles.sectionTitle}>Parcel details</Text>
             <View style={styles.grid}>

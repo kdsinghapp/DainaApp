@@ -7,7 +7,7 @@ import Geolocation from '@react-native-community/geolocation';
 import { successToast, errorToast } from '../../../../utils/customToast';
 import ScreenNameEnum from '../../../../routes/screenName.enum';
 import { STATUS } from '../../../../utils/Constant';
-  export const useDeliveryHome = () => {
+export const useDeliveryHome = () => {
   const [isLoading, setIsLoading] = useState(false);
   const navigation = useNavigation()
   const [requests, setRequests] = useState([]);
@@ -69,7 +69,7 @@ import { STATUS } from '../../../../utils/Constant';
         setIsLoading(false);
         return;
       }
- 
+
 
       const response = await axios.get(
         `${base_url}/delivery/available-requests?lat=${lat}&lon=${lon}`,
@@ -80,10 +80,10 @@ import { STATUS } from '../../../../utils/Constant';
           },
         },
       );
-      console.log("ss",response)
- 
+      console.log("ss", response)
+
       if (response?.data?.status == 1) {
-         // const validRequests = response?.data?.requests?.filter(
+        // const validRequests = response?.data?.requests?.filter(
         //   (item) => item?.trackingId !== null && item?.trackingId !== "",
         // );
         const validRequests = response?.data?.requests
@@ -92,18 +92,18 @@ import { STATUS } from '../../../../utils/Constant';
             ...item,
             deliveryStatus: item?.status
           }));
-            setIsLoading(false);
+        setIsLoading(false);
         setRequests(validRequests || []);
       } else {
         setRequests([]);
-          setIsLoading(false);
+        setIsLoading(false);
       }
     } catch (error) {
       console.error(
         'Error fetching available requests:',
         error?.response?.data || error?.message,
       );
-        setIsLoading(false);
+      setIsLoading(false);
       setRequests([]);
     } finally {
       setIsLoading(false);
@@ -111,7 +111,7 @@ import { STATUS } from '../../../../utils/Constant';
   }, []);
   const sendLiveLocation = useCallback((lat: number, lon: number) => {
     const ws = socketLiveRef.current;
-     if (ws && ws.readyState === WebSocket.OPEN) {
+    if (ws && ws.readyState === WebSocket.OPEN) {
       const payload = JSON.stringify({ type: 'online', lat, lon });
       console.log("📤 Sending Location to Socket:", payload);
       ws.send(payload);
@@ -119,7 +119,7 @@ import { STATUS } from '../../../../utils/Constant';
       console.log("⚠️ Socket not open. State:", ws?.readyState);
     }
   }, []);
- 
+
   const nearbyparcels = useCallback((lat: number, lon: number) => {
     const ws = socketLiveRef.current;
     if (!ws || ws.readyState !== WebSocket.OPEN) {
@@ -215,7 +215,7 @@ import { STATUS } from '../../../../utils/Constant';
               if (cancelledRef.current) return;
               const parcel = data?.parcel ?? data;
               const parcelObj = parcel && typeof parcel === 'object' ? { ...parcel } : {};
-              const { type: _t, ...rest } = parcelObj as { type?: string; [k: string]: unknown };
+              const { type: _t, ...rest } = parcelObj as { type?: string;[k: string]: unknown };
               const item: Record<string, unknown> & { deliveryStatus: string } = {
                 ...rest,
                 id: rest.id ?? rest.parcelId ?? parcelObj?.id ?? parcelObj?.parcelId,
@@ -295,7 +295,11 @@ import { STATUS } from '../../../../utils/Constant';
     return new Promise<void>((resolve, reject) => {
       try {
         const wsUrl = `${WebSocket_Url}/nearby-parcels?token=${encodeURIComponent(token)}`;
+
+
+        console.log("wsUrl ----   nerby parsel ", wsUrl)
         const ws = new WebSocket(wsUrl);
+        console.log("wsUrl ----   ws  parsel ", ws)
 
         ws.onopen = () => {
           if (cancelledRef.current) {
@@ -335,12 +339,12 @@ import { STATUS } from '../../../../utils/Constant';
           try {
             const data = JSON.parse(raw);
             if (!data || typeof data !== 'object') return;
-
+            console.log("----- nearby_parcel -0- data", data)
             if (data?.type === 'nearby_parcel') {
               if (cancelledRef.current) return;
               const parcel = data?.parcel ?? data;
               const parcelObj = parcel && typeof parcel === 'object' ? { ...parcel } : {};
-              const { type: _t, ...rest } = parcelObj as { type?: string; [k: string]: unknown };
+              const { type: _t, ...rest } = parcelObj as { type?: string;[k: string]: unknown };
               const item: Record<string, unknown> & { deliveryStatus: string } = {
                 ...rest,
                 id: rest.id ?? rest.parcelId ?? parcelObj?.id ?? parcelObj?.parcelId,
@@ -399,9 +403,9 @@ import { STATUS } from '../../../../utils/Constant';
     });
   };
 
- 
 
- 
+
+
 
   useEffect(() => {
     cancelledRef.current = false;
@@ -440,7 +444,7 @@ import { STATUS } from '../../../../utils/Constant';
           socketLiveRef.current.close();
           socketLiveRef.current = null;
         }
-      } catch (_) {}
+      } catch (_) { }
     };
   }, []);
   useEffect(() => {
@@ -477,8 +481,8 @@ import { STATUS } from '../../../../utils/Constant';
   };
 
   const acceptCounterOffer = async (offerId: number) => {
-     try {
-       const token = await AsyncStorage.getItem('token');
+    try {
+      const token = await AsyncStorage.getItem('token');
       if (!token) {
         errorToast('Token not found');
         return;
@@ -502,12 +506,12 @@ import { STATUS } from '../../../../utils/Constant';
       console.error('Accept counter offer error:', error);
       errorToast('Something went wrong');
     } finally {
-     
+
     }
   };
   const RejectcounterOffer = async (offerId: number) => {
-     try {
-       const token = await AsyncStorage.getItem('token');
+    try {
+      const token = await AsyncStorage.getItem('token');
       if (!token) {
         errorToast('Token not found');
         return;
@@ -524,12 +528,12 @@ import { STATUS } from '../../../../utils/Constant';
         successToast(result?.message ?? 'Reject  offer ');
         setNewOrderNotification(null);
         // fetchAvailableRequests();
-      } 
+      }
     } catch (error) {
       console.error('Reject counter offer error:', error);
       errorToast('Something went wrong');
     } finally {
-     
+
     }
   };
 
@@ -557,7 +561,7 @@ import { STATUS } from '../../../../utils/Constant';
     newOrderNotification,
     setNewOrderNotification,
     acceptCounterOffer,
-    acceptCounterOfferLoading, 
+    acceptCounterOfferLoading,
     RejectcounterOffer
   };
 };

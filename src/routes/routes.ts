@@ -36,6 +36,7 @@ import DeliveryRequest from "../screen/DeliveryBottomTab/Delivery/DeliveryHome/D
 import PickupLocationRapido from "../screen/BottomTab/PickupLocationRapido/PickupLocationRapido";
 import CreateParcelFrom from "../screen/BottomTab/DashBoard/CreateParcel/CreateParcelFrom";
 import NearbyDriversMap from "../screen/BottomTab/NearbyDriversMap/NearbyDriversMap";
+import LanguageSelection from "../screen/Profile/LanguageSelection/LanguageSelection";
 const _routes: any = {
   REGISTRATION_ROUTE: [
     {
@@ -206,6 +207,10 @@ const _routes: any = {
     {
       name: ScreenNameEnum.RequestLoading,
       Component: RequestLoading,
+    },
+    {
+      name: ScreenNameEnum.language,
+      Component: LanguageSelection,
     },
     //    {
     //   name: ScreenNameEnum.DocumentShow,

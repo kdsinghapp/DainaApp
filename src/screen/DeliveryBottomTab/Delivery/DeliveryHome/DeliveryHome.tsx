@@ -23,6 +23,8 @@ import CurrentLocation from "../../../../CurrentLocation";
 import { Pressable } from "react-native";
 import ScreenNameEnum from "../../../../routes/screenName.enum";
 import useDashboard from "../../../BottomTab/DashBoard/useDashboard";
+import NewOrderNotificationModal from "../../../../compoent/NewOrderNotificationModal";
+import OfferAcceptedModal from "../../../../compoent/OfferAcceptedModal";
 
 const TABS = ["Pending", "Complete", "Canceled"] as const;
 const DeliveryHome = () => {
@@ -92,18 +94,20 @@ const DeliveryHome = () => {
       default:
         return requests;
     }
-  }, [activeTab, requests]); 
-   const {locationRef ,address ,currentlocation}= useDashboard()
+  }, [activeTab, requests]);
+  const { locationRef, address, currentlocation } = useDashboard()
   return (
     <SafeAreaView style={styles.container}>
       <StatusBarComponent />
+      <NewOrderNotificationModal />
+      <OfferAcceptedModal />
       {/* <LoadingModal visible={isLoading} /> */}
       <CurrentLocation ref={locationRef} />
-<HomeHeaderBar
-  location={currentlocation || address}
-  onNotificationPress={() => console.log("Notifications clicked")}
-  hasNotification={false}
- />
+      <HomeHeaderBar
+        location={currentlocation || address}
+        onNotificationPress={() => console.log("Notifications clicked")}
+        hasNotification={false}
+      />
       {/* 
       <HomeHeaderBar
         location={ "Wallace, Australia"}
@@ -260,7 +264,7 @@ const DeliveryHome = () => {
             showsVerticalScrollIndicator={false}
             contentContainerStyle={{ paddingBottom: 20 }}
             renderItem={({ item }) => {
-               return (
+              return (
                 <TouchableOpacity
                   style={styles.card}
                   onPress={() => {
@@ -322,7 +326,7 @@ const DeliveryHome = () => {
                       </Text>
                       <Text style={[styles.label, { marginTop: 10 }]}>To</Text>
                       <Text style={[styles.value, { marginTop: 6 }]}>
-                        {item?.dropLocation ||   item?.drop?.location}
+                        {item?.dropLocation || item?.drop?.location}
                       </Text>
 
                     </View>

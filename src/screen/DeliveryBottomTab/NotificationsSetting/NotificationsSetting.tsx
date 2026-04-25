@@ -5,6 +5,7 @@ import StatusBarComponent from '../../../compoent/StatusBarCompoent';
 import CustomHeader from '../../../compoent/CustomHeader';
 import { color } from '../../../constant';
 import font from '../../../theme/font';
+import strings from '../../../localization/Localization';
  
 // If you want icons, install react-native-vector-icons, or use any icon library you prefer
 // import Icon from 'react-native-vector-icons/Ionicons';
@@ -22,13 +23,13 @@ const NotificationsSetting = () => {
       <View   >
         <CustomHeader
         
-          label="Notifications" />
+          label={strings.Notifications || "Notifications"} />
 
         {/* Body */}
         <View style={{ marginTop: 40,marginHorizontal:15 }}>
 
           <View style={styles.notificationOption}>
-            <Text style={styles.optionText}>General Notification</Text>
+            <Text style={styles.optionText}>{strings.GeneralNotification || "General Notification"}</Text>
             <Switch
               value={generalNotification}
               onValueChange={val => setGeneralNotification(val)}
@@ -37,7 +38,7 @@ const NotificationsSetting = () => {
             />
           </View>
           <View style={styles.notificationOption}>
-            <Text style={styles.optionText}>Sound</Text>
+            <Text style={styles.optionText}>{strings.Sound || "Sound"}</Text>
             <Switch
               value={sound}
               onValueChange={val => setSound(val)}
@@ -47,7 +48,7 @@ const NotificationsSetting = () => {
           </View>
 
           <View style={styles.notificationOption}>
-            <Text style={styles.optionText}>Vibrate</Text>
+            <Text style={styles.optionText}>{strings.Vibrate || "Vibrate"}</Text>
             <Switch
               value={vibrate}
               onValueChange={val => setVibrate(val)}
@@ -57,7 +58,7 @@ const NotificationsSetting = () => {
           </View>
 
           <View style={styles.notificationOption}>
-            <Text style={styles.optionText}>New Tips Available</Text>
+            <Text style={styles.optionText}>{strings.NewTipsAvailable || "New Tips Available"}</Text>
             <Switch
               value={appUpdates}
               onValueChange={val => setAppUpdates(val)}

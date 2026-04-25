@@ -4,7 +4,7 @@ import {
   View,
   Text,
   Image,
-   Pressable,
+  Pressable,
   ScrollView,
   TouchableOpacity,
 } from "react-native";
@@ -21,6 +21,9 @@ import { GetProfileApi } from "../../../Api/apiRequest";
 import { loginSuccess, logout } from "../../../redux/feature/authSlice";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { styles } from "./style";
+import strings from "../../../localization/Localization";
+import NewOrderNotificationModal from "../../../compoent/NewOrderNotificationModal";
+import OfferAcceptedModal from "../../../compoent/OfferAcceptedModal";
 
 type Props = {
   onEditProfile?: () => void;
@@ -82,7 +85,7 @@ const DeliveryProfile: React.FC<Props> = ({
       "https://images.unsplash.com/photo-1607746882042-944635dfe10e?q=80&w=256&auto=format&fit=crop",
   },
 }) => {
-  const navigation:any = useNavigation()
+  const navigation: any = useNavigation()
   const [Modal, setModal] = useState(false)
   const [isLoading, setLoading] = useState(false);
 
@@ -109,14 +112,16 @@ const DeliveryProfile: React.FC<Props> = ({
     AsyncStorage.removeItem('authData');
     navigation.replace(ScreenNameEnum.SPLASH_SCREEN);
   };
-   return (
+  return (
     <SafeAreaView style={styles.safe}>
       <StatusBarComponent />
+      <NewOrderNotificationModal />
+      <OfferAcceptedModal />
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.container}>
         {/* Header */}
-        <Text style={styles.title}>Profile</Text>
+        <Text style={styles.title}>{strings.Profile}</Text>
 
         {/* Profile card */}
         <TouchableOpacity
@@ -162,7 +167,7 @@ const DeliveryProfile: React.FC<Props> = ({
 
           <ListItem
             icon={<SvgIndex.Earing />}
-            label="Earnings & Reports"
+            label={strings.EarningsReports}
             onPress={() => {
               navigation.navigate(ScreenNameEnum.EarningsScreen)
             }}
@@ -175,7 +180,7 @@ const DeliveryProfile: React.FC<Props> = ({
                 width: 34,
               }}
             />}
-            label="Document Show"
+            label={strings.DocumentShow}
             onPress={() => {
               navigation.navigate(ScreenNameEnum.DocumentShow)
             }}
@@ -184,21 +189,29 @@ const DeliveryProfile: React.FC<Props> = ({
           <ItemDivider />
           <ListItem
             icon={<SvgIndex.Wallert />}
-            label="Wallet"
+            label={strings.Wallet}
             onPress={() => {
               navigation.navigate(ScreenNameEnum.WalletScreen)
             }} />
           <ItemDivider />
           <ListItem
             icon={<SvgIndex.Notiftaction />}
-            label="Notifications"
+            label={strings.Notifications}
             onPress={() => {
               navigation.navigate(ScreenNameEnum.NotificationsSetting)
             }} />
           <ItemDivider />
           <ListItem
+            icon={<SvgIndex.Edit />}
+            label={strings.ChangeLanguage}
+            onPress={() => {
+              navigation.navigate(ScreenNameEnum.language);
+            }}
+          />
+          <ItemDivider />
+          <ListItem
             icon={<SvgIndex.Soupport />}
-            label="Support"
+            label={strings.Support}
             onPress={() => {
               navigation.navigate(ScreenNameEnum.HelpSupport)
             }}
@@ -209,7 +222,7 @@ const DeliveryProfile: React.FC<Props> = ({
 
           <ListItem
             icon={<SvgIndex.Privacys />}
-            label="Privacy Policy"
+            label={strings.PrivacyPolicy}
             onPress={() => {
               navigation.navigate(ScreenNameEnum.LegalPoliciesScreen)
             }}
@@ -218,7 +231,7 @@ const DeliveryProfile: React.FC<Props> = ({
 
           <ListItem
             icon={<SvgIndex.Logout />}
-            label="Logout"
+            label={strings.Logout}
             onPress={() => {
               setModal(true)
             }} />

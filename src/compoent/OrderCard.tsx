@@ -4,7 +4,7 @@ import imageIndex from "../assets/imageIndex";
 import font from "../theme/font";
 import { color } from "../constant";
 import { STATUS_COLORS, STATUS_LABELS } from "../utils/Constant";
- 
+import strings from "../localization/Localization";
 
 // Define the colors based on your design
 const YELLOW = "#FFCC00";
@@ -14,9 +14,7 @@ const CARD_BG = "#FFFFFF";
 const BORDER = "#EFEFEF";
 
 const OrderCard = ({ order, onPress }: { order: any; onPress: () => void }) => {
-         const isoTime = order?.createdAt;
-
- 
+  const isoTime = order?.createdAt;
 
   // Helper to format the date/time
   const formatDateTime = (isoString: string) => {
@@ -25,14 +23,14 @@ const OrderCard = ({ order, onPress }: { order: any; onPress: () => void }) => {
     return date.toLocaleString("en-US", {
       month: "short",
       day: "2-digit",
-      year:'numeric'
-    //   hour: "2-digit",
-    //   minute: "2-digit",
+      year: 'numeric'
     });
   };
-   const statusKey =  order.deliveryStatus;
-    const statusLabel = STATUS_LABELS[statusKey] || 'Unknown';
-    const statusColor = STATUS_COLORS[statusKey] || 'black';
+
+  const statusKey = order.deliveryStatus;
+  const statusLabel = STATUS_LABELS[statusKey] || strings.StatusPending;
+  const statusColor = STATUS_COLORS[statusKey] || 'black';
+
   return (
     <TouchableOpacity 
       activeOpacity={0.9} 
@@ -48,15 +46,9 @@ const OrderCard = ({ order, onPress }: { order: any; onPress: () => void }) => {
           />
         </View>
         <View style={styles.headerText}>
-          <Text style={styles.cardId}>#{order.trackingId || order.id} <Text style={{color:MUTED,    fontFamily: font.MonolithRegular,
-}}> •</Text></Text>
-          {/* <Text style={styles.cardDate}> {order?.deliveryStatus}</Text> */}
+          <Text style={styles.cardId}>#{order.trackingId || order.id} <Text style={{color:MUTED, fontFamily: font.MonolithRegular}}> •</Text></Text>
            <Text style={styles.cardDate}> {formatDateTime(order.createdAt)}</Text>
         </View>
-        {/* Price Tag */}
-        {/* <View style={styles.priceContainer}>
-           <Text style={styles.priceText}>$ {order.price}</Text>
-        </View> */}
       </View>
 
       {/* Location Section with Vertical Vector */}
@@ -71,7 +63,7 @@ const OrderCard = ({ order, onPress }: { order: any; onPress: () => void }) => {
         <View style={styles.locationContent}>
           {/* Pickup */}
           <View style={styles.locationBlock}>
-            <Text style={styles.label}>From</Text>
+            <Text style={styles.label}>{strings.From || "From"}</Text>
             <Text style={styles.value} numberOfLines={2}>
               {order.pickupLocation}
             </Text>
@@ -79,7 +71,7 @@ const OrderCard = ({ order, onPress }: { order: any; onPress: () => void }) => {
 
           {/* Drop */}
           <View style={[styles.locationBlock, { marginTop: 15 }]}>
-            <Text style={styles.label}>To</Text>
+            <Text style={styles.label}>{strings.To || "To"}</Text>
             <Text style={styles.value} numberOfLines={2}>
               {order.dropLocation}
             </Text>
@@ -90,32 +82,25 @@ const OrderCard = ({ order, onPress }: { order: any; onPress: () => void }) => {
       {/* Footer Status Section */}
       <View style={styles.footer}>
         <View style={styles.statusRow}>
-          <Text style={styles.statusLabel}>Delivery Status : </Text>
-        <Text style={[styles.statusValue,{
-          color:statusColor
-        }]}>
-          {statusLabel}
-          {/* Going To Pickup */}
-  {/* {order.deliveryStatus
-    ? order.deliveryStatus.charAt(0).toUpperCase() +
-      order.deliveryStatus.slice(1).toLowerCase()
-    : "Pending"} */}
-</Text>
+          <Text style={styles.statusLabel}>{strings.DeliveryStatus || "Delivery Status"} : </Text>
+          <Text style={[styles.statusValue, { color: statusColor }]}>
+            {statusLabel}
+          </Text>
         </View>
       </View>
       <View style={{
-        backgroundColor:color.baground,
-        width:"40%" ,
-        padding:6,
-        borderRadius:10,
-        marginTop:10,
-        alignItems:"center",
-        justifyContent:"center"
+        backgroundColor: color.baground,
+        width: "40%",
+        padding: 6,
+        borderRadius: 10,
+        marginTop: 10,
+        alignItems: "center",
+        justifyContent: "center"
       }}>
-              <Text style={[styles.viewDetailsText,{
-                color:"black"
-              }]}>View Details</Text>
-</View>
+        <Text style={[styles.viewDetailsText, { color: "black" }]}>
+          {strings.ViewDetails}
+        </Text>
+      </View>
     </TouchableOpacity>
   );
 };

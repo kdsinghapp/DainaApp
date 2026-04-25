@@ -17,6 +17,7 @@ import { useOtpVerification } from './useOTPVerification';
    import { color } from '../../../constant';
 import CustomHeader from '../../../compoent/CustomHeader';
 import LoadingModal from '../../../utils/Loader';
+import strings from '../../../localization/Localization';
 
 export default function OtpScreen() {
   const {
@@ -39,13 +40,13 @@ export default function OtpScreen() {
 
     >
                <StatusBarComponent />
-               <CustomHeader label={"Back"}/>
+                <CustomHeader label={strings.Back}/>
         <LoadingModal visible ={isLoading}/>
       <View style={styles.container}>
         <ScrollView showsVerticalScrollIndicator={false}>
           <View style={styles.headerSection}>
-            <Text style={styles.txtHeading}>Enter the verification code</Text>
-            <Text style={styles.txtDes}>We sent you a 4-digit code to  {data?.code} {data?.mob}
+            <Text style={styles.txtHeading}>{strings.EnterVerificationCode}</Text>
+            <Text style={styles.txtDes}>{strings.formatString(strings.SentCodeTo, `${data?.code} ${data?.mob}`)}
             </Text>
            </View>
 
@@ -73,16 +74,16 @@ export default function OtpScreen() {
           </View>
  <View style={{ alignItems: 'center', marginTop: 15 }}>
       <Text style={styles.txtDes}>
-        Didn’t receive the OTP?
+        {strings.DidntReceiveOTP}
         {' '}
         {timer > 0 ? (
-          <Text style={{ color: 'gray' }}> Resend in 
+          <Text style={{ color: 'gray' }}> {strings.ResendIn} 
           
           
           <Text style={{
             color:"#FFCC00"
           }}>
-         {" "} {timer} {""} 
+          {" "} {timer} {""} 
  </Text>      
      s</Text>
         ) : (
@@ -90,7 +91,7 @@ export default function OtpScreen() {
             onPress={handleResendOTP}
             style={{ color: color.primary, fontWeight: 'bold' }}
           >
-            {' '}RESEND OTP
+            {' '}{strings.ResendOTPButton}
           </Text>
         )}
       </Text>
@@ -99,7 +100,7 @@ export default function OtpScreen() {
         {/* <Image source={imageIndex.otp} style={{ width: '80%', height: hp(45), alignSelf: 'center', marginBottom: 30 }} /> */}
 
         <CustomButton
-          title={"Continue"}
+          title={strings.Continue}
           // onPress={() => {
           //   if (type == "signup") {
           //     navigation.navigate(ScreenNameEnum.LoginScreen)

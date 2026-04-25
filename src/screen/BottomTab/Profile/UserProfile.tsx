@@ -22,6 +22,7 @@ import { loginSuccess, logout } from "../../../redux/feature/authSlice";
 import LoadingModal from "../../../utils/Loader";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { TouchableHighlight } from "react-native";
+import strings from "../../../localization/Localization";
  
 type Props = {
   onEditProfile?: () => void;
@@ -113,7 +114,7 @@ const ProfileScreen: React.FC<Props> = ({
       showsVerticalScrollIndicator={false}
       contentContainerStyle={styles.container}>
         {/* Header */}
-        <Text style={styles.title}>Profile</Text>
+        <Text style={styles.title}>{strings.Profile}</Text>
         <View style={styles.profileCard}>
           <View style={styles.avatarWrap}>
             {isLogin?.image ? (
@@ -152,10 +153,18 @@ const ProfileScreen: React.FC<Props> = ({
         <View style={styles.card}>
           <ListItem
             icon={<SvgIndex.Edit   />}
-            label="Edit Profile"
+            label={strings.EditProfile}
             onPress={()=>{
               navigation.navigate(ScreenNameEnum.EditProfile)
            }}
+          />
+          <ItemDivider />
+          <ListItem
+            icon={<SvgIndex.Edit />} 
+            label={strings.ChangeLanguage}
+            onPress={() => {
+              navigation.navigate(ScreenNameEnum.language);
+            }}
           />
           <ItemDivider />
           {/* <ListItem
@@ -168,7 +177,7 @@ const ProfileScreen: React.FC<Props> = ({
           <ItemDivider />
           <ListItem
             icon={<SvgIndex.Box  />}
-            label="My Orders"
+            label={strings.MyOrders}
             onPress={()=>{
               navigation.navigate(ScreenNameEnum.OrdersPrfile)
            }}          />
@@ -185,7 +194,7 @@ const ProfileScreen: React.FC<Props> = ({
           <ItemDivider />
           <ListItem
             icon={<SvgIndex.Privacy />}
-            label="Privacy Policy"
+            label={strings.PrivacyPolicy}
             onPress={()=>{
                navigation.navigate(ScreenNameEnum.PrivacyPolicy)
             }}
@@ -193,7 +202,7 @@ const ProfileScreen: React.FC<Props> = ({
           <ItemDivider />
           <ListItem
             icon={<SvgIndex.Terms   />}
-            label="Terms and Conditions"
+            label={strings.TermsConditions}
             onPress={()=>{
               navigation.navigate(ScreenNameEnum.LegalPoliciesScreen)
              }}          />
@@ -210,7 +219,7 @@ const ProfileScreen: React.FC<Props> = ({
           ]}
           android_ripple={{ color: "#fff" }}
         >
-          <Text style={styles.logoutText}>Logout</Text>
+          <Text style={styles.logoutText}>{strings.Logout}</Text>
         </Pressable>
        <LogoutModal
   visible={Modal}

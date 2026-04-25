@@ -7,7 +7,6 @@ import {
   ScrollView,
   KeyboardAvoidingView,
   Platform,
-  Alert,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { launchImageLibrary } from "react-native-image-picker";
@@ -24,45 +23,44 @@ import imageIndex from "../../../assets/imageIndex";
 import { GetProfileApi, UpdateProfile } from "../../../Api/apiRequest";
 import { loginSuccess } from "../../../redux/feature/authSlice";
 import LoadingModal from "../../../utils/Loader";
- import { errorToast } from "../../../utils/customToast";
+import { errorToast } from "../../../utils/customToast";
 import ScreenNameEnum from "../../../routes/screenName.enum";
+import strings from "../../../localization/Localization";
 
 const ProfileSetup = () => {
-  const navigation = useNavigation();
+  const navigation = useNavigation<any>();
   const userData: any = useSelector((state: any) => state.auth.userData);
-const  route :any = useRoute()
-   const type = route?.params?.type;
+  const route: any = useRoute();
+  const type = route?.params?.type;
 
-console.log("type",type)
   const [fullName, setFullName] = useState(userData?.firstName || "");
   const [email, setEmail] = useState(userData?.email || "");
   const [address, setAddress] = useState(userData?.address || "");
   const [image, setImage] = useState<any>(userData?.image || null);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-const dispatch = useDispatch();
-useEffect((()=>{
-  getProfileApi()
-  setFullName(userData?.firstName || "")
-    setEmail(userData?.email || "")
-    setAddress(userData?.address || "")
-setImage(userData?.image||"")
- }),[userData?.firstName])
+  const dispatch = useDispatch();
 
-const getProfileApi = async () => {
-  try {
-    const response = await GetProfileApi(setIsLoading);
-     if (response) {
-      dispatch(loginSuccess({ userData: response}));
-     } 
-  } catch (error) {
- 
-   }
-};
+  useEffect(() => {
+    getProfileApi();
+    setFullName(userData?.firstName || "");
+    setEmail(userData?.email || "");
+    setAddress(userData?.address || "");
+    setImage(userData?.image || "");
+  }, [userData?.firstName]);
+
+  const getProfileApi = async () => {
+    try {
+      const response = await GetProfileApi(setIsLoading);
+      if (response) {
+        dispatch(loginSuccess({ userData: response }));
+      }
+    } catch (error) {
+    }
+  };
+
   const pickImageFromGallery = () => {
-    launchImageLibrary({ mediaType: "photo", quality: 0.4
-      
-     }, (response) => {
+    launchImageLibrary({ mediaType: "photo", quality: 0.4 }, (response) => {
       if (response.assets && response.assets.length > 0) {
         setImage(response.assets[0]);
         setIsModalVisible(false);
@@ -82,93 +80,81 @@ const getProfileApi = async () => {
     });
   };
 
-const handleSave = async () => {
-  try {
-    // ✅ Validation checks
-    if (!fullName?.trim()) {
-      errorToast("Please enter your full name.");
-       return;
-    }
-  if (!email || !email.trim()) {
-  errorToast("Please enter your email address.");
-  return;
-}
-const emailRegex =
-  /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-if (!emailRegex.test(email.trim())) {
-  errorToast("Please enter a valid email address.");
-  return;
-}
-
-
-    if (!address?.trim()) {
-      errorToast("Please enter your address.");
-       return;
-    }
-
-    if (!image) {
-      errorToast("Please upload your profile image.");
-       return;
-    }
-
-    // ✅ Prepare params for API
-    const params = {
-      username: fullName,
-      email: email,
-      address: address,
-      imagePrfoile: image, // full object with uri, type, name
-    };
-
-    const response = await UpdateProfile(params, setIsLoading);
-    if (response) {
-      await getProfileApi();
-// navigation.goBack()
-      if (userData?.type === "Delivery") {
-                navigation.navigate(ScreenNameEnum.DeliveryTabNavigator);
-
-        // navigation.navigate(ScreenNameEnum.UploadDocumentsScreen);
-      } else {
-        navigation.navigate(ScreenNameEnum.TabNavigator);
+  const handleSave = async () => {
+    try {
+      if (!fullName?.trim()) {
+        errorToast(strings.EnterFullNameError);
+        return;
       }
-    }
-  } catch (error) {
-    console.error("Error while saving profile:", error);
-   } finally {
-    setIsLoading(false);
-  }
-};
-const  onSkipe =()=>{
+      if (!email || !email.trim()) {
+        errorToast(strings.EnterEmailError);
+        return;
+      }
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email.trim())) {
+        errorToast(strings.ValidEmailError);
+        return;
+      }
+
+      if (!address?.trim()) {
+        errorToast(strings.EnterAddressError);
+        return;
+      }
+
+      if (!image) {
+        errorToast(strings.UploadProfileImageError);
+        return;
+      }
+
+      const params = {
+        username: fullName,
+        email: email,
+        address: address,
+        imagePrfoile: image,
+      };
+
+      const response = await UpdateProfile(params, setIsLoading);
+      if (response) {
+        await getProfileApi();
         if (userData?.type === "Delivery") {
-        navigation.navigate(ScreenNameEnum.DeliveryTabNavigator);
-      } else {
-        navigation.navigate(ScreenNameEnum.TabNavigator);
+          navigation.navigate(ScreenNameEnum.DeliveryTabNavigator);
+        } else {
+          navigation.navigate(ScreenNameEnum.TabNavigator);
+        }
       }
-}
+    } catch (error) {
+      console.error("Error while saving profile:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const onSkip = () => {
+    if (userData?.type === "Delivery") {
+      navigation.navigate(ScreenNameEnum.DeliveryTabNavigator);
+    } else {
+      navigation.navigate(ScreenNameEnum.TabNavigator);
+    }
+  };
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <StatusBarComponent />
-      <CustomHeader label="Profile" />
-                                              <LoadingModal visible ={isLoading}/>
-
+      <CustomHeader label={strings.Profile} />
+      <LoadingModal visible={isLoading} />
 
       <KeyboardAvoidingView
-      style={{ flex: 1 }}
+        style={{ flex: 1 }}
         behavior={Platform.OS === "ios" ? "padding" : undefined}
-        keyboardVerticalOffset={Platform.OS === "ios" ? 100 : 0} // adjust offset if needed
-
-       >
-        <ScrollView contentContainerStyle={styles.container}
-        
-        >
+        keyboardVerticalOffset={Platform.OS === "ios" ? 100 : 0}
+      >
+        <ScrollView contentContainerStyle={styles.container}>
           <View style={styles.profileContainer}>
             <Image
               source={image ? { uri: image.uri || image } : imageIndex.prfile}
               style={styles.profileImage}
               resizeMode="cover"
             />
-
-            {/* Edit Icon */}
             <TouchableOpacity
               style={styles.editIconContainer}
               onPress={() => setIsModalVisible(true)}
@@ -182,19 +168,19 @@ const  onSkipe =()=>{
 
             <View style={styles.inputContainer}>
               <CustomInput
-                placeholder="Full Name"
+                placeholder={strings.FullName}
                 value={fullName}
                 onChangeText={setFullName}
                 leftIcon={<Image source={imageIndex.profiel} style={styles.icon} />}
               />
               <CustomInput
-                placeholder="Email"
+                placeholder={strings.Email}
                 value={email}
                 onChangeText={setEmail}
                 leftIcon={<Image source={imageIndex.mess} style={styles.icon} />}
               />
               <CustomInput
-                placeholder="Address"
+                placeholder={strings.Address}
                 value={address}
                 onChangeText={setAddress}
                 leftIcon={<Image source={imageIndex.location1} style={styles.icon} />}
@@ -202,7 +188,6 @@ const  onSkipe =()=>{
             </View>
           </View>
 
-          {/* Image Picker Modal */}
           <ImagePickerModal
             modalVisible={isModalVisible}
             setModalVisible={setIsModalVisible}
@@ -212,15 +197,14 @@ const  onSkipe =()=>{
         </ScrollView>
       </KeyboardAvoidingView>
 
-    
       <View style={styles.buttonContainer}>
-        <CustomButton title="Update" onPress={handleSave} loading={isLoading} />
+        <CustomButton title={strings.Update} onPress={handleSave} loading={isLoading} />
       </View>
-      {type ==="otp" && (
-    <View style={styles.buttonContainer}>
-        <CustomButton title="Skip" onPress={onSkipe}  />
-      </View>
-)}
+      {type === "otp" && (
+        <View style={styles.buttonContainer}>
+          <CustomButton title={strings.Skip} onPress={onSkip} />
+        </View>
+      )}
     </SafeAreaView>
   );
 };
@@ -237,7 +221,7 @@ const styles = StyleSheet.create({
   profileContainer: {
     alignItems: "center",
     marginTop: 20,
-    position: "relative", // needed for absolute edit icon
+    position: "relative",
   },
   profileImage: {
     width: 120,
@@ -248,9 +232,8 @@ const styles = StyleSheet.create({
     position: "relative",
     bottom: 20,
     right: 0,
-     padding: 5,
-     left:16
-  
+    padding: 5,
+    left: 16
   },
   editIcon: {
     width: 33,

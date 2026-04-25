@@ -10,6 +10,7 @@ import CustomHeader from '../../compoent/CustomHeader';
 import font from '../../theme/font';
 import { Privacypolicy } from '../../Api/apiRequest';
 import LoadingModal from '../../utils/Loader';
+import strings from '../../localization/Localization';
 
 const PrivacyPolicy = () => {
     const [isLoading, setLoading] = useState(false);
@@ -39,7 +40,7 @@ const getPrivacyPolicy = async () => {
             <StatusBarComponent />
                           <LoadingModal visible ={isLoading}/>
 
-            <CustomHeader label="Privacy Policy" />
+            <CustomHeader label={strings.PrivacyPolicy} />
             <ScrollView
                 showsVerticalScrollIndicator={false}
                 contentContainerStyle={styles.contentContainer}

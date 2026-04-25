@@ -20,6 +20,7 @@ import font from '../../../theme/font';
 import { errorToast } from '../../../utils/customToast';
 import { styles } from './style';
 import NotificationService from '../../../services/NotificationService';
+import strings from '../../../localization/Localization';
 
  
 const ChooseRole = () => {
@@ -32,8 +33,8 @@ const ChooseRole = () => {
   const pulseAnim = useRef(new Animated.Value(1)).current;
 
   const options = [
-    { id: 1,type:"user", label: 'User', image: imageIndex.userLogo },
-    { id: 2, type:"Delivery",label: 'Delivery', image: imageIndex.deliver },
+    { id: 1, type: "user", label: strings.User, image: imageIndex.userLogo },
+    { id: 2, type: "Delivery", label: strings.Delivery, image: imageIndex.deliver },
   ];
 
   useEffect(() => {
@@ -76,7 +77,7 @@ const ChooseRole = () => {
 
   const handleNext = async () => {
     if (!selected) {
-      errorToast('Please select your role before proceeding.');
+      errorToast(strings.PleaseSelectRole);
        return;
     }
     await NotificationService.requestPermission();
@@ -106,7 +107,7 @@ const ChooseRole = () => {
           />
 
           {/* Title */}
-          <Text style={styles.title}>Choose your user Role</Text>
+          <Text style={styles.title}>{strings.ChooseRole}</Text>
 
           {/* Options */}
           {options.map((item) => {
@@ -157,7 +158,7 @@ const ChooseRole = () => {
       {/* Bottom Button */}
       <View style={styles.bottomButtonContainer}>
         <CustomButton
-          title="Continue"
+          title={strings.Continue}
           onPress={handleNext}
           style={styles.nextButton}
           textStyle={styles.nextButtonText}

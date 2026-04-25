@@ -23,6 +23,7 @@ import imageIndex from "../../../assets/imageIndex";
 import { GetProfileApi, UpdateProfile } from "../../../Api/apiRequest";
 import { loginSuccess } from "../../../redux/feature/authSlice";
 import { errorToast } from "../../../utils/customToast";
+import strings from "../../../localization/Localization";
 
 const EditProfile = () => {
   const navigation = useNavigation();
@@ -89,7 +90,7 @@ const getProfileApi = async () => {
   return (
     <SafeAreaView style={styles.safeArea}>
       <StatusBarComponent />
-      <CustomHeader label="Profile" />
+      <CustomHeader label={strings.EditProfile} />
 
       <KeyboardAvoidingView
       style={{ flex: 1 }}
@@ -121,19 +122,19 @@ const getProfileApi = async () => {
 
             <View style={styles.inputContainer}>
               <CustomInput
-                placeholder="Full Name"
+                placeholder={strings.FullName}
                 value={fullName}
                 onChangeText={setFullName}
                 leftIcon={<Image source={imageIndex.profiel} style={styles.icon} />}
               />
               <CustomInput
-                placeholder="Email"
+                placeholder={strings.Email}
                 value={email}
                 onChangeText={setEmail}
                 leftIcon={<Image source={imageIndex.mess} style={styles.icon} />}
               />
               <CustomInput
-                placeholder="Address"
+                placeholder={strings.Address}
                 value={address}
                 onChangeText={setAddress}
                 leftIcon={<Image source={imageIndex.location1} style={styles.icon} />}
@@ -152,7 +153,7 @@ const getProfileApi = async () => {
       </KeyboardAvoidingView>
 
       <View style={styles.buttonContainer}>
-        <CustomButton title="Update" onPress={handleSave} loading={isLoading} />
+        <CustomButton title={strings.Update} onPress={handleSave} loading={isLoading} />
       </View>
     </SafeAreaView>
   );

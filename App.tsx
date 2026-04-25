@@ -7,11 +7,11 @@ import 'react-native-reanimated';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { queryClient } from './src/services/queryClient';
 import NotificationService from './src/services/NotificationService';
+import { getLanguage } from './src/localization/localeStorage';
+import strings from './src/localization/Localization';
 
 LogBox.ignoreAllLogs();
 (Text as any).defaultProps = (Text as any).defaultProps || {};
-
-
 
 (Text as any).defaultProps.allowFontScaling = false;
 
@@ -26,7 +26,7 @@ const App: FunctionComponent<any> = () => {
   const unsubscribeRef = useRef<(() => void) | null>(null);
 
   useEffect(() => {
-    initNotifications();
+    initApp();
 
     return () => {
       // Cleanup listeners on unmount
@@ -35,6 +35,15 @@ const App: FunctionComponent<any> = () => {
       }
     };
   }, []);
+
+  const initApp = async () => {
+    // Initialize Language
+    const lang = await getLanguage();
+    strings.setLanguage(lang);
+
+    // Initialize Notifications
+    await initNotifications();
+  };
 
   const initNotifications = async () => {
     try {
@@ -64,7 +73,7 @@ const App: FunctionComponent<any> = () => {
     }
   };
 
-
+  // josh@draywebservices.com
   return (
     <QueryClientProvider client={queryClient}>
       <AppNavigator />

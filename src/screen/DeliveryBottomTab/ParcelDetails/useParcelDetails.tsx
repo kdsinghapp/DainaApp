@@ -18,14 +18,14 @@ export const useParcelDetails = () => {
   const [message, setMessage] = useState("");
   const { item } = rout?.params || ""
   const navigation = useNavigation()
- const fullImageUrl = `https://python.aitechnotech.in/DAINA${item?.imageUrl || item?.data?.imageUrl}`;  console.log("fullImageUrl",fullImageUrl)
-  console.log("item",item?.data?.imageUrl)
-  console.log("item",fullImageUrl)
-  const makeOffer = async ( amount: any, message: any) => {
+  const fullImageUrl = `https://python.aitechnotech.in/DAINA${item?.imageUrl || item?.data?.imageUrl}`; console.log("fullImageUrl", fullImageUrl)
+  console.log("item", item?.data?.imageUrl)
+  console.log("item", fullImageUrl)
+  const makeOffer = async (amount: any, message: any) => {
     try {
       setIsLoading(true);
       const token = await AsyncStorage.getItem('token');
-       if (!token) {
+      if (!token) {
         console.warn('No token found');
         setIsLoading(false);
         return { success: false, message: 'No token found' };
@@ -36,7 +36,7 @@ export const useParcelDetails = () => {
       formData.append('amount', amount);
       formData.append('message', message);
       //  formData.append('phoneCall', Phone);
-      console.log("formData",formData)
+      console.log("formData", formData)
       const response = await axios.post(
         `${base_url}/delivery/make-offer`,
         formData,
@@ -92,9 +92,9 @@ export const useParcelDetails = () => {
       Alert.alert("Error", "Please enter a valid amount");
       return;
     }
-    
+
     const result: any = await makeOffer(amountValue, message);
-      if (result?.data?.status == 1) {
+    if (result?.data?.status == 1) {
       successToast(result?.data?.message)
       navigation.goBack()
 
@@ -104,23 +104,23 @@ export const useParcelDetails = () => {
   };
 
   const updateParcelStatus = async (orderId, newStatus, otp) => {
-  // Implement your API call here
-  const token = await AsyncStorage.getItem('token');
-  const body = {
-    otp: otp ?? '',
-    // order_id: orderId,
-    newStatus: newStatus
+    // Implement your API call here
+    const token = await AsyncStorage.getItem('token');
+    const body = {
+      otp: otp ?? '',
+      // order_id: orderId,
+      newStatus: newStatus
+    };
+    console.log(body, orderId)
+    const param = {
+      url: `/delivery/parcels/${orderId}/status`,
+      data: body,
+      token,
+      isFormData: true
+    }
+    console.log(param)
+    return await PostApi(param, setIsLoading);
   };
-  console.log(body, orderId)
-  const param = {
-    url:`/delivery/parcels/${orderId}/status`,
-    data:body,
-    token,
-    isFormData:true
-  }
-  console.log(param)
-  return await PostApi(param, setIsLoading);
-};
 
   return {
     isLoading,

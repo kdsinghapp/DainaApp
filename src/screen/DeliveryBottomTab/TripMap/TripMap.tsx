@@ -303,7 +303,7 @@ const TripMap = () => {
     }
     return await PostApi(param, setActionLoading);
   };
-   const navgation = useNavigation()
+  const navgation = useNavigation()
   useEffect(() => {
 
   }, [item])
@@ -337,7 +337,7 @@ const TripMap = () => {
     }
   };
 
-console.log("item trip",item)
+  console.log("item trip", item)
   const statusKey = item?.deliveryStatus;
   const statusLabel = STATUS_LABELS[statusKey] || 'Unknown';
   const statusColor = STATUS_COLORS[statusKey] || 'black';
@@ -348,7 +348,7 @@ console.log("item trip",item)
       <TouchableWithoutFeedback onPress={dismissKeyboard} accessible={false}>
         <View style={styles.mapWrap}>
           <MapView
-          mapType='standard'
+            mapType='standard'
             ref={mapRef}
             provider={PROVIDER_GOOGLE}
             style={[styles.mapView, Platform.OS === 'ios' && { height: Dimensions.get('window').height }]}
@@ -496,9 +496,9 @@ console.log("item trip",item)
 
             </View>
             <Text style={[styles.timeText, { right: 0, color: statusColor }]}>{statusLabel}</Text>
- 
+
           </View>
-              
+
 
           <View style={styles.buttonRow}>
 
@@ -531,7 +531,7 @@ console.log("item trip",item)
             }}>
               <Image source={imageIndex.Calblack} style={styles.iconBtn} />
             </TouchableOpacity>
-            <TouchableOpacity   onPress={() => {
+            <TouchableOpacity onPress={() => {
               navgation.navigate(ScreenNameEnum.ChatScreen, {
                 item: item,
               })

@@ -3,19 +3,19 @@ import { base_url } from './index';
 import ScreenNameEnum from '../routes/screenName.enum';
 import { loginSuccess, logout } from '../redux/feature/authSlice';
 import { errorToast, successToast } from '../utils/customToast';
- import AsyncStorage from '@react-native-async-storage/async-storage';
- import { Toast } from '../utils/Toast';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Toast } from '../utils/Toast';
 import { color } from '../constant';
 import axios from 'axios';
- const handleLogout = async (dispatch: any) => {
+const handleLogout = async (dispatch: any) => {
   try {
-     dispatch(logout());    // reset Redux state
-   } catch (error) {
+    dispatch(logout());    // reset Redux state
+  } catch (error) {
     console.error('Error during logout:', error);
   }
 };
 
- const saveAuthData = async (userData:any, token:any) => {
+const saveAuthData = async (userData: any, token: any) => {
   try {
     await AsyncStorage.setItem('authData', JSON.stringify({ userData, token }));
     console.log('Auth data saved successfully');
@@ -23,7 +23,7 @@ import axios from 'axios';
     console.error('Error saving auth data:', error);
   }
 };
- const getAuthData = async () => {
+const getAuthData = async () => {
   try {
     const jsonValue = await AsyncStorage.getItem('authData');
     return jsonValue != null ? JSON.parse(jsonValue) : null;
@@ -97,8 +97,8 @@ const LogiApi = async (
 
 const Verifyotp = async (param: any, setLoading: any, dispatch: any) => {
   setLoading(true);
-    const fcmToken = await AsyncStorage.getItem('fcmToken');
-console.log("fcmToken --- ",fcmToken)
+  const fcmToken = await AsyncStorage.getItem('fcmToken');
+  console.log("fcmToken --- ", fcmToken)
   try {
     // ✅ Create FormData
     const formdata = new FormData();
@@ -106,13 +106,13 @@ console.log("fcmToken --- ",fcmToken)
     formdata.append('phoneNumber', param?.phone || '');
     formdata.append('otp', param?.otp || '');
     formdata.append('fcmToken', fcmToken || '');
-        // formdata.append('otp', "9999" || '');
+    // formdata.append('otp', "9999" || '');
 
     const response = await fetch(`${base_url}/verify-otp`, {
       method: 'POST',
       headers: {
         Accept: 'application/json',
-       },
+      },
       body: formdata,
     });
 
@@ -128,25 +128,31 @@ console.log("fcmToken --- ",fcmToken)
       successToast(parsedResponse?.message);
       await AsyncStorage.setItem('token', parsedResponse?.token);
       dispatch(loginSuccess({ userData: parsedResponse, token: parsedResponse?.token }));
-       await saveAuthData(parsedResponse, parsedResponse?.token);
-       if(parsedResponse?.type === "Delivery"){
-         param.navigation.navigate(ScreenNameEnum.ProfileSetup,{
-          type:"otp"
-         });
+      await saveAuthData(parsedResponse, parsedResponse?.token);
+      if (parsedResponse?.type === "Delivery") {
+
+        param.navigation.navigate(ScreenNameEnum.UploadDocumentsScreen);
+
+        // param.navigation.navigate(ScreenNameEnum.ProfileSetup, {
+        //   type: "otp"
+        // });
+        // param.navigation.navigate(ScreenNameEnum.ProfileSetup, {
+        //   type: "otp"
+        // });
         // param.navigation.navigate(ScreenNameEnum.DeliveryTabNavigator);
-       }else{
-                 param.navigation.navigate(ScreenNameEnum.ProfileSetup,{
-                                     type:"otp"
+      } else {
+        param.navigation.navigate(ScreenNameEnum.ProfileSetup, {
+          type: "otp"
 
 
-                 });
+        });
 
         // param.navigation.navigate(ScreenNameEnum.TabNavigator);
-       }
+      }
       // console.log(first)
-        //  param.navigation.navigate(ScreenNameEnum.ProfileSetup);
-     
-     } else {
+      //  param.navigation.navigate(ScreenNameEnum.ProfileSetup);
+
+    } else {
       errorToast(parsedResponse?.message);
     }
 
@@ -209,7 +215,7 @@ const Resend_otp = async (param: any, setLoading: any) => {
   }
 };
 
- const UpdateProfile = async (
+const UpdateProfile = async (
   param: any,
   setLoading: (loading: boolean) => void
 ) => {
@@ -248,7 +254,7 @@ const Resend_otp = async (param: any, setLoading: any) => {
       headers,
       body: formdata,
     });
-console.log("response",response)
+    console.log("response", response)
     const textResponse = await response.text();
     let parsedResponse;
 
@@ -257,7 +263,7 @@ console.log("response",response)
     } catch {
       throw new Error("Invalid server response");
     }
-console.log("parsedResponse",parsedResponse)
+    console.log("parsedResponse", parsedResponse)
 
     if (parsedResponse.status == "1") {
       successToast(parsedResponse.message);
@@ -267,7 +273,7 @@ console.log("parsedResponse",parsedResponse)
       return parsedResponse;
     }
   } catch (error) {
-    console.log("parsedResponse",error)
+    console.log("parsedResponse", error)
 
     console.error("UpdateProfile error:", error);
     errorToast("Something went wrong. Please try again.");
@@ -277,8 +283,8 @@ console.log("parsedResponse",parsedResponse)
   }
 };
 
-  
-    
+
+
 const GetProfileApi = async (
   setLoading: (loading: boolean) => void
 ): Promise<any | null> => {
@@ -312,8 +318,8 @@ const GetProfileApi = async (
   }
 };
 
- 
- const Privacypolicy = async (setLoading: any) => {
+
+const Privacypolicy = async (setLoading: any) => {
   setLoading(true);
   try {
     const response = await fetch(`${base_url}/privacy-policy`, {
@@ -347,7 +353,7 @@ const GetProfileApi = async (
 };
 
 
- const Termsconditions = async (setLoading: any) => {
+const Termsconditions = async (setLoading: any) => {
   setLoading(true);
   try {
     const response = await fetch(`${base_url}/terms-and-conditions`, {
@@ -381,7 +387,7 @@ const GetProfileApi = async (
 };
 
 
- const DeliveryUploadDocument = async (
+const DeliveryUploadDocument = async (
   param: any,
   setLoading: (loading: boolean) => void
 ) => {
@@ -410,10 +416,12 @@ const GetProfileApi = async (
     if (param.vehiclePapers?.uri) {
       formdata.append("vehiclePapers", {
         uri: param.vehiclePapers.uri,
-        name: "profile.jpg",
-        type:"image/jpeg",
+        name: param.vehiclePapers.name || "vehicle.jpg",
+        type: param.vehiclePapers.type || "image/jpeg",
       });
     }
+
+
 
     const headers = {
       Accept: "application/json",
@@ -425,10 +433,10 @@ const GetProfileApi = async (
       headers,
       body: formdata,
     });
+    console.log("response -----  ", response);
 
     const textResponse = await response.text();
     let parsedResponse;
-
     try {
       parsedResponse = JSON.parse(textResponse);
     } catch {
@@ -437,7 +445,7 @@ const GetProfileApi = async (
     console.log("parsedResponse", parsedResponse);
     if (parsedResponse.status == "1") {
       successToast(parsedResponse.message);
-    }  
+    }
 
     return parsedResponse;
   } catch (error) {
@@ -450,7 +458,7 @@ const GetProfileApi = async (
 };
 
 
- const DeliveryVehicleDocument = async (
+const DeliveryVehicleDocument = async (
   param: any,
   setLoading: (loading: boolean) => void
 ) => {
@@ -488,7 +496,8 @@ const GetProfileApi = async (
 
     const textResponse = await response.text();
     let parsedResponse;
-
+    console.log("textResponse", textResponse)
+    console.log("parsedResponse", parsedResponse)
     try {
       parsedResponse = JSON.parse(textResponse);
     } catch {
@@ -531,7 +540,7 @@ const GetuploadDocument = async (
     const responseData = await response.json();
     console.log("responseData", responseData);
 
-    if (responseData.status === "1" || responseData.status === 1) {
+    if (responseData.status == "1" || responseData.status == 1) {
       return responseData;
     } else {
       Toast(responseData.error || responseData.message || "Something went wrong", color.red, 10);
@@ -546,7 +555,7 @@ const GetuploadDocument = async (
   }
 };
 const AddParcelApi = async (param: any, setLoading: (loading: boolean) => void) => {
-    try {
+  try {
     setLoading(true);
     const token = await AsyncStorage.getItem("token");
     const formdata = new FormData();
@@ -564,14 +573,14 @@ const AddParcelApi = async (param: any, setLoading: (loading: boolean) => void) 
     // image
     if (param?.pickupLat?.latitude) formdata.append("pickupLocationLat", param.pickupLocation?.longitude);
     if (param?.pickupLat?.longitude) formdata.append("pickupLocationLon", param.pickupLocation?.latitude);
- if (param?.droplat?.latitude) formdata.append("dropLocationLat", param.droplat.latitude);
+    if (param?.droplat?.latitude) formdata.append("dropLocationLat", param.droplat.latitude);
     if (param?.droplat.longitude) formdata.append("dropLocationLon", param.droplat.longitude);
     if (param.shipmentType) formdata.append("shipmentType", param.shipmentType);
     if (param.senderName) formdata.append("senderName", param.senderName);
     if (param.senderMobile) formdata.append("senderMobileNumber", param.senderMobile);
     if (param.senderAddress) formdata.append("senderAddress", param.senderAddress);
     if (param.pickupDate) {
-       formdata.append("pickupDate", param.pickupDate instanceof Date ? param.pickupDate.toISOString() : param.pickupDate);
+      formdata.append("pickupDate", param.pickupDate instanceof Date ? param.pickupDate.toISOString() : param.pickupDate);
     }
     if (param.pickupTime) {
       formdata.append("pickupTime", param.pickupTime instanceof Date ? param.pickupTime.toISOString() : param.pickupTime);
@@ -587,8 +596,8 @@ const AddParcelApi = async (param: any, setLoading: (loading: boolean) => void) 
     if (param.extraMessage) formdata.append("message", param.extraMessage);
 
     if (param.pickupLat) formdata.append("pickupLat", param.pickupLat.toString());
-     if (param.droplat) formdata.append("droplat", param.droplat.toString());
-console.log("FormData ---- :", formdata);
+    if (param.droplat) formdata.append("droplat", param.droplat.toString());
+    console.log("FormData ---- :", formdata);
     const headers: any = {
       Accept: "application/json",
       Authorization: `Bearer ${token}`,
@@ -602,12 +611,12 @@ console.log("FormData ---- :", formdata);
 
     const textResponse = await response.text();
     let parsedResponse;
-     try {
+    try {
       parsedResponse = JSON.parse(textResponse);
     } catch {
       throw new Error("Invalid server response");
     }
-     if (parsedResponse.status == "1") {
+    if (parsedResponse.status == "1") {
       successToast(parsedResponse.message);
       return parsedResponse;
     } else {
@@ -624,86 +633,86 @@ console.log("FormData ---- :", formdata);
 };
 
 const GetApi = async (param: any, setLoading: (loading: boolean) => void) => {
-    // console.log("API PARAM:", param);
+  // console.log("API PARAM:", param);
 
-    try {
-        setLoading(true);
-const token = await AsyncStorage.getItem("token");
-        const myHeaders = new Headers();
-        myHeaders.append("Accept", "application/json");
-        myHeaders.append("Content-Type", "application/json");
-        myHeaders.append("Authorization", `Bearer ${token}`);
+  try {
+    setLoading(true);
+    const token = await AsyncStorage.getItem("token");
+    const myHeaders = new Headers();
+    myHeaders.append("Accept", "application/json");
+    myHeaders.append("Content-Type", "application/json");
+    myHeaders.append("Authorization", `Bearer ${token}`);
 
-        const requestOptions: any = {
-            method: param.method || "GET",
-            headers: myHeaders,
-        };
+    const requestOptions: any = {
+      method: param.method || "GET",
+      headers: myHeaders,
+    };
 
-        // ✅ ADD BODY ONLY IF EXISTS
-        if (param.data && Object.keys(param.data).length > 0) {
-            requestOptions.body = JSON.stringify(param.data);
-        }
-
-        const response = await fetch(base_url + param.url, requestOptions);
-        const resText = await response.text();
-        const result = JSON.parse(resText);
-
-        // console.log("API RESPONSE:", result);
-
-        setLoading(false);
-        return result;
-
-    } catch (error) {
-         setLoading(false);
-        errorToast("Network error");
-        return null;
+    // ✅ ADD BODY ONLY IF EXISTS
+    if (param.data && Object.keys(param.data).length > 0) {
+      requestOptions.body = JSON.stringify(param.data);
     }
+
+    const response = await fetch(base_url + param.url, requestOptions);
+    const resText = await response.text();
+    const result = JSON.parse(resText);
+
+    // console.log("API RESPONSE:", result);
+
+    setLoading(false);
+    return result;
+
+  } catch (error) {
+    setLoading(false);
+    errorToast("Network error");
+    return null;
+  }
 };
 
 export const PostApi = async (param, setLoading) => {
-    try {
-        setLoading && setLoading(true);
+  try {
+    setLoading && setLoading(true);
 
-        const headers = {
-            Accept: "application/json",
-            ...(param?.isFormData
-                ? { "Content-Type": "multipart/form-data" }
-                : { "Content-Type": "application/json" }),
-            ...(param?.token && { Authorization: `Bearer ${param.token}` }),
-        };
-console.log(  base_url + param.url,
-            param.data,
-            { headers })
-        const response = await axios.post(
-            base_url + param.url,
-            param.data,
-            { headers }
-        );
-        console.log(response)
-        return response.data;
-    } catch (error) {
-        console.log("POST API ERROR 👉", error?.response || error);
+    const headers = {
+      Accept: "application/json",
+      ...(param?.isFormData
+        ? { "Content-Type": "multipart/form-data" }
+        : { "Content-Type": "application/json" }),
+      ...(param?.token && { Authorization: `Bearer ${param.token}` }),
+    };
+    console.log(base_url + param.url,
+      param.data,
+      { headers })
+    const response = await axios.post(
+      base_url + param.url,
+      param.data,
+      { headers }
+    );
+    console.log(response)
+    return response.data;
+  } catch (error) {
+    console.log("POST API ERROR 👉", error?.response || error);
 
-        return {
-            status: false,
-            message:
-                error?.response?.data?.message ||
-                "Something went wrong. Please try again.",
-        };
-    } finally {
-        setLoading && setLoading(false);
-    }
+    return {
+      status: false,
+      message:
+        error?.response?.data?.message ||
+        "Something went wrong. Please try again.",
+    };
+  } finally {
+    setLoading && setLoading(false);
+  }
 };
 
 
 
-    
+
 const Parceldetails = async (
   setLoading: (loading: boolean) => void
 ): Promise<any | null> => {
   setLoading(true);
   const token = await AsyncStorage.getItem('token');
-   try {
+  try {
     const response = await fetch(`${base_url}/parcel-details`, {
       method: 'GET',  // agar get ho toh GET use karna
       headers: {
@@ -734,13 +743,13 @@ const Parceldetails = async (
 
 
 
-    
+
 const DeliveryAvailableRequests = async (
   setLoading: (loading: boolean) => void
 ): Promise<any | null> => {
   setLoading(true);
   const token = await AsyncStorage.getItem('token');
-   try {
+  try {
     const response = await fetch(`${base_url}/delivery/available-requests`, {
       method: 'GET',  // agar get ho toh GET use karna
       headers: {
@@ -759,29 +768,29 @@ const DeliveryAvailableRequests = async (
       return null;
     }
   } catch (error) {
-     errorToast("Network error");
+    errorToast("Network error");
     return null;
   } finally {
     setLoading(false);
   }
 };
 
- export {
-  LogiApi,  
-   Verifyotp,
-handleLogout,
-getAuthData,
-Termsconditions,
-saveAuthData,
-Resend_otp,
-     GetProfileApi,  
- Privacypolicy,
-UpdateProfile ,
-DeliveryUploadDocument,
-DeliveryVehicleDocument,
-GetuploadDocument,
-AddParcelApi,
-Parceldetails ,
-DeliveryAvailableRequests,
-GetApi
+export {
+  LogiApi,
+  Verifyotp,
+  handleLogout,
+  getAuthData,
+  Termsconditions,
+  saveAuthData,
+  Resend_otp,
+  GetProfileApi,
+  Privacypolicy,
+  UpdateProfile,
+  DeliveryUploadDocument,
+  DeliveryVehicleDocument,
+  GetuploadDocument,
+  AddParcelApi,
+  Parceldetails,
+  DeliveryAvailableRequests,
+  GetApi
 }  

@@ -58,11 +58,28 @@ const screenOptions: NativeStackNavigationOptions = {
   animation: 'slide_from_right',
 };
 
+import { useSelector, useDispatch } from 'react-redux';
+import { setAppLanguage } from '../redux/feature/authSlice';
+import { getLanguage } from '../localization/localeStorage';
+
 const RegistrationRoutes: React.FC = () => {
+  const language = useSelector((state: any) => state.auth.appLanguage);
+  const dispatch = useDispatch();
+
+  React.useEffect(() => {
+    const syncLanguage = async () => {
+      const storedLang = await getLanguage();
+      if (storedLang !== language) {
+        dispatch(setAppLanguage(storedLang));
+      }
+    };
+    syncLanguage();
+  }, []);
+
   return (
     <DeliveryProvider>
       <DashboardProvider>
-        <View style={{ flex: 1 }}>
+        <View style={{ flex: 1 }} key={language}>
           <Stack.Navigator screenOptions={screenOptions}>
             {_routes.REGISTRATION_ROUTE.map((screen: RegistrationRouteType) => (
               <Stack.Screen
@@ -75,8 +92,9 @@ const RegistrationRoutes: React.FC = () => {
               />
             ))}
           </Stack.Navigator>
-       
+
         </View>
+
       </DashboardProvider>
     </DeliveryProvider>
   );

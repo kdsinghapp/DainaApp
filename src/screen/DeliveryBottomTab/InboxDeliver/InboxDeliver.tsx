@@ -17,6 +17,7 @@ import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import ScreenNameEnum from "../../../routes/screenName.enum";
 import { base_url } from "../../../Api";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import NewOrderNotificationModal from "../../../compoent/NewOrderNotificationModal";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -233,14 +234,14 @@ export default function InboxDeliver() {
       </TouchableOpacity>
     );
   };
-
+  console.log("ssss", filtered)
   // ── UI ──────────────────────────────────────────────────────────────────────
   return (
     <SafeAreaView style={styles.container}>
       <StatusBarComponent />
 
       <Text style={styles.header}>Inbox</Text>
-
+      <NewOrderNotificationModal />
       {/* Search */}
       <View style={styles.searchBox}>
         <TextInput
@@ -367,7 +368,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontFamily: font.MonolithRegular,
     color: "#0f172a",
-   },
+  },
   textCol: { flex: 1 },
   nameTimeRow: {
     flexDirection: "row",
@@ -379,7 +380,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontFamily: font.MonolithRegular,
     color: "#0f172a",
-   },
+  },
   time: {
     fontSize: 12,
     color: "#64748b",
@@ -406,7 +407,7 @@ const styles = StyleSheet.create({
   },
   unreadMessage: {
     color: "#0f172a",
-      fontFamily: font.MonolithRegular,
+    fontFamily: font.MonolithRegular,
 
   },
   badge: {
@@ -421,7 +422,7 @@ const styles = StyleSheet.create({
     color: "#0f172a",
     fontSize: 11,
     fontFamily: font.MonolithRegular,
-   
+
   },
   statusPill: {
     alignSelf: "flex-start",

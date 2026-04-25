@@ -16,6 +16,7 @@ import CustomButton from '../../../compoent/CustomButton';
 import { color } from '../../../constant';
 import SlideButton from '../../../compoent/SlideRightButton/SlideRightButton';
 import ScreenNameEnum from '../../../routes/screenName.enum';
+import strings from '../../../localization/Localization';
 
 const { width, height } = Dimensions.get('window');
 
@@ -26,33 +27,31 @@ interface Slide {
   img: any;
 }
 
-const slides: Slide[] = [
-  {
-    id: '1',
-    title: 'Ship Your Parcel',
-    description: 'Experience smooth and completely stress-free shipping of your parcel.',
-    img: imageIndex.sp2,
-  },
-  {
-    id: '2',
-    title: 'Ship Anywhere',
-    description: 'Send your parcel across borders with our reliable and secure shipping service.',
-    img: imageIndex.sp1,
-  },
-  {
-    id: '3',
-    title: 'Track Your Parcel',
-    description: 'Stay updated and know the real-time location of your shipment anytime.',
-    img: imageIndex.sp3,
-  },
-];
-
-const AnimatedSafeAreaView = Animated.createAnimatedComponent(SafeAreaView);
-
 const OnboardingScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
   const [currentIndex, setCurrentIndex] = useState<number>(0);
   const flatListRef = useRef<FlatList>(null);
   const scrollX = useRef(new Animated.Value(0)).current;
+
+  const slides: Slide[] = [
+    {
+      id: '1',
+      title: strings.ShipYourParcel,
+      description: strings.OnboardingDesc1,
+      img: imageIndex.sp2,
+    },
+    {
+      id: '2',
+      title: strings.ShipAnywhere,
+      description: strings.OnboardingDesc2,
+      img: imageIndex.sp1,
+    },
+    {
+      id: '3',
+      title: strings.TrackYourParcel,
+      description: strings.OnboardingDesc3,
+      img: imageIndex.sp3,
+    },
+  ];
 
   const updateCurrentIndex = (event: any) => {
     const index = Math.round(event.nativeEvent.contentOffset.x / width);
@@ -68,15 +67,14 @@ const OnboardingScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
   };
 
   const handleSkip = () => {
-  navigation.navigate(ScreenNameEnum.ChooseRole);
+    navigation.navigate(ScreenNameEnum.ChooseRole);
   };
 
   const renderSlide = ({ item }: { item: Slide }) => (
-    <View style={[styles.slide,  ]}>
-       
-        <Image source={item.img} style={styles.image} />
-       {/* Dots */}
-       <View style={styles.dotsContainer}>
+    <View style={[styles.slide]}>
+      <Image source={item.img} style={styles.image} />
+      {/* Dots */}
+      <View style={styles.dotsContainer}>
         {slides.map((_, index) => {
           const isActive = currentIndex === index;
           return (
@@ -84,15 +82,13 @@ const OnboardingScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
               key={index}
               style={[
                 styles.dot,
-                { backgroundColor: isActive ? '#FFCC00' : color.primary  ,
-                    width:isActive?  13 :8,
-                    height: isActive?  5 :8,
-                    justifyContent:"center" ,
-                    marginHorizontal: 5,
-                    borderRadius: isActive ? 8 :5,
-
-
-
+                {
+                  backgroundColor: isActive ? '#FFCC00' : color.primary,
+                  width: isActive ? 13 : 8,
+                  height: isActive ? 5 : 8,
+                  justifyContent: "center",
+                  marginHorizontal: 5,
+                  borderRadius: isActive ? 8 : 5,
                 },
               ]}
             />
@@ -110,10 +106,10 @@ const OnboardingScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
 
       {/* Skip Button */}
       <TouchableOpacity style={styles.skipButton} onPress={handleSkip}>
-        <Text style={styles.skipText}>Skip</Text>
+        <Text style={styles.skipText}>{strings.Skip}</Text>
       </TouchableOpacity>
 
-       <Animated.FlatList
+      <Animated.FlatList
         data={slides}
         horizontal
         pagingEnabled
@@ -127,30 +123,24 @@ const OnboardingScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
         )}
         scrollEventThrottle={16}
       />
-      {currentIndex === slides.length - 1  ?  
-      <View  style={{
-             marginBottom:15
-
-      }}>
-        <SlideButton 
-        title="Continue" 
-        onSlideSuccess={() => navigation.navigate(ScreenNameEnum.ChooseRole)} 
-      />
-     </View>
-  :
-  <View style={{
-    width: "55%",
-    alignItems:"center",
-    justifyContent:"center",
-     alignSelf:"center",
-     marginBottom:15
-  }}>
-            <CustomButton title={"Continue"} onPress={handleNextPress} />
-  
-            </View>
-    }
-     
-
+      {currentIndex === slides.length - 1 ?
+        <View style={{ marginBottom: 15 }}>
+          <SlideButton
+            title={strings.Continue}
+            onSlideSuccess={() => navigation.navigate(ScreenNameEnum.ChooseRole)}
+          />
+        </View>
+        :
+        <View style={{
+          width: "55%",
+          alignItems: "center",
+          justifyContent: "center",
+          alignSelf: "center",
+          marginBottom: 15
+        }}>
+          <CustomButton title={strings.Continue} onPress={handleNextPress} />
+        </View>
+      }
     </SafeAreaView>
   );
 };

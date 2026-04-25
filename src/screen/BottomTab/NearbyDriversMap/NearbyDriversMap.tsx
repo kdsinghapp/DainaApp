@@ -457,7 +457,7 @@
 //       <CustomHeader label="Finding Driver" />
 
 //       {/* ── YELLOW HEADER ── */}
-   
+
 
 //       {/* ── BODY ── */}
 //       <Animated.View style={[s.body, { opacity: fadeIn }]}>
@@ -675,7 +675,7 @@
 //     color: T.textFaint,
 //     fontSize: 9,
 //       fontFamily: font.MonolithRegular,
-  
+
 //   },
 //   centerDot: {
 //     position: "absolute",
@@ -1070,7 +1070,7 @@ const RadarSearchScreen: React.FC<RadarSearchScreenProps> = ({
 
         const wsUrl = `${WebSocket_Url}/parcel/${parcelId.parcel.id}?token=${token}&role=user`;
         const ws = new WebSocket(wsUrl);
-
+        console.log('wsUrl', wsUrl);
         ws.onopen = () => {
           setIsConnected(true);
           setError(null);
@@ -1081,7 +1081,7 @@ const RadarSearchScreen: React.FC<RadarSearchScreenProps> = ({
         ws.onmessage = (event) => {
           try {
             const data: WSMessage = JSON.parse(event.data);
-
+            console.log('data', data);
             if (data?.type === "offers_update") {
               clearCountdown();
               navigation.replace(ScreenNameEnum.OfferOR, {
@@ -1133,7 +1133,7 @@ const RadarSearchScreen: React.FC<RadarSearchScreenProps> = ({
     try {
       const token = await AsyncStorage.getItem("token");
       if (token) await connectSocket(token);
-    } catch (_) {}
+    } catch (_) { }
   };
 
   const handleRetry = () => {
@@ -1171,7 +1171,7 @@ const RadarSearchScreen: React.FC<RadarSearchScreenProps> = ({
           startProgressAnimation();
           startCountdown();
         }
-      } catch (_) {}
+      } catch (_) { }
     };
     init();
 
@@ -1413,9 +1413,8 @@ const RadarSearchScreen: React.FC<RadarSearchScreenProps> = ({
               </Defs>
               <G clipPath="url(#sc)">
                 <Path
-                  d={`M${CX} ${CY} L${CX + R} ${CY} A${R} ${R} 0 0 0 ${CX} ${
-                    CY - R
-                  } Z`}
+                  d={`M${CX} ${CY} L${CX + R} ${CY} A${R} ${R} 0 0 0 ${CX} ${CY - R
+                    } Z`}
                   fill="url(#sweepG)"
                   opacity={0.9}
                 />
@@ -1460,13 +1459,13 @@ const RadarSearchScreen: React.FC<RadarSearchScreenProps> = ({
         {/* ── STATUS TEXT ── */}
         <View style={s.statusWrap}>
           <Animated.View style={[s.statusDot, { opacity: dotBlink }]} />
-          <Text style={[s.statusText,{}]} numberOfLines={1}>
+          <Text style={[s.statusText, {}]} numberOfLines={1}>
             {driverStatus}
           </Text>
         </View>
 
         {/* ── ERROR BANNER ── */}
-    
+
 
         {/* ── STATS CARD ── */}
         {/* <View style={s.statsCard}>
@@ -1487,8 +1486,8 @@ const RadarSearchScreen: React.FC<RadarSearchScreenProps> = ({
         </View> */}
 
         {/* ── SCAN BAR ── */}
-        <View style={[s.scanWrap,{
-          marginTop:18
+        <View style={[s.scanWrap, {
+          marginTop: 18
         }]}>
           <View style={s.scanMeta}>
             <Text style={s.scanLbl}>SCANNING AREA</Text>

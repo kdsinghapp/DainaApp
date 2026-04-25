@@ -4,10 +4,11 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import CustomHeader from '../../compoent/CustomHeader';
 import imageIndex from '../../assets/imageIndex';
 import { useNavigation } from '@react-navigation/native';
+import strings from '../../localization/Localization';
 
 const notifications = [
   {
-    title: 'Today',
+    title: strings.Today || 'Today',
     data: [
       {
         id: '1',
@@ -24,7 +25,7 @@ const notifications = [
     ],
   },
   {
-    title: 'This week',
+    title: strings.ThisWeek || 'This week',
     data: [
       {
         id: '3',
@@ -70,7 +71,7 @@ const NotificationsScreen = () => {
   return (
     <SafeAreaView style={styles.container}>
             <CustomHeader
-                label={"Notification"}
+                label={strings.Notifications || "Notification"}
                 menuIcon={imageIndex.left}
                 leftPress={true}
                 navigation={navigation}

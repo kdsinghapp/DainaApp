@@ -12,7 +12,7 @@ import {
   ScrollView,
 } from "react-native";
 import StatusBarComponent from "../../../compoent/StatusBarCompoent";
-import { SafeAreaView ,  } from "react-native-safe-area-context";
+import { SafeAreaView, } from "react-native-safe-area-context";
 import font from "../../../theme/font";
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import ScreenNameEnum from "../../../routes/screenName.enum";
@@ -86,10 +86,10 @@ function capitalize(str: string) {
 // ─── Status Badge ─────────────────────────────────────────────────────────────
 
 const STATUS_COLORS: Record<string, { bg: string; text: string }> = {
-  pending:  { bg: "#fff7ed", text: "#ea580c" },
+  pending: { bg: "#fff7ed", text: "#ea580c" },
   assigned: { bg: "#f0fdf4", text: "#16a34a" },
   accepted: { bg: "#eff6ff", text: "#2563eb" },
-  default:  { bg: "#f8fafc", text: "#64748b" },
+  default: { bg: "#f8fafc", text: "#64748b" },
 };
 
 const StatusBadge = ({ status }: { status: string }) => {
@@ -212,11 +212,11 @@ export default function ChatInboxScreen() {
 
   const filteredChats = query.trim()
     ? chats.filter(
-        (c) =>
-          c.driver?.name?.toLowerCase().includes(query.toLowerCase()) ||
-          c.trackingId?.toLowerCase().includes(query.toLowerCase()) ||
-          c.lastMessage?.text?.toLowerCase().includes(query.toLowerCase())
-      )
+      (c) =>
+        c.driver?.name?.toLowerCase().includes(query.toLowerCase()) ||
+        c.trackingId?.toLowerCase().includes(query.toLowerCase()) ||
+        c.lastMessage?.text?.toLowerCase().includes(query.toLowerCase())
+    )
     : chats;
 
   // ── Render row ──────────────────────────────────────────────────────────────
@@ -290,65 +290,64 @@ export default function ChatInboxScreen() {
   };
 
   // ── UI ──────────────────────────────────────────────────────────────────────
-
   return (
     <SafeAreaView style={styles.container}>
       <StatusBarComponent />
 
       <Text style={styles.header}>Inbox</Text>
-<ScrollView 
+      <ScrollView
 
 
-showsVerticalScrollIndicator={false}>
-      {/* Search */}
-      <View style={styles.searchBox}>
-         <TextInput
-          placeholder="Search by name, tracking ID…"
-          placeholderTextColor="#9aa0a6"
-          value={query}
-          onChangeText={setQuery}
-          style={styles.input}
-          returnKeyType="search"
-          clearButtonMode="while-editing"
-        />
-      </View>
-
-      {/* Error banner */}
-      {error && (
-        <View style={styles.errorBanner}>
-          <Text style={styles.errorText}>{error}</Text>
+        showsVerticalScrollIndicator={false}>
+        {/* Search */}
+        <View style={styles.searchBox}>
+          <TextInput
+            placeholder="Search by name, tracking ID…"
+            placeholderTextColor="#9aa0a6"
+            value={query}
+            onChangeText={setQuery}
+            style={styles.input}
+            returnKeyType="search"
+            clearButtonMode="while-editing"
+          />
         </View>
-      )}
 
-      {/* Loading spinner (first load) */}
-      {loading && !refreshing ? (
-        <View style={styles.loaderWrap}>
-          <ActivityIndicator size="large" color="#FFCC00" />
-        </View>
-      ) : (
-        <FlatList
-          data={filteredChats}                          // ✅ filtered list
-          style={styles.list}
+        {/* Error banner */}
+        {error && (
+          <View style={styles.errorBanner}>
+            <Text style={styles.errorText}>{error}</Text>
+          </View>
+        )}
 
-          keyExtractor={(item) => String(item.parcelId)} // ✅ correct key
-          renderItem={renderItem}
-          ItemSeparatorComponent={() => <View style={styles.separator} />}
-          contentContainerStyle={[
-            { paddingBottom: 24 , marginBottom:120 },
-            filteredChats.length === 0 && styles.emptyContainer,
-          ]}
-          showsVerticalScrollIndicator={false}
-          ListEmptyComponent={<EmptyState />}
-          refreshControl={
-            <RefreshControl
-              refreshing={refreshing}
-              onRefresh={() => fetchChats(true)}
-              colors={["#FFCC00"]}
-              tintColor="#FFCC00"
-            />
-          }
-        />
-      )}
+        {/* Loading spinner (first load) */}
+        {loading && !refreshing ? (
+          <View style={styles.loaderWrap}>
+            <ActivityIndicator size="large" color="#FFCC00" />
+          </View>
+        ) : (
+          <FlatList
+            data={filteredChats}                          // ✅ filtered list
+            style={styles.list}
+
+            keyExtractor={(item) => String(item.parcelId)} // ✅ correct key
+            renderItem={renderItem}
+            ItemSeparatorComponent={() => <View style={styles.separator} />}
+            contentContainerStyle={[
+              { paddingBottom: 24, marginBottom: 120 },
+              filteredChats.length === 0 && styles.emptyContainer,
+            ]}
+            showsVerticalScrollIndicator={false}
+            ListEmptyComponent={<EmptyState />}
+            refreshControl={
+              <RefreshControl
+                refreshing={refreshing}
+                onRefresh={() => fetchChats(true)}
+                colors={["#FFCC00"]}
+                tintColor="#FFCC00"
+              />
+            }
+          />
+        )}
       </ScrollView>
     </SafeAreaView>
   );

@@ -10,6 +10,7 @@ import CustomHeader from '../../compoent/CustomHeader';
 import font from '../../theme/font';
 import {   Termsconditions } from '../../Api/apiRequest';
 import LoadingModal from '../../utils/Loader';
+import strings from '../../localization/Localization';
 
 const LegalPoliciesScreen = () => {
     const [isLoading, setLoading] = useState(false);
@@ -26,10 +27,10 @@ const getPrivacyPolicy = async () => {
     if (response && response?.content) {
       setContent(response.content); // ✅ content is now set correctly
     } else {
-      setContent('<p>No content available</p>');
+      setContent(`<p>${strings.NoContentAvailable}</p>`);
     }
   } catch (error) {
-    setContent('<p>No content available</p>');
+    setContent(`<p>${strings.NoContentAvailable}</p>`);
   }
 };
 
@@ -39,7 +40,7 @@ const getPrivacyPolicy = async () => {
             <StatusBarComponent />
                           <LoadingModal visible ={isLoading}/>
 
-            <CustomHeader     label="Terms and Conditions" />
+            <CustomHeader     label={strings.TermsConditions} />
             <ScrollView
                 showsVerticalScrollIndicator={false}
                 contentContainerStyle={styles.contentContainer}
@@ -59,7 +60,7 @@ const getPrivacyPolicy = async () => {
                         tagsStyles={styles.htmlStyles}
                     />
                 ) : (
-                    <Text style={styles.bodyText}>No content available</Text>
+                    <Text style={styles.bodyText}>{strings.NoContentAvailable}</Text>
                 )}
             </ScrollView>
         </SafeAreaView>

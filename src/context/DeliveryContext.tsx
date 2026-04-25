@@ -5,6 +5,7 @@ const DeliveryContext = createContext<ReturnType<typeof useDeliveryHome> | null>
 
 export function DeliveryProvider({ children }: { children: React.ReactNode }) {
   const value = useDeliveryHome();
+  console.log("value ---- ", value)
   return <DeliveryContext.Provider value={value}>{children}</DeliveryContext.Provider>;
 }
 

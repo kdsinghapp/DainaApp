@@ -21,6 +21,8 @@ import LoadingModal from "../../../../utils/Loader";
 import CustomHeader from "../../../../compoent/CustomHeader";
 import { styles } from "./style";
 import { STATUS } from "../../../../utils/Constant";
+import NewOrderNotificationModal from "../../../../compoent/NewOrderNotificationModal";
+import OfferAcceptedModal from "../../../../compoent/OfferAcceptedModal";
 
 
 
@@ -74,17 +76,17 @@ const AllOrder = () => {
     switch (activeTab) {
       case "Pending":
         return requests.filter(
-          (item:any) => item.status?.toLowerCase() === "pending"
+          (item: any) => item.status?.toLowerCase() === "pending"
         );
       case "Complete":
         return requests.filter(
-          (item:any) =>
+          (item: any) =>
             item.status?.toLowerCase() === "completed" ||
             item.status?.toLowerCase() === "delivered"
         );
       case "Canceled":
         return requests.filter(
-          (item:any) => item.status?.toLowerCase() === "canceled"
+          (item: any) => item.status?.toLowerCase() === "canceled"
         );
       default:
         return requests;
@@ -95,7 +97,10 @@ const AllOrder = () => {
     <SafeAreaView style={styles.container}>
       <StatusBarComponent />
       <LoadingModal visible={isLoading} />
+
       <CustomHeader label="All Orders" />
+      <NewOrderNotificationModal />
+      <OfferAcceptedModal />
       <View style={styles.tabs}>
         {TABS.map((tab) => {
           const active = tab === activeTab;
@@ -122,24 +127,24 @@ const AllOrder = () => {
           style={{
             marginTop: 12
           }}
-          keyExtractor={(item:any) => item.id}
+          keyExtractor={(item: any) => item.id}
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{ paddingBottom: 20 }}
-          renderItem={({ item }:any) => {
+          renderItem={({ item }: any) => {
             return (
               <TouchableOpacity style={styles.card}
                 onPress={() => {
-//                    if (item.deliveryStatus === STATUS.DELIVERED) {
-//                             } else if(item.deliveryStatus === STATUS.ASSIGNED) {
-// navigation.navigate(ScreenNameEnum.TripMap, {
-//                     item: item,
-//                   });
-//                             }else{
+                  //                    if (item.deliveryStatus === STATUS.DELIVERED) {
+                  //                             } else if(item.deliveryStatus === STATUS.ASSIGNED) {
+                  // navigation.navigate(ScreenNameEnum.TripMap, {
+                  //                     item: item,
+                  //                   });
+                  //                             }else{
 
                   navigation.navigate(ScreenNameEnum.ParcelDetails, {
                     item: item,
                   });
-                
+
                 }}
               >
                 <View style={styles.cardTop}>

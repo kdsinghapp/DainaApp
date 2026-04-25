@@ -99,6 +99,8 @@ const openDialer = (phoneNumber) => {
 };
 
 
+import strings from '../localization/Localization';
+
 // constants/statusConstants.js
 export const STATUS = {
   PENDING: 'pending',
@@ -113,15 +115,15 @@ export const STATUS = {
 };
 
 export const STATUS_LABELS = {
-  [STATUS.PENDING]: 'Pending',
-  [STATUS.ASSIGNED]: 'Assigned',
-  [STATUS.GOING_TO_PICKUP]: 'Going to Pickup',
-  [STATUS.PICKED_UP]: 'Picked Up',
-  [STATUS.ON_THE_WAY]: 'On the Way',
-  [STATUS.ARRIVING]: 'Arriving',
-  [STATUS.DELIVERED]: 'Delivered',
-  [STATUS.COMPLETED]: 'Completed',
-  [STATUS.CANCELLED]: 'Cancelled'
+  [STATUS.PENDING]: strings.StatusPending,
+  [STATUS.ASSIGNED]: strings.StatusAssigned,
+  [STATUS.GOING_TO_PICKUP]: strings.StatusGoingToPickup,
+  [STATUS.PICKED_UP]: strings.StatusPickedUp,
+  [STATUS.ON_THE_WAY]: strings.StatusOnTheWay,
+  [STATUS.ARRIVING]: strings.StatusArriving,
+  [STATUS.DELIVERED]: strings.StatusDelivered,
+  [STATUS.COMPLETED]: strings.StatusCompleted,
+  [STATUS.CANCELLED]: strings.StatusCancelled,
 };
 
 export const STATUS_COLORS = {

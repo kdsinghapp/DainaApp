@@ -9,6 +9,7 @@ interface AuthState {
   isLogOut: boolean;
   userData: any;
   token: string | null;
+  appLanguage: string | null;
 }
 
 const initialState: AuthState = {
@@ -19,6 +20,7 @@ const initialState: AuthState = {
   isLogOut: false,
   userData: null,
   token: null,
+  appLanguage: 'en',
 };
 
 const AuthSlice = createSlice({
@@ -39,6 +41,9 @@ const AuthSlice = createSlice({
       state.userData = action.payload.userData;
       state.token = action.payload.token;
     },
+    setAppLanguage(state, action: PayloadAction<string>) {
+      state.appLanguage = action.payload;
+    },
     logout(state) {
       state.isLogin = false;
       state.isLogOut = true;
@@ -51,5 +56,5 @@ const AuthSlice = createSlice({
   },
 });
 
-export const { loginSuccess, restoreLogin, logout } = AuthSlice.actions;
+export const { loginSuccess, restoreLogin, logout, setAppLanguage } = AuthSlice.actions;
 export default AuthSlice.reducer;

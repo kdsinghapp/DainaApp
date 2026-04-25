@@ -106,8 +106,7 @@ export default function DeliveryTabNavigator() {
         <Tab.Screen name="Inbox" component={InboxDeliver} />
         <Tab.Screen name="Profile" component={DeliveryProfile} />
       </Tab.Navigator>
-      <NewOrderNotificationModal />
-      <OfferAcceptedModal />
+
     </>
   );
 }

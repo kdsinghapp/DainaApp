@@ -1,23 +1,27 @@
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
 import { PermissionsAndroid, Platform } from 'react-native';
- 
+
 export interface ApiRequest {
   endpoint: string;
   method?: 'GET' | 'POST' | 'PUT';
   data?: any;
   headers?: Record<string, string>;
   token?: string;
-  redirect?:any
+  redirect?: any
 }
 // https://python.aitechnotech.in/DAINA/docs
 // DAINA API - Swagger UI
- 
+
 // wss://python.aitechnotech.in/DAINA/ws
- 
+
 // DAINA API - Swagger UI
- 
-export const base_url = 'https://python.aitechnotech.in/DAINA/api';
-export const WebSocket_Url =`wss://python.aitechnotech.in/DAINA/ws`
+
+// export const base_url = 'https://python.aitechnotech.in/DAINA/api';
+// export const WebSocket_Url = `wss://python.aitechnotech.in/DAINA/ws`
+
+
+export const base_url = 'https://api.daina.tech/api';
+export const WebSocket_Url = `wss://api.daina.tech/ws`
 
 // export const base_url = 'https://aitechnotech.in/DAINA/api';
 // Prepr CMS (headless) – GraphQL client and helpers
@@ -31,12 +35,12 @@ export {
 export type { PreprGraphQLVariables, PreprGraphQLResponse } from './prepr';
 export const image_url = 'https://python.aitechnotech.in/DAINA';
 export const GoogleClientId = '43208932533-6ktmlm2uusaqdgv42pj9u94eq9q6q8h7.apps.googleusercontent.com';
- export const GOOGLE_MAPS_APIKEY = 'AIzaSyDgFGS91BvviXh_f-nmvtEggUHJcaGyUwA'; // Replace with your Key
+export const GOOGLE_MAPS_APIKEY = 'AIzaSyDgFGS91BvviXh_f-nmvtEggUHJcaGyUwA'; // Replace with your Key
 export const callMultipleApis = async (requests: ApiRequest[]) => {
   try {
     const responses: AxiosResponse[] = await Promise.all(
       requests.map((req) => {
- 
+
         const config: AxiosRequestConfig = {
           method: req.method || 'GET',
           url: `${base_url}${req.endpoint}`,
@@ -65,9 +69,9 @@ export const callMultipleApis = async (requests: ApiRequest[]) => {
 
 
 export const callApi = async (
-  method: string, 
-  url: string, 
-  headers: any = {}, 
+  method: string,
+  url: string,
+  headers: any = {},
   data: any = null
 ): Promise<any> => {
   try {
@@ -158,4 +162,4 @@ export const requestCameraAndLocationPermissions = async (): Promise<{ camera: b
   return { camera, location };
 };
 
- 
+

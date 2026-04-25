@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import { Animated, ImageBackground, View, Text, Image } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useNavigation } from '@react-navigation/native';
- import ScreenNameEnum from '../../../routes/screenName.enum';
+import ScreenNameEnum from '../../../routes/screenName.enum';
 import { color } from '../../../constant';
 import imageIndex from '../../../assets/imageIndex';
 import StatusBarComponent from '../../../compoent/StatusBarCompoent';
@@ -10,7 +10,7 @@ import { styles } from './style';
 import { useDispatch } from 'react-redux';
 import { restoreLogin } from '../../../redux/feature/authSlice';
 import { getAuthData } from '../../../Api/apiRequest';
- 
+
 type RootStackParamList = {
   Home: undefined;
 };
@@ -34,7 +34,7 @@ const Splash: React.FC = () => {
     const timer = setTimeout(async () => {
       try {
         const storedAuth = await getAuthData();
- 
+
         if (storedAuth?.token) {
           dispatch(restoreLogin(storedAuth));
           if (storedAuth.userData?.type == "Delivery") {
@@ -67,9 +67,9 @@ const Splash: React.FC = () => {
       {/* Center content */}
       <View style={styles.centerContent}>
         <Animated.View style={{ opacity: fadeAnim }}>
-          <Image 
-             source={imageIndex.appLogo1}
-                         style={styles.logo}
+          <Image
+            source={imageIndex.appLogo1}
+            style={styles.logo}
 
           />
           {/* <FastImage

@@ -19,6 +19,8 @@ import { DeliveryUploadDocument } from "../../../Api/apiRequest";
 import LoadingModal from "../../../utils/Loader";
 import { errorToast } from "../../../utils/customToast";
 import { styles } from "./style";
+import strings from "../../../localization/Localization";
+import CustomInput from "../../../compoent/CustomInput";
 
 const UploadDocumentsScreen = () => {
   const [idDoc, setIdDoc] = useState<any>(null);
@@ -26,9 +28,14 @@ const UploadDocumentsScreen = () => {
   const [vehicleDoc, setVehicleDoc] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  const navigation:any = useNavigation();
+  const [licenseNumber, setLicenseNumber] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [bankName, setBankName] = useState("");
+  const [accountNumber, setAccountNumber] = useState("");
+  const [ifscCode, setIfscCode] = useState("");
 
-  // ✅ File picker
+  const navigation: any = useNavigation();
+
   const pickDocument = async (type: string) => {
     try {
       const [res] = await pick({ type: [types.allFiles] });
@@ -53,28 +60,59 @@ const UploadDocumentsScreen = () => {
     }
   };
 
-  // ✅ Submit handler
   const handleContinue = async () => {
     if (!idDoc || !licenseDoc || !vehicleDoc) {
-      errorToast("Please upload all required documents.");
+      errorToast(strings.UploadDocumentsError);
       return;
     }
+
+    // if (!licenseNumber.trim()) {
+    //   errorToast(strings.EnterLicenseNumberError);
+    //   return;
+    // }
+
+    // if (!phoneNumber.trim()) {
+    //   errorToast(strings.EnterPhoneNumberError);
+    //   return;
+    // }
+
+    // if (!bankName.trim()) {
+    //   errorToast(strings.EnterBankNameError);
+    //   return;
+    // }
+
+    // if (!accountNumber.trim()) {
+    //   errorToast(strings.EnterAccountNumberError);
+    //   return;
+    // }
+
+    // if (!ifscCode.trim()) {
+    //   errorToast(strings.EnterIFSCCodeError);
+    //   return;
+    // }
 
     const params = {
       idDocument: idDoc,
       drivingLicense: licenseDoc,
       vehiclePapers: vehicleDoc,
+
     };
     const response = await DeliveryUploadDocument(params, setIsLoading);
+    console.log("response status ", response);
     if (response && response.status == "1") {
       navigation.replace(ScreenNameEnum.VehicleSetupScreen);
     }
   };
 
+
+
+
+
+
   return (
     <SafeAreaView style={styles.container}>
       <StatusBarComponent />
-      <CustomHeader label="Upload Documents" />
+      <CustomHeader label={strings.UploadDocuments} />
       <LoadingModal visible={isLoading} />
 
       <ScrollView
@@ -91,7 +129,7 @@ const UploadDocumentsScreen = () => {
           ) : (
             <>
               <Image source={imageIndex.document} style={styles.icon} />
-              <Text style={styles.placeholderText}>Upload ID Document</Text>
+              <Text style={styles.placeholderText}>{strings.UploadIdDocument}</Text>
             </>
           )}
         </TouchableOpacity>
@@ -109,7 +147,7 @@ const UploadDocumentsScreen = () => {
           ) : (
             <>
               <Image source={imageIndex.document} style={styles.icon} />
-              <Text style={styles.placeholderText}>Upload Driving License</Text>
+              <Text style={styles.placeholderText}>{strings.UploadDrivingLicense}</Text>
             </>
           )}
         </TouchableOpacity>
@@ -127,18 +165,47 @@ const UploadDocumentsScreen = () => {
           ) : (
             <>
               <Image source={imageIndex.document} style={styles.icon} />
-              <Text style={styles.placeholderText}>Upload Vehicle Papers</Text>
+              <Text style={styles.placeholderText}>{strings.UploadVehiclePapers}</Text>
             </>
           )}
         </TouchableOpacity>
+
+        <View style={{ width: '90%', marginBottom: 20 }}>
+          <CustomInput
+            placeholder={strings.DrivingLicenseNumber}
+            value={licenseNumber}
+            onChangeText={setLicenseNumber}
+          />
+          <CustomInput
+            placeholder={strings.PhoneNumber}
+            value={phoneNumber}
+            onChangeText={setPhoneNumber}
+            keyboardType="phone-pad"
+          />
+          <CustomInput
+            placeholder={strings.BankName}
+            value={bankName}
+            onChangeText={setBankName}
+          />
+          <CustomInput
+            placeholder={strings.AccountNumber}
+            value={accountNumber}
+            onChangeText={setAccountNumber}
+            keyboardType="numeric"
+          />
+          <CustomInput
+            placeholder={strings.IFSCCode}
+            value={ifscCode}
+            onChangeText={setIfscCode}
+          />
+        </View>
       </ScrollView>
 
       <View style={styles.buttonWrapper}>
-        <CustomButton title="Continue" onPress={handleContinue} />
+        <CustomButton title={strings.Continue} onPress={handleContinue} />
       </View>
     </SafeAreaView>
   );
 };
 
 export default UploadDocumentsScreen;
- 

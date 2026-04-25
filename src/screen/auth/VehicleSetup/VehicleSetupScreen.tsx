@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import {
   View,
   Text,
-   TouchableOpacity,
+  TouchableOpacity,
   TextInput,
   Modal,
   FlatList,
@@ -20,24 +20,30 @@ import CustomHeader from "../../../compoent/CustomHeader";
 import ScreenNameEnum from "../../../routes/screenName.enum";
 import { DeliveryVehicleDocument } from "../../../Api/apiRequest";
 import { errorToast } from "../../../utils/customToast";
- import { styles } from "./style";
+import { styles } from "./style";
+import strings from "../../../localization/Localization";
 
 const VehicleSetupScreen = () => {
   const [vehicleType, setVehicleType] = useState("");
   const [vehicleNumber, setVehicleNumber] = useState("");
   const [vehicleRegistration, setVehicleRegistration] = useState<any>(null);
-   const [showDropdown, setShowDropdown] = useState(false);
+  const [showDropdown, setShowDropdown] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  const navigation = useNavigation();
-  const vehicleOptions = ["Car", "Bike", "Van", "Truck"];
+  const navigation = useNavigation<any>();
+  const vehicleOptions = [
+    { label: strings.Car, value: "Car" },
+    { label: strings.Bike, value: "Bike" },
+    { label: strings.Van, value: "Van" },
+    { label: strings.Truck, value: "Truck" }
+  ];
 
-   const handlePickDocument = async (type: "registration" | "papers") => {
+  const handlePickDocument = async (type: "registration" | "papers") => {
     try {
       const [res] = await pick({ type: [types.images, types.pdf] });
       if (res) {
         if (type === "registration") setVehicleRegistration(res);
-       }
+      }
     } catch (error: any) {
       if (error?.message?.includes("cancelled")) {
         console.log("User cancelled document selection");
@@ -47,27 +53,25 @@ const VehicleSetupScreen = () => {
     }
   };
 
-  // 🚀 Handle Save & Continue
   const handleContinue = async () => {
     if (!vehicleType?.trim()) {
-                  errorToast('Please select a vehicle type.');
-       return;
+      errorToast(strings.SelectVehicleTypeError);
+      return;
     }
     if (!vehicleNumber?.trim()) {
-            errorToast("Please enter the vehicle number.");
-
-       return;
+      errorToast(strings.EnterVehicleNumberError);
+      return;
     }
 
     if (!vehicleRegistration) {
-      errorToast("Please upload vehicle registration.");
-       return;
+      errorToast(strings.UploadVehicleRegistrationError);
+      return;
     }
     const params = {
       vehicleType,
       vehicleNumber,
       vehicleRegistration,
-     };
+    };
     const response = await DeliveryVehicleDocument(params, setIsLoading);
     if (response?.status == "1") {
       navigation.replace(ScreenNameEnum.DeliveryTabNavigator);
@@ -77,19 +81,19 @@ const VehicleSetupScreen = () => {
   return (
     <SafeAreaView style={styles.container}>
       <StatusBarComponent />
-      <CustomHeader label="Vehicle Setup" />
+      <CustomHeader label={strings.VehicleSetup} />
 
-      <ScrollView  
-      showsVerticalScrollIndicator={false}
-      style={styles.content}>
-        {/* Vehicle Type Dropdown */}
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        style={styles.content}>
+        
         <TouchableOpacity
           style={styles.dropdown}
           onPress={() => setShowDropdown(true)}
           activeOpacity={0.8}
         >
           <Text style={[styles.dropdownText, !vehicleType && { color: "#999" }]}>
-            {vehicleType || "Select vehicle type"}
+            {vehicleType ? (vehicleOptions.find(o => o.value === vehicleType)?.label || vehicleType) : strings.SelectVehicleType}
           </Text>
           <Image
             source={imageIndex.dounArroww}
@@ -97,16 +101,14 @@ const VehicleSetupScreen = () => {
           />
         </TouchableOpacity>
 
-        {/* Vehicle Number Input */}
         <TextInput
           style={styles.input}
-          placeholder="Enter vehicle number"
+          placeholder={strings.EnterVehicleNumber}
           value={vehicleNumber}
           onChangeText={setVehicleNumber}
           placeholderTextColor="#999"
         />
 
-        {/* Upload Vehicle Registration */}
         <TouchableOpacity
           style={styles.uploadBox}
           onPress={() => handlePickDocument("registration")}
@@ -118,15 +120,10 @@ const VehicleSetupScreen = () => {
           <Text style={styles.uploadText}>
             {vehicleRegistration
               ? vehicleRegistration.name
-              : "Upload vehicle registration"}
+              : strings.UploadVehicleRegistration}
           </Text>
         </TouchableOpacity>
 
-    
-
-        {/* Save Button */}
-       
-        {/* Dropdown Modal */}
         <Modal visible={showDropdown} transparent animationType="fade">
           <TouchableOpacity
             style={styles.modalOverlay}
@@ -140,34 +137,33 @@ const VehicleSetupScreen = () => {
                   <TouchableOpacity
                     style={styles.dropdownItem}
                     onPress={() => {
-                      setVehicleType(item);
+                      setVehicleType(item.value);
                       setShowDropdown(false);
                     }}
                   >
-                    <Text style={styles.dropdownItemText}>{item}</Text>
+                    <Text style={styles.dropdownItemText}>{item.label}</Text>
                   </TouchableOpacity>
                 )}
-                keyExtractor={(item) => item}
+                keyExtractor={(item) => item.value}
               />
             </View>
           </TouchableOpacity>
         </Modal>
       </ScrollView>
-       <TouchableOpacity
-          style={[styles.button, isLoading && { opacity: 0.7 }]}
-          onPress={handleContinue}
-          disabled={isLoading}
-        >
-          {isLoading ? (
-            <ActivityIndicator size="small" color="#000" />
-          ) : (
-            <Text style={styles.buttonText}>Save & Continue</Text>
-          )}
-        </TouchableOpacity>
 
+      <TouchableOpacity
+        style={[styles.button, isLoading && { opacity: 0.7 }]}
+        onPress={handleContinue}
+        disabled={isLoading}
+      >
+        {isLoading ? (
+          <ActivityIndicator size="small" color="#000" />
+        ) : (
+          <Text style={styles.buttonText}>{strings.SaveAndContinue}</Text>
+        )}
+      </TouchableOpacity>
     </SafeAreaView>
   );
 };
 
 export default VehicleSetupScreen;
- 

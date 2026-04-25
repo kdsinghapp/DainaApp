@@ -3,11 +3,11 @@ import { View, StyleSheet, SafeAreaView } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useNavigation } from '@react-navigation/native';
  
-import imageIndex from '../../../assets/imageIndex';
 import { color } from '../../../constant';
 import StatusBarComponent from '../../../compoent/StatusBarCompoent';
 import CustomButton from '../../../compoent/CustomButton';
 import ScreenNameEnum from '../../../routes/screenName.enum';
+import strings from '../../../localization/Localization';
 
 // Define navigation type
 type RootStackParamList = {
@@ -21,17 +21,11 @@ const Sinup: React.FC = () => {
     <SafeAreaView style={styles.safeArea}>
       <StatusBarComponent backgroundColor={color.baground} />
       <View style={styles.container}>
-        {/* <FastImage
-          style={styles.logo}
-          source={imageIndex.appLogo}
-          resizeMode={FastImage.resizeMode.contain}
-        /> */}
-        {/* Empty View to push button to bottom */}
         <View style={styles.flexGrow} />
         <View style={styles.buttonContainer}>
           <CustomButton
-            title="Create an account"
-            onPress={() => navigation.navigate(ScreenNameEnum.OnboardingScreen)}
+            title={strings.CreateAccount}
+            onPress={() => navigation.navigate(ScreenNameEnum.OnboardingScreen as any)}
           />
           <View style={styles.spacing} />
           <CustomButton 
@@ -43,8 +37,8 @@ const Sinup: React.FC = () => {
             textStyle={{
               color: color.primary,
             }}
-            title="Already have an account"
-            onPress={() => navigation.navigate(ScreenNameEnum.OnboardingScreen)}
+            title={strings.AlreadyHaveAccount}
+            onPress={() => navigation.navigate(ScreenNameEnum.OnboardingScreen as any)}
           />
         </View>
       </View>
@@ -60,19 +54,15 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingHorizontal: 24,
-    alignItems: 'center',marginTop:230
-  },
-  logo: {
-    height: 130,
-    width: 130,
-    marginTop: 50,
+    alignItems: 'center',
+    marginTop: 230
   },
   flexGrow: {
     flex: 1,
   },
   buttonContainer: {
     width: '100%',
-    marginBottom: 30, // Space from bottom
+    marginBottom: 30,
     justifyContent:"center" ,
     alignItems:"center"
   },
