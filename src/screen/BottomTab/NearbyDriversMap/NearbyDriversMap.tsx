@@ -807,6 +807,7 @@ import { WebSocket_Url } from "../../../Api";
 import font from "../../../theme/font";
 import StatusBarComponent from "../../../compoent/StatusBarCompoent";
 import CustomHeader from "../../../compoent/CustomHeader";
+import strings from "../../../localization/Localization";
 
 const { width } = Dimensions.get("window");
 const RADAR_SIZE = Math.min(width * 0.75, 280);
@@ -997,7 +998,7 @@ const RadarSearchScreen: React.FC<RadarSearchScreenProps> = ({
 
   // ── State ───────────────────────────────────────
   const [driverStatus, setDriverStatus] = useState(
-    "Searching for available drivers..."
+    strings.SearchingDrivers
   );
   const [isConnected, setIsConnected] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -1021,12 +1022,12 @@ const RadarSearchScreen: React.FC<RadarSearchScreenProps> = ({
   // ── Helpers ─────────────────────────────────────
   const updateStatusDetails = (status: string) => {
     const statusMap: Record<string, string> = {
-      DRIVER_FOUND: "Driver confirmed • Preparing pickup",
-      ON_THE_WAY: "Driver en route • ETA calculating",
-      PICKED_UP: "Parcel collected • In transit",
-      DELIVERED: "Parcel delivered successfully",
+      DRIVER_FOUND: strings.DriverConfirmed,
+      ON_THE_WAY: strings.DriverEnRoute,
+      PICKED_UP: strings.ParcelCollected,
+      DELIVERED: strings.ParcelDelivered,
     };
-    setDriverStatus(statusMap[status] || "Connecting to delivery network");
+    setDriverStatus(statusMap[status] || strings.ConnectingNetwork);
   };
 
   const clearCountdown = () => {
@@ -1064,7 +1065,7 @@ const RadarSearchScreen: React.FC<RadarSearchScreenProps> = ({
     async (token: string): Promise<void> => {
       try {
         if (!parcelId?.parcel?.id) {
-          setError("Parcel ID not found");
+          setError(strings.ParcelIDNotFound);
           return;
         }
 
@@ -1102,7 +1103,7 @@ const RadarSearchScreen: React.FC<RadarSearchScreenProps> = ({
 
         ws.onerror = () => {
           setIsConnected(false);
-          setError("Connection error. Retrying...");
+          setError(strings.ConnectionErrorRetrying);
         };
 
         ws.onclose = () => {
@@ -1117,13 +1118,13 @@ const RadarSearchScreen: React.FC<RadarSearchScreenProps> = ({
               handleReconnect();
             }, delay);
           } else {
-            setError("Connection failed. Please try again.");
+            setError(strings.ConnectionFailedTryAgain);
           }
         };
 
         socketRef.current = ws;
       } catch (err) {
-        setError("Failed to connect. Please check your internet.");
+        setError(strings.FailedConnectCheckInternet);
       }
     },
     [parcelId, navigation]
@@ -1163,7 +1164,7 @@ const RadarSearchScreen: React.FC<RadarSearchScreenProps> = ({
       try {
         const token = await AsyncStorage.getItem("token");
         if (!token) {
-          setError("Authentication token not found");
+          setError(strings.AuthTokenNotFound);
           return;
         }
         if (mounted) {
@@ -1321,7 +1322,7 @@ const RadarSearchScreen: React.FC<RadarSearchScreenProps> = ({
   return (
     <SafeAreaView style={s.safe}>
       <StatusBarComponent />
-      <CustomHeader label="Finding Driver" />
+      <CustomHeader label={strings.FindingDriver} />
 
       <Animated.View style={[s.body, { opacity: fadeIn }]}>
 
@@ -1490,7 +1491,7 @@ const RadarSearchScreen: React.FC<RadarSearchScreenProps> = ({
           marginTop: 18
         }]}>
           <View style={s.scanMeta}>
-            <Text style={s.scanLbl}>SCANNING AREA</Text>
+            <Text style={s.scanLbl}>{strings.ScanningArea}</Text>
             <Text style={s.scanPct}>{scanPct}%</Text>
           </View>
           <View style={s.scanTrack}>
@@ -1504,7 +1505,7 @@ const RadarSearchScreen: React.FC<RadarSearchScreenProps> = ({
           onPress={onCancel ?? handleGoBack}
           activeOpacity={0.7}
         >
-          <Text style={s.cancelTxt}>CANCEL SEARCH</Text>
+          <Text style={s.cancelTxt}>{strings.CancelSearch}</Text>
         </TouchableOpacity>
 
       </Animated.View>

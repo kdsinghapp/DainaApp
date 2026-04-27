@@ -231,7 +231,7 @@ export default function ChatInboxScreen() {
         ? item.driver?.image   // fallback – parcelOwner not in current API shape
         : item.driver?.image;
 
-    const driverName = item.driver?.name ?? "Unknown";
+    const driverName = item.driver?.name ?? strings.Unknown;
     const lastMsgText = item.lastMessage?.text ?? strings.NoMessagesYet;
     const msgTime = formatTime(item.lastMessage?.time);
     const hasUnread = (item.unreadCount ?? 0) > 0;

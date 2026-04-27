@@ -21,6 +21,7 @@ import CustomHeader from '../../../../compoent/CustomHeader';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import font from '../../../../theme/font';
 import { WebSocket_Url } from '../../../../Api';
+import strings from '../../../../localization/Localization';
 
 const { width, height } = Dimensions.get('window');
 const ACCEPT_TIMEOUT_SEC = 30;
@@ -44,8 +45,8 @@ const RequestLoading = () => {
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const progressAnim = useRef(new Animated.Value(0)).current;
 
-  const [driverStatus, setDriverStatus] = useState('Searching for available drivers...');
-  const [statusDetails, setStatusDetails] = useState('Connecting to delivery network');
+  const [driverStatus, setDriverStatus] = useState(strings.SearchingDrivers);
+  const [statusDetails, setStatusDetails] = useState(strings.ConnectingNetwork);
   const [isConnected, setIsConnected] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [retryCount, setRetryCount] = useState(0);
@@ -70,12 +71,12 @@ const RequestLoading = () => {
 
   const updateStatusDetails = (status: string) => {
     const statusMap: Record<string, string> = {
-      DRIVER_FOUND: 'Driver confirmed • Preparing pickup',
-      ON_THE_WAY: 'Driver en route • ETA calculating',
-      PICKED_UP: 'Parcel collected • In transit',
-      DELIVERED: 'Parcel delivered successfully',
+      DRIVER_FOUND: strings.DriverConfirmed,
+      ON_THE_WAY: strings.DriverEnRoute,
+      PICKED_UP: strings.ParcelCollected,
+      DELIVERED: strings.ParcelDelivered,
     };
-    setStatusDetails(statusMap[status] || 'Connecting to delivery network');
+    setStatusDetails(statusMap[status] || strings.ConnectingNetwork);
   };
 
   const clearCountdown = () => {
@@ -125,7 +126,7 @@ const wsUrl = `${WebSocket_Url}/parcel/${parcelId?.parcel?.id}?token=${token}&ro
 
       ws.onerror = () => {
         setIsConnected(false);
-        setError('Connection error. Retrying...');
+        setError(strings.ConnectionErrorRetrying);
       };
 
       ws.onclose = () => {
@@ -136,13 +137,13 @@ const wsUrl = `${WebSocket_Url}/parcel/${parcelId?.parcel?.id}?token=${token}&ro
             handleReconnect();
           }, Math.min(1000 * Math.pow(2, retryCount), 10000));
         } else {
-          setError('Connection failed. Please try again.');
+          setError(strings.ConnectionFailedTryAgain);
         }
       };
 
       socketRef.current = ws;
     } catch (err) {
-      setError('Failed to connect. Please check your internet.');
+      setError(strings.FailedConnectCheckInternet);
     }
   };
 
@@ -239,7 +240,7 @@ const wsUrl = `${WebSocket_Url}/parcel/${parcelId?.parcel?.id}?token=${token}&ro
       try {
         const token = await AsyncStorage.getItem('token');
         if (!token) {
-          setError('Authentication token not found');
+          setError(strings.AuthTokenNotFound);
           return;
         }
         if (mounted) {
@@ -279,16 +280,16 @@ const wsUrl = `${WebSocket_Url}/parcel/${parcelId?.parcel?.id}?token=${token}&ro
             <View style={styles.timeoutIconWrap}>
               <Image source={imageIndex.Location} style={styles.timeoutIcon} resizeMode="contain" />
             </View>
-            <Text style={styles.timeoutTitle}>No partner accepted</Text>
+            <Text style={styles.timeoutTitle}>{strings.NoPartnerAccepted}</Text>
             <Text style={styles.timeoutMessage}>
-              No delivery partner accepted in 30 seconds. Tap Try again to search again or go back.
+              {strings.NoPartnerAcceptedDesc}
             </Text>
             <View style={styles.timeoutButtons}>
               <TouchableOpacity style={styles.btnGoBack} onPress={handleGoBack} activeOpacity={0.8}>
-                <Text style={styles.btnGoBackText}>Go back</Text>
+                <Text style={styles.btnGoBackText}>{strings.Back}</Text>
               </TouchableOpacity>
               <TouchableOpacity style={styles.btnRetryMain} onPress={handleRetry} activeOpacity={0.8}>
-                <Text style={styles.btnRetryMainText}>Try again</Text>
+                <Text style={styles.btnRetryMainText}>{strings.RetryLabel}</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -303,8 +304,8 @@ const wsUrl = `${WebSocket_Url}/parcel/${parcelId?.parcel?.id}?token=${token}&ro
       <CustomHeader />
       <Animated.View style={[styles.content, { opacity: fadeAnim }]}>
         <View style={styles.header}>
-          <Text style={styles.headerTitle}>Finding a delivery partner</Text>
-          <Text style={styles.headerSubtitle}>Please wait while we find the nearest partner</Text>
+          <Text style={styles.headerTitle}>{strings.FindingDriver}</Text>
+          <Text style={styles.headerSubtitle}>{strings.PleaseWaitFindingPartner}</Text>
         </View>
         <View style={styles.mapContainer}>
           <MapView
@@ -322,7 +323,7 @@ const wsUrl = `${WebSocket_Url}/parcel/${parcelId?.parcel?.id}?token=${token}&ro
             <Image source={imageIndex.location1} style={styles.trackingImage} resizeMode="contain" />
           </View>
           <View style={styles.currentLocationBadge} pointerEvents="none">
-            <Text style={styles.currentLocationText}>Current location</Text>
+            <Text style={styles.currentLocationText}>{strings.CurrentLocation}</Text>
           </View>
         </View>
         <View style={styles.bottomCard}>
@@ -333,14 +334,14 @@ const wsUrl = `${WebSocket_Url}/parcel/${parcelId?.parcel?.id}?token=${token}&ro
             <View style={styles.progressBackground}>
               <Animated.View style={[styles.progressFill, { width: progressWidth }]} />
             </View>
-            <Text style={styles.progressText}>{secondsLeft} sec left</Text>
+            <Text style={styles.progressText}>{strings.formatString(strings.XSecLeft, secondsLeft)}</Text>
           </View>
           {error ? (
             <View style={styles.connectionStatus}>
               <View style={[styles.connectionDot, styles.error]} />
               <Text style={styles.connectionText}>{error}</Text>
               <TouchableOpacity style={styles.retryButton} onPress={handleRetry}>
-                <Text style={styles.retryText}>Retry</Text>
+                <Text style={styles.retryText}>{strings.RetryLabel}</Text>
               </TouchableOpacity>
             </View>
           ) :null}

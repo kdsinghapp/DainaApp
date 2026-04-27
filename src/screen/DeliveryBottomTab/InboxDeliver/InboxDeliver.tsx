@@ -18,6 +18,7 @@ import ScreenNameEnum from "../../../routes/screenName.enum";
 import { base_url } from "../../../Api";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import NewOrderNotificationModal from "../../../compoent/NewOrderNotificationModal";
+import strings from "../../../localization/Localization";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -83,8 +84,8 @@ const statusColor = (status: string): string => {
 const EmptyState = () => (
   <View style={styles.emptyWrap}>
     <Text style={styles.emptyIcon}>💬</Text>
-    <Text style={styles.emptyTitle}>No chats yet</Text>
-    <Text style={styles.emptySubtitle}>Your conversations will appear here</Text>
+    <Text style={styles.emptyTitle}>{strings.NoChatsYet}</Text>
+    <Text style={styles.emptySubtitle}>{strings.NoConversationsSubtitle}</Text>
   </View>
 );
 
@@ -127,7 +128,7 @@ export default function InboxDeliver() {
       });
 
       if (response.status === 401 || response.status === 403) {
-        setError("Session expired. Please log in again.");
+        setError(strings.SessionExpired);
         return;
       }
       if (!response.ok) throw new Error(`Server error: ${response.status}`);
@@ -137,7 +138,7 @@ export default function InboxDeliver() {
       setChats(Array.isArray(json?.chats) ? json.chats : []);
     } catch (err: any) {
       console.error("fetchChats error:", err);
-      setError("Failed to load chats. Pull down to retry.");
+      setError(strings.FailedLoadChats);
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -166,7 +167,7 @@ export default function InboxDeliver() {
     // Avatar: always show parcelOwner image (delivery-side inbox = parcelOwner is the customer)
     const avatarUri = item?.parcelOwner?.image;
     const displayName = item?.parcelOwner?.name ?? "User";
-    const lastMsgText = item?.lastMessage?.text ?? "No messages yet";
+    const lastMsgText = item?.lastMessage?.text ?? strings.NoMessagesYet;
     const lastMsgTime = toTimeString(item?.lastMessage?.time);
     const hasUnread = (item?.unreadCount ?? 0) > 0;
 
@@ -240,12 +241,12 @@ export default function InboxDeliver() {
     <SafeAreaView style={styles.container}>
       <StatusBarComponent />
 
-      <Text style={styles.header}>Inbox</Text>
+      <Text style={styles.header}>{strings.Inbox}</Text>
       <NewOrderNotificationModal />
       {/* Search */}
       <View style={styles.searchBox}>
         <TextInput
-          placeholder="Search by name or tracking ID…"
+          placeholder={strings.SearchInboxPlaceholder}
           placeholderTextColor="#9aa0a6"
           value={query}
           onChangeText={setQuery}

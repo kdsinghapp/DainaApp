@@ -110,7 +110,7 @@ const TripMap = () => {
 
       case STATUS.ASSIGNED:
         return {
-          title: "Start Pickup",
+          title: strings.StartPickup,
           onPress: () => handleStatusUpdate(STATUS.GOING_TO_PICKUP),
           color: STATUS_COLORS[STATUS.GOING_TO_PICKUP], // Fixed
           icon: "car-outline",
@@ -119,7 +119,7 @@ const TripMap = () => {
 
       case STATUS.GOING_TO_PICKUP:
         return {
-          title: "Mark as Picked Up",
+          title: strings.MarkPickedUp,
           onPress: () => handleStatusUpdate(STATUS.PICKED_UP),
           color: STATUS_COLORS[STATUS.PICKED_UP], // Fixed
           icon: "cube-outline",
@@ -128,7 +128,7 @@ const TripMap = () => {
 
       case STATUS.PICKED_UP:
         return {
-          title: "Start Delivery",
+          title: strings.StartDelivery,
           onPress: () => handleStatusUpdate(STATUS.ON_THE_WAY),
           color: STATUS_COLORS[STATUS.ON_THE_WAY], // Fixed
           icon: "navigate-outline",
@@ -146,7 +146,7 @@ const TripMap = () => {
 
       case STATUS.ON_THE_WAY:
         return {
-          title: "Mark as Delivered",
+          title: strings.MarkDelivered,
           onPress: () => handleStatusUpdate(STATUS.DELIVERED),
           color: STATUS_COLORS[STATUS.DELIVERED], // Fixed
           icon: "checkmark-circle-outline",
@@ -184,7 +184,7 @@ const TripMap = () => {
 
       default:
         return {
-          title: "Send Offer",
+          title: strings.SendOffer,
           onPress: null,
           color: "#FFD700", // Golden color for offer
           icon: "send-outline",
@@ -322,16 +322,16 @@ const TripMap = () => {
       const result = await updateParcelStatus(item?.parcelId || item?.id, newStatus, newStatus == STATUS.DELIVERED ? deliveryOtp : pickupOtp);
       console.log(result)
       if (result.status == 1) {
-        successToast(`Success, Status updated to ${STATUS_LABELS[newStatus]}`)
+        successToast(strings.formatString(strings.StatusUpdatedTo, STATUS_LABELS[newStatus]))
         navigation.goBack();
         // You might want to refresh the data here
       } else {
-        Alert.alert("Error", result.message ?? "Failed to update status");
+        Alert.alert(strings.Error, result.message ?? strings.FailedUpdateStatus);
         // Alert.alert("Success", "Update Status Successfully");
       }
     } catch (error) {
       console.error("Status update error:", error);
-      Alert.alert("Error", "Something went wrong");
+      Alert.alert(strings.Error, strings.SomethingWentWrong);
     } finally {
       setActionLoading(false);
     }
@@ -339,7 +339,7 @@ const TripMap = () => {
 
   console.log("item trip", item)
   const statusKey = item?.deliveryStatus;
-  const statusLabel = STATUS_LABELS[statusKey] || 'Unknown';
+  const statusLabel = STATUS_LABELS[statusKey] || strings.Unknown;
   const statusColor = STATUS_COLORS[statusKey] || 'black';
   return (
     <View style={styles.container}>
@@ -382,28 +382,24 @@ const TripMap = () => {
                 />
               </>
             )}
-            <Marker coordinate={pickup} title="Pickup" tracksViewChanges={false}>
+            <Marker coordinate={pickup} title={strings.Pickup} tracksViewChanges={false}>
               <Image source={imageIndex.caricon}
-
                 style={{
                   height: 35,
                   width: 35
                 }}
-
                 resizeMode='contain'
               />
               {/* <View style={[styles.dotMarkerLarge, { backgroundColor: "#4CAF50" }]} /> */}
             </Marker>
-            <Marker coordinate={dropoff} title="Drop-off" tracksViewChanges={false}>
+            <Marker coordinate={dropoff} title={strings.DropOff} tracksViewChanges={false}>
               <Image source={imageIndex.locationpin}
                 resizeMode='center'
-
                 style={{
                   height: 55,
                   width: 55
                 }}
               />
-
             </Marker>
             <Marker
               key="driver-marker"

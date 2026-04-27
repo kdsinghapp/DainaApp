@@ -29,6 +29,7 @@ import font from "../../../theme/font";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { image_url } from "../../../Api";
 import { errorToast, successToast } from "../../../utils/customToast";
+import strings from "../../../localization/Localization";
 
 // Status Constants
 const STATUS = {
@@ -44,15 +45,13 @@ const STATUS = {
 };
 
 const STATUS_LABELS = {
-  [STATUS.PENDING]: 'Pending',
-  [STATUS.ASSIGNED]: 'Assigned',
-  [STATUS.GOING_TO_PICKUP]: 'Going to Pickup',
-  [STATUS.PICKED_UP]: 'Picked Up',
-  [STATUS.ON_THE_WAY]: 'On the Way',
-  // [STATUS.ARRIVING]: 'Arriving',
-  [STATUS.DELIVERED]: 'Delivered',
-  // [STATUS.COMPLETED]: 'Completed',
-  [STATUS.CANCELLED]: 'Cancelled'
+  [STATUS.PENDING]: strings.StatusPending,
+  [STATUS.ASSIGNED]: strings.StatusAssigned,
+  [STATUS.GOING_TO_PICKUP]: strings.StatusGoingToPickup,
+  [STATUS.PICKED_UP]: strings.StatusPickedUp,
+  [STATUS.ON_THE_WAY]: strings.StatusOnTheWay,
+  [STATUS.DELIVERED]: strings.StatusDelivered,
+  [STATUS.CANCELLED]: strings.StatusCancelled
 };
 
 const STATUS_COLORS = {
@@ -92,7 +91,7 @@ const ParcelDetails = () => {
     switch (currentStatus) {
       case STATUS.PENDING:
         return {
-          title: "Send Offer",
+          title: strings.SendOffer,
           onPress: handleSendOffer,
           color: "#FFD700", // Golden color for offer
           icon: "send-outline",
@@ -101,7 +100,7 @@ const ParcelDetails = () => {
 
       case STATUS.ASSIGNED:
         return {
-          title: "Start Pickup",
+          title: strings.StartPickup,
           onPress: () => handleStatusUpdate(STATUS.GOING_TO_PICKUP),
           color: STATUS_COLORS[STATUS.GOING_TO_PICKUP], // Fixed
           icon: "send-outline",
@@ -110,7 +109,7 @@ const ParcelDetails = () => {
 
       case STATUS.GOING_TO_PICKUP:
         return {
-          title: "Mark as Picked Up",
+          title: strings.MarkAsPickedUp,
           onPress: () => handleStatusUpdate(STATUS.PICKED_UP),
           color: STATUS_COLORS[STATUS.PICKED_UP], // Fixed
           icon: "cube-outline",
@@ -119,25 +118,16 @@ const ParcelDetails = () => {
 
       case STATUS.PICKED_UP:
         return {
-          title: "Start Delivery",
+          title: strings.StartDelivery,
           onPress: () => handleStatusUpdate(STATUS.ON_THE_WAY),
           color: STATUS_COLORS[STATUS.ON_THE_WAY], // Fixed
           icon: "navigate-outline",
           showInputs: false
         };
 
-      // case STATUS.ON_THE_WAY:
-      //   return {
-      //     title: "Mark as Arriving",
-      //     onPress: () => handleStatusUpdate(STATUS.ARRIVING),
-      //     color: STATUS_COLORS[STATUS.ARRIVING], // Fixed
-      //     icon: "location-outline",
-      //     showInputs: false
-      //   };
-
       case STATUS.ON_THE_WAY:
         return {
-          title: "Mark as Delivered",
+          title: strings.MarkAsDelivered,
           onPress: () => handleStatusUpdate(STATUS.DELIVERED),
           color: STATUS_COLORS[STATUS.DELIVERED], // Fixed
           icon: "checkmark-circle-outline",
@@ -155,7 +145,7 @@ const ParcelDetails = () => {
 
       case STATUS.DELIVERED:
         return {
-          title: "Order Completed",
+          title: strings.OrderCompleted,
           onPress: null,
           color: STATUS_COLORS[STATUS.COMPLETED], // Fixed
           icon: "checkmark-done-outline",
@@ -165,7 +155,7 @@ const ParcelDetails = () => {
 
       case STATUS.CANCELLED:
         return {
-          title: "Order Cancelled",
+          title: strings.OrderCancelled,
           onPress: null,
           color: STATUS_COLORS[STATUS.CANCELLED], // Fixed
           icon: "close-circle-outline",
@@ -175,7 +165,7 @@ const ParcelDetails = () => {
 
       default:
         return {
-          title: "Send",
+          title: strings.SendOffer,
           onPress: handleSendOffer,
           color: "#FFD700",
           icon: "send-outline",
@@ -191,11 +181,11 @@ const ParcelDetails = () => {
     console.log("newStatus", newStatus)
     try {
       if (newStatus == STATUS.PICKED_UP && pickupOtp == '') {
-        Alert.alert('Please enter pickup OTP shared by customer')
+        Alert.alert(strings.EnterPickupOTPShared)
         return;
       }
       if (newStatus == STATUS.DELIVERED && deliveryOtp == '') {
-        Alert.alert('Please enter delivery OTP shared by customer')
+        Alert.alert(strings.EnterDeliveryOTPShared)
         return;
       }
       // Call API to update status
@@ -203,7 +193,7 @@ const ParcelDetails = () => {
       const result = await updateParcelStatus(item?.parcelId, newStatus, newStatus == STATUS.DELIVERED ? deliveryOtp : pickupOtp);
       console.log(result)
       if (result.status == 1) {
-        successToast("Success")
+        successToast(strings.SuccessLabel)
         // Alert.alert("Success", `Status updated to ${STATUS_LABELS[newStatus]}`);
         navigation.goBack();
         // You might want to refresh the data here
@@ -214,7 +204,7 @@ const ParcelDetails = () => {
       }
     } catch (error) {
       console.error("Status update error:", error);
-      Alert.alert("Error", "Something went wrong");
+      Alert.alert(strings.ErrorLabel, strings.SomethingWentWrong);
     } finally {
     }
   };
@@ -222,12 +212,12 @@ const ParcelDetails = () => {
   // Handle cancel order
   const handleCancelOrder = () => {
     Alert.alert(
-      "Cancel Order",
-      "Are you sure you want to cancel this order?",
+      strings.CancelOrder,
+      strings.CancelOrderConfirm,
       [
-        { text: "No", style: "cancel" },
+        { text: strings.No, style: "cancel" },
         {
-          text: "Yes",
+          text: strings.Yes,
           style: "destructive",
           onPress: () => handleStatusUpdate(STATUS.CANCELLED)
         }
@@ -290,7 +280,7 @@ const ParcelDetails = () => {
               )}
               <View>
                 <SafeAreaView edges={['top']} />
-                <CustomHeader label="Parcel Details" />
+                <CustomHeader label={strings.ParcelDetails} />
               </View>
             </ImageBackground>
           ) : (
@@ -301,7 +291,7 @@ const ParcelDetails = () => {
             >
               <View  >
                 <SafeAreaView edges={['top']} />
-                <CustomHeader label="Parcel Details" />
+                <CustomHeader label={strings.ParcelDetails} />
               </View>
             </ImageBackground>
           )}
@@ -316,11 +306,11 @@ const ParcelDetails = () => {
               </View>
               <View style={styles.locationDetails}>
                 <View style={styles.locationItem}>
-                  <Text style={styles.locationTitle}>Pickup Location</Text>
+                  <Text style={styles.locationTitle}>{strings.PickupLocation}</Text>
                   <Text style={styles.locationValue}>{item?.pickupLocation || item?.data?.pickup?.location || item?.pickup?.location || ""}</Text>
                 </View>
                 <View style={styles.locationItem}>
-                  <Text style={styles.locationTitle}>Drop Location</Text>
+                  <Text style={styles.locationTitle}>{strings.DropLocation}</Text>
                   <Text style={styles.locationValue}>{item?.dropLocation || item?.data?.drop?.location || item?.drop?.location || ''}</Text>
                 </View>
               </View>
@@ -328,10 +318,10 @@ const ParcelDetails = () => {
 
             {item?.deliveryStatus === STATUS?.PENDING && (
               <View style={styles.sectionContainer}>
-                <Text style={styles.sectionTitle}>Parcel Information</Text>
+                <Text style={styles.sectionTitle}>{strings.ParcelInformation}</Text>
 
 
-                <Text style={styles.sectionTitle}>Price {item?.proposedPrice || item?.data?.price}
+                <Text style={styles.sectionTitle}>{strings.Price} {item?.proposedPrice || item?.data?.price}
 
                 </Text>
 
@@ -339,36 +329,36 @@ const ParcelDetails = () => {
 
                 <View style={styles.infoRow}>
                   <View style={styles.inputContainer}>
-                    <Text style={styles.label}>Sender Name</Text>
+                    <Text style={styles.label}>{strings.SenderName}</Text>
                     <Text style={styles.value}>{item?.senderName || item?.data?.sender?.name || item?.sender?.name || ''}  </Text>
                   </View>
                   <View style={styles.inputContainer}>
-                    <Text style={styles.label}>Receiver Name</Text>
+                    <Text style={styles.label}>{strings.ReceiverName}</Text>
                     <Text style={styles.value}>{item?.receiver?.name || item?.data?.receiver?.name || item?.receiver?.name || ''}</Text>
                   </View>
                 </View>
 
                 <View style={styles.infoRow}>
                   <View style={styles.inputContainer}>
-                    <Text style={styles.label}>Receiver Phone</Text>
+                    <Text style={styles.label}>{strings.ReceiverPhone}</Text>
                     <Text style={styles.value}>{item?.receiver?.mobileNumber || item?.data?.receiver?.phone || item?.senderPhone ||
                       ''}
 
                     </Text>
                   </View>
                   <View style={styles.inputContainer}>
-                    <Text style={styles.label}>Package Size</Text>
+                    <Text style={styles.label}>{strings.PackageSize}</Text>
                     <Text style={styles.value}>{item?.packageSize || item?.data?.packageSize || ''}</Text>
                   </View>
                 </View>
 
                 <View style={styles.infoRow}>
                   <View style={styles.inputContainer}>
-                    <Text style={styles.label}>Consignment Type</Text>
+                    <Text style={styles.label}>{strings.ConsignmentType}</Text>
                     <Text style={styles.value}>{item?.consignmentType || item?.data?.consignmentType || ''}</Text>
                   </View>
                   <View style={styles.inputContainer}>
-                    <Text style={styles.label}>Shipment Type</Text>
+                    <Text style={styles.label}>{strings.ShipmentType}</Text>
                     <Text style={styles.value}>{item?.shipmentType || item?.data?.shipmentType || ''}</Text>
                   </View>
                 </View>
@@ -398,14 +388,14 @@ const ParcelDetails = () => {
             {/* Offer Inputs (Only for pending status) */}
             {buttonConfig.showInputs && item?.deliveryStatus === STATUS.PENDING && (
               <View style={styles.sectionContainer}>
-                <Text style={styles.sectionTitle}>Make Offer</Text>
+                <Text style={styles.sectionTitle}>{strings.MakeOffer}</Text>
 
                 <View style={styles.inputContainer1}>
-                  <Text style={styles.inputLabel}>Amount ($)</Text>
+                  <Text style={styles.inputLabel}>{strings.AmountWithCurrency}</Text>
                   <TextInput
                     style={styles.textInput}
                     keyboardType="numeric"
-                    placeholder="Enter Amount"
+                    placeholder={strings.EnterAmount}
                     value={amount}
                     onChangeText={setAmount}
                     placeholderTextColor={'#999'}
@@ -414,10 +404,10 @@ const ParcelDetails = () => {
                 </View>
 
                 <View style={styles.inputContainer1}>
-                  <Text style={styles.inputLabel}>Message</Text>
+                  <Text style={styles.inputLabel}>{strings.MessageLabel}</Text>
                   <TextInput
                     style={[styles.textInput, styles.messageInput]}
-                    placeholder="Type your message here..."
+                    placeholder={strings.TypeMessageHere}
                     value={message}
                     onChangeText={setMessage}
                     multiline
@@ -431,7 +421,7 @@ const ParcelDetails = () => {
 
             {item?.deliveryStatus === STATUS.GOING_TO_PICKUP && (
               <OtpSection
-                label="Enter Pickup OTP shared by customer"
+                label={strings.EnterPickupOTPShared}
                 value={pickupOtp}
                 onChange={setPickupOtp}
               />
@@ -439,7 +429,7 @@ const ParcelDetails = () => {
 
             {item?.deliveryStatus === STATUS.ON_THE_WAY && (
               <OtpSection
-                label="Enter delivery OTP shared by customer"
+                label={strings.EnterDeliveryOTPShared}
                 value={deliveryOtp}
                 onChange={setDeliveryOtp}
               />
@@ -449,7 +439,7 @@ const ParcelDetails = () => {
             <View style={styles.actionContainer}>
               {/* Main Action Button */}
               <CustomButton
-                title={actionLoading ? "Processing..." : buttonConfig.title}
+                title={actionLoading ? strings.Processing : buttonConfig.title}
                 onPress={buttonConfig.onPress}
                 disabled={actionLoading || buttonConfig.disabled}
                 style={{
@@ -482,7 +472,7 @@ const ParcelDetails = () => {
                     style={{ marginRight: 8 }}
                   />
                   <Text style={[styles.cancelButtonText, { color: STATUS_COLORS[STATUS.CANCELLED] }]}>
-                    Cancel Order
+                    {strings.CancelOrder}
                   </Text>
                 </TouchableOpacity>
               )}
@@ -524,7 +514,7 @@ const OtpSection = ({ label, value, onChange }: any) => {
         <TextInput
           style={styles.textInput}
           keyboardType="numeric"
-          placeholder="Enter OTP"
+          placeholder={strings.EnterOTP}
           maxLength={6}
           value={value}
           onChangeText={onChange}
