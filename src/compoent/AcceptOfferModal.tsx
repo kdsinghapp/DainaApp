@@ -12,8 +12,12 @@ import strings from '../localization/Localization';
 import font from '../theme/font';
 
 const PillButton = ({ label, onPress, variant = 'primary', disabled }: any) => {
+
+
   const bg = variant === 'primary' ? '#F2C200' : 'gray';
   const text = variant === 'primary' ? '#1A1A1A' : '#FFFFFF';
+
+
   return (
     <Pressable
       onPress={onPress}

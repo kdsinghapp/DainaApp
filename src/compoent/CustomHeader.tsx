@@ -2,7 +2,6 @@ import React from 'react';
 import { View, TouchableOpacity, Image, StyleSheet, Text } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import font from '../theme/font';
-import { color } from '../constant';
 import imageIndex from '../assets/imageIndex';
 
 interface IconProps {
@@ -19,7 +18,7 @@ interface Props {
   rightIcons?: IconProps[];
 }
 
-const  CustomHeader: React.FC<Props> = ({
+const CustomHeader: React.FC<Props> = ({
   label = '',
   leftIcon,
   leftType = 'png',
@@ -32,13 +31,13 @@ const  CustomHeader: React.FC<Props> = ({
     <View style={styles.header}>
       {/* Left Icon */}
       <View style={styles.sideContainer}>
-      
-          <TouchableOpacity
-            onPress={leftPress ? leftPress : () => navigation.goBack()}
-            style={styles.iconWrap}
-          >
-          <Image source={imageIndex.back} style={styles.icon} resizeMode="contain" /> 
-          </TouchableOpacity>
+
+        <TouchableOpacity
+          onPress={leftPress ? leftPress : () => navigation.goBack()}
+          style={styles.iconWrap}
+        >
+          <Image source={imageIndex.back} style={styles.icon} resizeMode="contain" />
+        </TouchableOpacity>
       </View>
       {/* Title */}
       <View style={styles.centerContainer}>
@@ -49,9 +48,9 @@ const  CustomHeader: React.FC<Props> = ({
 
       {/* Right Icons */}
       <View style={styles.sideContainerRight}>
-        {rightIcons.map((item, index) => (
+        {rightIcons?.map((item, index) => (
           <TouchableOpacity key={index.toString()} onPress={item.onPress} style={styles.rightIconWrap}>
-            {item.type === 'svg' ? <item.icon width={24} height={24} /> : <Image source={item.icon} style={styles.icon} resizeMode="contain" />}
+            {item?.type === 'svg' ? <item.icon width={24} height={24} /> : <Image source={item?.icon} style={styles.icon} resizeMode="contain" />}
           </TouchableOpacity>
         ))}
       </View>
@@ -64,7 +63,7 @@ const styles = StyleSheet.create({
     height: 55,
     flexDirection: 'row',
     alignItems: 'center',
- 
+
     paddingHorizontal: 5,
   },
   sideContainer: {

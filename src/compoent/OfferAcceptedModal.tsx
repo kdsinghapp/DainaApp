@@ -16,13 +16,10 @@ const OfferAcceptedModal: React.FC = () => {
   if (!ctx) return null;
 
   const { counterOfferAcceptedModal, setCounterOfferAcceptedModal } = ctx;
-
   const closeModal = () => {
     setCounterOfferAcceptedModal({ visible: false, data: null });
   };
-
   if (!counterOfferAcceptedModal?.visible) return null;
-
   const data = counterOfferAcceptedModal?.data;
   const driver = data?.driver as { name?: string; image?: string } | undefined;
 

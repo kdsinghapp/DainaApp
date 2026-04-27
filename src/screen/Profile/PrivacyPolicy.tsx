@@ -58,6 +58,7 @@ const PrivacyPolicy = () => {
                         source={{ html: content }}
                         contentWidth={width}
                         tagsStyles={styles.htmlStyles}
+
                     />
                 ) : (
                     <Text style={styles.bodyText}>No content available</Text>
@@ -106,6 +107,8 @@ const styles = StyleSheet.create({
         },
         a: {
             color: '#007bff',
+            fontFamily: font.MonolithRegular,
+
         },
     },
     bodyText: {

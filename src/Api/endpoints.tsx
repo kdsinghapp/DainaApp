@@ -22,6 +22,7 @@ export const endpointCustomer = {
   offerlist:"/bikedoctor/offer/offerlist?service_id",
   paymentCash:"/bikedoctor/payment/cash",
   addshopdetails:"/bikedoctor/dealer/add-shop-details",
-  adddocuments:"/bikedoctor/dealer/add-dealer-documents"
+  adddocuments:"/bikedoctor/dealer/add-dealer-documents",
+  setLanguage: "set-language"
 };
  

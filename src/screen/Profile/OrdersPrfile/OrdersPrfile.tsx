@@ -16,10 +16,10 @@ import StatusBarComponent from "../../../compoent/StatusBarCompoent";
 import { useNavigation } from "@react-navigation/native";
 import ScreenNameEnum from "../../../routes/screenName.enum";
 import LoadingModal from "../../../utils/Loader";
- import { STATUS, STATUS_COLORS, STATUS_LABELS } from "../../../utils/Constant";
+import { STATUS, STATUS_COLORS, STATUS_LABELS } from "../../../utils/Constant";
 import useOrders from "../../BottomTab/Orders/useOrders";
 import CustomHeader from "../../../compoent/CustomHeader";
- 
+
 type OrderStatus = "packaged" | "shipped" | "inTransit" | "delivered";
 
 type Order = {
@@ -72,7 +72,7 @@ export default function OrdersScreen() {
     return orderData.filter((o: Order) => {
       const status = norm(o.deliveryStatus);
       const isDelivered =
-        status === STATUS.DELIVERED || status === STATUS.COMPLETED;
+        status === STATUS?.DELIVERED || status === STATUS.COMPLETED;
       const isCancelled = status === STATUS.CANCELLED;
 
       if (tab === "complete") return isDelivered;
@@ -156,7 +156,7 @@ export default function OrdersScreen() {
   return (
     <SafeAreaView style={styles.safe}>
       <StatusBarComponent />
-            <CustomHeader label="Orders" />
+      <CustomHeader label="Orders" />
 
       <LoadingModal visible={isLoading} />
       <View style={styles.container}>
@@ -184,7 +184,7 @@ export default function OrdersScreen() {
           contentContainerStyle={{ paddingBottom: 120, marginTop: 11 }}
           // data={orderData}
           data={data}
-          keyExtractor={(item:any) => item.id}
+          keyExtractor={(item: any) => item.id}
           renderItem={({ item }) => <OrderCard order={item} />}
           ItemSeparatorComponent={() => <View style={{ height: 14 }} />}
           showsVerticalScrollIndicator={false}
@@ -262,20 +262,20 @@ const StatusPill = ({ status }: { status: OrderStatus }) => {
     s === STATUS.DELIVERED || s === STATUS.COMPLETED
       ? styles.pillDone
       : s === STATUS.CANCELLED
-      ? styles.pillCancelled
-      : styles.pillProgress;
+        ? styles.pillCancelled
+        : styles.pillProgress;
 
   const textColor =
     s === STATUS.DELIVERED || s === STATUS.COMPLETED
       ? "#FFFFFF"
       : s === STATUS.CANCELLED
-      ? "#FFFFFF"
-      : "#000000";
-   const statusKey =  s;
-    const statusLabel = STATUS_LABELS[statusKey] || 'Unknown';
-    const statusColor = STATUS_COLORS[statusKey] || 'black';
+        ? "#FFFFFF"
+        : "#000000";
+  const statusKey = s;
+  const statusLabel = STATUS_LABELS[statusKey] || 'Unknown';
+  const statusColor = STATUS_COLORS[statusKey] || 'black';
   return (
-    <View style={[styles.pill,  ]}>
+    <View style={[styles.pill,]}>
       <Text style={[styles.pillText, { color: statusColor }]}>{statusLabel}</Text>
     </View>
   );

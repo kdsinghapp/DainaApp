@@ -110,7 +110,7 @@ const ChooseRole = () => {
           <Text style={styles.title}>{strings.ChooseRole}</Text>
 
           {/* Options */}
-          {options.map((item) => {
+          {options?.map((item) => {
             const isSelected = selected?.id === item.id;
             return (
               <TouchableOpacity

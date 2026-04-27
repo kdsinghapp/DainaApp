@@ -431,7 +431,7 @@ const DeliveryUploadDocument = async (
     // Handle 422 Validation Errors specifically if they exist
     const errorMessage = error.response?.data?.message ||
       error.response?.data?.detail?.[0]?.msg ||
-      "Something went wrong. Please try again.";
+      "";
 
     errorToast(errorMessage);
     return null;
@@ -654,7 +654,7 @@ const AddParcelApi = async (param: any, setLoading: (loading: boolean) => void) 
     }
   } catch (error) {
     console.error("AddParcelApi error:", error);
-    errorToast(strings.SomethingWentWrong);
+    // errorToast(strings.SomethingWentWrong);
     return null;
   } finally {
     setLoading(false);
@@ -803,6 +803,42 @@ const DeliveryAvailableRequests = async (
     setLoading(false);
   }
 };
+const SetLanguageApi = async (param: any, setLoading: (loading: boolean) => void) => {
+  try {
+    setLoading(true);
+    const token = await AsyncStorage.getItem("token");
+
+    const body = `languageId=${encodeURIComponent(param.languageId)}`;
+
+    const headers = {
+      Accept: "application/json",
+      "Content-Type": "application/x-www-form-urlencoded",
+      Authorization: `Bearer ${token}`,
+    };
+
+    const response = await fetch(`${base_url}/set-language`, {
+      method: "POST",
+      headers,
+      body,
+    });
+    console.log("SetLanguageApi response", response);
+    const textResponse = await response.text();
+    let parsedResponse;
+    try {
+      parsedResponse = JSON.parse(textResponse);
+    } catch {
+      throw new Error("Invalid server response");
+    }
+    console.log("parsedResponse parsedResponse", parsedResponse);
+
+    return parsedResponse;
+  } catch (error) {
+    console.error("SetLanguageApi error:", error);
+    return null;
+  } finally {
+    setLoading(false);
+  }
+};
 
 export {
   LogiApi,
@@ -822,5 +858,6 @@ export {
   AddParcelApi,
   Parceldetails,
   DeliveryAvailableRequests,
-  GetApi
-}  
+  GetApi,
+  SetLanguageApi
+}

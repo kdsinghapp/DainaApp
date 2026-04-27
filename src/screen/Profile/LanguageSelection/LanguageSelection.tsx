@@ -25,6 +25,8 @@ import CustomHeader from '../../../compoent/CustomHeader';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import imageIndex from '../../../assets/imageIndex';
 import SlideButton from '../../../compoent/SlideRightButton/SlideRightButton';
+import { SetLanguageApi } from '../../../Api/apiRequest';
+import LoadingModal from '../../../utils/Loader';
 
 if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
   UIManager.setLayoutAnimationEnabledExperimental(true);
@@ -103,6 +105,7 @@ const LanguageSelection = () => {
   const dispatch = useDispatch();
   const isFirstTime = route.params?.isFirstTime || false;
   const [selectedLanguage, setSelectedLanguage] = useState('en');
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     loadLanguage();
@@ -121,7 +124,11 @@ const LanguageSelection = () => {
     dispatch(setAppLanguage(lang));
   };
 
-  const onConfirm = () => {
+  const onConfirm = async () => {
+    const languageId = selectedLanguage === 'en' ? 1 : 2;
+    const res = await SetLanguageApi({ languageId }, setLoading);
+    console.log("Language Set API Response:", res);
+
     if (isFirstTime) {
       navigation.replace(ScreenNameEnum.OnboardingScreen);
     } else {
@@ -136,6 +143,7 @@ const LanguageSelection = () => {
 
   return (
     <SafeAreaView style={styles.container}>
+      <LoadingModal visible={loading} />
       <StatusBarComponent />
       {isFirstTime ? null : <CustomHeader
         label={isFirstTime ? strings.SelectLanguage : strings.ChangeLanguage}
@@ -159,8 +167,8 @@ const LanguageSelection = () => {
           </Text> */}
           <Text style={styles.subtitle}>
             {isFirstTime
-              ? "Choose your language to start your journey with us."
-              : "Update your language preference for the app display."}
+              ? strings.LanguageSelectionTitle
+              : strings.LanguageSelectionUpdate}
           </Text>
         </View>
 

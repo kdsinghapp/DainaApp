@@ -15,7 +15,6 @@ interface ImagePickerModalProps {
   modalVisible: boolean;
   setModalVisible: (visible: boolean) => void;
   pickImageFromGallery: () => void;
-  /** Called when "Take a Photo" is pressed. Pass same handler as OptionButton. */
   handleTakePhoto: () => void;
 }
 
@@ -55,7 +54,7 @@ const ImagePickerModal: React.FC<ImagePickerModalProps> = ({
             </Text>
 
             <OptionButton text={`📷 ${strings.SelectGallery}`} onPress={onSelectGallery} />
-            <OptionButton text={`📸 ${strings.TakePhoto}`} onPress={onTakePhoto} />  
+            <OptionButton text={`📸 ${strings.TakePhoto}`} onPress={onTakePhoto} />
 
             <TouchableOpacity style={styles.cancelButton} onPress={handleCancel}>
               <Text allowFontScaling={false} style={styles.cancelText}>
@@ -112,9 +111,9 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 15,
-     color: 'black',
-    marginBottom: 10, 
-    fontFamily:font.TrialRegular
+    color: 'black',
+    marginBottom: 10,
+    fontFamily: font.TrialRegular
   },
   optionButton: {
     width: '100%',
@@ -122,12 +121,12 @@ const styles = StyleSheet.create({
     paddingVertical: 15,
     borderRadius: 10,
     alignItems: 'center',
-    justifyContent:"center"
+    justifyContent: "center"
   },
   optionText: {
     fontSize: 15,
     color: '#333',
-    fontFamily:font.TrialRegular ,textAlign:"center" ,
+    fontFamily: font.TrialRegular, textAlign: "center",
   },
   cancelButton: {
     width: '100%',
@@ -135,8 +134,8 @@ const styles = StyleSheet.create({
     paddingVertical: 15,
     borderRadius: 32,
     alignItems: 'center',
-    marginTop: 10, 
-    justifyContent:"center"
+    marginTop: 10,
+    justifyContent: "center"
   },
   cancelText: {
     fontSize: 14,

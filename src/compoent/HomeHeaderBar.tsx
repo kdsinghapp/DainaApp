@@ -5,7 +5,6 @@ import font from "../theme/font";
 
 const HomeHeaderBar = ({
   location = "Wallace, Australia",
-  lable ="Current location" ,
   style1,
   onLocationPress,
   onNotificationPress,
@@ -73,7 +72,7 @@ const styles = StyleSheet.create({
     position: "relative",
   },
   badge: {
-     
+
   },
   iconSmall: {
     width: 22,

@@ -9,16 +9,11 @@ import {
   Animated,
   Easing,
 } from "react-native";
-import {
-  request,
-  PERMISSIONS,
-  RESULTS,
-  openSettings, 
-} from "react-native-permissions";
+
 import imageIndex from "../assets/imageIndex";
 import font from "../theme/font";
 
-const TrackCourierModal = ({ visible,onpress, onClose, onLocationGranted }: any) => {
+const TrackCourierModal = ({ visible, onpress, onClose, onLocationGranted }: any) => {
   const scaleAnim = useRef(new Animated.Value(1)).current; // initial scale = 1
 
   useEffect(() => {
@@ -41,7 +36,7 @@ const TrackCourierModal = ({ visible,onpress, onClose, onLocationGranted }: any)
     ).start();
   }, []);
 
- 
+
 
   return (
     <Modal transparent={true} visible={visible} animationType="fade">
@@ -60,14 +55,14 @@ const TrackCourierModal = ({ visible,onpress, onClose, onLocationGranted }: any)
 
           <Text style={styles.title}>Your Courier has been booked Successfully</Text>
           <Text style={styles.subtitle}>
-          Your can track your shipment with tracking id: #20287352341
+            Your can track your shipment with tracking id: #20287352341
           </Text>
 
           <TouchableOpacity style={styles.button} onPress={onpress}>
             <Text style={styles.buttonText}>Track Courier</Text>
           </TouchableOpacity>
 
-         
+
         </View>
       </View>
     </Modal>
@@ -106,8 +101,8 @@ const styles = StyleSheet.create({
     color: "#666",
     textAlign: "center",
     marginBottom: 20,
-    fontFamily:font.MonolithRegular, 
-    lineHeight:22
+    fontFamily: font.MonolithRegular,
+    lineHeight: 22
   },
   button: {
     backgroundColor: "#FFCC00",
@@ -121,15 +116,15 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     color: "#000",
-     textAlign: "center",
+    textAlign: "center",
     fontSize: 16,
     fontFamily: font.MonolithRegular,
 
-    
+
   },
   skipText: {
     color: "#B8B8B8",
     fontFamily: font.MonolithRegular,
     fontSize: 16,
-   },
+  },
 });

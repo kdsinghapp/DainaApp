@@ -59,11 +59,11 @@ const CustomButton: React.FC<CustomButtonProps> = ({
     >
       <View style={[styles.content, { justifyContent: alignment[alignItm] }]}>
         {leftIcon && <View style={styles.icon}>{leftIcon}</View>}
-        <Text  
-        
-        allowFontScaling={false}
+        <Text
 
-        style={[styles.text, { color: txtcolor }, textStyle]}>{title}</Text>
+          allowFontScaling={false}
+
+          style={[styles.text, { color: txtcolor }, textStyle]}>{title}</Text>
       </View>
     </TouchableOpacity>
   );
@@ -84,9 +84,10 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
   text: {
-     color: "#000",
+    color: "#000",
     fontSize: 16,
-    fontFamily:font.MonolithRegular   },
+    fontFamily: font.MonolithRegular
+  },
 });
 
 export default CustomButton;

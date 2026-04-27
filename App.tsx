@@ -1,4 +1,4 @@
-import React, { FunctionComponent, useEffect, useRef } from 'react';
+import { FunctionComponent, useEffect, useRef } from 'react';
 import { LogBox, Text, } from 'react-native';
 import 'react-native-gesture-handler';
 import AppNavigator from './src/navigators/AppNavigator';
@@ -24,12 +24,9 @@ LogBox.ignoreAllLogs();
 
 const App: FunctionComponent<any> = () => {
   const unsubscribeRef = useRef<(() => void) | null>(null);
-
   useEffect(() => {
     initApp();
-
     return () => {
-      // Cleanup listeners on unmount
       if (unsubscribeRef.current) {
         unsubscribeRef.current();
       }

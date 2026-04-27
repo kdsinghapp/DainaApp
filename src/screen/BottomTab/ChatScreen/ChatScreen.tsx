@@ -637,8 +637,8 @@ const styles = StyleSheet.create({
     marginRight: 12,
   },
   backIcon: {
-    height: 28,
-    width: 28,
+    height: 42,
+    width: 42,
     resizeMode: "contain",
   },
   avatarContainer: {
