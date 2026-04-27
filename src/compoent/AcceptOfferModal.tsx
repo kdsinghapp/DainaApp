@@ -8,6 +8,7 @@ import {
   TouchableWithoutFeedback,
   Keyboard,
 } from 'react-native';
+import strings from '../localization/Localization';
 import font from '../theme/font';
 
 const PillButton = ({ label, onPress, variant = 'primary', disabled }: any) => {
@@ -62,24 +63,24 @@ const AcceptOfferModal = ({
       <View style={styles.center}>
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <View style={styles.card}>
-            <Text style={styles.title}>Offer Information</Text>
+            <Text style={styles.title}>{strings.OfferInformation}</Text>
 
             <View style={styles.section}>
-              <Text style={styles.label}>Proposed Amount</Text>
+              <Text style={styles.label}>{strings.ProposedAmount}</Text>
               <Text style={styles.value}>{currency}{offerAmount}</Text>
             </View>
 
             {!!message && (
               <View style={styles.section}>
-                <Text style={styles.label}>Message</Text>
+                <Text style={styles.label}>{strings.Message}</Text>
                 <Text style={styles.message}>"{message}"</Text>
               </View>
             )}
 
             <View style={styles.row}>
-              <PillButton label={"cancel"} variant="secondary" onPress={onCounterPress} />
+              <PillButton label={strings.Cancel} variant="secondary" onPress={onCounterPress} />
               <View style={{ width: 12 }} />
-              <PillButton label="Accept" onPress={onAccept} />
+              <PillButton label={strings.Accept} onPress={onAccept} />
             </View>
           </View>
         </TouchableWithoutFeedback>

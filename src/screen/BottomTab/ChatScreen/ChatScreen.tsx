@@ -25,6 +25,7 @@ import CounterOfferModal from "../../../compoent/MakeCounterModal";
 import AcceptOfferModal from "../../../compoent/AcceptOfferModal";
 import { errorToast, successToast } from "../../../utils/customToast";
 import ScreenNameEnum from "../../../routes/screenName.enum";
+import strings from "../../../localization/Localization";
 
 // ─── Config ──────────────────────────────────────────────────────────────────
 // const WS_BASE = "wss://aitechnotech.in/DAINA/ws/chat";
@@ -77,8 +78,8 @@ const toDayLabel = (iso: string): string => {
     a.getMonth() === b.getMonth() &&
     a.getDate() === b.getDate();
 
-  if (sameDay(d, today)) return "Today";
-  if (sameDay(d, yesterday)) return "Yesterday";
+  if (sameDay(d, today)) return strings.Today;
+  if (sameDay(d, yesterday)) return strings.Yesterday;
   return d.toLocaleDateString([], { month: "short", day: "numeric" });
 };
 
@@ -147,14 +148,14 @@ const ChatScreen = () => {
 
       const result = await response.json();
       if (response.ok) {
-        successToast("Offer accepted successfully!");
+        successToast(strings.OfferAcceptedSuccess);
         (navigation as any).navigate(ScreenNameEnum.TabNavigator);
       } else {
-        errorToast(result?.message || "Failed to accept offer");
+        errorToast(result?.message || strings.OfferAcceptFailed);
       }
     } catch (error) {
       console.error("Error accepting offer:", error);
-      errorToast("Something went wrong");
+      errorToast(strings.SomethingWentWrong);
     }
   };
 
@@ -181,15 +182,15 @@ const ChatScreen = () => {
 
       const result = await response.json();
       if (response.ok && (result.status == 1 || result.success === true)) {
-        successToast("Counter offer sent successfully!");
+        successToast(strings.CounterOfferSentSuccess);
         setCounterModalVisible(false);
         navigation.goBack();
       } else {
-        errorToast(result?.message || "Failed to send counter offer");
+        errorToast(result?.message || strings.CounterOfferFailed);
       }
     } catch (error) {
       console.log("Counter offer error:", error);
-      errorToast("Something went wrong");
+      errorToast(strings.SomethingWentWrong);
     }
   };
 
@@ -377,7 +378,7 @@ const wsUrl = `${WebSocket_Url}/chat/${parcelId}?token=${token}`;
   // ── Handle Phone Call ─────────────────────────────────────────────────────
   const handleCall = (phone: string | number | undefined) => {
     if (!phone) {
-      Alert.alert("Error", "Phone number not available");
+      Alert.alert(strings.Error, strings.PhoneUnavailable);
       return;
     }
     const phoneNumber =
@@ -385,7 +386,7 @@ const wsUrl = `${WebSocket_Url}/chat/${parcelId}?token=${token}`;
     Linking.canOpenURL(phoneNumber)
       .then((supported) => {
         if (!supported) {
-          Alert.alert("Error", "Phone call not supported");
+          Alert.alert(strings.Error, strings.PhoneNotSupported);
         } else {
           return Linking.openURL(phoneNumber);
         }
@@ -496,7 +497,7 @@ const wsUrl = `${WebSocket_Url}/chat/${parcelId}?token=${token}`;
               onPress={() => setOfferModalVisible(true)}
               style={styles.headerOfferBtn}
             >
-              <Text style={styles.headerOfferText}>Order Open</Text>
+              <Text style={styles.headerOfferText}>{strings.OrderOpen}</Text>
             </TouchableOpacity> : null}
           </>
 
@@ -520,7 +521,7 @@ const wsUrl = `${WebSocket_Url}/chat/${parcelId}?token=${token}`;
         {loading ? (
           <View style={styles.loaderContainer}>
             <ActivityIndicator size="large" color="#FFCC00" />
-            <Text style={styles.loadingText}>Loading messages…</Text>
+            <Text style={styles.loadingText}>{strings.LoadingMessages}</Text>
           </View>
         ) : (
           <FlatList
@@ -533,7 +534,7 @@ const wsUrl = `${WebSocket_Url}/chat/${parcelId}?token=${token}`;
             ListEmptyComponent={
               <View style={styles.emptyContainer}>
                 <Text style={styles.emptyEmoji}>💬</Text>
-                <Text style={styles.emptyText}>No messages yet. Say hi!</Text>
+                <Text style={styles.emptyText}>{strings.NoMessagesYetSayHi}</Text>
               </View>
             }
           />
@@ -543,7 +544,7 @@ const wsUrl = `${WebSocket_Url}/chat/${parcelId}?token=${token}`;
         <View style={styles.inputContainer}>
           <TextInput
             style={styles.input}
-            placeholder="Type a message…"
+            placeholder={strings.TypeAMessagePlaceholder}
             value={inputText}
             onChangeText={setInputText}
             placeholderTextColor="#bbb"
@@ -589,7 +590,7 @@ const wsUrl = `${WebSocket_Url}/chat/${parcelId}?token=${token}`;
           if (id) {
             onCounterOffer(id, amount);
           } else {
-            errorToast("Invalid offer ID");
+            errorToast(strings.InvalidOfferID);
           }
         }}
       />

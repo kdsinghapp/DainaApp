@@ -11,6 +11,8 @@ import {
 import SvgIndex from "../../assets/svgIndex";
 import font from "../../theme/font";
 
+import strings from "../../localization/Localization";
+
 const { width } = Dimensions.get("window");
 
 interface SlideButtonProps {
@@ -61,14 +63,14 @@ const SlideButton: React.FC<SlideButtonProps> = ({
 
         {/* Arrow indicator */}
         <View style={styles.arrowWrapper}>
-        <Text style={styles.hintText}>Slide</Text>
-<View style={{
-  marginLeft:15
-}}>
-          <SvgIndex.SlideArrow  />
-       
+          <Text style={styles.hintText}>{strings.Slide}</Text>
+          <View style={{
+            marginLeft: 15
+          }}>
+            <SvgIndex.SlideArrow />
+
           </View>
-         </View>
+        </View>
 
         {/* Sliding button */}
         <Animated.View
@@ -87,26 +89,26 @@ export default SlideButton;
 const styles = StyleSheet.create({
   container: {
     alignItems: "center",
-   },
+  },
   slider: {
     width: "92%",
     height: 58,
     backgroundColor: "#FFF7D9",
     borderRadius: 40,
     justifyContent: "center",
- 
+
   },
   hintText: {
-     fontSize: 16,
-     color: "black",
-     fontFamily:font.MonolithRegular
+    fontSize: 16,
+    color: "black",
+    fontFamily: font.MonolithRegular
   },
   arrowWrapper: {
     position: "absolute",
     right: 25,
     flexDirection: "row",
     alignItems: "center",
-   },
+  },
   button: {
     position: "absolute",
     left: 0,
@@ -116,12 +118,12 @@ const styles = StyleSheet.create({
     borderRadius: 40,
     justifyContent: "center",
     alignItems: "center",
- 
+
   },
   buttonText: {
     color: "#000",
     fontSize: 16,
-         fontFamily:font.MonolithRegular
+    fontFamily: font.MonolithRegular
 
-   },
+  },
 });

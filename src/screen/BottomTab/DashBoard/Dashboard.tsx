@@ -21,6 +21,7 @@ import CurrentLocation from "../../../CurrentLocation";
 import LoadingModal from "../../../utils/Loader";
 import { FlatList } from "react-native-gesture-handler";
 import OrderCard from "../../../compoent/OrderCard";
+import strings from "../../../localization/Localization";
 
 const ShippingScreen = () => {
 
@@ -85,7 +86,7 @@ const ShippingScreen = () => {
       <View style={{
         marginTop: 11, marginBottom: 5
       }}>
-        <CustomButton title={"Create Parcel"}
+        <CustomButton title={strings.CreateParcel}
           onPress={() => navigation.navigate(ScreenNameEnum.CreateParcelFrom)}
         />
       </View>
@@ -98,7 +99,7 @@ const ShippingScreen = () => {
         marginTop: 18,
         marginBottom: 10
       }}>
-        <Text style={styles.sectionTitle}>Shipping History</Text>
+        <Text style={styles.sectionTitle}>{strings.ShippingHistory}</Text>
 
         <Image source={imageIndex.Filter}
 
@@ -133,7 +134,7 @@ const ShippingScreen = () => {
         ItemSeparatorComponent={() => <View style={{ height: 14 }} />}
         showsVerticalScrollIndicator={false}
         ListEmptyComponent={() => (
-          <Text style={styles.emptyText}>No orders found</Text>
+          <Text style={styles.emptyText}>{strings.NoOrdersFound}</Text>
         )}
       />
       <AddressModalInput
@@ -142,7 +143,7 @@ const ShippingScreen = () => {
         setModalVisible={() => setlocationModal(false)}
         onChange={setAddress}
         onSelect={(loc) => setLocation(loc)}
-        placeholder="Select your delivery address"
+        placeholder={strings.SelectDeliveryAddress}
       />
 
       {/* Counter offer accepted – driver accepted user's offer */}
@@ -160,7 +161,7 @@ const ShippingScreen = () => {
             <View style={offerAcceptedStyles.modalCard}>
               <View style={offerAcceptedStyles.accentBar} />
               <Text style={offerAcceptedStyles.title}>
-                {counterOfferAcceptedModal?.data?.title ?? "Offer Accepted"}
+                {counterOfferAcceptedModal?.data?.title ?? strings.OfferAccepted}
               </Text>
               {counterOfferAcceptedModal?.data?.driver != null && (
                 <Text style={offerAcceptedStyles.extra}>
@@ -176,7 +177,7 @@ const ShippingScreen = () => {
               />
               <Text style={offerAcceptedStyles.message}>
                 {counterOfferAcceptedModal?.data?.message ??
-                  "Driver has accepted your counter offer."}
+                  strings.DriverAcceptedOffer}
               </Text>
               {counterOfferAcceptedModal?.data?.parcelId != null && (
                 <Text style={offerAcceptedStyles.extra}>
@@ -211,7 +212,7 @@ const ShippingScreen = () => {
                   onPress={closeOfferAcceptedModal}
                   activeOpacity={0.8}
                 >
-                  <Text style={offerAcceptedStyles.btnDismissText}>OK</Text>
+                  <Text style={offerAcceptedStyles.btnDismissText}>{strings.OK}</Text>
                 </TouchableOpacity>
                 {/* <TouchableOpacity
                   style={offerAcceptedStyles.btnView}

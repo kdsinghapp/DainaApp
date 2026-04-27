@@ -7,7 +7,7 @@ import {
   Image,
   Animated,
   ScrollView,
-   Easing,
+  Easing,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
@@ -22,7 +22,7 @@ import { styles } from './style';
 import NotificationService from '../../../services/NotificationService';
 import strings from '../../../localization/Localization';
 
- 
+
 const ChooseRole = () => {
   const [selected, setSelected] = useState<any>(null);
   const navigation = useNavigation();
@@ -78,7 +78,7 @@ const ChooseRole = () => {
   const handleNext = async () => {
     if (!selected) {
       errorToast(strings.PleaseSelectRole);
-       return;
+      return;
     }
     await NotificationService.requestPermission();
     await AsyncStorage.setItem('selectedRole', selected.type);
@@ -169,4 +169,3 @@ const ChooseRole = () => {
 };
 
 export default ChooseRole;
- 

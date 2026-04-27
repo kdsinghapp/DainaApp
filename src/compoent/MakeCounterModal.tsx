@@ -17,6 +17,7 @@ import {
   Keyboard,
   Animated,
 } from 'react-native';
+import strings from '../localization/Localization';
 import font from '../theme/font';
 
 /** Common: PillButton (reusable rounded button) */
@@ -84,7 +85,7 @@ const CounterOfferModal = ({
   onCancel,
   onSubmit,
   loading = false,
-  title = 'Make a Counter Offer',
+  title = strings.MakeOffer,
 }) => {
   const [value, setValue] = useState(String(defaultValue ?? ''));
   useEffect(() => {
@@ -94,9 +95,9 @@ const CounterOfferModal = ({
   const error = useMemo(() => {
     const n = Number(value);
     if (value === '') return null;
-    if (Number.isNaN(n)) return 'Enter a valid amount';
-    if (min != null && n < min) return `Minimum is ${currency}${min}`;
-    if (max != null && n > max) return `Maximum is ${currency}${max}`;
+    if (Number.isNaN(n)) return strings.EnterValidAmount;
+    if (min != null && n < min) return `${strings.MinimumIs} ${currency}${min}`;
+    if (max != null && n > max) return `${strings.MaximumIs} ${currency}${max}`;
     return null;
   }, [value, min, max, currency]);
 
@@ -125,9 +126,9 @@ const CounterOfferModal = ({
       {!!error && <Text style={styles.error}>{error}</Text>}
 
       <View style={styles.row}>
-        <PillButton label="Cancel" variant="secondary" onPress={onCancel} />
+        <PillButton label={strings.Cancel} variant="secondary" onPress={onCancel} />
         <View style={{ width: 12 }} />
-        <PillButton label="Submit" onPress={handleSubmit} disabled={!!error || value === ''} loading={loading} />
+        <PillButton label={strings.Submit} onPress={handleSubmit} disabled={!!error || value === ''} loading={loading} />
       </View>
     </AppModal>
   );

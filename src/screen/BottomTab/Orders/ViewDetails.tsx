@@ -23,6 +23,7 @@ import { successToast } from "../../../utils/customToast";
 import { color } from "../../../constant";
 import RatingModal from "../../../compoent/RatingModal";
 import { WebSocket_Url } from "../../../Api";
+import strings from "../../../localization/Localization";
 
 type Order = {
   id: string;
@@ -208,7 +209,7 @@ export default function ViewDetails() {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "white" }}>
       <StatusBarComponent />
-      <CustomHeader label={"Back"} />
+      <CustomHeader label={strings.Back} />
 
       <ScrollView
         contentContainerStyle={{ paddingBottom: 32, marginTop: 11 }}
@@ -223,12 +224,12 @@ export default function ViewDetails() {
           }}
         >
           <View style={styles.cardHeader}>
-            <Text style={styles.muted}>Tracking ID:</Text>
+            <Text style={styles.muted}>{strings.TrackingID}:</Text>
             <Text style={styles.bold}>{order.trackingId}</Text>
           </View>
 
           <Text style={styles.stepCompleteText}>
-            Step {activeIdx + 1} of {STATUS_STEPS.length} complete
+            {strings.formatString(strings.StepXofY, activeIdx + 1, STATUS_STEPS.length)}
           </Text>
           {/* Progress Bar */}
           <View style={styles.trackBase}
@@ -357,7 +358,7 @@ export default function ViewDetails() {
                 }]}
 
                 >
-                  Rate your delivery</Text>
+                  {strings.RateYourDelivery}</Text>
               </TouchableOpacity>
 
             ) : (
@@ -387,7 +388,7 @@ export default function ViewDetails() {
                 }]}
 
                 >
-                  {statusNorm === STATUS.PENDING ? "View Offer" : "Track Detail"}</Text>
+                  {statusNorm === STATUS.PENDING ? strings.ViewOffer : strings.TrackDetail}</Text>
               </TouchableOpacity>
             )}
 
@@ -482,7 +483,7 @@ export default function ViewDetails() {
           ) : (
             <Image source={imageIndex.Rectangle} style={styles.trackingSectionIcon} resizeMode="contain" />
           )} */}
-          <Text style={styles.sectionTitle}>Tracking Package</Text>
+          <Text style={styles.sectionTitle}>{strings.TrackingPackage}</Text>
         </View>
         <View style={styles.timelineWrap}>
           {STATUS_STEPS.map((step, i) => {
@@ -507,7 +508,7 @@ export default function ViewDetails() {
                   <Text style={[styles.stepTitle, isDone && styles.stepTitleDone]}>
                     {STATUS_LABELS[step] ?? step}
                   </Text>
-                  {isDone && <Text style={styles.stepBadge}>Done</Text>}
+                  {isDone && <Text style={styles.stepBadge}>{strings.Done}</Text>}
                 </View>
               </View>
             );

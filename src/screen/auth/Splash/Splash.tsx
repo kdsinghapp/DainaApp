@@ -45,11 +45,11 @@ const Splash: React.FC = () => {
             // navigation.replace(ScreenNameEnum.RequestLoading);
           }
         } else {
-          navigation.replace(ScreenNameEnum.OnboardingScreen);
+          navigation.replace(ScreenNameEnum.language, { isFirstTime: true });
         }
       } catch (error) {
         console.error('Splash check failed:', error);
-        navigation.replace(ScreenNameEnum.OnboardingScreen);
+        navigation.replace(ScreenNameEnum.language, { isFirstTime: true });
       }
     }, 2000);
 

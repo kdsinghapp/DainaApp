@@ -3,7 +3,7 @@ import {
   View,
   Text,
   TextInput,
-   ScrollView,
+  ScrollView,
   TouchableOpacity,
   Alert,
   Image,
@@ -29,6 +29,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { AddParcelApi } from "../../../../Api/apiRequest";
 import { styles } from "./style";
 import { errorToast, successToast } from "../../../../utils/customToast";
+import strings from "../../../../localization/Localization";
 
 const CreateParcelFrom = () => {
   const navgatoon = useNavigation()
@@ -117,11 +118,11 @@ const CreateParcelFrom = () => {
       //   break;
 
       case "pickupLocation":
-        if (!value || !value.address) error = "Pickup location is required";
+        if (!value || !value.address) error = strings.PickupLocationRequired;
         break;
 
       case "dropLocation":
-        if (!value.trim()) error = "Drop location is required";
+        if (!value.trim()) error = strings.DropLocationRequired;
         break;
 
       // case "price":
@@ -221,7 +222,7 @@ const CreateParcelFrom = () => {
         // navgatoon.replace(ScreenNameEnum.RequestLoading, {
         //   parcelId: response,
         // })
-        successToast("Pickup request submitted successfully!");
+        successToast(strings.PickupRequestSuccess);
       }
     } else {
       console.log("Form has validation errors");
@@ -232,7 +233,7 @@ const CreateParcelFrom = () => {
         // scrollToErrorField(firstErrorField);
       }
 
-      errorToast("Please fill all required fields correctly");
+      errorToast(strings.FillRequiredFieldsError);
     }
   };
 
@@ -363,7 +364,7 @@ const CreateParcelFrom = () => {
       backgroundColor: "white"
     }}>
       <StatusBarComponent />
-      <CustomHeader label={"Create Parcel"}
+      <CustomHeader label={strings.CreateParcel}
       />
       <LoadingModal visible={isLoading} />
 
@@ -376,7 +377,7 @@ const CreateParcelFrom = () => {
           style={styles.container}
         >
           {/* Pickup & Drop */}
-          <Text style={styles.sectionTitle}>Pickup & Drop</Text>
+          <Text style={styles.sectionTitle}>{strings.PickupAndDrop}</Text>
 
           <TouchableOpacity
             onPress={() =>
@@ -396,7 +397,7 @@ const CreateParcelFrom = () => {
               fontFamily: font.MonolithRegular,
               flex: 1
             }}>
-              {pickupLocation ? pickupLocation?.address : "Add Pickup Location"}
+              {pickupLocation ? pickupLocation?.address : strings.AddPickupLocation}
             </Text>
             <Image style={{
               height: 22,
@@ -410,7 +411,7 @@ const CreateParcelFrom = () => {
             onPress={() =>
               navgatoon.navigate(ScreenNameEnum.PickupLocationRapido, {
                 onLocationSelect: (data) => {
-                   setDropLocation(data?.address);
+                  setDropLocation(data?.address);
                   sedroplat({
                     latitude: data.latitude,
                     longitude: data.longitude,
@@ -429,7 +430,7 @@ const CreateParcelFrom = () => {
               flex: 1
 
             }}>
-              {dropLocation ? dropLocation : "Add Drop Location"}
+              {dropLocation ? dropLocation : strings.AddDropLocation}
             </Text>
             <Image style={{
               height: 22,
@@ -440,11 +441,11 @@ const CreateParcelFrom = () => {
           {errors.dropLocation ? <Text style={styles.errorText}>{errors.dropLocation}</Text> : null}
 
           {/* Shipment & Sender Details */}
-          <Text style={styles.sectionTitle}>Shipment & Sender Details</Text>
+          <Text style={styles.sectionTitle}>{strings.ShipmentSenderDetails}</Text>
 
           <CustomDropdown
             data={shipmentTypeData}
-            placeholder="Shipment Type"
+            placeholder={strings.ShipmentType}
             onSelect={(value) => handleDropdownSelect("shipmentType", value)}
           />
           {errors.shipmentType ? <Text style={styles.errorText}>{errors.shipmentType}</Text> : null}
@@ -454,13 +455,13 @@ const CreateParcelFrom = () => {
             value={senderName}
             onChangeText={(value) => handleInputChange("senderName", value)}
             style={[styles.input, errors.senderName ? styles.inputError : null]}
-            placeholder="Sender Name"
+            placeholder={strings.SenderName}
           />
           {errors.senderName ? <Text style={styles.errorText}>{errors.senderName}</Text> : null}
 
           <TextInput
             style={[styles.input, errors.senderMobile ? styles.inputError : null]}
-            placeholder="Sender Mobile Number"
+            placeholder={strings.SenderMobileNumber}
             keyboardType="phone-pad"
             placeholderTextColor="#ADA4A5"
             value={senderMobile}
@@ -483,7 +484,7 @@ const CreateParcelFrom = () => {
             onPress={() => setShowDate(true)}
           >
             <Text style={styles.placeholderText}>
-              {pickupDate ? pickupDate.toDateString() : "Pickup Date"}
+              {pickupDate ? pickupDate.toDateString() : strings.PickupDate}
             </Text>
           </TouchableOpacity>
           {errors.pickupDate ? <Text style={styles.errorText}>{errors.pickupDate}</Text> : null}
@@ -512,7 +513,7 @@ const CreateParcelFrom = () => {
             <Text style={styles.placeholderText}>
               {pickupTime
                 ? pickupTime.toLocaleTimeString()
-                : "Pickup Time"}
+                : strings.PickupTime}
             </Text>
           </TouchableOpacity>
           {errors.pickupTime ? <Text style={styles.errorText}>{errors.pickupTime}</Text> : null}
@@ -536,13 +537,13 @@ const CreateParcelFrom = () => {
 
           <CustomDropdown
             data={consignmentTypeData}
-            placeholder="Consignment Type"
+            placeholder={strings.ConsignmentType}
             onSelect={(value) => handleDropdownSelect("consignmentType", value)}
           />
           {errors.consignmentType ? <Text style={styles.errorText}>{errors.consignmentType}</Text> : null}
 
           {/* Package Size */}
-          <Text style={styles.sectionTitle}>Package Size</Text>
+          <Text style={styles.sectionTitle}>{strings.PackageSize}</Text>
           <View style={styles.packageRow}>
             {["1 KG", "3KG-10KG", "10kG"].map((size) => (
               <TouchableOpacity
@@ -568,7 +569,7 @@ const CreateParcelFrom = () => {
           {/* Delivery Type */}
           <CustomDropdown
             data={deliveryTypeData}
-            placeholder="Delivery Type"
+            placeholder={strings.DeliveryType}
             onSelect={(value) => handleDropdownSelect("deliveryType", value)}
           />
           {errors.deliveryType ? <Text style={styles.errorText}>{errors.deliveryType}</Text> : null}
@@ -578,25 +579,25 @@ const CreateParcelFrom = () => {
             value={price}
             onChangeText={(value) => handleInputChange("price", value)}
             style={[styles.input, errors.price ? styles.inputError : null]}
-            placeholder="Price"
+            placeholder={strings.Price}
             keyboardType="numeric"
           />
           {errors.price ? <Text style={styles.errorText}>{errors.price}</Text> : null}
 
           {/* Receiver Details */}
-          <Text style={styles.sectionTitle}>Receiver Details</Text>
+          <Text style={styles.sectionTitle}>{strings.ReceiverDetails}</Text>
           <TextInput
             style={[styles.input, errors.receiverName ? styles.inputError : null]}
             placeholderTextColor={"#ADA4A5"}
             value={receiverName}
             onChangeText={(value) => handleInputChange("receiverName", value)}
-            placeholder="Receiver Name"
+            placeholder={strings.ReceiverName}
           />
           {errors.receiverName ? <Text style={styles.errorText}>{errors.receiverName}</Text> : null}
 
           <TextInput
             style={[styles.input, errors.receiverMobile ? styles.inputError : null]}
-            placeholder="Receiver Mobile Number"
+            placeholder={strings.ReceiverMobileNumber}
             keyboardType="phone-pad"
             placeholderTextColor={"#ADA4A5"}
             value={receiverMobile}
@@ -616,7 +617,7 @@ const CreateParcelFrom = () => {
 
           <TextInput
             style={[styles.input, { height: 80 }]}
-            placeholder="Extra Message"
+            placeholder={strings.ExtraMessage}
             multiline
             placeholderTextColor={"#ADA4A5"}
             value={extraMessage}
@@ -626,19 +627,19 @@ const CreateParcelFrom = () => {
             <TouchableOpacity
               onPress={() => setIsModalVisible(true)}
               style={{
-                borderWidth:0.6,
-                padding:15,
-                borderStyle:"dotted",
-                borderRadius:10,
-                borderColor:"#ADA4A5",
-                alignItems:"center"
+                borderWidth: 0.6,
+                padding: 15,
+                borderStyle: "dotted",
+                borderRadius: 10,
+                borderColor: "#ADA4A5",
+                alignItems: "center"
               }}
               activeOpacity={0.7}
             >
               <Image
                 source={image ? { uri: image?.uri || image } : imageIndex.prfile}
                 style={styles.parcelImage}
-               />
+              />
             </TouchableOpacity>
           ) : (
             <TouchableOpacity
@@ -646,8 +647,8 @@ const CreateParcelFrom = () => {
               style={[styles.imageUploadButton, styles.imageUploadButtonEmpty]}
               activeOpacity={0.7}
             >
-              <Text style={styles.imageUploadPlaceholderText}>Add Parcel Image </Text>
-             </TouchableOpacity>
+              <Text style={styles.imageUploadPlaceholderText}>{strings.AddParcelImage} </Text>
+            </TouchableOpacity>
           )}
 
 
@@ -656,7 +657,7 @@ const CreateParcelFrom = () => {
             marginBottom: 50,
             marginTop: 11
           }}>
-            <CustomButton title={"Send Request"} onPress={handleSubmit} />
+            <CustomButton title={strings.SendRequest} onPress={handleSubmit} />
           </View>
         </ScrollView>
       </KeyboardAvoidingView>

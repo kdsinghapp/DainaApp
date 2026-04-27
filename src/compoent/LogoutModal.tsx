@@ -1,5 +1,6 @@
 import React, { memo } from 'react';
 import { View, Text, Modal, TouchableOpacity, StyleSheet, Dimensions } from 'react-native';
+import strings from '../localization/Localization';
 import font from '../theme/font';
 
 const LogoutModal = ({ visible, onLogout, onCancel }: any) => {
@@ -14,21 +15,20 @@ const LogoutModal = ({ visible, onLogout, onCancel }: any) => {
           <TouchableOpacity style={styles.closeButton} onPress={onCancel}>
             <Text style={styles.closeText}>×</Text>
           </TouchableOpacity>
-
           <Text allowFontScaling={false} style={styles.title}>
-            Log Out
+            {strings.Logout}
           </Text>
           <Text allowFontScaling={false} style={styles.message}>
-            Are you sure you want to log out of your account?
+            {strings.LogoutConfirmMessage}
           </Text>
 
           <View style={styles.buttonContainer}>
             <TouchableOpacity style={styles.cancelButton} onPress={onCancel}>
-              <Text allowFontScaling={false} style={styles.cancelText}>Cancel</Text>
+              <Text allowFontScaling={false} style={styles.cancelText}>{strings.Cancel}</Text>
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.logoutButton} onPress={onLogout}>
-              <Text allowFontScaling={false} style={styles.logoutText}>Yes</Text>
+              <Text allowFontScaling={false} style={styles.logoutText}>{strings.Yes}</Text>
             </TouchableOpacity>
           </View>
         </View>

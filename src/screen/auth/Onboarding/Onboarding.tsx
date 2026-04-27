@@ -7,11 +7,11 @@ import {
   Dimensions,
   Animated,
   TouchableOpacity,
- } from 'react-native';
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import imageIndex from '../../../assets/imageIndex';
 import StatusBarComponent from '../../../compoent/StatusBarCompoent';
- import { styles } from './style';
+import { styles } from './style';
 import CustomButton from '../../../compoent/CustomButton';
 import { color } from '../../../constant';
 import SlideButton from '../../../compoent/SlideRightButton/SlideRightButton';

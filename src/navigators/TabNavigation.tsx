@@ -10,28 +10,30 @@ import SvgIndex from '../assets/svgIndex';
 import Inbox from '../screen/BottomTab/Inbox/Inbox';
 import UserProfile from '../screen/BottomTab/Profile/UserProfile';
  
+import strings from '../localization/Localization';
+
 const Tab = createBottomTabNavigator();
 
-const TAB_CONFIG:any = {
+const TAB_CONFIG: any = {
   [ScreenNameEnum.HomeStack]: {
-    label: 'Home',
-    iconActive: SvgIndex.HomeAtive, 
-    iconInactive: SvgIndex.Home, 
+    label: strings.Home,
+    iconActive: SvgIndex.HomeAtive,
+    iconInactive: SvgIndex.Home,
   },
- 
+
   Orders: {
-    label: 'Orders',
-    iconActive: SvgIndex.Box, 
-    iconInactive: SvgIndex.Box1,  
+    label: strings.Orders,
+    iconActive: SvgIndex.Box,
+    iconInactive: SvgIndex.Box1,
   },
   Inbox: {
-    label: 'Inbox',
-    iconActive: SvgIndex.MessageActive, 
+    label: strings.Inbox,
+    iconActive: SvgIndex.MessageActive,
     iconInactive: SvgIndex.Message,
   },
   Profile: {
-    label: 'Profile',
-    iconActive: SvgIndex.UserActive, 
+    label: strings.Profile,
+    iconActive: SvgIndex.UserActive,
     iconInactive: SvgIndex.User,
   },
 };

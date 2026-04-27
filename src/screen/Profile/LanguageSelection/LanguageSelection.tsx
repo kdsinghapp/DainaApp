@@ -4,7 +4,7 @@ import {
   Text,
   StyleSheet,
   TouchableOpacity,
-  SafeAreaView,
+
   ScrollView,
 } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
@@ -17,6 +17,7 @@ import ScreenNameEnum from '../../../routes/screenName.enum';
 import { useDispatch } from 'react-redux';
 import { setAppLanguage } from '../../../redux/feature/authSlice';
 import CustomHeader from '../../../compoent/CustomHeader';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const LanguageSelection = () => {
   const navigation = useNavigation<any>();

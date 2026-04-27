@@ -18,6 +18,7 @@ import ScreenNameEnum from "../../../routes/screenName.enum";
 import LoadingModal from "../../../utils/Loader";
 import { STATUS, STATUS_COLORS, STATUS_LABELS } from "../../../utils/Constant";
 import useOrders from "./useOrders";
+import strings from "../../../localization/Localization";
 
 type OrderStatus = "packaged" | "shipped" | "inTransit" | "delivered";
 
@@ -114,7 +115,7 @@ export default function OrdersScreen() {
         }}
       >
         <View style={styles.cardHeader}>
-          <Text style={styles.trackingLabel}>Tracking ID:</Text>
+          <Text style={styles.trackingLabel}>{strings.TrackingID}:</Text>
           <Text style={styles.trackingId}>{order.trackingId}</Text>
         </View>
 
@@ -145,7 +146,7 @@ export default function OrdersScreen() {
           <StatusPill status={order.deliveryStatus} />
           <Pressable onPress={() => (nava as any).navigate(ScreenNameEnum.ViewDetails, { item: order })}>
             <Text style={styles.viewDetails}>
-              {norm(order.deliveryStatus) === STATUS.DELIVERED || norm(order.deliveryStatus) === STATUS.COMPLETED ? "Write a Review" : "View Details"}
+              {norm(order.deliveryStatus) === STATUS.DELIVERED || norm(order.deliveryStatus) === STATUS.COMPLETED ? strings.WriteAReview : strings.ViewDetails}
             </Text>
           </Pressable>
         </View>
@@ -157,21 +158,21 @@ export default function OrdersScreen() {
       <StatusBarComponent />
       <LoadingModal visible={isLoading} />
       <View style={styles.container}>
-        <Text style={styles.title}>Orders</Text>
+        <Text style={styles.title}>{strings.Orders}</Text>
         {/* Tabs */}
         <View style={styles.tabsWrap}>
           <SegmentedTab
-            label="Pending"
+            label={strings.Pending}
             active={tab === "pending"}
             onPress={() => setTab("pending")}
           />
           <SegmentedTab
-            label="Complete"
+            label={strings.Complete}
             active={tab === "complete"}
             onPress={() => setTab("complete")}
           />
           <SegmentedTab
-            label="Canceled"
+            label={strings.Canceled}
             active={tab === "cancelled"}
             onPress={() => setTab("cancelled")}
           />
@@ -187,7 +188,7 @@ export default function OrdersScreen() {
           showsVerticalScrollIndicator={false}
           ListEmptyComponent={() => (
             <Text style={{ textAlign: 'center', marginTop: 20, color: 'gray' }}>
-              No orders found
+              {strings.NoOrdersFound}
             </Text>
           )}
           refreshControl={
@@ -252,8 +253,8 @@ const StatusPill = ({ status }: { status: OrderStatus }) => {
   const s = norm(status);
   const text =
     s === STATUS.CANCELLED
-      ? "Cancelled"
-      : STATUS_LABELS[s as keyof typeof STATUS_LABELS] ?? status ?? "Pending";
+      ? strings.StatusCancelled
+      : STATUS_LABELS[s as keyof typeof STATUS_LABELS] ?? status ?? strings.StatusPending;
 
   const pillStyle =
     s === STATUS.DELIVERED || s === STATUS.COMPLETED
@@ -291,7 +292,7 @@ const ProgressTrack = ({ status }: { status: string }) => {
   return (
     <View>
       <Text style={styles.stepCompleteText}>
-        Step {completedCount} of {totalSteps} complete
+        {strings.formatString(strings.StepXofY, completedCount, totalSteps)}
       </Text>
       <View style={styles.trackBase}>
         {/* Background Grey Line */}

@@ -12,7 +12,7 @@ import {
 import font from "../theme/font";
 import { color } from "../constant";
 
-const RATING_LABELS = ["Poor", "Fair", "Good", "Great", "Excellent"];
+import strings from "../localization/Localization";
 
 interface RatingModalProps {
   visible: boolean;
@@ -28,11 +28,19 @@ const RatingModal = ({
   onClose,
   onSubmit,
   isSubmitting = false,
-  title = "Rate your delivery",
-  subtitle = "How was your experience?",
+  title = strings.RateYourDelivery,
+  subtitle = strings.HowWasExperience,
 }: RatingModalProps) => {
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState("");
+
+  const RATING_LABELS = [
+    strings.RatingPoor,
+    strings.RatingFair,
+    strings.RatingGood,
+    strings.RatingGreat,
+    strings.RatingExcellent
+  ];
 
   useEffect(() => {
     if (!visible) {
@@ -79,8 +87,8 @@ const RatingModal = ({
                   >
                     <Text
                       style={[
-                        styles.starIcon,
-                        rating >= star ? styles.starIconFilled : styles.starIconEmpty,
+                          styles.starIcon,
+                          rating >= star ? styles.starIconFilled : styles.starIconEmpty,
                       ]}
                     >
                       ★
@@ -96,7 +104,7 @@ const RatingModal = ({
             <View style={styles.commentSection}>
               <TextInput
                 style={styles.commentInput}
-                placeholder="Share your experience (optional)"
+                placeholder={strings.ShareExperiencePlaceholder}
                 placeholderTextColor="#94A3B8"
                 value={comment}
                 onChangeText={setComment}
@@ -113,7 +121,7 @@ const RatingModal = ({
                 onPress={onClose}
                 activeOpacity={0.7}
               >
-                <Text style={styles.cancelButtonText}>Cancel</Text>
+                <Text style={styles.cancelButtonText}>{strings.Cancel}</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={[
@@ -130,7 +138,7 @@ const RatingModal = ({
                     rating < 1 && styles.submitButtonTextDisabled,
                   ]}
                 >
-                  {isSubmitting ? "Submitting..." : "Submit"}
+                  {isSubmitting ? strings.Processing : strings.Submit}
                 </Text>
               </TouchableOpacity>
             </View>
