@@ -2,14 +2,11 @@ import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
-  StyleSheet,
   ActivityIndicator,
   TouchableOpacity,
   Image,
   Modal,
-  Pressable,
   ScrollView,
-  Dimensions,
   Animated,
   Alert,
 } from 'react-native';
@@ -90,7 +87,6 @@ export default function DocumentShow() {
         },
       });
       const vehicleResult = await vehicleResponse.json();
-      console.log('Vehicle API Response:', vehicleResult);
 
       if (vehicleResult.status == 1) {
         setVehicleInfo(vehicleResult?.data || vehicleResult);
@@ -125,34 +121,13 @@ export default function DocumentShow() {
 
 
 
-  const handleDownload = (imageUrl, title: any) => {
-    Alert.alert('Download', `Download ${title}?`, [
-      { text: 'Cancel', style: 'cancel' },
-      { text: 'Download', onPress: () => console.log('Download:', imageUrl) }
-    ]);
-  };
+
 
   const DocumentCard = ({ title, imageUrl, icon, status = 'verified' }: any) => {
-    const isVerified = status === 'verified';
-    const isInReview = status === 'in_review';
 
-    const getStatusStyle = () => {
-      if (isVerified) return [styles.statusBadge, styles.verifiedBadge];
-      if (isInReview) return [styles.statusBadge, styles.reviewBadge];
-      return [styles.statusBadge, styles.pendingBadge];
-    };
 
-    const getStatusTextStyle = () => {
-      if (isVerified) return styles.verifiedText;
-      if (isInReview) return styles.reviewText;
-      return styles.pendingText;
-    };
 
-    const getStatusText = () => {
-      if (isVerified) return 'Verified';
-      if (isInReview) return 'In Review';
-      return 'Pending';
-    };
+
 
     return (
       <Animated.View style={[styles.card, { opacity: fadeAnim }]}>
@@ -163,9 +138,7 @@ export default function DocumentShow() {
             </View>
             <Text style={styles.cardTitle}>{title}</Text>
           </View>
-          <View style={getStatusStyle()}>
-            <Text style={[styles.statusText, getStatusTextStyle()]}>{getStatusText()}</Text>
-          </View>
+
         </View>
 
         <TouchableOpacity
@@ -188,7 +161,7 @@ export default function DocumentShow() {
 
   const VehicleCard = ({ data }: any) => {
     if (!data) return <EmptyState />;
-    
+
     return (
       <Animated.View style={[styles.card, { opacity: fadeAnim }]}>
         <View style={styles.cardHeader}>
@@ -198,44 +171,40 @@ export default function DocumentShow() {
             </View>
             <Text style={styles.cardTitle}>Vehicle Information</Text>
           </View>
-          <View style={[styles.statusBadge, data.verificationStatus === 'verified' ? styles.verifiedBadge : styles.reviewBadge]}>
-            <Text style={[styles.statusText, data.verificationStatus === 'verified' ? styles.verifiedText : styles.reviewText]}>
-              {data.verificationStatus === 'in_review' ? 'In Review' : 'Verified'}
-            </Text>
-          </View>
+
         </View>
 
         <View style={styles.infoGrid}>
           <View style={styles.infoItem}>
             <Text style={styles.infoLabel}>Vehicle Type</Text>
-            <Text style={styles.infoValue}>{data.vehicleType || 'N/A'}</Text>
+            <Text style={styles.infoValue}>{data?.vehicleType || ''}</Text>
           </View>
           <View style={styles.infoItem}>
             <Text style={styles.infoLabel}>Vehicle Number</Text>
-            <Text style={styles.infoValue}>{data.vehicleNumber || 'N/A'}</Text>
+            <Text style={styles.infoValue}>{data?.vehicleNumber || ''}</Text>
           </View>
-          {data.vehicleModel && (
+          {data?.vehicleModel && (
             <View style={styles.infoItem}>
               <Text style={styles.infoLabel}>Model</Text>
-              <Text style={styles.infoValue}>{data.vehicleModel}</Text>
+              <Text style={styles.infoValue}>{data?.vehicleModel}</Text>
             </View>
           )}
-          {data.vehicleColor && (
+          {data?.vehicleColor && (
             <View style={styles.infoItem}>
               <Text style={styles.infoLabel}>Color</Text>
-              <Text style={styles.infoValue}>{data.vehicleColor}</Text>
+              <Text style={styles.infoValue}>{data?.vehicleColor}</Text>
             </View>
           )}
         </View>
 
-        {data.vehicleRegistration && (
+        {data?.vehicleRegistration && (
           <TouchableOpacity
             style={styles.docImageWrapper}
-            onPress={() => setSelectedImage(data.vehicleRegistration)}
+            onPress={() => setSelectedImage(data?.vehicleRegistration)}
             activeOpacity={0.9}
           >
             <Image
-              source={{ uri: data.vehicleRegistration }}
+              source={{ uri: data?.vehicleRegistration }}
               style={styles.image}
               resizeMode="cover"
             />
@@ -250,7 +219,7 @@ export default function DocumentShow() {
 
   const BankCard = ({ data }: any) => {
     if (!data) return <EmptyState />;
-    
+
     return (
       <Animated.View style={[styles.bankCard, { opacity: fadeAnim }]}>
         <View style={styles.bankHeader}>
