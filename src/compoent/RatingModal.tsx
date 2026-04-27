@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useState } from "react";
+import React, { memo, useEffect, useState, useRef } from "react";
 import {
   View,
   Text,
@@ -8,10 +8,11 @@ import {
   StyleSheet,
   Platform,
   TouchableWithoutFeedback,
+  Animated,
 } from "react-native";
 import font from "../theme/font";
 import { color } from "../constant";
-
+import Icon from "react-native-vector-icons/MaterialIcons";
 import strings from "../localization/Localization";
 
 interface RatingModalProps {
@@ -33,6 +34,7 @@ const RatingModal = ({
 }: RatingModalProps) => {
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState("");
+  const scaleAnim = useRef(new Animated.Value(1)).current;
 
   const RATING_LABELS = [
     strings.RatingPoor,
@@ -48,6 +50,17 @@ const RatingModal = ({
       setComment("");
     }
   }, [visible]);
+
+  const handleRatingPress = (index: number) => {
+    setRating(index);
+    // Pulse animation for feedback
+    scaleAnim.setValue(0.8);
+    Animated.spring(scaleAnim, {
+      toValue: 1,
+      friction: 4,
+      useNativeDriver: true,
+    }).start();
+  };
 
   const handleSubmit = () => {
     if (rating < 1) return;
@@ -69,7 +82,7 @@ const RatingModal = ({
           <View style={styles.content}>
             <View style={styles.header}>
               <View style={styles.iconWrap}>
-                <Text style={styles.icon}>⭐</Text>
+                <Icon name="stars" size={32} color={color.primary} />
               </View>
               <Text style={styles.title}>{title}</Text>
               <Text style={styles.subtitle}>{subtitle}</Text>
@@ -80,25 +93,27 @@ const RatingModal = ({
                 {[1, 2, 3, 4, 5].map((star) => (
                   <TouchableOpacity
                     key={star}
-                    onPress={() => setRating(star)}
+                    onPress={() => handleRatingPress(star)}
                     style={styles.starTouch}
                     activeOpacity={0.7}
-                    hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
                   >
-                    <Text
-                      style={[
-                          styles.starIcon,
-                          rating >= star ? styles.starIconFilled : styles.starIconEmpty,
-                      ]}
-                    >
-                      ★
-                    </Text>
+                    <Animated.View style={rating === star ? { transform: [{ scale: scaleAnim }] } : {}}>
+                      <Icon
+                        name={rating >= star ? "star" : "star-outline"}
+                        size={48}
+                        color={rating >= star ? color.primary : "#E2E8F0"}
+                      />
+                    </Animated.View>
                   </TouchableOpacity>
                 ))}
               </View>
-              {rating > 0 && (
-                <Text style={styles.ratingLabel}>{RATING_LABELS[rating - 1]}</Text>
-              )}
+              <View style={styles.labelContainer}>
+                {rating > 0 ? (
+                  <Text style={styles.ratingLabel}>{RATING_LABELS[rating - 1]}</Text>
+                ) : (
+                  <Text style={styles.placeholderLabel}>{strings.TypeMessageHere}</Text>
+                )}
+              </View>
             </View>
 
             <View style={styles.commentSection}>
@@ -152,7 +167,7 @@ const RatingModal = ({
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: "rgba(15, 23, 42, 0.6)",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
     justifyContent: "center",
     alignItems: "center",
     padding: 24,
@@ -162,51 +177,46 @@ const styles = StyleSheet.create({
   },
   content: {
     width: "100%",
-    maxWidth: 340,
+    maxWidth: 360,
     backgroundColor: "#FFF",
-    zIndex: 1,
     borderRadius: 24,
-    padding: 28,
-    overflow: "hidden",
+    padding: 24,
     ...Platform.select({
-      android: { elevation: 16 },
+      android: { elevation: 8 },
       ios: {
-        shadowColor: "#0F172A",
-        shadowOffset: { width: 0, height: 8 },
-        shadowOpacity: 0.2,
-        shadowRadius: 24,
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.1,
+        shadowRadius: 12,
       },
     }),
   },
   header: {
     alignItems: "center",
-    marginBottom: 20,
+    marginBottom: 24,
   },
   iconWrap: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    backgroundColor: "#FEF3C7",
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: "#FFF9E6",
     justifyContent: "center",
     alignItems: "center",
-    marginBottom: 12,
-  },
-  icon: {
-    fontSize: 28,
+    marginBottom: 16,
   },
   title: {
-    fontSize: 22,
+    fontSize: 20,
     fontFamily: font.MonolithRegular,
-    color: "#0F172A",
+    color: "#1C1C1C",
     textAlign: "center",
-    marginBottom: 6,
+    marginBottom: 8,
   },
   subtitle: {
-    fontSize: 15,
+    fontSize: 14,
     fontFamily: font.MonolithRegular,
-    color: "#64748B",
+    color: "#666",
     textAlign: "center",
-    lineHeight: 22,
+    lineHeight: 20,
   },
   starsSection: {
     marginBottom: 24,
@@ -214,56 +224,49 @@ const styles = StyleSheet.create({
   starsRow: {
     flexDirection: "row",
     justifyContent: "center",
-    alignItems: "center",
     gap: 4,
   },
   starTouch: {
-    padding: 8,
+    padding: 4,
   },
-  starIcon: {
-    fontSize: 42,
-    fontFamily: font.MonolithRegular,
-  },
-  starIconFilled: {
-    color: color.baground,
-    fontFamily: font.MonolithRegular,
-
-  },
-  starIconEmpty: {
-    color: "#E2E8F0",
-    fontFamily: font.MonolithRegular,
-
+  labelContainer: {
+    height: 24,
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 12,
   },
   ratingLabel: {
+    fontSize: 16,
+    fontFamily: font.MonolithRegular,
+    color: color.primary,
+    fontWeight: "600",
+  },
+  placeholderLabel: {
     fontSize: 14,
     fontFamily: font.MonolithRegular,
-    color: color.baground,
-    textAlign: "center",
-    marginTop: 8,
+    color: "#CBD5E1",
   },
   commentSection: {
     marginBottom: 24,
   },
   commentInput: {
+    backgroundColor: "#F8FAFC",
     borderWidth: 1,
     borderColor: "#E2E8F0",
     borderRadius: 16,
-    paddingHorizontal: 16,
-    paddingVertical: 14,
-    paddingTop: 14,
+    padding: 16,
     fontSize: 15,
     fontFamily: font.MonolithRegular,
-    color: "#0F172A",
-    minHeight: 96,
+    color: "#1C1C1C",
+    minHeight: 100,
     textAlignVertical: "top",
-    backgroundColor: "#F8FAFC",
   },
   charCount: {
-    fontSize: 11,
+    fontSize: 12,
     fontFamily: font.MonolithRegular,
     color: "#94A3B8",
     textAlign: "right",
-    marginTop: 6,
+    marginTop: 8,
   },
   buttons: {
     flexDirection: "row",
@@ -271,38 +274,39 @@ const styles = StyleSheet.create({
   },
   cancelButton: {
     flex: 1,
-    paddingVertical: 16,
-    borderRadius: 14,
+    height: 52,
+    borderRadius: 16,
     backgroundColor: "#F1F5F9",
+    justifyContent: "center",
     alignItems: "center",
   },
   cancelButtonText: {
     fontSize: 16,
-    fontFamily: font.TrialDemiBold,
+    fontFamily: font.MonolithRegular,
     color: "#64748B",
   },
   submitButton: {
     flex: 1,
-    paddingVertical: 16,
-    borderRadius: 14,
-    backgroundColor: color.baground,
+    height: 52,
+    borderRadius: 16,
+    backgroundColor: color.primary,
+    justifyContent: "center",
     alignItems: "center",
-
   },
   submitButtonDisabled: {
     backgroundColor: "#E2E8F0",
-
   },
   submitButtonText: {
     fontSize: 16,
     fontFamily: font.MonolithRegular,
-    color: "#FFF",
+    color: "#000",
+    fontWeight: "600",
   },
   submitButtonTextDisabled: {
     color: "#94A3B8",
-    fontFamily: font.MonolithRegular,
-
   },
 });
+
+export default memo(RatingModal);
 
 export default memo(RatingModal);

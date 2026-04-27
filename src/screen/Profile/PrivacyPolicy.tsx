@@ -6,7 +6,7 @@ import Loading from '../../utils/Loader';
 import imageIndex from '../../assets/imageIndex';
 import StatusBarComponent from '../../compoent/StatusBarCompoent';
 import CustomHeader from '../../compoent/CustomHeader';
- import { hp } from '../../utils/Constant';
+import { hp } from '../../utils/Constant';
 import font from '../../theme/font';
 import { Privacypolicy } from '../../Api/apiRequest';
 import LoadingModal from '../../utils/Loader';
@@ -21,24 +21,24 @@ const PrivacyPolicy = () => {
         getPrivacyPolicy();
     }, []);
 
-const getPrivacyPolicy = async () => {
-  try {
-    const response = await Privacypolicy(setLoading);
-    if (response && response?.content) {
-      setContent(response.content); // ✅ content is now set correctly
-    } else {
-      setContent('<p>No content available</p>');
-    }
-  } catch (error) {
-    setContent('<p>No content available</p>');
-  }
-};
+    const getPrivacyPolicy = async () => {
+        try {
+            const response = await Privacypolicy(setLoading);
+            if (response && response?.content) {
+                setContent(response.content); // ✅ content is now set correctly
+            } else {
+                setContent('<p>No content available</p>');
+            }
+        } catch (error) {
+            setContent('<p>No content available</p>');
+        }
+    };
 
     return (
         <SafeAreaView style={styles.container}>
             {isLoading && <Loading />}
             <StatusBarComponent />
-                          <LoadingModal visible ={isLoading}/>
+            <LoadingModal visible={isLoading} />
 
             <CustomHeader label={strings.PrivacyPolicy} />
             <ScrollView
@@ -88,7 +88,7 @@ const styles = StyleSheet.create({
             fontSize: 14,
             color: '#333',
             lineHeight: 24,
-             fontWeight: '500',
+            fontWeight: '500',
             marginTop: 8,
             fontFamily: font.MonolithRegular,
         },
@@ -112,7 +112,7 @@ const styles = StyleSheet.create({
         fontSize: 14,
         lineHeight: 20,
         color: '#666',
-         fontFamily: font.MonolithRegular,
+        fontFamily: font.MonolithRegular,
     },
 });
 

@@ -14,6 +14,7 @@ import {
 } from "react-native";
 import font from "../theme/font";
 import imageIndex from "../assets/imageIndex";
+import strings from "../localization/Localization";
 import { GOOGLE_MAPS_APIKEY } from "../Api";
 import Geolocation from '@react-native-community/geolocation';
 
@@ -123,7 +124,7 @@ const AddressModalInput = ({ modalVisible, setModalVisible, value, onChange, onS
         <View style={styles.header}>
           <View style={styles.headerContent}>
             <View>
-              <Text style={styles.title}>Search Address</Text>
+              <Text style={styles.title}>{strings.SearchAddress}</Text>
               {/* <Text style={styles.countryHint}>Searching in {countryCode.toUpperCase()}</Text> */}
             </View>
             <TouchableOpacity
@@ -141,7 +142,7 @@ const AddressModalInput = ({ modalVisible, setModalVisible, value, onChange, onS
             <Image source={imageIndex.search1} style={styles.searchIconImg} />
             <TextInput
               style={styles.searchInput}
-              placeholder="Enter your address..."
+              placeholder={strings.EnterAddressPlaceholder}
               placeholderTextColor="#999"
               value={searchText}
               onChangeText={fetchSuggestions}
@@ -156,7 +157,7 @@ const AddressModalInput = ({ modalVisible, setModalVisible, value, onChange, onS
           {loading ? (
             <View style={styles.loadingContainer}>
               <ActivityIndicator size="large" color="#FFCC00" />
-              <Text style={styles.loadingText}>Searching nearby...</Text>
+              <Text style={styles.loadingText}>{strings.SearchingNearby}</Text>
             </View>
           ) : (
             <FlatList
@@ -184,8 +185,8 @@ const AddressModalInput = ({ modalVisible, setModalVisible, value, onChange, onS
               ItemSeparatorComponent={() => <View style={styles.separator} />}
               ListEmptyComponent={() => (
                 hasSearched && searchText.length > 0 ? (
-                  <View style={styles.emptyState}>
-                    <Text style={styles.emptyStateTitle}>No results in this region</Text>
+                <View style={styles.emptyState}>
+                    <Text style={styles.emptyStateTitle}>{strings.NoResultsRegion}</Text>
                     {/* <Text style={styles.emptyStateText}>We only found addresses within {countryCode.toUpperCase()}.</Text> */}
                   </View>
                 ) : null

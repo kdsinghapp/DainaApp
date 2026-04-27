@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import {
   View,
   Text,
@@ -8,7 +8,9 @@ import {
   Modal,
   ScrollView,
   Animated,
-  Alert,
+  RefreshControl,
+  Platform,
+  Dimensions,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import imageIndex from '../../../assets/imageIndex';
@@ -18,47 +20,38 @@ import CustomHeader from '../../../compoent/CustomHeader';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { styles } from './style';
 import { SafeAreaView } from 'react-native-safe-area-context';
-
+import strings from '../../../localization/Localization';
 
 export default function DocumentShow() {
   const [loading, setLoading] = useState(true);
-  const [documents, setDocuments] = useState({});
-  const [error, setError] = useState(null);
-  const [selectedImage, setSelectedImage] = useState(null);
+  const [documents, setDocuments] = useState<any>({});
+  const [error, setError] = useState<string | null>(null);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [fadeAnim] = useState(new Animated.Value(0));
   const [refreshing, setRefreshing] = useState(false);
   const [verificationStatus, setVerificationStatus] = useState('');
-  const [uploadedAt, setUploadedAt] = useState('');
   const [vehicleInfo, setVehicleInfo] = useState<any>(null);
   const [bankInfo, setBankInfo] = useState<any>(null);
-  const [activeTab, setActiveTab] = useState('identity'); // 'identity', 'vehicle', 'bank'
+  const [activeTab, setActiveTab] = useState('identity');
 
-  useEffect(() => {
-    fetchDocuments();
-  }, []);
+  const tabs = [
+    { id: 'identity', label: strings.Identity },
+    { id: 'vehicle', label: strings.Vehicle },
+    { id: 'bank', label: strings.Banking },
+  ];
 
-  useEffect(() => {
-    if (!loading) {
-      Animated.timing(fadeAnim, {
-        toValue: 1,
-        duration: 600,
-        useNativeDriver: true,
-      }).start();
-    }
-  }, [loading]);
-
-  const fetchDocuments = async () => {
+  const fetchDocuments = useCallback(async (isRefresh = false) => {
     try {
-      setLoading(true);
+      if (!isRefresh) setLoading(true);
       const token = await AsyncStorage.getItem('token');
 
       if (!token) {
-        setError('Authentication required. Please login.');
+        setError(strings.SessionExpired);
         setLoading(false);
         return;
       }
 
-      // Fetch Documents
+      // 1. Fetch Identification Documents
       const docResponse = await fetch(`${base_url}/upload-document`, {
         method: 'GET',
         headers: {
@@ -67,18 +60,13 @@ export default function DocumentShow() {
         },
       });
       const docResult = await docResponse.json();
-      console.log('Document API Response:', docResult);
 
       if (docResult.status == 1) {
         setDocuments(docResult?.documents || {});
-        setVerificationStatus(docResult?.verificationStatus || '');
-        setUploadedAt(docResult?.uploadedAt || '');
-      } else if (docResult.status == 0 && docResult.message === "Not authenticated") {
-        setError("Your session has expired. Please log in again.");
-        return;
+        setVerificationStatus(docResult?.verificationStatus || 'pending');
       }
 
-      // Fetch Vehicle Setup
+      // 2. Fetch Vehicle Setup
       const vehicleResponse = await fetch(`${base_url}/vehicle-setup`, {
         method: 'GET',
         headers: {
@@ -87,15 +75,11 @@ export default function DocumentShow() {
         },
       });
       const vehicleResult = await vehicleResponse.json();
-
       if (vehicleResult.status == 1) {
         setVehicleInfo(vehicleResult?.data || vehicleResult);
-      } else if (vehicleResult.status == 0 && !error) {
-        // Only set error if docResult didn't already fail
-        console.warn('Vehicle Setup Error:', vehicleResult.message);
       }
 
-      // Fetch Bank Setup
+      // 3. Fetch Bank Setup
       const bankResponse = await fetch(`${base_url}/bank-setup`, {
         method: 'GET',
         headers: {
@@ -104,41 +88,57 @@ export default function DocumentShow() {
         },
       });
       const bankResult = await bankResponse.json();
-      console.log('Bank API Response:', bankResult);
-
       if (bankResult.status == 1) {
         setBankInfo(bankResult?.data || bankResult);
       }
 
     } catch (err) {
-      console.log('Error:', err);
-      setError('Something went wrong. Please try again.');
+      console.log('Fetch Error:', err);
+      setError(strings.SomethingWentWrong);
     } finally {
       setLoading(false);
       setRefreshing(false);
     }
+  }, []);
+
+  useEffect(() => {
+    fetchDocuments();
+  }, [fetchDocuments]);
+
+  useEffect(() => {
+    if (!loading) {
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 500,
+        useNativeDriver: true,
+      }).start();
+    }
+  }, [loading, fadeAnim]);
+
+  const getStatusInfo = (status: string) => {
+    const s = status.toLowerCase();
+    if (s === 'verified' || s === 'approved') {
+      return { label: strings.Verified, badgeStyle: styles.verifiedBadge, textStyle: styles.verifiedText };
+    }
+    if (s === 'in_review' || s === 'review' || s === 'processing') {
+      return { label: strings.InReview, badgeStyle: styles.reviewBadge, textStyle: styles.reviewText };
+    }
+    return { label: strings.Pending, badgeStyle: styles.pendingBadge, textStyle: styles.pendingText };
   };
 
-
-
-
-
-  const DocumentCard = ({ title, imageUrl, icon, status = 'verified' }: any) => {
-
-
-
-
+  const DocumentCard = ({ title, imageUrl, icon, status }: any) => {
+    const statusInfo = getStatusInfo(status || 'pending');
 
     return (
       <Animated.View style={[styles.card, { opacity: fadeAnim }]}>
         <View style={styles.cardHeader}>
           <View style={styles.titleContainer}>
-            <View style={styles.iconContainer}>
-              {icon}
-            </View>
+            <View style={styles.iconContainer}>{icon}</View>
             <Text style={styles.cardTitle}>{title}</Text>
           </View>
-
+          <View style={[styles.statusBadge, statusInfo.badgeStyle]}>
+            <Text style={[styles.statusText, statusInfo.textStyle]}>{statusInfo.label}</Text>
+          </View>
         </View>
 
         <TouchableOpacity
@@ -152,7 +152,7 @@ export default function DocumentShow() {
             resizeMode="cover"
           />
           <View style={styles.imageOverlay}>
-            <Text style={styles.overlayText}>Tap to enlarge</Text>
+            <Text style={styles.overlayText}>{strings.TapToEnlarge}</Text>
           </View>
         </TouchableOpacity>
       </Animated.View>
@@ -161,6 +161,7 @@ export default function DocumentShow() {
 
   const VehicleCard = ({ data }: any) => {
     if (!data) return <EmptyState />;
+    const statusInfo = getStatusInfo(data.verificationStatus || 'pending');
 
     return (
       <Animated.View style={[styles.card, { opacity: fadeAnim }]}>
@@ -169,29 +170,31 @@ export default function DocumentShow() {
             <View style={styles.iconContainer}>
               <Icon name="directions-car" size={24} color="#FFCC00" />
             </View>
-            <Text style={styles.cardTitle}>Vehicle Information</Text>
+            <Text style={styles.cardTitle}>{strings.VehicleInformation}</Text>
           </View>
-
+          <View style={[styles.statusBadge, statusInfo.badgeStyle]}>
+            <Text style={[styles.statusText, statusInfo.textStyle]}>{statusInfo.label}</Text>
+          </View>
         </View>
 
         <View style={styles.infoGrid}>
           <View style={styles.infoItem}>
-            <Text style={styles.infoLabel}>Vehicle Type</Text>
-            <Text style={styles.infoValue}>{data?.vehicleType || ''}</Text>
+            <Text style={styles.infoLabel}>{strings.VehicleType}</Text>
+            <Text style={styles.infoValue}>{data?.vehicleType || '-'}</Text>
           </View>
           <View style={styles.infoItem}>
-            <Text style={styles.infoLabel}>Vehicle Number</Text>
-            <Text style={styles.infoValue}>{data?.vehicleNumber || ''}</Text>
+            <Text style={styles.infoLabel}>{strings.VehicleNumber}</Text>
+            <Text style={styles.infoValue}>{data?.vehicleNumber || '-'}</Text>
           </View>
           {data?.vehicleModel && (
             <View style={styles.infoItem}>
-              <Text style={styles.infoLabel}>Model</Text>
+              <Text style={styles.infoLabel}>{strings.Model}</Text>
               <Text style={styles.infoValue}>{data?.vehicleModel}</Text>
             </View>
           )}
           {data?.vehicleColor && (
             <View style={styles.infoItem}>
-              <Text style={styles.infoLabel}>Color</Text>
+              <Text style={styles.infoLabel}>{strings.Color}</Text>
               <Text style={styles.infoValue}>{data?.vehicleColor}</Text>
             </View>
           )}
@@ -209,7 +212,7 @@ export default function DocumentShow() {
               resizeMode="cover"
             />
             <View style={styles.imageOverlay}>
-              <Text style={styles.overlayText}>Registration Paper</Text>
+              <Text style={styles.overlayText}>{strings.RegistrationPaper}</Text>
             </View>
           </TouchableOpacity>
         )}
@@ -223,7 +226,7 @@ export default function DocumentShow() {
     return (
       <Animated.View style={[styles.bankCard, { opacity: fadeAnim }]}>
         <View style={styles.bankHeader}>
-          <Text style={styles.bankName}>{data.bankName || 'Your Bank'}</Text>
+          <Text style={styles.bankName}>{data.bankName || strings.YourBank}</Text>
           <View style={styles.bankChip} />
         </View>
 
@@ -233,49 +236,36 @@ export default function DocumentShow() {
 
         <View style={styles.bankFooter}>
           <View>
-            <Text style={styles.bankLabel}>Account Holder</Text>
+            <Text style={styles.bankLabel}>{strings.AccountHolder}</Text>
             <Text style={styles.bankValue}>DRIVER PARTNER</Text>
           </View>
           <View style={{ alignItems: 'flex-end' }}>
-            <Text style={styles.bankLabel}>IFSC Code</Text>
-            <Text style={styles.bankValue}>{data.bankIfscCode || 'N/A'}</Text>
+            <Text style={styles.bankLabel}>{strings.IFSCCode}</Text>
+            <Text style={styles.bankValue}>{data.bankIfscCode || '-'}</Text>
           </View>
         </View>
       </Animated.View>
     );
   };
 
-  const getDocumentIcon = (title: any) => {
-    const iconMap = {
-      'Driving License': 'assignment-ind',
-      'ID Document': 'badge',
-      'Vehicle Papers': 'description',
-    };
-
-    return (
-      <Icon
-        name={iconMap[title] || 'insert-drive-file'}
-        size={22}
-        color="#FFCC00"
-      />
-    );
-  };
-
   const EmptyState = () => (
     <View style={styles.emptyContainer}>
       <Icon name="cloud-off" size={64} color="#E0E0E0" />
-      <Text style={styles.emptyTitle}>No Data Found</Text>
-      <Text style={styles.emptySubtitle}>
-        Information will appear here once it has been processed.
-      </Text>
+      <Text style={styles.emptyTitle}>{strings.NoDataFound}</Text>
+      <Text style={styles.emptySubtitle}>{strings.InfoWillAppearHere}</Text>
     </View>
   );
+
+  const onRefresh = () => {
+    setRefreshing(true);
+    fetchDocuments(true);
+  };
 
   if (loading && !refreshing) {
     return (
       <View style={styles.center}>
         <ActivityIndicator size="large" color="#FFCC00" />
-        <Text style={styles.loadingText}>Fetching details...</Text>
+        <Text style={styles.loadingText}>{strings.FetchingDetails}</Text>
       </View>
     );
   }
@@ -283,22 +273,25 @@ export default function DocumentShow() {
   return (
     <SafeAreaView style={styles.container}>
       <StatusBarComponent />
-      <CustomHeader label="My Documents" />
+      <CustomHeader label={strings.MyDocuments} />
 
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#FFCC00']} />
+        }
       >
         <View style={styles.tabContainer}>
-          {['identity', 'vehicle', 'bank'].map((tab) => (
+          {tabs.map((tab) => (
             <TouchableOpacity
-              key={tab}
-              style={[styles.tabButton, activeTab === tab && styles.activeTabButton]}
-              onPress={() => setActiveTab(tab)}
+              key={tab.id}
+              style={[styles.tabButton, activeTab === tab.id && styles.activeTabButton]}
+              onPress={() => setActiveTab(tab.id)}
               activeOpacity={0.7}
             >
-              <Text style={[styles.tabText, activeTab === tab && styles.activeTabText]}>
-                {tab.charAt(0).toUpperCase() + tab.slice(1)}
+              <Text style={[styles.tabText, activeTab === tab.id && styles.activeTabText]}>
+                {tab.label}
               </Text>
             </TouchableOpacity>
           ))}
@@ -306,27 +299,33 @@ export default function DocumentShow() {
 
         {activeTab === 'identity' && (
           <>
-            <Text style={styles.sectionTitle}>Identification</Text>
+            <Text style={styles.sectionTitle}>{strings.Identification}</Text>
             {documents.drivingLicense || documents.idDocument || documents.vehiclePapers ? (
               <>
-                <DocumentCard
-                  title="Driving License"
-                  imageUrl={documents?.drivingLicense}
-                  icon={getDocumentIcon('Driving License')}
-                  status={verificationStatus}
-                />
-                <DocumentCard
-                  title="ID Document"
-                  imageUrl={documents?.idDocument}
-                  icon={getDocumentIcon('ID Document')}
-                  status={verificationStatus}
-                />
-                <DocumentCard
-                  title="Vehicle Papers"
-                  imageUrl={documents?.vehiclePapers}
-                  icon={getDocumentIcon('Vehicle Papers')}
-                  status={verificationStatus}
-                />
+                {documents.drivingLicense && (
+                  <DocumentCard
+                    title={strings.DrivingLicense}
+                    imageUrl={documents?.drivingLicense}
+                    icon={<Icon name="assignment-ind" size={24} color="#FFCC00" />}
+                    status={verificationStatus}
+                  />
+                )}
+                {documents.idDocument && (
+                  <DocumentCard
+                    title={strings.IDDocument}
+                    imageUrl={documents?.idDocument}
+                    icon={<Icon name="badge" size={24} color="#FFCC00" />}
+                    status={verificationStatus}
+                  />
+                )}
+                {documents.vehiclePapers && (
+                  <DocumentCard
+                    title={strings.VehiclePapers}
+                    imageUrl={documents?.vehiclePapers}
+                    icon={<Icon name="description" size={24} color="#FFCC00" />}
+                    status={verificationStatus}
+                  />
+                )}
               </>
             ) : <EmptyState />}
           </>
@@ -334,14 +333,14 @@ export default function DocumentShow() {
 
         {activeTab === 'vehicle' && (
           <>
-            <Text style={styles.sectionTitle}>Vehicle</Text>
+            <Text style={styles.sectionTitle}>{strings.Vehicle}</Text>
             <VehicleCard data={vehicleInfo} />
           </>
         )}
 
         {activeTab === 'bank' && (
           <>
-            <Text style={styles.sectionTitle}>Banking</Text>
+            <Text style={styles.sectionTitle}>{strings.Banking}</Text>
             <BankCard data={bankInfo} />
           </>
         )}
@@ -362,14 +361,11 @@ export default function DocumentShow() {
               <Icon name="close" size={24} color="#FFF" />
             </TouchableOpacity>
           </View>
-
-          <View style={{ flex: 1 }}>
-            <Image
-              source={{ uri: selectedImage }}
-              style={styles.fullImage}
-              resizeMode="contain"
-            />
-          </View>
+          <Image
+            source={{ uri: selectedImage || '' }}
+            style={styles.fullImage}
+            resizeMode="contain"
+          />
         </View>
       </Modal>
     </SafeAreaView>

@@ -6,7 +6,7 @@ import {
   Image,
   StyleSheet,
   Pressable,
-   ScrollView,
+  ScrollView,
 } from "react-native";
 import SvgIndex from "../../../assets/svgIndex";
 import font from "../../../theme/font";
@@ -23,7 +23,7 @@ import LoadingModal from "../../../utils/Loader";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { TouchableHighlight } from "react-native";
 import strings from "../../../localization/Localization";
- 
+
 type Props = {
   onEditProfile?: () => void;
   onAddress?: () => void;
@@ -39,7 +39,7 @@ type Props = {
   };
 };
 
- const YELLOW_DARK = "#FDB400";
+const YELLOW_DARK = "#FDB400";
 const TEXT = "#1C1C1C";
 const SUBTLE = "#9A9A9A";
 const BORDER = "#EFEFEF";
@@ -62,7 +62,7 @@ const ListItem = ({
       styles.row,
       { opacity: pressed ? 0.6 : 1, },
     ]}
-   >
+  >
     <View style={styles.left}>
       <View style={[styles.iconWrap, secure && styles.secureIconWrap]}>
         {icon}
@@ -80,39 +80,39 @@ const ProfileScreen: React.FC<Props> = ({
       "https://images.unsplash.com/photo-1607746882042-944635dfe10e?q=80&w=256&auto=format&fit=crop",
   },
 }) => {
-  const navigation:any = useNavigation()
-  const [Modal,setModal]= useState(false)
-      const [isLoading, setLoading] = useState(false);
- 
+  const navigation: any = useNavigation()
+  const [Modal, setModal] = useState(false)
+  const [isLoading, setLoading] = useState(false);
+
   const dispatch = useDispatch();
-    const isLogin:any = useSelector <any>((state) => state?.auth?.userData);
-     useEffect(() => {
-      getProfileApi();
-    }, []);
-  
+  const isLogin: any = useSelector<any>((state) => state?.auth?.userData);
+  useEffect(() => {
+    getProfileApi();
+  }, []);
+
   const getProfileApi = async () => {
     try {
       const response = await GetProfileApi(setLoading);
-       if (response) {
-         dispatch(loginSuccess({ userData: response}));
-       } 
+      if (response) {
+        dispatch(loginSuccess({ userData: response }));
+      }
     } catch (error) {
       setLoading(false)
-  
-     }
+
+    }
   };
-    const handleLogout = () => {
+  const handleLogout = () => {
     dispatch(logout());
     AsyncStorage.removeItem('authData');
-    navigation.replace(ScreenNameEnum.SPLASH_SCREEN); 
+    navigation.replace(ScreenNameEnum.SPLASH_SCREEN);
   };
   return (
     <SafeAreaView style={styles.safe}>
-      <StatusBarComponent/>
-       <LoadingModal visible ={isLoading}/>
-      <ScrollView 
-      showsVerticalScrollIndicator={false}
-      contentContainerStyle={styles.container}>
+      <StatusBarComponent />
+      <LoadingModal visible={isLoading} />
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.container}>
         {/* Header */}
         <Text style={styles.title}>{strings.Profile}</Text>
         <View style={styles.profileCard}>
@@ -120,47 +120,51 @@ const ProfileScreen: React.FC<Props> = ({
             {isLogin?.image ? (
               <Image source={{ uri: isLogin?.image }} style={styles.avatar} />
             ) : (
-                            <Image source={{ uri: user.avatarUrl }} style={styles.avatar} />
+              <Image source={{ uri: user.avatarUrl }} style={styles.avatar} />
             )}
             <TouchableHighlight style={styles.statusDot}
-            
-             onPress={()=>{
-              navigation.navigate(ScreenNameEnum.EditProfile)
-           }}
+
+              onPress={() => {
+                navigation.navigate(ScreenNameEnum.EditProfile)
+              }}
             >
               <Image source={imageIndex.eoditphots} style={{
-                height:22,
-                width:22
-              }}/>
+                height: 22,
+                width: 22
+              }} />
               {/* <Feather name="camera" size={12} color="#fff" /> */}
             </TouchableHighlight>
           </View>
 
           <View style={{ flex: 1 }}>
-            <Text style={[styles.name,{
-              color:"#FFCC00",
-              fontFamily:font.MonolithRegular
+            <Text style={[styles.name, {
+              color: "#FFCC00",
+              fontFamily: font.MonolithRegular
 
             }]}>{isLogin?.firstName}</Text>
-            <Text style={[styles.email,{
-              color:"#9DB2BF" ,
-              fontFamily:font.MonolithRegular
+            <Text style={[styles.email, {
+              color: "#9DB2BF",
+              fontFamily: font.MonolithRegular
             }]}>{isLogin?.email}</Text>
+            <Text style={[styles.email, {
+              color: "#9DB2BF",
+              fontFamily: font.MonolithRegular
+            }]}>{isLogin?.phoneNumber}</Text>
           </View>
         </View>
 
         {/* Menu */}
         <View style={styles.card}>
           <ListItem
-            icon={<SvgIndex.Edit   />}
+            icon={<SvgIndex.Edit />}
             label={strings.EditProfile}
-            onPress={()=>{
+            onPress={() => {
               navigation.navigate(ScreenNameEnum.EditProfile)
-           }}
+            }}
           />
           <ItemDivider />
           <ListItem
-            icon={<SvgIndex.Edit />} 
+            icon={<SvgIndex.Edit />}
             label={strings.ChangeLanguage}
             onPress={() => {
               navigation.navigate(ScreenNameEnum.language);
@@ -176,11 +180,11 @@ const ProfileScreen: React.FC<Props> = ({
           /> */}
           <ItemDivider />
           <ListItem
-            icon={<SvgIndex.Box  />}
+            icon={<SvgIndex.Box />}
             label={strings.MyOrders}
-            onPress={()=>{
+            onPress={() => {
               navigation.navigate(ScreenNameEnum.OrdersPrfile)
-           }}          />
+            }} />
           <ItemDivider />
           {/* <ListItem
             icon={<SvgIndex.Lockss  />}
@@ -195,22 +199,22 @@ const ProfileScreen: React.FC<Props> = ({
           <ListItem
             icon={<SvgIndex.Privacy />}
             label={strings.PrivacyPolicy}
-            onPress={()=>{
-               navigation.navigate(ScreenNameEnum.PrivacyPolicy)
+            onPress={() => {
+              navigation.navigate(ScreenNameEnum.PrivacyPolicy)
             }}
           />
           <ItemDivider />
           <ListItem
-            icon={<SvgIndex.Terms   />}
+            icon={<SvgIndex.Terms />}
             label={strings.TermsConditions}
-            onPress={()=>{
+            onPress={() => {
               navigation.navigate(ScreenNameEnum.LegalPoliciesScreen)
-             }}          />
+            }} />
         </View>
 
         {/* Logout */}
         <Pressable
-          onPress={()=>{
+          onPress={() => {
             setModal(true)
           }}
           style={({ pressed }) => [
@@ -221,16 +225,16 @@ const ProfileScreen: React.FC<Props> = ({
         >
           <Text style={styles.logoutText}>{strings.Logout}</Text>
         </Pressable>
-       <LogoutModal
-  visible={Modal}
-  onLogout={async () => {
-    setModal(false);
-handleLogout()
-    // ✅ Call logout function
-    
-  }}
-  onCancel={() => setModal(false)}
-/>
+        <LogoutModal
+          visible={Modal}
+          onLogout={async () => {
+            setModal(false);
+            handleLogout()
+            // ✅ Call logout function
+
+          }}
+          onCancel={() => setModal(false)}
+        />
 
       </ScrollView>
     </SafeAreaView>
@@ -242,7 +246,7 @@ const ItemDivider = () => <View style={styles.divider} />;
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: "white" },
   container: { padding: 16, paddingBottom: 28 },
-  title: { fontSize: 22, fontFamily:font.MonolithRegular, color: TEXT, marginBottom: 12 },
+  title: { fontSize: 22, fontFamily: font.MonolithRegular, color: TEXT, marginBottom: 12 },
   profileCard: {
     flexDirection: "row",
     alignItems: "center",
@@ -250,7 +254,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     padding: 14,
     marginBottom: 16,
- 
+
   },
   avatarWrap: { marginRight: 15 },
   avatar: { width: 70, height: 70, borderRadius: 10 },
@@ -259,7 +263,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  avatarInitials: {  fontFamily:font.MonolithRegular, fontSize: 18, color: TEXT },
+  avatarInitials: { fontFamily: font.MonolithRegular, fontSize: 18, color: TEXT },
   statusDot: {
     position: "absolute",
     right: -2,
@@ -273,12 +277,12 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: BG,
   },
-  name: { fontSize: 16,fontFamily:font.MonolithRegular, color: TEXT },
-  email: { fontSize: 13, color: SUBTLE, marginTop: 5  ,fontFamily:font.MonolithRegular,},
+  name: { fontSize: 16, fontFamily: font.MonolithRegular, color: TEXT },
+  email: { fontSize: 13, color: SUBTLE, marginTop: 5, fontFamily: font.MonolithRegular, },
   card: {
     backgroundColor: BG,
     borderRadius: 16,
-    
+
   },
   row: {
     paddingVertical: 14,
@@ -292,14 +296,14 @@ const styles = StyleSheet.create({
     width: 28,
     height: 28,
     borderRadius: 14,
-     alignItems: "center",
+    alignItems: "center",
     justifyContent: "center",
     marginRight: 12,
   },
   secureIconWrap: {
     backgroundColor: "#FFF1C2",
   },
-  rowLabel: { fontSize: 15, color: TEXT ,fontFamily:font.MonolithRegular },
+  rowLabel: { fontSize: 15, color: TEXT, fontFamily: font.MonolithRegular },
   divider: {
     height: StyleSheet.hairlineWidth,
     backgroundColor: BORDER,
@@ -315,7 +319,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     gap: 8,
   },
-  logoutText: { fontSize: 14,fontFamily:font.MonolithRegular, color: TEXT },
+  logoutText: { fontSize: 14, fontFamily: font.MonolithRegular, color: TEXT },
 });
 
 export default ProfileScreen;

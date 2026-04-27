@@ -19,7 +19,7 @@ const StatusBarComponent: React.FC<StatusBarComponentProps> = ({
         backgroundColor={backgroundColor}
         translucent={translucent}
       />
-     </View>
+    </View>
   );
 };
 

@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import { color } from '../constant';
 import font from '../theme/font';
+import strings from '../localization/Localization';
 
 interface ImagePickerModalProps {
   modalVisible: boolean;
@@ -50,15 +51,15 @@ const ImagePickerModal: React.FC<ImagePickerModalProps> = ({
           <View style={styles.modalContainer}>
             <View style={styles.handleBar} />
             <Text allowFontScaling={false} style={styles.title}>
-              Choose an Option
+              {strings.ChooseOption}
             </Text>
 
-            <OptionButton text="📷 Select from Gallery" onPress={onSelectGallery} />
-            <OptionButton text="📸 Take a Photo" onPress={onTakePhoto} />  
+            <OptionButton text={`📷 ${strings.SelectGallery}`} onPress={onSelectGallery} />
+            <OptionButton text={`📸 ${strings.TakePhoto}`} onPress={onTakePhoto} />  
 
             <TouchableOpacity style={styles.cancelButton} onPress={handleCancel}>
               <Text allowFontScaling={false} style={styles.cancelText}>
-                Cancel
+                {strings.Cancel}
               </Text>
             </TouchableOpacity>
           </View>
