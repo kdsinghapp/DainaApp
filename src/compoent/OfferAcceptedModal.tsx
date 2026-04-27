@@ -4,11 +4,13 @@ import {
   Text,
   Image,
   TouchableOpacity,
-  Modal,
   StyleSheet,
   Platform,
 } from 'react-native';
+import Modal from 'react-native-modal';
+import Animated, { FadeInDown, ZoomIn } from 'react-native-reanimated';
 import font from '../theme/font';
+import strings from '../localization/Localization';
 import { useDashboardContext } from '../context/DashboardContext';
 
 const OfferAcceptedModal: React.FC = () => {
@@ -19,58 +21,77 @@ const OfferAcceptedModal: React.FC = () => {
   const closeModal = () => {
     setCounterOfferAcceptedModal({ visible: false, data: null });
   };
-  if (!counterOfferAcceptedModal?.visible) return null;
+  // if (!counterOfferAcceptedModal?.visible) return null; // Modal handles visibility
   const data = counterOfferAcceptedModal?.data;
   const driver = data?.driver as { name?: string; image?: string } | undefined;
 
   return (
-    <Modal visible transparent animationType="fade">
-      <TouchableOpacity
-        activeOpacity={1}
-        style={styles.overlay}
-        onPress={closeModal}
-      >
-        <TouchableOpacity activeOpacity={1} onPress={(e) => e.stopPropagation()}>
-          <View style={styles.modalCard}>
-            <View style={styles.accentBar} />
-            <Text style={styles.title}>
-              {data?.title ?? 'Offer Accepted'}
-            </Text>
-            {driver != null && (
-              <Text style={styles.extra}>{driver?.name}</Text>
-            )}
-            {driver?.image != null && driver.image !== '' && (
-              <Image
-                source={{ uri: driver.image }}
-                style={styles.driverImage}
-              />
-            )}
-            <Text style={styles.message}>
-              {data?.message ?? "Driver has accepted your counter offer."}
-            </Text>
-            {data?.parcelId != null && (
-              <Text style={styles.extra}>Order #{data.parcelId}</Text>
-            )}
-            <View style={styles.buttonRow}>
-              <TouchableOpacity
-                style={styles.btnDismiss}
-                onPress={closeModal}
-                activeOpacity={0.8}
-              >
-                <Text style={styles.btnDismissText}>OK</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </TouchableOpacity>
-      </TouchableOpacity>
+    <Modal
+      isVisible={!!counterOfferAcceptedModal?.visible}
+      onBackdropPress={closeModal}
+      onBackButtonPress={closeModal}
+      animationIn="zoomIn"
+      animationOut="zoomOut"
+      backdropOpacity={0.5}
+      useNativeDriver
+      hideModalContentWhileAnimating
+      style={styles.modalContainer}
+    >
+      <View style={styles.modalCard}>
+        <Animated.View
+          entering={FadeInDown.delay(100).duration(500).springify()}
+          style={styles.accentBar}
+        />
+        <Animated.View entering={FadeInDown.delay(200).duration(500).springify()}>
+          <Text style={styles.title}>
+            {data?.title ?? strings.OfferAccepted}
+          </Text>
+        </Animated.View>
+
+        {driver != null && (
+          <Animated.View entering={FadeInDown.delay(300).duration(500).springify()}>
+            <Text style={styles.extra}>{driver?.name}</Text>
+          </Animated.View>
+        )}
+
+        {driver?.image != null && driver.image !== '' && (
+          <Animated.View entering={ZoomIn.delay(400).duration(500).springify()}>
+            <Image
+              source={{ uri: driver.image }}
+              style={styles.driverImage}
+            />
+          </Animated.View>
+        )}
+
+        <Animated.View entering={FadeInDown.delay(500).duration(500).springify()}>
+          <Text style={styles.message}>
+            {data?.message ?? strings.DriverAcceptedOffer}
+          </Text>
+        </Animated.View>
+
+        {data?.parcelId != null && (
+          <Animated.View entering={FadeInDown.delay(600).duration(500).springify()}>
+            <Text style={styles.extra}>{strings.Order} #{data.parcelId}</Text>
+          </Animated.View>
+        )}
+
+        <Animated.View entering={FadeInDown.delay(700).duration(500).springify()} style={styles.buttonRow}>
+          <TouchableOpacity
+            style={styles.btnDismiss}
+            onPress={closeModal}
+            activeOpacity={0.8}
+          >
+            <Text style={styles.btnDismissText}>{strings.OK}</Text>
+          </TouchableOpacity>
+        </Animated.View>
+      </View>
     </Modal>
   );
 };
 
 const styles = StyleSheet.create({
-  overlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.5)',
+  modalContainer: {
+    margin: 0,
     justifyContent: 'center',
     alignItems: 'center',
     padding: 28,

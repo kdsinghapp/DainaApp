@@ -19,7 +19,6 @@ import { useDeliveryHome } from "./useDeliveryHome";
 import LoadingModal from "../../../../utils/Loader";
 import CustomHeader from "../../../../compoent/CustomHeader";
 import { styles } from "./style";
-import { STATUS } from "../../../../utils/Constant";
 import NewOrderNotificationModal from "../../../../compoent/NewOrderNotificationModal";
 import OfferAcceptedModal from "../../../../compoent/OfferAcceptedModal";
 
@@ -129,86 +128,88 @@ const AllOrder = () => {
           keyExtractor={(item: any) => item.id}
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{ paddingBottom: 20 }}
-          renderItem={({ item }: any) => {
+          renderItem={({ item, index }: any) => {
             return (
-              <TouchableOpacity style={styles.card}
-                onPress={() => {
-                  //                    if (item.deliveryStatus === STATUS.DELIVERED) {
-                  //                             } else if(item.deliveryStatus === STATUS.ASSIGNED) {
-                  // navigation.navigate(ScreenNameEnum.TripMap, {
-                  //                     item: item,
-                  //                   });
-                  //                             }else{
+              <Animated.View entering={FadeInDown.delay(index * 100).duration(600)}>
+                <TouchableOpacity style={styles.card}
+                  onPress={() => {
+                    //                    if (item.deliveryStatus === STATUS.DELIVERED) {
+                    //                             } else if(item.deliveryStatus === STATUS.ASSIGNED) {
+                    // navigation.navigate(ScreenNameEnum.TripMap, {
+                    //                     item: item,
+                    //                   });
+                    //                             }else{
 
-                  navigation.navigate(ScreenNameEnum.ParcelDetails, {
-                    item: item,
-                  });
+                    navigation.navigate(ScreenNameEnum.ParcelDetails, {
+                      item: item,
+                    });
 
-                }}
-              >
-                <View style={styles.cardTop}>
-                  <View
-                    style={[
-                      styles.iconBox,
-                    ]}
-                  >
-                    <Image
-                      source={imageIndex?.icons || { uri: "" }}
-                      style={{ height: 24, width: 24 }}
-                      resizeMode="contain"
+                  }}
+                >
+                  <View style={styles.cardTop}>
+                    <View
+                      style={[
+                        styles.iconBox,
+                      ]}
+                    >
+                      <Image
+                        source={imageIndex?.icons || { uri: "" }}
+                        style={{ height: 24, width: 24 }}
+                        resizeMode="contain"
+                      />
+                    </View>
+
+                    <Text style={[styles.cardId, styles.bold]}>{item.trackingId}</Text>
+                    <View
+                      style={{
+                        borderWidth: 3,
+                        borderColor: "#D2D6DB",
+                        borderRadius: 20
+
+                      }}
+                    />
+                    <Text style={[styles.cardDate, {
+                      marginLeft: 5
+                    }]}>{item?.date}</Text>
+
+                    <View style={{ flex: 1 }} />
+                    <Image source={imageIndex.more_vert}
+
+                      style={{
+                        height: 22,
+                        width: 22
+                      }}
                     />
                   </View>
 
-                  <Text style={[styles.cardId, styles.bold]}>{item.trackingId}</Text>
-                  <View
-                    style={{
-                      borderWidth: 3,
-                      borderColor: "#D2D6DB",
-                      borderRadius: 20
-
-                    }}
-                  />
-                  <Text style={[styles.cardDate, {
-                    marginLeft: 5
-                  }]}>{item?.date}</Text>
-
-                  <View style={{ flex: 1 }} />
-                  <Image source={imageIndex.more_vert}
-
-                    style={{
-                      height: 22,
-                      width: 22
-                    }}
-                  />
-                </View>
-
-                <View style={styles.routeRow}>
-                  <Image
-                    source={imageIndex?.Vector || { uri: "" }}
-                    style={{ height: 88, width: 10 }}
-                    resizeMode="contain"
-                  />
-                  <View style={{ flex: 1, marginLeft: 10 }}>
-                    <Text style={styles.label}>From</Text>
-                    <Text style={[styles.value, { marginTop: 6 }]}>
-                      {item?.pickupLocation}
-                    </Text>
-                    <Text style={[styles.label, { marginTop: 10 }]}>To</Text>
-                    <Text style={[styles.value, { marginTop: 6 }]}>{item?.dropLocation}</Text>
-                    {/* <View style={styles.statusRow}>
-                    <Text style={styles.statusText}>Delivery Status :</Text>
-                    <Text
-                      style={[
-                        styles.statusValue,
-                        { color: item.statusColor || "#555" },
-                      ]}
-                    >
-                      {item.status}
-                    </Text>
-                  </View> */}
+                  <View style={styles.routeRow}>
+                    <Image
+                      source={imageIndex?.Vector || { uri: "" }}
+                      style={{ height: 88, width: 10 }}
+                      resizeMode="contain"
+                    />
+                    <View style={{ flex: 1, marginLeft: 10 }}>
+                      <Text style={styles.label}>From</Text>
+                      <Text style={[styles.value, { marginTop: 6 }]}>
+                        {item?.pickupLocation}
+                      </Text>
+                      <Text style={[styles.label, { marginTop: 10 }]}>To</Text>
+                      <Text style={[styles.value, { marginTop: 6 }]}>{item?.dropLocation}</Text>
+                      {/* <View style={styles.statusRow}>
+                      <Text style={styles.statusText}>Delivery Status :</Text>
+                      <Text
+                        style={[
+                          styles.statusValue,
+                          { color: item.statusColor || "#555" },
+                        ]}
+                      >
+                        {item.status}
+                      </Text>
+                    </View> */}
+                    </View>
                   </View>
-                </View>
-              </TouchableOpacity>
+                </TouchableOpacity>
+              </Animated.View>
             )
           }}
           ListEmptyComponent={

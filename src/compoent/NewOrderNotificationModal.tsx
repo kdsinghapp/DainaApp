@@ -4,13 +4,15 @@ import {
   Text,
   Image,
   TouchableOpacity,
-  Modal,
   StyleSheet,
   Platform,
 } from 'react-native';
+import Modal from 'react-native-modal';
+import Animated, { FadeInDown, ZoomIn } from 'react-native-reanimated';
 import { useNavigation } from '@react-navigation/native';
 import imageIndex from '../assets/imageIndex';
 import font from '../theme/font';
+import strings from '../localization/Localization';
 import ScreenNameEnum from '../routes/screenName.enum';
 import { STATUS } from '../utils/Constant';
 import { useDeliveryContext } from '../context/DeliveryContext';
@@ -33,7 +35,7 @@ const NewOrderNotificationModal: React.FC = () => {
   // console.log("acceptCounterOffer ---- ", acceptCounterOffer)
   // console.log("acceptCounterOfferLoading ---- ", acceptCounterOfferLoading)
 
-  if (!newOrderNotification?.visible) return null;
+  // if (!newOrderNotification?.visible) return null; // Modal handles its own visibility
 
   const data = newOrderNotification?.data as {
     type?: string;
@@ -44,121 +46,134 @@ const NewOrderNotificationModal: React.FC = () => {
   };
 
   return (
-    <Modal visible transparent animationType="fade">
-      <TouchableOpacity
-        activeOpacity={1}
-        style={styles.overlay}
-        onPress={() => setNewOrderNotification(null)}
-      >
-        <TouchableOpacity activeOpacity={1} onPress={(e) => e.stopPropagation()}>
-          <View style={styles.modalCard}>
-            <View style={styles.accentBar} />
+    <Modal
+      isVisible={!!newOrderNotification?.visible}
+      onBackdropPress={() => setNewOrderNotification(null)}
+      onBackButtonPress={() => setNewOrderNotification(null)}
+      animationIn="slideInUp"
+      animationOut="slideOutDown"
+      backdropOpacity={0.5}
+      useNativeDriver
+      hideModalContentWhileAnimating
+      style={styles.modalContainer}
+    >
+      <View style={styles.modalCard}>
+        <View style={styles.accentBar} />
 
-            <View style={styles.iconWrap}>
-              <Image
-                source={imageIndex?.icons || imageIndex?.earing}
-                style={styles.notifIcon}
-                resizeMode="contain"
-              />
+        <Animated.View entering={ZoomIn.delay(200).duration(500)} style={styles.iconWrap}>
+          <Image
+            source={imageIndex?.icons || imageIndex?.earing}
+            style={styles.notifIcon}
+            resizeMode="contain"
+          />
+        </Animated.View>
+
+        <Animated.View entering={FadeInDown.delay(300).duration(500)}>
+          <Text style={styles.title}>
+            {data?.type === 'counter_offer'
+              ? (data?.title ?? strings.CounterOfferReceived)
+              : strings.NewDeliveryRequest}
+          </Text>
+        </Animated.View>
+
+        <Animated.View entering={FadeInDown.delay(400).duration(500)}>
+          <Text style={styles.message}>
+            {data?.type === 'counter_offer'
+              ? (data?.message ?? strings.CounterOfferMessage)
+              : strings.NewDeliveryRequestMessage}
+          </Text>
+        </Animated.View>
+
+        {data?.user?.profileImage && (
+          <Animated.View entering={FadeInDown.delay(500).duration(500)} style={styles.profileRow}>
+            <Image
+              source={{
+                uri: data?.user?.profileImage || 'https://via.placeholder.com/50',
+              }}
+              style={styles.profileImage}
+            />
+            <View style={styles.textContainer}>
+              <Text style={styles.userName}>{data?.user?.name || 'Unknown User'}</Text>
             </View>
-            <Text style={styles.title}>
-              {data?.type === 'counter_offer'
-                ? (data?.title ?? 'Counter Offer Received')
-                : 'New delivery request'}
-            </Text>
+          </Animated.View>
+        )}
 
-            <Text style={styles.message}>
-              {data?.type === 'counter_offer'
-                ? (data?.message ?? 'User sent a counter offer. Tap to view and respond.')
-                : 'A parcel pickup is nearby. Tap below to see details and send your offer.'}
-            </Text>
-
-            {data?.user?.profileImage && (
-              <View style={styles.profileRow}>
-                <Image
-                  source={{
-                    uri: data?.user?.profileImage || 'https://via.placeholder.com/50',
+        <Animated.View style={styles.buttonRow}>
+          {data?.type === 'counter_offer' ? (
+            <>
+              <Animated.View entering={FadeInDown.delay(600).duration(500)} style={{ flex: 1 }}>
+                <TouchableOpacity
+                  style={styles.btnDismiss}
+                  onPress={() => {
+                    if (data?.offerId != null) {
+                      RejectcounterOffer(data.offerId);
+                    } else {
+                      setNewOrderNotification(null);
+                    }
                   }}
-                  style={styles.profileImage}
-                />
-                <View style={styles.textContainer}>
-                  <Text style={styles.userName}>{data?.user?.name || 'Unknown User'}</Text>
-                </View>
-              </View>
-            )}
-
-            <View style={styles.buttonRow}>
-              {data?.type === 'counter_offer' ? (
-                <>
-                  <TouchableOpacity
-                    style={styles.btnDismiss}
-                    onPress={() => {
-                      if (data?.offerId != null) {
-                        RejectcounterOffer(data.offerId);
-                      } else {
-                        setNewOrderNotification(null);
-                      }
-                    }}
-                    activeOpacity={0.8}
-                    disabled={acceptCounterOfferLoading}
-                  >
-                    <Text style={styles.btnDismissText}>Cancel</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    style={styles.btnView}
-                    onPress={() => {
-                      if (data?.offerId != null) {
-                        acceptCounterOffer(data.offerId);
-                      } else {
-                        setNewOrderNotification(null);
-                      }
-                    }}
-                    activeOpacity={0.8}
-                    disabled={acceptCounterOfferLoading}
-                  >
-                    <Text style={styles.btnViewText}>Accept</Text>
-                  </TouchableOpacity>
-                </>
-              ) : (
-                <>
-                  <TouchableOpacity
-                    style={styles.btnDismiss}
-                    onPress={() => setNewOrderNotification(null)}
-                    activeOpacity={0.8}
-                  >
-                    <Text style={styles.btnDismissText}>Later</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    style={styles.btnView}
-                    onPress={() => {
-                      if (newOrderNotification?.data != null) {
-                        navigation.navigate(ScreenNameEnum.ParcelDetails as never, {
-                          item: {
-                            data: newOrderNotification.data,
-                            deliveryStatus: STATUS.PENDING,
-                          },
-                        } as never);
-                        setNewOrderNotification(null);
-                      }
-                    }}
-                    activeOpacity={0.8}
-                  >
-                    <Text style={styles.btnViewText}>View order</Text>
-                  </TouchableOpacity>
-                </>
-              )}
-            </View>
-          </View>
-        </TouchableOpacity>
-      </TouchableOpacity>
+                  activeOpacity={0.8}
+                  disabled={acceptCounterOfferLoading}
+                >
+                  <Text style={styles.btnDismissText}>{strings.Cancel}</Text>
+                </TouchableOpacity>
+              </Animated.View>
+              <Animated.View entering={FadeInDown.delay(700).duration(500)} style={{ flex: 1 }}>
+                <TouchableOpacity
+                  style={styles.btnView}
+                  onPress={() => {
+                    if (data?.offerId != null) {
+                      acceptCounterOffer(data.offerId);
+                    } else {
+                      setNewOrderNotification(null);
+                    }
+                  }}
+                  activeOpacity={0.8}
+                  disabled={acceptCounterOfferLoading}
+                >
+                  <Text style={styles.btnViewText}>{strings.Accept}</Text>
+                </TouchableOpacity>
+              </Animated.View>
+            </>
+          ) : (
+            <>
+              <Animated.View entering={FadeInDown.delay(600).duration(500)} style={{ flex: 1 }}>
+                <TouchableOpacity
+                  style={styles.btnDismiss}
+                  onPress={() => setNewOrderNotification(null)}
+                  activeOpacity={0.8}
+                >
+                  <Text style={styles.btnDismissText}>{strings.Later}</Text>
+                </TouchableOpacity>
+              </Animated.View>
+              <Animated.View entering={FadeInDown.delay(700).duration(500)} style={{ flex: 1 }}>
+                <TouchableOpacity
+                  style={styles.btnView}
+                  onPress={() => {
+                    if (newOrderNotification?.data != null) {
+                      navigation.navigate(ScreenNameEnum.ParcelDetails as never, {
+                        item: {
+                          data: newOrderNotification.data,
+                          deliveryStatus: STATUS.PENDING,
+                        },
+                      } as never);
+                      setNewOrderNotification(null);
+                    }
+                  }}
+                  activeOpacity={0.8}
+                >
+                  <Text style={styles.btnViewText}>{strings.ViewOrder}</Text>
+                </TouchableOpacity>
+              </Animated.View></>
+          )}
+        </Animated.View>
+      </View>
     </Modal>
   );
 };
 
 const styles = StyleSheet.create({
-  overlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.5)',
+  modalContainer: {
+    margin: 0,
     justifyContent: 'center',
     alignItems: 'center',
     padding: 28,
@@ -239,6 +254,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: 14,
     width: '100%',
+    height: 55,
+    justifyContent: "center",
+    alignItems: "center"
   },
   btnDismiss: {
     flex: 1,
@@ -254,10 +272,10 @@ const styles = StyleSheet.create({
   },
   btnView: {
     flex: 1,
-    paddingVertical: 16,
     borderRadius: 14,
     backgroundColor: '#FFCC00',
     alignItems: 'center',
+    justifyContent: "center"
   },
   btnViewText: {
     fontSize: 16,

@@ -65,11 +65,11 @@ const ShippingScreen = () => {
 
       <CurrentLocation ref={locationRef} />
 
- <HomeHeaderBar
-  location={currentlocation || address}
-  onNotificationPress={() => console.log("Notifications clicked")}
-  hasNotification={false}
-/>
+      <HomeHeaderBar
+        location={currentlocation || address}
+        onNotificationPress={() => console.log("Notifications clicked")}
+        hasNotification={false}
+      />
 
       {/* <TouchableOpacity style={styles.inputBox} 
       onPress={()=> navigation.navigate(ScreenNameEnum.PickupLocation)}
@@ -110,25 +110,25 @@ const ShippingScreen = () => {
         />
       </View>
 
-       <FlatList
+      <FlatList
         contentContainerStyle={{ paddingBottom: 120 }}
         data={orderData}
         keyExtractor={(item) => item.id}
-        renderItem={({ item }) =>  {
-          return(
-             <OrderCard order={item} onPress={() => {
-             if (item?.deliveryStatus === "pending") {
-              navigation.navigate(ScreenNameEnum.ViewDetails, {
-                item: item
-              })
-            } else {
-              // navigation.navigate(ScreenNameEnum.NearbyDriversMap)
-              navigation.navigate(ScreenNameEnum.ViewDetails, {
-                item: item
-              })
-            }
+        renderItem={({ item }) => {
+          return (
+            <OrderCard order={item} onPress={() => {
+              if (item?.deliveryStatus === "pending") {
+                navigation.navigate(ScreenNameEnum.ViewDetails, {
+                  item: item
+                })
+              } else {
+                // navigation.navigate(ScreenNameEnum.NearbyDriversMap)
+                navigation.navigate(ScreenNameEnum.ViewDetails, {
+                  item: item
+                })
+              }
 
-          }} />
+            }} />
           )
         }}
         ItemSeparatorComponent={() => <View style={{ height: 14 }} />}
@@ -168,12 +168,12 @@ const ShippingScreen = () => {
                   {counterOfferAcceptedModal?.data?.driver?.name}
                 </Text>
               )}
-              <Image source={{uri: counterOfferAcceptedModal?.data?.driver?.image}}
-              style={{
-                height:60,
-                width:60 ,
-                borderRadius:60
-              }}
+              <Image source={{ uri: counterOfferAcceptedModal?.data?.driver?.image }}
+                style={{
+                  height: 60,
+                  width: 60,
+                  borderRadius: 60
+                }}
               />
               <Text style={offerAcceptedStyles.message}>
                 {counterOfferAcceptedModal?.data?.message ??
@@ -184,7 +184,7 @@ const ShippingScreen = () => {
                   Order #{counterOfferAcceptedModal?.data?.parcelId}
                 </Text>
               )}
-              
+
               {/* {(counterOfferAcceptedModal.data?.pickupOtp ||
                 counterOfferAcceptedModal.data?.deliveryOtp) && (
                 <View style={offerAcceptedStyles.otpRow}>
@@ -238,11 +238,11 @@ const styles = StyleSheet.create({
     padding: 16,
     backgroundColor: "#fff",
   },
-  emptyText:{
-     fontSize: 14,
-     marginLeft: 6, 
-    fontFamily:font.MonolithRegular ,
-    textAlign:"center"
+  emptyText: {
+    fontSize: 14,
+    marginLeft: 6,
+    fontFamily: font.MonolithRegular,
+    textAlign: "center"
   },
   locationRow: {
     flexDirection: "row",
@@ -251,8 +251,8 @@ const styles = StyleSheet.create({
   },
   locationText: {
     fontSize: 14,
-     marginLeft: 6,
-        fontFamily:font.MonolithRegular
+    marginLeft: 6,
+    fontFamily: font.MonolithRegular
 
   },
   inputBox: {

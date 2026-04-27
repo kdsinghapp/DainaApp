@@ -10,6 +10,7 @@ import {
  
   ScrollView
 } from 'react-native';
+import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
 import MapView, { Marker, Polyline, PROVIDER_GOOGLE } from 'react-native-maps';
 import font from '../../../../theme/font';
  import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -18,10 +19,13 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
   
 
+import { useDashboardContext } from '../../../../context/DashboardContext';
+
 const DeliveryRequest = () => {
   const [loading, setLoading] = useState(false);
   const [timeLeft, setTimeLeft] = useState(30);
   const [deliveryInfo, setDeliveryInfo] = useState(null);
+  const dashboardCtx = useDashboardContext();
 
   useEffect(() => {
     fetchOfferDetail();
@@ -49,11 +53,19 @@ const DeliveryRequest = () => {
         console.log("Offer data:", result.offer);
         setDeliveryInfo(result);
       } else {
-        Alert.alert('Error', result.message || 'Failed to fetch offer details');
+        dashboardCtx?.setGeneralAlert({
+          visible: true,
+          type: 'error',
+          message: result.message || 'Failed to fetch offer details'
+        });
       }
     } catch (error) {
       console.log('API Error:', error);
-      Alert.alert('Network Error', 'Please try again later.');
+      dashboardCtx?.setGeneralAlert({
+        visible: true,
+        type: 'error',
+        message: 'Network Error. Please try again later.'
+      });
     } finally {
       setLoading(false);
     }
@@ -125,42 +137,45 @@ const DeliveryRequest = () => {
     try {
       // Add your accept API call here
       // await acceptDeliveryAPI();
-      Alert.alert('Success', 'Delivery accepted successfully!');
+      dashboardCtx?.setGeneralAlert({
+        visible: true,
+        type: 'success',
+        title: 'Success',
+        message: 'Delivery accepted successfully!'
+      });
       // closeBottomSheet();
     } catch (error) {
-      Alert.alert('Error', 'Acceptance failed. Please try again.');
+      dashboardCtx?.setGeneralAlert({
+        visible: true,
+        type: 'error',
+        message: 'Acceptance failed. Please try again.'
+      });
     } finally {
       setLoading(false);
     }
   };
 
   const handleCancel = () => {
-    Alert.alert(
-      'Reject Delivery',
-      'Are you sure you want to reject this delivery?',
-      [
-        { text: 'No', style: 'cancel' },
-        {
-          text: 'Yes',
-          onPress: async () => {
-            setLoading(true);
-            try {
-            } catch (error) {
-              Alert.alert('Error', 'Rejection failed. Please try again.');
-            } finally {
-              setLoading(false);
-            }
-          },
-        },
-      ]
-    );
+    dashboardCtx?.setGeneralAlert({
+      visible: true,
+      type: 'info',
+      title: 'Reject Delivery',
+      message: 'Are you sure you want to reject this delivery?',
+      // onClose is used for confirming actions usually, but for a simple choice
+      // we might want a different modal with confirm button.
+      // But for now let's stick to the premium alert style.
+    });
   };
 
   const handleCallCustomer = () => {
     if (deliveryData?.customerPhone) {
       Linking.openURL(`tel:${deliveryData.customerPhone}`);
     } else {
-      Alert.alert('Error', 'Customer phone number not available');
+      dashboardCtx?.setGeneralAlert({
+        visible: true,
+        type: 'error',
+        message: 'Customer phone number not available'
+      });
     }
   };
 
@@ -168,7 +183,7 @@ const DeliveryRequest = () => {
  ;
 
   const renderRouteCard = () => (
-    <View style={styles.routeCard}>
+    <Animated.View entering={FadeInDown.delay(200).duration(600)} style={styles.routeCard}>
       
       
       {/* Pickup Location */}
@@ -189,7 +204,7 @@ const DeliveryRequest = () => {
       </View>
    <View style={styles.connectorLine} />
      
-
+ 
       {/* Delivery Location */}
       <View style={styles.locationRow}>
         <View style={[styles.locationDot, styles.dropoffDot]} />
@@ -202,11 +217,11 @@ const DeliveryRequest = () => {
           
         </View>
       </View>
-    </View>
+    </Animated.View>
   );
 
   const renderMapCard = () => (
-    <View style={styles.mapCard}>
+    <Animated.View entering={FadeInDown.delay(100).duration(600)} style={styles.mapCard}>
       <Text style={styles.sectionTitle}>Route Map</Text>
       <View style={styles.mapContainer}>
         <MapView
@@ -241,12 +256,12 @@ const DeliveryRequest = () => {
           />
         </MapView>
       </View>
-    </View>
+    </Animated.View>
   );
 
  
   const renderScheduleDetails = () => (
-    <View style={styles.detailsCard}>
+    <Animated.View entering={FadeInDown.delay(300).duration(600)} style={styles.detailsCard}>
       <Text style={styles.sectionTitle}>Delivery Schedule</Text>
       <View style={styles.detailsGrid}>
         <View style={styles.detailItem}>
@@ -266,13 +281,13 @@ const DeliveryRequest = () => {
           <Text style={styles.detailValue}>{deliveryData?.offerStatus || 'N/A'}</Text>
         </View>
       </View>
-    </View>
+    </Animated.View>
   );
 
  
 
   const renderActionButtons = () => (
-    <View style={styles.actionSection}>
+    <Animated.View entering={FadeInUp.delay(400).duration(600)} style={styles.actionSection}>
       <View style={styles.buttonRow}>
         <TouchableOpacity 
           style={[styles.button, styles.rejectButton]}
@@ -299,7 +314,7 @@ const DeliveryRequest = () => {
       </View>
       
     
-    </View>
+    </Animated.View>
   );
 
   return (

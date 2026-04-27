@@ -62,6 +62,8 @@ import { useSelector, useDispatch } from 'react-redux';
 import { setAppLanguage } from '../redux/feature/authSlice';
 import { getLanguage } from '../localization/localeStorage';
 
+import AppAlert from '../compoent/AppAlert';
+
 const RegistrationRoutes: React.FC = () => {
   const language = useSelector((state: any) => state.auth.appLanguage);
   const dispatch = useDispatch();
@@ -93,6 +95,9 @@ const RegistrationRoutes: React.FC = () => {
             ))}
           </Stack.Navigator>
 
+          <NewOrderNotificationModal />
+          <OfferAcceptedModal />
+          <AppAlert />
         </View>
 
       </DashboardProvider>

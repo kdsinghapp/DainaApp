@@ -16,6 +16,8 @@ import LoadingModal from "../../../utils/Loader";
 import { getMessaging } from "@react-native-firebase/messaging";
 import strings from "../../../localization/Localization";
 
+
+
 const PhoneLogin = () => {
   // const [phoneNumber, setPhoneNumber] = useState("9440589340");
   // const [phoneNumber, setPhoneNumber] = useState("");

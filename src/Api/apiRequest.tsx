@@ -96,7 +96,7 @@ const LogiApi = async (
   }
 };
 
-const Verifyotp = async (param: any, setLoading: any, dispatch: any) => {
+const Verifyotp = async (param: any, setLoading: any, dispatch: any, setGeneralAlert?: any) => {
   setLoading(true);
   const fcmToken = await AsyncStorage.getItem('fcmToken');
   console.log("fcmToken --- ", fcmToken)
@@ -122,46 +122,72 @@ const Verifyotp = async (param: any, setLoading: any, dispatch: any) => {
     try {
       parsedResponse = JSON.parse(textResponse);
     } catch (error) {
-      errorToast(strings.InvalidServerResponse);
+      if (setGeneralAlert) {
+        setGeneralAlert({ visible: true, type: 'error', message: strings.InvalidServerResponse });
+      } else {
+        errorToast(strings.InvalidServerResponse);
+      }
       return;
     }
+
     if (parsedResponse?.status == 1) {
-      successToast(parsedResponse?.message);
-      await AsyncStorage.setItem('token', parsedResponse?.token);
-      dispatch(loginSuccess({ userData: parsedResponse, token: parsedResponse?.token }));
-      await saveAuthData(parsedResponse, parsedResponse?.token);
+      if (setGeneralAlert) {
+        setGeneralAlert({
+          visible: true,
+          type: 'success',
+          title: 'Verified!',
+          message: parsedResponse?.message || 'Verification successful',
+          onClose: async () => {
+            await AsyncStorage.setItem('token', parsedResponse?.token);
+            dispatch(loginSuccess({ userData: parsedResponse, token: parsedResponse?.token }));
+            await saveAuthData(parsedResponse, parsedResponse?.token);
 
-      const languageId = strings.getLanguage() === 'en' ? 1 : 2;
-      const resLang = await SetLanguageApi({ languageId }, setLoading);
-      console.log("Language Set API Response:", resLang);
+            const languageId = strings.getLanguage() === 'en' ? 1 : 2;
+            await SetLanguageApi({ languageId }, setLoading);
 
-      if (parsedResponse?.type === "Delivery") {
-        if (parsedResponse?.completionStatus?.isDocumentsUploaded === true) {
-          param.navigation.navigate(ScreenNameEnum.DeliveryTabNavigator);
-        } else {
-          // Agar documents upload nahi hue
-          param.navigation.navigate(ScreenNameEnum.ProfileSetup);
-        }
-
-      } else {
-        param.navigation.navigate(ScreenNameEnum.ProfileSetup, {
-          type: "otp"
-
-
+            if (parsedResponse?.type === "Delivery") {
+              if (parsedResponse?.completionStatus?.isDocumentsUploaded === true) {
+                param.navigation.navigate(ScreenNameEnum.DeliveryTabNavigator);
+              } else {
+                param.navigation.navigate(ScreenNameEnum.ProfileSetup);
+              }
+            } else {
+              param.navigation.navigate(ScreenNameEnum.ProfileSetup, { type: "otp" });
+            }
+          }
         });
-
-        // param.navigation.navigate(ScreenNameEnum.TabNavigator);
+      } else {
+        // successToast(parsedResponse?.message);
+        // Fallback if setGeneralAlert is not provided
+        await AsyncStorage.setItem('token', parsedResponse?.token);
+        dispatch(loginSuccess({ userData: parsedResponse, token: parsedResponse?.token }));
+        await saveAuthData(parsedResponse, parsedResponse?.token);
+        const languageId = strings.getLanguage() === 'en' ? 1 : 2;
+        await SetLanguageApi({ languageId }, setLoading);
+        if (parsedResponse?.type === "Delivery") {
+          if (parsedResponse?.completionStatus?.isDocumentsUploaded === true) {
+            param.navigation.navigate(ScreenNameEnum.DeliveryTabNavigator);
+          } else {
+            param.navigation.navigate(ScreenNameEnum.ProfileSetup);
+          }
+        } else {
+          param.navigation.navigate(ScreenNameEnum.ProfileSetup, { type: "otp" });
+        }
       }
-      // console.log(first)
-      //  param.navigation.navigate(ScreenNameEnum.ProfileSetup);
-
     } else {
-      errorToast(parsedResponse?.message);
+      if (setGeneralAlert) {
+        setGeneralAlert({ visible: true, type: 'error', message: parsedResponse?.message });
+      } else {
+        errorToast(parsedResponse?.message);
+      }
     }
-
   } catch (error: any) {
     console.error('Login error:', error);
-    errorToast(error?.message || strings.NetworkErrorTryAgain);
+    if (setGeneralAlert) {
+      setGeneralAlert({ visible: true, type: 'error', message: error?.message || strings.NetworkErrorTryAgain });
+    } else {
+      errorToast(error?.message || strings.NetworkErrorTryAgain);
+    }
   } finally {
     setLoading(false);
   }
@@ -722,7 +748,7 @@ export const PostApi = async (param, setLoading) => {
       param.data,
       { headers }
     );
-    console.log(response)
+    console.log("ssss", response)
     return response.data;
   } catch (error) {
     console.log("POST API ERROR 👉", error?.response || error);

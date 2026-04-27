@@ -29,6 +29,20 @@ type DashboardContextType = {
     visible: boolean;
     data: CounterOfferAcceptedPayload | null;
   }) => void;
+  generalAlert: {
+    visible: boolean;
+    title?: string;
+    message?: string;
+    type?: 'success' | 'error' | 'info';
+    onClose?: () => void;
+  };
+  setGeneralAlert: (v: {
+    visible: boolean;
+    title?: string;
+    message?: string;
+    type?: 'success' | 'error' | 'info';
+    onClose?: () => void;
+  }) => void;
   registerOrderUpdateCallback: (cb: () => void) => void;
   getParceldetailsApi: (setLoading: (v: boolean) => void) => Promise<void>;
   orderData: any[];
@@ -42,6 +56,13 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
     visible: boolean;
     data: CounterOfferAcceptedPayload | null;
   }>({ visible: false, data: null });
+  const [generalAlert, setGeneralAlert] = useState<{
+    visible: boolean;
+    title?: string;
+    message?: string;
+    type?: 'success' | 'error' | 'info';
+    onClose?: () => void;
+  }>({ visible: false });
   const [orderData, setOrderData] = useState<any[]>([]);
   const orderUpdateCallbackRef = useRef<(() => void) | null>(null);
   const socketRef = useRef<WebSocket | null>(null);
@@ -52,7 +73,7 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
       if (response?.parcels) {
         setOrderData(response.parcels);
       }
-    } catch (_) {}
+    } catch (_) { }
   };
 
   const registerOrderUpdateCallback = (cb: () => void) => {
@@ -72,7 +93,7 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
             socketRef.current = ws;
             try {
               ws.send(JSON.stringify({ type: 'ping' }));
-            } catch (_) {}
+            } catch (_) { }
             resolve();
           };
 
@@ -99,7 +120,7 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
               if (data?.type === 'order_update' || data?.refreshOrders) {
                 orderUpdateCallbackRef.current?.();
               }
-            } catch (_) {}
+            } catch (_) { }
           };
 
           ws.onerror = () => {
@@ -121,7 +142,7 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
         const token = await AsyncStorage.getItem('token');
         if (!token) return;
         await connectSocket(token);
-      } catch (_) {}
+      } catch (_) { }
     };
 
     init();
@@ -134,6 +155,8 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
   const value: DashboardContextType = {
     counterOfferAcceptedModal,
     setCounterOfferAcceptedModal,
+    generalAlert,
+    setGeneralAlert,
     registerOrderUpdateCallback,
     getParceldetailsApi,
     orderData,

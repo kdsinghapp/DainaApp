@@ -18,6 +18,8 @@ import { openDialer } from "../../../utils/Constant";
 
 
 
+import Animated, { FadeInDown } from "react-native-reanimated";
+
 export default function OfferOR() {
   const [Open, setOpen] = useState(false)
   const [trackerModal, settrackerModal] = useState(false)
@@ -34,8 +36,7 @@ export default function OfferOR() {
   } = useOfferOR()
 
   const OfferCard = ({ item, onCounterPress }: any) => {
-    console.log("item",item)
-     return (
+    return (
       <View style={styles.card}>
         <View style={{
           flexDirection: "row",
@@ -109,7 +110,7 @@ export default function OfferOR() {
     );
   };
   const nav = useNavigation()
-console.log("offerData",offerData)
+  console.log("offerData", offerData)
   return (
     <SafeAreaView style={styles.container}>
       <StatusBarComponent />
@@ -133,12 +134,14 @@ console.log("offerData",offerData)
 
           data={offerData?.offers}
           keyExtractor={(item) => item.id}
-          renderItem={({ item }) => {
-            console.log("sssss",item)
-            return(
-                  <OfferCard item={item} onCounterPress={
+          renderItem={({ item, index }) => {
+            console.log("sssss", item)
+            return (
+              <Animated.View entering={FadeInDown.delay(index * 100).duration(600)}>
+                <OfferCard item={item} onCounterPress={
 
-              () => setOpen(true)} />
+                  () => setOpen(true)} />
+              </Animated.View>
             )
           }}
           showsVerticalScrollIndicator={false}

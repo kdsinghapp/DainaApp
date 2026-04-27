@@ -5,6 +5,8 @@ import { useDispatch } from 'react-redux';
 import { Resend_otp, Verifyotp } from '../../../Api/apiRequest';
 import strings from '../../../localization/Localization';
 
+import { useDashboardContext } from '../../../context/DashboardContext';
+
 export const useOtpVerification = (cellCount: number = 4) => {
   const navigation = useNavigation();
   const route: any = useRoute();
@@ -13,6 +15,8 @@ export const useOtpVerification = (cellCount: number = 4) => {
   const [isLoading, setIsLoading] = useState(false);
   const dispatch = useDispatch();
   const [timer, setTimer] = useState(0);
+  const dashboardCtx = useDashboardContext();
+
   // Timer countdown logic
   useEffect(() => {
     let interval;
@@ -61,7 +65,7 @@ export const useOtpVerification = (cellCount: number = 4) => {
     try {
       setIsLoading(false)
       const params = { phone, otp: value, navigation, code };
-      await Verifyotp(params, setIsLoading, dispatch);
+      await Verifyotp(params, setIsLoading, dispatch, dashboardCtx?.setGeneralAlert);
     } catch (error) {
       setIsLoading(false)
     }
