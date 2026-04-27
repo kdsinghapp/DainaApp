@@ -38,8 +38,8 @@ const CreateParcelFrom = () => {
   const [showDate, setShowDate] = useState(false);
   const [showTime, setShowTime] = useState(false);
   const [shipmentType, setShipmentType] = useState("");
-  const [consignmentType, setConsignmentType] = useState("Document");
-  const [deliveryType, setDeliveryType] = useState("Normal");
+  const [consignmentType, setConsignmentType] = useState("document");
+  const [deliveryType, setDeliveryType] = useState("normal");
   const [pickupLocation, setPickupLocation] = useState("");
   const [pickupLat, setpickupLat] = useState<{ latitude: number; longitude: number } | null>(null);
   const [droplat, sedroplat] = useState<{ latitude: number; longitude: number } | null>(null);
@@ -84,16 +84,16 @@ const CreateParcelFrom = () => {
 
   // Dropdown data
   const shipmentTypeData = [
-    { label: "Standard", value: "standard" },
-    { label: "Express", value: "express" },
+    { label: strings.Standard, value: "standard" },
+    { label: strings.Express, value: "express" },
   ];
   const consignmentTypeData = [
-    { label: "Document", value: "document" },
-    { label: "Parcel", value: "parcel" },
+    { label: strings.DocumentLabel, value: "document" },
+    { label: strings.ParcelLabel, value: "parcel" },
   ];
   const deliveryTypeData = [
-    { label: "Normal", value: "normal" },
-    { label: "Fast", value: "fast" },
+    { label: strings.Normal, value: "normal" },
+    { label: strings.Fast, value: "fast" },
   ];
 
   const [packageSize, setPackageSize] = useState("");
@@ -446,6 +446,7 @@ const CreateParcelFrom = () => {
           <CustomDropdown
             data={shipmentTypeData}
             placeholder={strings.ShipmentType}
+            selectedValue={shipmentType}
             onSelect={(value) => handleDropdownSelect("shipmentType", value)}
           />
           {errors.shipmentType ? <Text style={styles.errorText}>{errors.shipmentType}</Text> : null}
@@ -538,6 +539,7 @@ const CreateParcelFrom = () => {
           <CustomDropdown
             data={consignmentTypeData}
             placeholder={strings.ConsignmentType}
+            selectedValue={consignmentType}
             onSelect={(value) => handleDropdownSelect("consignmentType", value)}
           />
           {errors.consignmentType ? <Text style={styles.errorText}>{errors.consignmentType}</Text> : null}
@@ -545,22 +547,26 @@ const CreateParcelFrom = () => {
           {/* Package Size */}
           <Text style={styles.sectionTitle}>{strings.PackageSize}</Text>
           <View style={styles.packageRow}>
-            {["1 KG", "3KG-10KG", "10kG"].map((size) => (
+            {[
+              { label: strings.SmallSize, value: "1 KG" },
+              { label: strings.MediumSize, value: "3KG-10KG" },
+              { label: strings.LargeSize, value: "10kG" }
+            ].map((item) => (
               <TouchableOpacity
-                key={size}
+                key={item.value}
                 style={[
                   styles.packageBox,
-                  packageSize === size && styles.selectedBox,
+                  packageSize === item.value && styles.selectedBox,
                 ]}
-                onPress={() => setPackageSize(size)}
+                onPress={() => setPackageSize(item.value)}
               >
                 <Text
                   style={[
                     styles.packageText,
-                    packageSize === size && styles.selectedText,
+                    packageSize === item.value && styles.selectedText,
                   ]}
                 >
-                  {size}{" "}
+                  {item.label}
                 </Text>
               </TouchableOpacity>
             ))}
@@ -570,6 +576,7 @@ const CreateParcelFrom = () => {
           <CustomDropdown
             data={deliveryTypeData}
             placeholder={strings.DeliveryType}
+            selectedValue={deliveryType}
             onSelect={(value) => handleDropdownSelect("deliveryType", value)}
           />
           {errors.deliveryType ? <Text style={styles.errorText}>{errors.deliveryType}</Text> : null}

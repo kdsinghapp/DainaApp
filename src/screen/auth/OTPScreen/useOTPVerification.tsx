@@ -3,6 +3,7 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import { useBlurOnFulfill, useClearByFocusCell } from 'react-native-confirmation-code-field';
 import { useDispatch } from 'react-redux';
 import { Resend_otp, Verifyotp } from '../../../Api/apiRequest';
+import strings from '../../../localization/Localization';
 
 export const useOtpVerification = (cellCount: number = 4) => {
   const navigation = useNavigation();
@@ -31,7 +32,7 @@ export const useOtpVerification = (cellCount: number = 4) => {
   const [props, getCellOnLayoutHandler] = useClearByFocusCell({ value, setValue });
   const handleChangeText = (text: string) => {
     setValue(text);
-    setErrorMessage(text.length < cellCount ? 'Please enter 4 digit otp' : '');
+    setErrorMessage(text.length < cellCount ? strings.Enter4DigitOTP : '');
   };
 
   const handleResendOTP = async () => {
@@ -39,8 +40,10 @@ export const useOtpVerification = (cellCount: number = 4) => {
     setIsLoading(true);
     try {
       const params = { phone, code };
-      await Resend_otp(params, setIsLoading);
-      setTimer(30); // start 30 seconds timer
+      const res = await Resend_otp(params, setIsLoading);
+      if (res?.status === 1) {
+        setTimer(60); // start 1 minute timer
+      }
     } catch (error) {
       console.error('OTP resend error:', error);
     } finally {
@@ -50,7 +53,7 @@ export const useOtpVerification = (cellCount: number = 4) => {
 
   const handleVerifyOTP = async () => {
     if (value.length !== cellCount) {
-      setErrorMessage('Please enter 4 digit otp');
+      setErrorMessage(strings.Enter4DigitOTP);
       return;
     }
 

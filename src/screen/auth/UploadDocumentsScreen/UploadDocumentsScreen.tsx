@@ -50,7 +50,7 @@ const UploadDocumentsScreen = () => {
         console.log("User cancelled image selection");
       } else if (result.errorCode) {
         console.log("ImagePicker Error: ", result.errorMessage);
-        errorToast("Error picking image");
+        errorToast(strings.ErrorPickingImage);
       } else if (result.assets && result.assets.length > 0) {
         const res = result.assets[0];
         const fileObj = {
@@ -65,7 +65,7 @@ const UploadDocumentsScreen = () => {
       }
     } catch (err) {
       console.log("Error picking document:", err);
-      errorToast("Something went wrong");
+      errorToast(strings.SomethingWentWrong);
     }
   };
 

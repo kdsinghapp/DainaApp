@@ -29,6 +29,7 @@ import font from '../../../theme/font';
 import MapViewDirections from 'react-native-maps-directions';
 import { errorToast, successToast } from '../../../utils/customToast';
 import ScreenNameEnum from '../../../routes/screenName.enum';
+import strings from '../../../localization/Localization';
 
 
 const TripMap = () => {
@@ -163,7 +164,7 @@ const TripMap = () => {
 
       case STATUS.DELIVERED:
         return {
-          title: "Order Completed",
+          title: strings.OrderCompleted,
           onPress: null,
           color: STATUS_COLORS[STATUS.COMPLETED], // Fixed
           icon: "checkmark-done-outline",
@@ -173,7 +174,7 @@ const TripMap = () => {
 
       case STATUS.CANCELLED:
         return {
-          title: "Order Cancelled",
+          title: strings.OrderCancelled,
           onPress: null,
           color: STATUS_COLORS[STATUS.CANCELLED], // Fixed
           icon: "close-circle-outline",
@@ -310,11 +311,11 @@ const TripMap = () => {
     try {
       setActionLoading(true);
       if (newStatus == STATUS.PICKED_UP && pickupOtp == '') {
-        errorToast("Please enter pickup OTP shared by customer")
+        errorToast(strings.EnterPickupOTPShared)
         return;
       }
       if (newStatus == STATUS.DELIVERED && deliveryOtp == '') {
-        Alert.alert('Please enter delivery OTP shared by customer')
+        Alert.alert(strings.EnterDeliveryOTPShared)
         return;
       }
 
@@ -503,16 +504,16 @@ const TripMap = () => {
 
             <TouchableOpacity onPress={() =>
               Alert.alert(
-                "Confirmation",
-                "Are you sure you want to cancel?",
+                strings.Confirmation,
+                strings.AreYouSureCancel,
                 [
                   {
-                    text: "No",
+                    text: strings.No,
                     style: "cancel",
                     onPress: () => console.log("User chose No"),
                   },
                   {
-                    text: "Yes",
+                    text: strings.Yes,
                     onPress: () => {
                       console.log("User chose Yes");
                       handleStatusUpdate(STATUS.CANCELLED);
@@ -544,7 +545,7 @@ const TripMap = () => {
 
           {item?.deliveryStatus === STATUS?.GOING_TO_PICKUP && (
             <OtpSection
-              label="Enter Pickup OTP shared by customer"
+              label={strings.EnterPickupOTPShared}
               value={pickupOtp}
               onChange={setPickupOtp}
             />
@@ -552,14 +553,14 @@ const TripMap = () => {
 
           {item?.deliveryStatus === STATUS?.ON_THE_WAY && (
             <OtpSection
-              label="Enter delivery OTP shared by customer"
+              label={strings.EnterDeliveryOTPShared}
               value={deliveryOtp}
               onChange={setDeliveryOtp}
             />
           )}
 
           <CustomButton
-            title={actionLoading ? "Processing..." : buttonConfig.title}
+            title={actionLoading ? strings.Processing : buttonConfig.title}
             onPress={buttonConfig.onPress}
             disabled={actionLoading || buttonConfig?.disabled}
             style={{
@@ -606,7 +607,7 @@ const OtpSection = ({ label, value, onChange }: any) => {
         <TextInput
           style={styles.textInput}
           keyboardType="numeric"
-          placeholder="Enter OTP"
+          placeholder={strings.EnterOTP}
           maxLength={6}
           value={value}
           onChangeText={onChange}

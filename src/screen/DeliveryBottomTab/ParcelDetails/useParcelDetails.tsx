@@ -6,6 +6,7 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import { Alert } from 'react-native';
 import { errorToast, successToast } from '../../../utils/customToast';
 import { PostApi } from '../../../Api/apiRequest';
+import strings from '../../../localization/Localization';
 
 export const useParcelDetails = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -73,11 +74,11 @@ export const useParcelDetails = () => {
   const handleSendOffer = async () => {
     // Validation
     if (!amount.trim()) {
-      errorToast("Please enter amount")
+      errorToast(strings.EnterAmount)
       return;
     }
     if (!message.trim()) {
-      errorToast("Please enter message")
+      errorToast(strings.EnterMessage)
 
 
       return;

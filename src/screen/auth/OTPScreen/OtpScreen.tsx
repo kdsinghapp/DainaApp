@@ -2,6 +2,7 @@ import {
   View,
   Text,
   ScrollView,
+  TouchableOpacity,
 } from 'react-native';
 import React from 'react';
 import {
@@ -18,6 +19,7 @@ import { color } from '../../../constant';
 import CustomHeader from '../../../compoent/CustomHeader';
 import LoadingModal from '../../../utils/Loader';
 import strings from '../../../localization/Localization';
+import font from '../../../theme/font';
 
 export default function OtpScreen() {
   const {
@@ -74,28 +76,29 @@ export default function OtpScreen() {
             {errorMessage ? <Text style={styles.errorText}>{errorMessage}</Text> : null}
           </View>
           <View style={{ alignItems: 'center', marginTop: 15 }}>
-            <Text style={styles.txtDes}>
-              {strings.DidntReceiveOTP}
-              {' '}
-              {timer > 0 ? (
-                <Text style={{ color: 'gray' }}> {strings.ResendIn}
-
-
-                  <Text style={{
-                    color: "#FFCC00"
-                  }}>
-                    {" "} {timer} {""}
-                  </Text>
-                  s</Text>
-              ) : (
-                <Text
-                  onPress={handleResendOTP}
-                  style={{ color: color.primary, fontWeight: 'bold' }}
-                >
-                  {' '}{strings.ResendOTPButton}
+            {timer > 0 ? (
+              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <Text style={styles.txtDes}>{strings.ResendIn}</Text>
+                <Text style={{
+                  color: color.primary,
+                  fontFamily: font.MonolithRegular,
+                  fontWeight: '600',
+                  marginLeft: 6
+                }}>
+                  {Math.floor(timer / 60).toString().padStart(2, '0')}:
+                  {(timer % 60).toString().padStart(2, '0')}
                 </Text>
-              )}
-            </Text>
+              </View>
+            ) : (
+              <TouchableOpacity onPress={handleResendOTP} activeOpacity={0.7}>
+                <Text style={{
+                  color: color.primary, fontFamily: font.MonolithRegular,
+                  textDecorationLine: 'underline'
+                }}>
+                  {strings.ResendOTPButton}
+                </Text>
+              </TouchableOpacity>
+            )}
           </View>
         </ScrollView>
         {/* <Image source={imageIndex.otp} style={{ width: '80%', height: hp(45), alignSelf: 'center', marginBottom: 30 }} /> */}

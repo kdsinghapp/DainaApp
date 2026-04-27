@@ -24,6 +24,7 @@ interface CustomDropdownProps {
   onSelect: (value: string) => void;
   leftIcon?: React.ReactNode;
   search?: boolean;
+  selectedValue?: string | null;
 }
 
 const CustomDropdown: React.FC<CustomDropdownProps> = ({
@@ -32,10 +33,13 @@ const CustomDropdown: React.FC<CustomDropdownProps> = ({
   onSelect,
   leftIcon,
   search = false,
+  selectedValue,
 }) => {
-  const [value, setValue] = useState<string | null>(null);
+  const [internalValue, setInternalValue] = useState<string | null>(null);
   const [visible, setVisible] = useState(false);
   const [searchText, setSearchText] = useState("");
+
+  const activeValue = selectedValue !== undefined ? selectedValue : internalValue;
 
   const filteredData = data.filter((item) =>
     item.label.toLowerCase().includes(searchText.toLowerCase())
@@ -47,27 +51,25 @@ const CustomDropdown: React.FC<CustomDropdownProps> = ({
         style={[styles.dropdown, leftIcon && { paddingLeft: 40 }]}
         onPress={() => setVisible(true)}
       >
-        
         <Text
           style={[
             styles.selectedText,
-            !value && { color: "#ADA4A5", fontFamily: font.MonolithRegular },
+            !activeValue && { color: "#ADA4A5", fontFamily: font.MonolithRegular },
           ]}
         >
-          {value
-            ? data.find((item) => item.value === value)?.label
+          {activeValue
+            ? data.find((item) => item.value === activeValue)?.label || activeValue
             : placeholder}
         </Text>
-        <Image source={imageIndex.arrowqdown} 
-        
-        style={{
-          height:22,
-          width:22,
-        }}
+        <Image
+          source={imageIndex.arrowqdown}
+          style={{
+            height: 22,
+            width: 22,
+          }}
         />
       </TouchableOpacity>
 
-      {/* Modal for dropdown list */}
       <Modal
         transparent
         visible={visible}
@@ -97,7 +99,7 @@ const CustomDropdown: React.FC<CustomDropdownProps> = ({
                 <TouchableOpacity
                   style={styles.item}
                   onPress={() => {
-                    setValue(item.value);
+                    setInternalValue(item.value);
                     onSelect(item.value);
                     setVisible(false);
                     setSearchText("");

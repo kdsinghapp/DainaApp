@@ -7,6 +7,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Toast } from '../utils/Toast';
 import { color } from '../constant';
 import axios from 'axios';
+import strings from '../localization/Localization';
 const handleLogout = async (dispatch: any) => {
   try {
     dispatch(logout());    // reset Redux state
@@ -70,7 +71,7 @@ const LogiApi = async (
     try {
       parsedResponse = JSON.parse(textResponse);
     } catch (error) {
-      errorToast('Invalid server response');
+      errorToast(strings.InvalidServerResponse);
       return;
     }
 
@@ -89,7 +90,7 @@ const LogiApi = async (
 
   } catch (error) {
     console.error('Login error:', error);
-    errorToast('Network error. Please try again.');
+    errorToast(strings.NetworkErrorTryAgain);
   } finally {
     setLoading(false);
   }
@@ -121,7 +122,7 @@ const Verifyotp = async (param: any, setLoading: any, dispatch: any) => {
     try {
       parsedResponse = JSON.parse(textResponse);
     } catch (error) {
-      errorToast('Invalid server response');
+      errorToast(strings.InvalidServerResponse);
       return;
     }
     if (parsedResponse?.status == 1) {
@@ -155,7 +156,7 @@ const Verifyotp = async (param: any, setLoading: any, dispatch: any) => {
 
   } catch (error: any) {
     console.error('Login error:', error);
-    errorToast('Network error. Please try again.');
+    errorToast(strings.NetworkErrorTryAgain);
   } finally {
     setLoading(false);
   }
@@ -164,49 +165,37 @@ const Verifyotp = async (param: any, setLoading: any, dispatch: any) => {
 const Resend_otp = async (param: any, setLoading: any) => {
   setLoading(true);
   try {
-    // ✅ Create FormData
-    const formdata = new FormData();
-    formdata.append('countryCode', param?.code || '');
-    formdata.append('phoneNumber', param?.phone || '');
+    const body = `countryCode=${encodeURIComponent(param?.code || '')}&phoneNumber=${encodeURIComponent(param?.phone || '')}`;
 
-    console.log('FormData:', {
-      countryCode: param?.code,
-      phoneNumber: param?.phone,
-    });
-
-    // ✅ Send FormData
     const response = await fetch(`${base_url}/resend-otp`, {
       method: 'POST',
       headers: {
         Accept: 'application/json',
-        // ❌ Do NOT set Content-Type manually for FormData
+        'Content-Type': 'application/x-www-form-urlencoded',
       },
-      body: formdata,
+      body: body,
     });
 
     const textResponse = await response.text();
-
-    // ✅ Parse safely
     let parsedResponse: any;
     try {
       parsedResponse = JSON.parse(textResponse);
     } catch (error) {
-      errorToast('Invalid server response');
+      errorToast(strings.InvalidServerResponse);
       return;
     }
 
-    console.log('parsedResponse', parsedResponse);
-
-    // ✅ Handle response
     if (parsedResponse?.status === 1) {
       successToast(parsedResponse?.message);
+      return parsedResponse;
     } else {
       errorToast(parsedResponse?.message);
+      return parsedResponse;
     }
 
   } catch (error: any) {
     console.error('Resend OTP error:', error);
-    errorToast('Network error. Please try again.');
+    errorToast(strings.NetworkErrorTryAgain);
   } finally {
     setLoading(false);
   }
@@ -273,7 +262,7 @@ const UpdateProfile = async (
     console.log("parsedResponse", error)
 
     console.error("UpdateProfile error:", error);
-    errorToast("Something went wrong. Please try again.");
+    errorToast(strings.SomethingWentWrong);
     return null;
   } finally {
     setLoading(false);
@@ -308,7 +297,7 @@ const GetProfileApi = async (
     }
   } catch (error) {
     console.error("API call error:", error);
-    errorToast("Network error");
+    errorToast(strings.NetworkErrorTryAgain);
     return null;
   } finally {
     setLoading(false);
@@ -509,7 +498,7 @@ const DeliveryVehicleDocument = async (
     return parsedResponse;
   } catch (error) {
     console.error("DeliveryVehicleDocument error:", error);
-    errorToast("Something went wrong. Please try again.");
+    errorToast(strings.SomethingWentWrong);
     return null;
   } finally {
     setLoading(false);
@@ -555,7 +544,7 @@ const DeliveryBankSetup = async (
     return parsedResponse;
   } catch (error) {
     console.error("DeliveryBankSetup error:", error);
-    errorToast("Something went wrong. Please try again.");
+    errorToast(strings.SomethingWentWrong);
     return null;
   } finally {
     setLoading(false);
@@ -588,7 +577,7 @@ const GetuploadDocument = async (
     }
   } catch (error) {
     console.error("API call error:", error);
-    errorToast("Network error");
+    errorToast(strings.NetworkErrorTryAgain);
     return null;
   } finally {
     setLoading(false);
@@ -665,7 +654,7 @@ const AddParcelApi = async (param: any, setLoading: (loading: boolean) => void) 
     }
   } catch (error) {
     console.error("AddParcelApi error:", error);
-    errorToast("Something went wrong. Please try again.");
+    errorToast(strings.SomethingWentWrong);
     return null;
   } finally {
     setLoading(false);
@@ -704,7 +693,7 @@ const GetApi = async (param: any, setLoading: (loading: boolean) => void) => {
 
   } catch (error) {
     setLoading(false);
-    errorToast("Network error");
+    errorToast(strings.NetworkErrorTryAgain);
     return null;
   }
 };
@@ -772,7 +761,7 @@ const Parceldetails = async (
     }
   } catch (error) {
     console.error("API call error:", error);
-    errorToast("Network error");
+    errorToast(strings.NetworkErrorTryAgain);
     return null;
   } finally {
     setLoading(false);

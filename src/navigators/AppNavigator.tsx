@@ -9,6 +9,7 @@ import NetworkStatusModal from '../compoent/NetworkStatusModal';
 import Toast from 'react-native-toast-message';
 import toastConfig from '../utils/customToast';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import strings from '../localization/Localization';
 
 import 'react-native-reanimated';
 const AppNavigator: React.FC = () => {
@@ -28,10 +29,10 @@ const AppNavigator: React.FC = () => {
       <PersistGate loading={null} persistor={persistor}>
         <GestureHandlerRootView  >
           <NavigationContainer>
-            {/* <NetworkStatusModal
+            <NetworkStatusModal
               modalVisible={!isConnected}
-              offlineText="No Internet! Please check your connection."
-            /> */}
+              offlineText={strings.NoInternetConnection}
+            />
 
             <RegistrationRoutes />
             <Toast config={toastConfig} />
