@@ -148,10 +148,21 @@ const DeliveryProfile: React.FC<Props> = ({
               fontFamily: font.MonolithRegular
 
             }]}>{isLogin?.firstName}</Text>
+
             <Text style={[styles.email, {
               color: "#9DB2BF",
               fontFamily: font.MonolithRegular
-            }]}>{isLogin?.email}</Text>
+            }]}>{isLogin?.email}
+
+            </Text>
+            <Text style={[styles.email, {
+              color: "#9DB2BF",
+              fontFamily: font.MonolithRegular
+            }]}>
+
+              {isLogin?.phoneNumber}
+
+            </Text>
           </View>
           <Image source={imageIndex.right}
 
@@ -194,12 +205,12 @@ const DeliveryProfile: React.FC<Props> = ({
               navigation.navigate(ScreenNameEnum.WalletScreen)
             }} /> */}
           <ItemDivider />
-          <ListItem
+          {/* <ListItem
             icon={<SvgIndex.Notiftaction />}
             label={strings.Notifications}
             onPress={() => {
               navigation.navigate(ScreenNameEnum.NotificationsSetting)
-            }} />
+            }} /> */}
           <ItemDivider />
           <ListItem
             icon={<SvgIndex.Edit />}

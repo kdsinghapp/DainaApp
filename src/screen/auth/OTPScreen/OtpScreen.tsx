@@ -3,18 +3,18 @@ import {
   Text,
   ScrollView,
 } from 'react-native';
-import React  from 'react';
+import React from 'react';
 import {
   CodeField,
   Cursor,
-  
+
 } from 'react-native-confirmation-code-field';
- import CustomButton from '../../../compoent/CustomButton';
+import CustomButton from '../../../compoent/CustomButton';
 import StatusBarComponent from '../../../compoent/StatusBarCompoent';
- import { SafeAreaView } from 'react-native-safe-area-context';
- import { styles } from './style';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { styles } from './style';
 import { useOtpVerification } from './useOTPVerification';
-   import { color } from '../../../constant';
+import { color } from '../../../constant';
 import CustomHeader from '../../../compoent/CustomHeader';
 import LoadingModal from '../../../utils/Loader';
 import strings from '../../../localization/Localization';
@@ -31,24 +31,25 @@ export default function OtpScreen() {
     handleChangeText,
     handleVerifyOTP,
     handleResendOTP,
-    navigation, 
-    data
+    navigation,
+    data,
+    phone
   } = useOtpVerification()
-   return (
+  return (
     <SafeAreaView
       style={{ flex: 1, backgroundColor: "#fff" }}
 
     >
-               <StatusBarComponent />
-                <CustomHeader label={strings.Back}/>
-        <LoadingModal visible ={isLoading}/>
+      <StatusBarComponent />
+      <CustomHeader label={strings.Back} />
+      <LoadingModal visible={isLoading} />
       <View style={styles.container}>
         <ScrollView showsVerticalScrollIndicator={false}>
           <View style={styles.headerSection}>
-            <Text style={styles.txtHeading}>{strings.EnterVerificationCode}</Text>
+            <Text style={styles.txtHeading}>{strings.EnterVerificationCode} {phone}</Text>
             <Text style={styles.txtDes}>{strings.formatString(strings.SentCodeTo, `${data?.code} ${data?.mob}`)}
             </Text>
-           </View>
+          </View>
 
           <View style={styles.otpFieldContainer}>
             <CodeField
@@ -72,30 +73,30 @@ export default function OtpScreen() {
             />
             {errorMessage ? <Text style={styles.errorText}>{errorMessage}</Text> : null}
           </View>
- <View style={{ alignItems: 'center', marginTop: 15 }}>
-      <Text style={styles.txtDes}>
-        {strings.DidntReceiveOTP}
-        {' '}
-        {timer > 0 ? (
-          <Text style={{ color: 'gray' }}> {strings.ResendIn} 
-          
-          
-          <Text style={{
-            color:"#FFCC00"
-          }}>
-          {" "} {timer} {""} 
- </Text>      
-     s</Text>
-        ) : (
-          <Text
-            onPress={handleResendOTP}
-            style={{ color: color.primary, fontWeight: 'bold' }}
-          >
-            {' '}{strings.ResendOTPButton}
-          </Text>
-        )}
-      </Text>
-    </View>
+          <View style={{ alignItems: 'center', marginTop: 15 }}>
+            <Text style={styles.txtDes}>
+              {strings.DidntReceiveOTP}
+              {' '}
+              {timer > 0 ? (
+                <Text style={{ color: 'gray' }}> {strings.ResendIn}
+
+
+                  <Text style={{
+                    color: "#FFCC00"
+                  }}>
+                    {" "} {timer} {""}
+                  </Text>
+                  s</Text>
+              ) : (
+                <Text
+                  onPress={handleResendOTP}
+                  style={{ color: color.primary, fontWeight: 'bold' }}
+                >
+                  {' '}{strings.ResendOTPButton}
+                </Text>
+              )}
+            </Text>
+          </View>
         </ScrollView>
         {/* <Image source={imageIndex.otp} style={{ width: '80%', height: hp(45), alignSelf: 'center', marginBottom: 30 }} /> */}
 

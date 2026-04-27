@@ -12,6 +12,8 @@ import {
   ActivityIndicator,
   Alert,
   Linking,
+  LayoutAnimation,
+  UIManager,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -28,7 +30,9 @@ import ScreenNameEnum from "../../../routes/screenName.enum";
 import strings from "../../../localization/Localization";
 
 // ─── Config ──────────────────────────────────────────────────────────────────
-// const WS_BASE = "wss://aitechnotech.in/DAINA/ws/chat";
+if (Platform.OS === "android" && UIManager.setLayoutAnimationEnabledExperimental) {
+  UIManager.setLayoutAnimationEnabledExperimental(true);
+}
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface Message {
@@ -266,9 +270,9 @@ const ChatScreen = () => {
   // ── 2. Connect WebSocket ──────────────────────────────────────────────────
   useEffect(() => {
     if (!tokenLoaded || !parcelId || !token) return;
-const wsUrl = `${WebSocket_Url}/chat/${parcelId}?token=${token}`;
+    const wsUrl = `${WebSocket_Url}/chat/${parcelId}?token=${token}`;
     // const wsUrl = `${WebSocket_Url}/chat${parcelId}?token=${token}`;
-// const WS_BASE = "wss://aitechnotech.in/DAINA/ws/chat";
+    // const WS_BASE = "wss://aitechnotech.in/DAINA/ws/chat";
 
     if (wsRef.current) {
       wsRef.current.onclose = null;
@@ -318,6 +322,7 @@ const wsUrl = `${WebSocket_Url}/chat/${parcelId}?token=${token}`;
           time: toTimeString(iso),
         };
 
+        LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
         setMessages((prev) => [...prev, incoming]);
       } catch (e) {
         console.error("WS parse error:", e);
@@ -365,6 +370,7 @@ const wsUrl = `${WebSocket_Url}/chat/${parcelId}?token=${token}`;
       isRead: false,
     };
 
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     setMessages((prev) => [...prev, newMsg]);
     setInputText("");
 
@@ -411,7 +417,7 @@ const wsUrl = `${WebSocket_Url}/chat/${parcelId}?token=${token}`;
     item?.driver?.image ?? item?.user?.image ?? item?.assignedDriver?.image
   null;
 
-  const agentPhone =chattingWith?.phone ??
+  const agentPhone = chattingWith?.phone ??
     item?.parcelOwner?.phone ?? item?.user?.phone ?? item?.assignedDriver?.phone
   null;
   const listItems = buildListItems(messages, rawDatesRef?.current);
@@ -469,23 +475,24 @@ const wsUrl = `${WebSocket_Url}/chat/${parcelId}?token=${token}`;
           <Image source={imageIndex.back} style={styles.backIcon} />
         </TouchableOpacity>
 
-        {agentImage ? (
-          <Image source={{ uri: agentImage }} style={styles.avatar} />
-        ) : (
-          <View style={styles.avatarFallback}>
-            <Text style={styles.avatarInitial}>
-              {agentName.charAt(0).toUpperCase()}
-            </Text>
-          </View>
-        )}
+        <View style={styles.avatarContainer}>
+          {agentImage ? (
+            <Image source={{ uri: agentImage }} style={styles.avatar} />
+          ) : (
+            <View style={styles.avatarFallback}>
+              <Text style={styles.avatarInitial}>
+                {agentName.charAt(0).toUpperCase()}
+              </Text>
+            </View>
+          )}
+          <View style={styles.onlineBadge} />
+        </View>
 
-        <View style={{ flex: 1 }}>
+        <View style={styles.headerInfo}>
           <Text style={styles.name} numberOfLines={1}>
-            {agentName}{"  "}
+            {agentName}
           </Text>
-          <Text style={styles.name} numberOfLines={1}>
-            {item?.trackingId}
-          </Text>
+          <Text style={styles.trackingId}>{item?.trackingId}</Text>
         </View>
 
         {/* Offer button — only show for non-delivery users */}
@@ -542,16 +549,19 @@ const wsUrl = `${WebSocket_Url}/chat/${parcelId}?token=${token}`;
 
         {/* ── Input Box ── */}
         <View style={styles.inputContainer}>
-          <TextInput
-            style={styles.input}
-            placeholder={strings.TypeAMessagePlaceholder}
-            value={inputText}
-            onChangeText={setInputText}
-            placeholderTextColor="#bbb"
-            onSubmitEditing={sendMessage}
-            returnKeyType="send"
-            multiline={false}
-          />
+          <View style={styles.inputWrapper}>
+
+            <TextInput
+              style={styles.input}
+              placeholder={strings.TypeAMessagePlaceholder}
+              value={inputText}
+              onChangeText={setInputText}
+              placeholderTextColor="#8E8E93"
+              onSubmitEditing={sendMessage}
+              returnKeyType="send"
+              multiline={false}
+            />
+          </View>
           <TouchableOpacity
             onPress={sendMessage}
             style={[styles.sendButton, { opacity: inputText.trim() ? 1 : 0.4 }]}
@@ -600,36 +610,46 @@ const wsUrl = `${WebSocket_Url}/chat/${parcelId}?token=${token}`;
 
 // ─── Styles ───────────────────────────────────────────────────────────────────
 const YELLOW = "#FFCC00";
-const YELLOW_LIGHT = "#FFF3B0";
-const DARK = "#1A1A2E";
-const GRAY_BG = "#F2F3F5";
+const DARK = "#1A1A1A";
+const GRAY_BG = "#F7F7F9";
+const LIGHT_TEXT = "#8E8E93";
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: "#FFFFFF",
   },
   header: {
     flexDirection: "row",
     alignItems: "center",
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    backgroundColor: "#fff",
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    backgroundColor: "#FFFFFF",
     borderBottomWidth: 1,
-    borderBottomColor: "#f0f0f0",
-    gap: 10,
+    borderBottomColor: "#F2F2F2",
+    elevation: 2,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
   },
   backBtn: {
-    padding: 2,
+    marginRight: 12,
   },
   backIcon: {
-    height: 36,
-    width: 36,
+    height: 28,
+    width: 28,
+    resizeMode: "contain",
+  },
+  avatarContainer: {
+    position: "relative",
+    marginRight: 12,
   },
   avatar: {
     width: 44,
     height: 44,
     borderRadius: 22,
+    backgroundColor: "#F0F0F0",
   },
   avatarFallback: {
     width: 44,
@@ -641,85 +661,119 @@ const styles = StyleSheet.create({
   },
   avatarInitial: {
     fontSize: 18,
-    fontWeight: "700",
-    color: "#fff",
+    fontFamily: font.MonolithRegular,
+    color: "#000",
+  },
+  onlineBadge: {
+    position: "absolute",
+    bottom: 2,
+    right: 2,
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: "#4CD964",
+    borderWidth: 2,
+    borderColor: "#FFF",
+  },
+  headerInfo: {
+    flex: 1,
+    justifyContent: "center",
   },
   name: {
-    fontSize: 15,
-    fontWeight: "600",
-    color: DARK,
+    fontSize: 16,
     fontFamily: font.MonolithRegular,
+    color: DARK,
+    lineHeight: 20,
   },
-  statusRow: {
+  trackingId: {
+    fontSize: 12,
+    color: LIGHT_TEXT,
+    fontFamily: font.MonolithRegular,
+    marginTop: 2,
+  },
+  headerActions: {
     flexDirection: "row",
     alignItems: "center",
-    marginTop: 2,
-    gap: 4,
+    gap: 12,
   },
-  statusDot: {
-    width: 7,
-    height: 7,
-    borderRadius: 4,
+  headerOfferBtn: {
+    backgroundColor: "#F0F9F6",
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: "#D1E7DD",
   },
-  statusText: {
+  headerOfferText: {
     fontSize: 11,
+    color: "#0F5132",
     fontFamily: font.MonolithRegular,
+  },
+  callBtn: {
+    padding: 4,
+  },
+  callIcon: {
+    height: 24,
+    width: 24,
+    resizeMode: "contain",
+    tintColor: DARK,
   },
   loaderContainer: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    gap: 10,
   },
   loadingText: {
-    color: "#aaa",
+    marginTop: 12,
+    color: LIGHT_TEXT,
     fontFamily: font.MonolithRegular,
-    fontSize: 13,
+    fontSize: 14,
   },
   emptyContainer: {
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
-    paddingTop: 80,
+    paddingTop: 100,
   },
   emptyEmoji: {
-    fontSize: 40,
-    marginBottom: 10,
+    fontSize: 48,
+    marginBottom: 16,
+    opacity: 0.5,
   },
   emptyText: {
     textAlign: "center",
-    color: "#aaa",
+    color: LIGHT_TEXT,
     fontFamily: font.MonolithRegular,
-    fontSize: 14,
+    fontSize: 15,
+    lineHeight: 22,
   },
   separatorRow: {
     flexDirection: "row",
     alignItems: "center",
-    marginVertical: 14,
-    paddingHorizontal: 16,
-    gap: 8,
+    marginVertical: 20,
+    paddingHorizontal: 24,
   },
   separatorLine: {
     flex: 1,
     height: 1,
-    backgroundColor: "#e8e8e8",
+    backgroundColor: "#F0F0F0",
   },
   separatorLabel: {
-    fontSize: 11,
-    color: "#aaa",
+    fontSize: 12,
+    color: LIGHT_TEXT,
     fontFamily: font.MonolithRegular,
-    backgroundColor: "#fff",
-    paddingHorizontal: 6,
+    paddingHorizontal: 12,
   },
   chatContainer: {
-    paddingHorizontal: 12,
-    paddingTop: 10,
-    paddingBottom: 6,
+    paddingHorizontal: 16,
+    paddingTop: 16,
+    paddingBottom: 24,
     flexGrow: 1,
   },
   bubbleWrapper: {
-    marginVertical: 3,
+    marginVertical: 4,
     flexDirection: "row",
+    width: "100%",
   },
   bubbleWrapperMe: {
     justifyContent: "flex-end",
@@ -728,162 +782,102 @@ const styles = StyleSheet.create({
     justifyContent: "flex-start",
   },
   messageBubble: {
-    maxWidth: "75%",
-    paddingHorizontal: 13,
-    paddingTop: 9,
-    paddingBottom: 6,
-    borderRadius: 18,
+    maxWidth: "80%",
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    borderRadius: 20,
   },
   myMessage: {
     backgroundColor: YELLOW,
     borderBottomRightRadius: 4,
+    elevation: 1,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 1,
   },
   otherMessage: {
     backgroundColor: GRAY_BG,
     borderBottomLeftRadius: 4,
   },
   myMessageText: {
-    color: "#fff",
+    color: "#000",
     fontFamily: font.MonolithRegular,
-    fontSize: 14,
-    lineHeight: 20,
+    fontSize: 15,
+    lineHeight: 22,
   },
   otherMessageText: {
     color: DARK,
     fontFamily: font.MonolithRegular,
-    fontSize: 14,
-    lineHeight: 20,
+    fontSize: 15,
+    lineHeight: 22,
   },
   metaRow: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "flex-end",
-    marginTop: 3,
-    gap: 3,
+    marginTop: 4,
+    gap: 4,
   },
   timeText: {
     fontSize: 10,
     fontFamily: font.MonolithRegular,
+    color: "rgba(0,0,0,0.4)",
   },
   inputContainer: {
     flexDirection: "row",
     alignItems: "center",
-    borderTopWidth: 1,
-    borderTopColor: "#f0f0f0",
+    backgroundColor: "#FFFFFF",
     paddingHorizontal: 12,
-    paddingVertical: 8,
-    paddingBottom: Platform.OS === "ios" ? 12 : 16,
-    backgroundColor: "#fff",
+    paddingVertical: 12,
+    paddingBottom: Platform.OS === "ios" ? 34 : 16,
+    borderTopWidth: 1,
+    borderTopColor: "#F2F2F2",
+  },
+  inputWrapper: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: GRAY_BG,
+    borderRadius: 25,
+    paddingHorizontal: 12,
+    marginRight: 10,
+  },
+  attachBtn: {
+    padding: 8,
+  },
+  attachIcon: {
+    width: 20,
+    height: 20,
+    tintColor: LIGHT_TEXT,
   },
   input: {
     flex: 1,
-    backgroundColor: GRAY_BG,
-    borderRadius: 24,
-    paddingHorizontal: 16,
-    paddingVertical: Platform.OS === "ios" ? 17 : 15,
-    marginRight: 8,
+    paddingHorizontal: 8,
+    paddingVertical: Platform.OS === "ios" ? 12 : 10,
     fontFamily: font.MonolithRegular,
-    fontSize: 14,
+    fontSize: 15,
     color: DARK,
-    maxHeight: 100,
+    maxHeight: 120,
   },
   sendButton: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
+    width: 48,
+    height: 48,
+    borderRadius: 24,
     backgroundColor: YELLOW,
     justifyContent: "center",
     alignItems: "center",
+    elevation: 3,
+    shadowColor: YELLOW,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 6,
   },
   sendIcon: {
-    height: 20,
-    width: 20,
-    tintColor: "#fff",
-  },
-  headerOfferBtn: {
-    backgroundColor: "#FFCC00",
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: "#FFCC00",
-    marginRight: 6,
-  },
-  headerOfferText: {
-    fontFamily: font.MonolithRegular,
-    fontSize: 12,
-    color: "white",
-  },
-  parcelBadge: {
-    backgroundColor: YELLOW_LIGHT,
-    borderRadius: 20,
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderWidth: 1,
-    borderColor: YELLOW,
-  },
-  parcelBadgeText: {
-    fontSize: 11,
-    color: "#7a5f00",
-    fontFamily: font.MonolithRegular,
-    fontWeight: "600",
-  },
-  offerBanner: {
-    backgroundColor: "#FFFBE6",
-    paddingHorizontal: 15,
-    paddingVertical: 12,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    borderBottomWidth: 1,
-    borderBottomColor: "#F0E6D2",
-  },
-  offerBannerText: {
-    fontFamily: font.MonolithRegular,
-    fontSize: 14,
-    color: "#4A4A4A",
-  },
-  offerBannerAmount: {
-    fontWeight: "bold",
-    color: "#E6A23C",
-    fontSize: 16,
-  },
-  offerBannerSubText: {
-    fontFamily: font.MonolithRegular,
-    fontSize: 12,
-    color: "#8C8C8C",
-    marginTop: 2,
-  },
-  offerBannerActions: {
-    flexDirection: "row",
-    gap: 8,
-  },
-  offerBannerAcceptBtn: {
-    backgroundColor: "#FFCC00",
-    paddingHorizontal: 14,
-    paddingVertical: 7,
-    borderRadius: 6,
-    elevation: 1,
-  },
-  offerBannerAcceptText: {
-    color: "#000",
-    fontSize: 12,
-    fontWeight: "700",
-    fontFamily: font.MonolithRegular,
-  },
-  offerBannerCounterBtn: {
-    backgroundColor: "#FFF",
-    borderWidth: 1,
-    borderColor: "#FFCC00",
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 6,
-  },
-  offerBannerCounterText: {
-    color: "#FFCC00",
-    fontSize: 12,
-    fontWeight: "700",
-    fontFamily: font.MonolithRegular,
+    height: 22,
+    width: 22,
+    resizeMode: "contain",
+    tintColor: "#000",
   },
   modalOverlay: {
     flex: 1,
@@ -999,6 +993,30 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     fontSize: 12,
     fontFamily: font.MonolithRegular,
+  },
+  parcelBadge: {
+    backgroundColor: "#FFF3B0",
+    borderRadius: 20,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderWidth: 1,
+    borderColor: YELLOW,
+  },
+  parcelBadgeText: {
+    fontSize: 11,
+    color: "#7a5f00",
+    fontFamily: font.MonolithRegular,
+    fontWeight: "600",
+  },
+  offerBanner: {
+    backgroundColor: "#FFFBE6",
+    paddingHorizontal: 15,
+    paddingVertical: 12,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    borderBottomWidth: 1,
+    borderBottomColor: "#F0E6D2",
   },
 });
 

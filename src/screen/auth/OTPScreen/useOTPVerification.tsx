@@ -1,17 +1,17 @@
 import { useEffect, useState } from 'react';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useBlurOnFulfill, useClearByFocusCell } from 'react-native-confirmation-code-field';
- import { useDispatch } from 'react-redux';
- import { Resend_otp, Verifyotp } from '../../../Api/apiRequest';
+import { useDispatch } from 'react-redux';
+import { Resend_otp, Verifyotp } from '../../../Api/apiRequest';
 
 export const useOtpVerification = (cellCount: number = 4) => {
   const navigation = useNavigation();
-  const route :any= useRoute();
-  const { phone ,code } = route.params || {};
-   const [value, setValue] = useState('');
+  const route: any = useRoute();
+  const { phone, code } = route.params || {};
+  const [value, setValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-   const dispatch = useDispatch();
- const [timer, setTimer] = useState(0);
+  const dispatch = useDispatch();
+  const [timer, setTimer] = useState(0);
   // Timer countdown logic
   useEffect(() => {
     let interval;
@@ -22,9 +22,9 @@ export const useOtpVerification = (cellCount: number = 4) => {
     }
     return () => clearInterval(interval);
   }, [timer]);
-  const  data ={
-    mob: phone ,
-    code : code
+  const data = {
+    mob: phone,
+    code: code
   }
   const [errorMessage, setErrorMessage] = useState('');
   const ref = useBlurOnFulfill({ value, cellCount });
@@ -49,19 +49,19 @@ export const useOtpVerification = (cellCount: number = 4) => {
   };
 
   const handleVerifyOTP = async () => {
-     if (value.length !== cellCount) {
+    if (value.length !== cellCount) {
       setErrorMessage('Please enter 4 digit otp');
       return;
     }
 
     setIsLoading(true);
     try {
-            setIsLoading(false)
-      const params = { phone, otp: value, navigation, code  };
-       await Verifyotp(params, setIsLoading,dispatch);
+      setIsLoading(false)
+      const params = { phone, otp: value, navigation, code };
+      await Verifyotp(params, setIsLoading, dispatch);
     } catch (error) {
       setIsLoading(false)
-     }
+    }
   };
 
   return {
@@ -75,8 +75,9 @@ export const useOtpVerification = (cellCount: number = 4) => {
     handleChangeText,
     handleVerifyOTP,
     navigation,
-    handleResendOTP ,
+    handleResendOTP,
     data,
-    timer
+    timer,
+    phone
   };
 };

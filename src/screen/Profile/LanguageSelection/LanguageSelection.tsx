@@ -1,11 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
   Text,
   StyleSheet,
   TouchableOpacity,
-
   ScrollView,
+  LayoutAnimation,
+  Platform,
+  UIManager,
+  Animated,
+  Pressable,
+  Image,
 } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import strings from '../../../localization/Localization';
@@ -18,6 +23,79 @@ import { useDispatch } from 'react-redux';
 import { setAppLanguage } from '../../../redux/feature/authSlice';
 import CustomHeader from '../../../compoent/CustomHeader';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import imageIndex from '../../../assets/imageIndex';
+import SlideButton from '../../../compoent/SlideRightButton/SlideRightButton';
+
+if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
+  UIManager.setLayoutAnimationEnabledExperimental(true);
+}
+
+const LanguageItem = ({ item, isSelected, onSelect }: any) => {
+  const scaleValue = useRef(new Animated.Value(1)).current;
+
+  const handlePressIn = () => {
+    Animated.spring(scaleValue, {
+      toValue: 0.98,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  const handlePressOut = () => {
+    Animated.spring(scaleValue, {
+      toValue: 1,
+      friction: 4,
+      tension: 40,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  return (
+    <Animated.View style={{ transform: [{ scale: scaleValue }] }}>
+      <Pressable
+        onPressIn={handlePressIn}
+        onPressOut={handlePressOut}
+        onPress={() => onSelect(item.code)}
+        style={[
+          styles.languageItem,
+          isSelected && styles.selectedItem,
+        ]}
+      >
+        <View style={styles.flagContainer}>
+          <Text style={styles.flagText}>{item.flag}</Text>
+        </View>
+
+        <View style={styles.languageInfo}>
+          <View style={styles.nameContainer}>
+            <Text style={[
+              styles.languageName,
+              isSelected && styles.selectedText
+            ]}>
+              {item.name}
+            </Text>
+            {/* {item.code === 'en' && (
+              <View style={styles.recommendedBadge}>
+                <Text style={styles.recommendedText}>Recommended</Text>
+              </View>
+            )} */}
+          </View>
+          <Text style={styles.languageSubName}>{item.subName}</Text>
+        </View>
+
+        <View style={[
+          styles.radioOutline,
+          isSelected && styles.radioOutlineSelected
+        ]}>
+          {isSelected && (
+            <View style={styles.checkIcon}>
+              <View style={styles.checkStem} />
+              <View style={styles.checkKick} />
+            </View>
+          )}
+        </View>
+      </Pressable>
+    </Animated.View>
+  );
+};
 
 const LanguageSelection = () => {
   const navigation = useNavigation<any>();
@@ -32,10 +110,11 @@ const LanguageSelection = () => {
 
   const loadLanguage = async () => {
     const lang = await getLanguage();
-    setSelectedLanguage(lang);
+    setSelectedLanguage(lang || 'en');
   };
 
   const handleLanguageSelect = async (lang: string) => {
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     setSelectedLanguage(lang);
     await saveLanguage(lang);
     strings.setLanguage(lang);
@@ -51,62 +130,73 @@ const LanguageSelection = () => {
   };
 
   const languages = [
-    { code: 'en', name: 'English', subName: 'English', flag: '🇺🇸', },
-    { code: 'mn', name: 'Монгол', subName: 'Mongolian', flag: '🇲🇳' },
+    { code: 'en', name: 'English', subName: 'United States', flag: '🇺🇸' },
+    { code: 'mn', name: 'Монгол', subName: 'Монгол Улс', flag: '🇲🇳' },
   ];
 
   return (
     <SafeAreaView style={styles.container}>
       <StatusBarComponent />
-      <CustomHeader
+      {isFirstTime ? null : <CustomHeader
         label={isFirstTime ? strings.SelectLanguage : strings.ChangeLanguage}
-      />
+      />}
 
+      <ScrollView
+        contentContainerStyle={styles.content}
+        showsVerticalScrollIndicator={false}
+      >
+        <View style={styles.headerImageContainer}>
+          <Image
+            source={imageIndex.phonLogoapp}
+            style={styles.headerImage}
+            resizeMode="contain"
+          />
+        </View>
 
-      <ScrollView contentContainerStyle={styles.content}>
-        {/* <Text style={styles.subtitle}>
-          {isFirstTime
-            ? "Welcome! Please select your language to continue"
-            : "Please select your preferred language"}
-        </Text> */}
-        <View style={{ height: 120 }} />
-        {languages.map((item) => (
-          <TouchableOpacity
-            key={item.code}
-            style={[
-              styles.languageItem,
-              selectedLanguage === item.code && styles.selectedItem,
-            ]}
-            onPress={() => handleLanguageSelect(item.code)}
-          >
-            <View style={styles.languageInfo}>
-              <Text style={[
-                styles.languageName,
-                selectedLanguage === item.code && styles.selectedText
-              ]}>
-                {item.flag}  {item.name}
-              </Text>
-              <Text style={styles.languageSubName}>{item.subName}</Text>
-            </View>
-            <View style={[
-              styles.radioOutline,
-              selectedLanguage === item.code && styles.radioOutlineSelected
-            ]}>
-              {selectedLanguage === item.code && <View style={styles.radioInner} />}
-            </View>
-          </TouchableOpacity>
-        ))}
+        <View style={styles.textContainer}>
+          {/* <Text style={styles.title}>
+            {isFirstTime ? strings.SelectLanguage : strings.ChangeLanguage}
+          </Text> */}
+          <Text style={styles.subtitle}>
+            {isFirstTime
+              ? "Choose your language to start your journey with us."
+              : "Update your language preference for the app display."}
+          </Text>
+        </View>
+
+        <View style={styles.languageList}>
+          {languages.map((item) => (
+            <LanguageItem
+              key={item.code}
+              item={item}
+              isSelected={selectedLanguage === item.code}
+              onSelect={handleLanguageSelect}
+            />
+          ))}
+        </View>
       </ScrollView>
 
       <View style={styles.footer}>
-        <TouchableOpacity
-          style={styles.confirmButton}
-          onPress={onConfirm}
-        >
-          <Text style={styles.confirmButtonText}>
-            {isFirstTime ? (strings.Continue || 'Continue') : (strings.Done || 'Done')}
-          </Text>
-        </TouchableOpacity>
+        {isFirstTime ? (
+          <SlideButton
+            title={strings.Continue}
+            onSlideSuccess={onConfirm}
+          />
+        ) : (
+          <View style={{
+            marginHorizontal: 15
+          }}>
+            <TouchableOpacity
+              style={styles.confirmButton}
+              onPress={onConfirm}
+              activeOpacity={0.8}
+            >
+              <Text style={styles.confirmButtonText}>
+                {strings.Done || 'Done'}
+              </Text>
+            </TouchableOpacity>
+          </View>
+        )}
       </View>
     </SafeAreaView>
   );
@@ -115,107 +205,158 @@ const LanguageSelection = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#FAFAFA',
   },
-  header: {
-    flexDirection: 'row',
+  headerImageContainer: {
     alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    height: 56,
-    borderBottomWidth: 1,
-    borderBottomColor: '#F0F0F0',
+    marginVertical: 20,
   },
-  backButton: {
-    padding: 8,
+  headerImage: {
+    width: 200,
+    height: 150,
   },
-  backText: {
-    fontSize: 24,
-    color: '#000',
+  textContainer: {
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    marginBottom: 30,
   },
-  headerTitle: {
-    fontSize: 18,
+  title: {
+    fontSize: 28,
     fontFamily: font.MonolithRegular,
-    color: '#000',
-  },
-  content: {
-    padding: 20,
+    color: '#1A1A1A',
+    marginBottom: 8,
+    textAlign: 'center',
   },
   subtitle: {
-    fontSize: 17,
-    color: 'black',
-    marginBottom: 24,
+    fontSize: 15,
+    color: '#7C7C7C',
     fontFamily: font.MonolithRegular,
-    textAlign: "center",
-    paddingTop: 30
+    textAlign: 'center',
+    lineHeight: 22,
+  },
+  content: {
+    paddingHorizontal: 24,
+    paddingBottom: 40,
+  },
+  languageList: {
+    gap: 12,
   },
   languageItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
     padding: 16,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: '#EFEFEF',
-    marginBottom: 16,
-    backgroundColor: '#F9F9F9',
+    borderRadius: 20,
+    borderWidth: 1.6,
+    borderColor: 'transparent',
+    backgroundColor: '#FFFFFF',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
+    marginBottom: 12,
   },
   selectedItem: {
     borderColor: color.primary,
-    backgroundColor: '#FFFBE6',
+    backgroundColor: '#FFFFFF',
+    shadowOpacity: 0.1,
+  },
+  flagContainer: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    backgroundColor: '#F3F4F6',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 16,
+  },
+  flagText: {
+    fontSize: 26,
   },
   languageInfo: {
     flex: 1,
   },
+  nameContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
   languageName: {
-    fontSize: 16,
+    fontSize: 17,
     fontFamily: font.MonolithRegular,
-    color: '#333',
+    color: '#1A1A1A',
   },
   selectedText: {
-    color: color.primary,
+    color: '#000',
+  },
+  recommendedBadge: {
+    backgroundColor: '#E7F7F3',
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 8,
+    marginLeft: 8,
+  },
+  recommendedText: {
+    fontSize: 10,
+    color: '#2CC59D',
+    fontFamily: font.MonolithRegular,
   },
   languageSubName: {
-    fontSize: 12,
-    color: '#999',
+    fontSize: 13,
+    color: '#8E8E93',
     marginTop: 2,
     fontFamily: font.MonolithRegular,
   },
   radioOutline: {
-    width: 22,
-    height: 22,
-    borderRadius: 11,
-    borderWidth: 2,
-    borderColor: '#CCC',
+    width: 26,
+    height: 26,
+    borderRadius: 13,
+    backgroundColor: '#F0F0F0',
     alignItems: 'center',
     justifyContent: 'center',
   },
   radioOutlineSelected: {
-    borderColor: color.primary,
-  },
-  radioInner: {
-    width: 12,
-    height: 12,
-    borderRadius: 6,
     backgroundColor: color.primary,
   },
+  checkIcon: {
+    width: 14,
+    height: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  checkStem: {
+    position: 'absolute',
+    width: 2,
+    height: 7,
+    backgroundColor: '#000',
+    transform: [{ rotate: '45deg' }, { translateX: 2 }, { translateY: -1 }],
+  },
+  checkKick: {
+    position: 'absolute',
+    width: 2,
+    height: 3,
+    backgroundColor: '#000',
+    transform: [{ rotate: '-45deg' }, { translateX: -2 }, { translateY: 1 }],
+  },
   footer: {
-    padding: 20,
-
+    borderTopColor: '#F0F0F0',
+    marginBottom: 14,
   },
   confirmButton: {
     backgroundColor: color.primary,
-    height: 50,
-    borderRadius: 25,
+    height: 56,
+    borderRadius: 28,
     alignItems: 'center',
     justifyContent: 'center',
+
 
   },
   confirmButtonText: {
     color: '#000',
-    fontSize: 16,
+    fontSize: 17,
     fontFamily: font.MonolithRegular,
+    letterSpacing: 0.5,
   },
 });
 
 export default LanguageSelection;
+
+

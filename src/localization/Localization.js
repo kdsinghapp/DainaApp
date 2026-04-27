@@ -15,6 +15,7 @@ const strings = new LocalizedStrings({
     Version: "Version",
     Profile: "Profile",
     Add: "Add",
+    TypeAMessagePlaceholder: "Type a message...",
     // Onboarding
     ShipYourParcel: "Ship Your Parcel",
     ShipAnywhere: "Ship Anywhere",
@@ -632,6 +633,7 @@ const strings = new LocalizedStrings({
     PhoneNotAvailable: "Утасны дугаар байхгүй",
     PhoneCallNotSupported: "Утасны дуудлага хийх боломжгүй",
     SelectLanguage: "Хэл сонгох",
+    TypeAMessagePlaceholder: "Мессеж бичих...",
   },
 });
 

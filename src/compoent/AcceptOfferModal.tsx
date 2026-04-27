@@ -124,21 +124,21 @@ const styles = StyleSheet.create({
   section: {
     marginBottom: 14,
     paddingHorizontal: 4,
-    textAlign:"center"
+    textAlign: "center"
   },
   label: {
     fontSize: 13,
     color: '#6B7280',
     fontFamily: font.MonolithRegular,
-        textAlign:"center"
+    textAlign: "center"
 
   },
   value: {
     fontSize: 26,
-     color: 'black',
+    color: 'black',
     marginTop: 4,
     fontFamily: font.MonolithRegular,
-        textAlign:"center"
+    textAlign: "center"
 
   },
   message: {
@@ -163,5 +163,5 @@ const styles = StyleSheet.create({
   buttonLabel: {
     fontSize: 16,
     fontFamily: font.MonolithRegular,
-   },
+  },
 });
