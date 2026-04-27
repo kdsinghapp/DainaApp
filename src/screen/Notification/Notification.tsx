@@ -83,9 +83,6 @@ const NotificationsScreen = () => {
     <SafeAreaView style={styles.container}>
       <CustomHeader
         label={strings.Notifications || "Notification"}
-        menuIcon={imageIndex.left}
-        leftPress={true}
-        navigation={navigation}
       />
       {loading && !refreshing ? (
         <View style={styles.loadingContainer}>

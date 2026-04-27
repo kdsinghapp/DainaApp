@@ -877,6 +877,36 @@ const GetNotifications = async (
   }
 };
 
+const GetDashboardCounts = async (
+  setLoading: (loading: boolean) => void
+): Promise<any | null> => {
+  setLoading(true);
+  const token = await AsyncStorage.getItem('token');
+  try {
+    const response = await fetch(`${base_url}/delivery/dashboard-counts`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+
+    const responseData = await response.json();
+    console.log("Dashboard Counts Response:", responseData);
+
+    if (responseData.status === "1" || responseData.status === 1) {
+      return responseData;
+    } else {
+      return responseData;
+    }
+  } catch (error) {
+    console.error("GetDashboardCounts API call error:", error);
+    return null;
+  } finally {
+    setLoading(false);
+  }
+};
+
 export {
   LogiApi,
   Verifyotp,
@@ -897,5 +927,6 @@ export {
   DeliveryAvailableRequests,
   GetApi,
   SetLanguageApi,
-  GetNotifications
+  GetNotifications,
+  GetDashboardCounts
 }

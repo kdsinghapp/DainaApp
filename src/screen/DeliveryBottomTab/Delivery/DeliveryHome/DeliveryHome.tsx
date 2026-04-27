@@ -8,6 +8,7 @@ import {
   Easing,
   FlatList,
   ScrollView,
+  RefreshControl,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
@@ -25,15 +26,39 @@ import ScreenNameEnum from "../../../../routes/screenName.enum";
 import useDashboard from "../../../BottomTab/DashBoard/useDashboard";
 import NewOrderNotificationModal from "../../../../compoent/NewOrderNotificationModal";
 import OfferAcceptedModal from "../../../../compoent/OfferAcceptedModal";
+import { GetDashboardCounts } from "../../../../Api/apiRequest";
 
 const TABS = ["Pending", "Complete", "Canceled"] as const;
 const DeliveryHome = () => {
   const ctx = useDeliveryContext();
   if (!ctx) return null;
-  const { isLoading, requests, coords, newOrderNotification } = ctx;
+  const { isLoading, requests, coords, newOrderNotification, fetchAvailableRequests } = ctx;
   // console.log("newOrderNotification",newOrderNotification?.data?.user?.name)
   const [activeTab, setActiveTab] = useState<(typeof TABS)[number]>("Pending");
   const [isOnline, setIsOnline] = useState(false);
+  const [counts, setCounts] = useState<any>(null);
+  const [refreshing, setRefreshing] = useState(false);
+
+  useEffect(() => {
+    fetchCounts();
+  }, []);
+
+  const fetchCounts = async () => {
+    const res = await GetDashboardCounts(() => { });
+    console.log("res 555555 ", res)
+    if (res && (res.status === 1 || res.status === "1")) {
+      setCounts(res);
+    }
+  };
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await Promise.all([
+      fetchCounts(),
+      fetchAvailableRequests()
+    ]);
+    setRefreshing(false);
+  };
 
   // useEffect(() => {
   //   Animated.timing(pillX, {
@@ -79,17 +104,17 @@ const DeliveryHome = () => {
     switch (activeTab) {
       case "Pending":
         return requests.filter(
-          (item: any) => item.status?.toLowerCase() === "pending",
+          (item: any) => item.deliveryStatus?.toLowerCase() === "pending",
         );
       case "Complete":
         return requests.filter(
           (item: any) =>
-            item.status?.toLowerCase() === "completed" ||
-            item.status?.toLowerCase() === "delivered",
+            item.deliveryStatus?.toLowerCase() === "completed" ||
+            item.deliveryStatus?.toLowerCase() === "delivered",
         );
       case "Canceled":
         return requests.filter(
-          (item: any) => item.status?.toLowerCase() === "canceled",
+          (item: any) => item.deliveryStatus?.toLowerCase() === "canceled",
         );
       default:
         return requests;
@@ -118,7 +143,12 @@ const DeliveryHome = () => {
           fontWeight: "500",
         }}
       /> */}
-      <ScrollView showsVerticalScrollIndicator={false}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
+      >
         <View
           style={{
             marginTop: 12,
@@ -131,14 +161,14 @@ const DeliveryHome = () => {
           {/* Earnings */}
           <View style={styles.card1}>
             <Image
-              source={imageIndex.earing}
+              source={imageIndex.cars}
               style={{
                 height: 35,
                 width: 35,
               }}
               resizeMode="contain"
             />
-            <Text style={styles.title}>Today's Earnings</Text>
+            <Text style={styles.title}>Pending Rides</Text>
             <Text
               style={{
                 color: "#fff",
@@ -147,7 +177,7 @@ const DeliveryHome = () => {
                 marginTop: 5,
               }}
             >
-              00.€
+              {counts?.pendingRides || "0"}
             </Text>
           </View>
 
@@ -170,7 +200,7 @@ const DeliveryHome = () => {
                 marginTop: 5,
               }}
             >
-              0
+              {counts?.todayRides || "0"}
             </Text>
           </View>
         </View>
@@ -185,7 +215,7 @@ const DeliveryHome = () => {
               }}
               resizeMode="contain"
             />
-            <Text style={styles.title}>Weekly's Earnings</Text>
+            <Text style={styles.title}>Total Earnings</Text>
             <Text
               style={{
                 color: "#fff",
@@ -194,7 +224,7 @@ const DeliveryHome = () => {
                 marginTop: 5,
               }}
             >
-              00.€
+              0.00€
             </Text>
           </View>
 
@@ -217,7 +247,7 @@ const DeliveryHome = () => {
                 marginTop: 5,
               }}
             >
-              0
+              {counts?.weeklyRides || "0"}
             </Text>
           </View>
         </View>

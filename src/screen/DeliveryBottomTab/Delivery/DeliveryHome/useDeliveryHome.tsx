@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
+import moment from 'moment';
 import { base_url, WebSocket_Url } from '../../../../Api';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import Geolocation from '@react-native-community/geolocation';
@@ -83,14 +84,13 @@ export const useDeliveryHome = () => {
       console.log("ss", response)
 
       if (response?.data?.status == 1) {
-        // const validRequests = response?.data?.requests?.filter(
-        //   (item) => item?.trackingId !== null && item?.trackingId !== "",
-        // );
-        const validRequests = response?.data?.requests
-          ?.filter((item) => item?.trackingId !== null && item?.trackingId !== "")
-          ?.map((item) => ({
+        const list = response?.data?.parcels || response?.data?.requests || [];
+        const validRequests = list
+          ?.filter((item: any) => item?.trackingId !== null && item?.trackingId !== "")
+          ?.map((item: any) => ({
             ...item,
-            deliveryStatus: item?.status
+            deliveryStatus: item?.deliveryStatus || item?.status,
+            date: item?.createdAt ? moment(item.createdAt).format('DD MMM, YYYY') : item?.date
           }));
         setIsLoading(false);
         setRequests(validRequests || []);
