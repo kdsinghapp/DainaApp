@@ -35,19 +35,19 @@ const EditProfile = () => {
   const [image, setImage] = useState<any>(userData?.image || null);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-const dispatch = useDispatch();
-const getProfileApi = async () => {
-  try {
-    const response = await GetProfileApi(setIsLoading);
-     if (response) {
-      dispatch(loginSuccess({ userData: response}));
-     } 
-  } catch (error) {
- 
-   }
-};
+  const dispatch = useDispatch();
+  const getProfileApi = async () => {
+    try {
+      const response = await GetProfileApi(setIsLoading);
+      if (response) {
+        dispatch(loginSuccess({ userData: response }));
+      }
+    } catch (error) {
+
+    }
+  };
   const pickImageFromGallery = () => {
-    launchImageLibrary({ mediaType: "photo" ,quality: 0.5}, (response) => {
+    launchImageLibrary({ mediaType: "photo", quality: 0.5 }, (response) => {
       if (response.assets && response.assets.length > 0) {
         setImage(response.assets[0]);
         setIsModalVisible(false);
@@ -75,7 +75,7 @@ const getProfileApi = async () => {
         address: address,
         imagePrfoile: image, // full object with uri, type, name
       };
-       const response = await UpdateProfile(params, setIsLoading);
+      const response = await UpdateProfile(params, setIsLoading);
 
       if (response) {
         getProfileApi()
@@ -93,13 +93,13 @@ const getProfileApi = async () => {
       <CustomHeader label={strings.EditProfile} />
 
       <KeyboardAvoidingView
-      style={{ flex: 1 }}
+        style={{ flex: 1 }}
         behavior={Platform.OS === "ios" ? "padding" : undefined}
         keyboardVerticalOffset={Platform.OS === "ios" ? 100 : 0} // adjust offset if needed
 
-       >
+      >
         <ScrollView contentContainerStyle={styles.container}
-        
+
         >
           <View style={styles.profileContainer}>
             <Image
@@ -174,17 +174,17 @@ const styles = StyleSheet.create({
     position: "relative", // needed for absolute edit icon
   },
   profileImage: {
-  width: 120,
-  height: 120,
-  borderRadius: 120,
+    width: 120,
+    height: 120,
+    borderRadius: 120,
   },
   editIconContainer: {
     position: "relative",
     bottom: 20,
     right: 0,
-     padding: 5,
-     left:16
-  
+    padding: 5,
+    left: 16
+
   },
   editIcon: {
     width: 33,

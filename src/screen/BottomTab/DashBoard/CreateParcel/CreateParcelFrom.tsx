@@ -1,11 +1,10 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
   TextInput,
   ScrollView,
   TouchableOpacity,
-  Alert,
   Image,
   Platform,
   KeyboardAvoidingView,
@@ -517,7 +516,7 @@ const CreateParcelFrom = () => {
                 : strings.PickupTime}
             </Text>
           </TouchableOpacity>
-          {errors.pickupTime ? <Text style={styles.errorText}>{errors.pickupTime}</Text> : null}
+          {errors?.pickupTime ? <Text style={styles.errorText}>{errors.pickupTime}</Text> : null}
 
           {showTime && (
             <DateTimePicker

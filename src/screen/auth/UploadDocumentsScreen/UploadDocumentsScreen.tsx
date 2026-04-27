@@ -3,7 +3,6 @@ import {
   View,
   Image,
   Text,
-  StyleSheet,
   ScrollView,
   TouchableOpacity,
 } from "react-native";
@@ -20,22 +19,13 @@ import LoadingModal from "../../../utils/Loader";
 import { errorToast } from "../../../utils/customToast";
 import { styles } from "./style";
 import strings from "../../../localization/Localization";
-import CustomInput from "../../../compoent/CustomInput";
 
 const UploadDocumentsScreen = () => {
   const [idDoc, setIdDoc] = useState<any>(null);
   const [licenseDoc, setLicenseDoc] = useState<any>(null);
   const [vehicleDoc, setVehicleDoc] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(false);
-
-  const [licenseNumber, setLicenseNumber] = useState("");
-  const [phoneNumber, setPhoneNumber] = useState("");
-  const [bankName, setBankName] = useState("");
-  const [accountNumber, setAccountNumber] = useState("");
-  const [ifscCode, setIfscCode] = useState("");
-
   const navigation: any = useNavigation();
-
   const pickDocument = async (type: string) => {
     const options: any = {
       mediaType: "photo",
@@ -88,6 +78,7 @@ const UploadDocumentsScreen = () => {
       navigation.replace(ScreenNameEnum.VehicleSetupScreen);
     }
   };
+
 
 
 

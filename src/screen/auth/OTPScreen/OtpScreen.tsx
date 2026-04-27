@@ -8,7 +8,6 @@ import React from 'react';
 import {
   CodeField,
   Cursor,
-
 } from 'react-native-confirmation-code-field';
 import CustomButton from '../../../compoent/CustomButton';
 import StatusBarComponent from '../../../compoent/StatusBarCompoent';
@@ -33,7 +32,6 @@ export default function OtpScreen() {
     handleChangeText,
     handleVerifyOTP,
     handleResendOTP,
-    navigation,
     data,
     phone
   } = useOtpVerification()
@@ -42,6 +40,7 @@ export default function OtpScreen() {
       style={{ flex: 1, backgroundColor: "#fff" }}
 
     >
+
       <StatusBarComponent />
       <CustomHeader label={strings.Back} />
       <LoadingModal visible={isLoading} />
@@ -95,7 +94,7 @@ export default function OtpScreen() {
                   color: color.primary, fontFamily: font.MonolithRegular,
                   textDecorationLine: 'underline'
                 }}>
-                  {strings.ResendOTPButton}
+                  {strings?.ResendOTPButton}
                 </Text>
               </TouchableOpacity>
             )}

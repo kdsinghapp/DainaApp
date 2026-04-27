@@ -12,6 +12,7 @@ import { Termsconditions } from '../../Api/apiRequest';
 import LoadingModal from '../../utils/Loader';
 import strings from '../../localization/Localization';
 
+
 const LegalPoliciesScreen = () => {
     const [isLoading, setLoading] = useState(false);
     const [content, setContent] = useState<string>('');
@@ -112,6 +113,8 @@ const styles = StyleSheet.create({
         lineHeight: 20,
         color: '#666',
         fontFamily: font.MonolithRegular,
+
+
     },
 });
 

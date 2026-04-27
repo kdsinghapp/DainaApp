@@ -52,8 +52,8 @@ export const useOtpVerification = (cellCount: number = 4) => {
   };
 
   const handleVerifyOTP = async () => {
-    if (value.length !== cellCount) {
-      setErrorMessage(strings.Enter4DigitOTP);
+    if (value?.length !== cellCount) {
+      setErrorMessage(strings?.Enter4DigitOTP);
       return;
     }
 

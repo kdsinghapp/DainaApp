@@ -28,6 +28,7 @@ export const styles = StyleSheet.create({
     paddingVertical: 12,
     alignItems: 'center',
     borderRadius: 26,
+    justifyContent: "center"
   },
   activeTabButton: {
     backgroundColor: YELLOW,

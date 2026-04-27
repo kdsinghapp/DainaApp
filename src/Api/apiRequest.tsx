@@ -130,6 +130,11 @@ const Verifyotp = async (param: any, setLoading: any, dispatch: any) => {
       await AsyncStorage.setItem('token', parsedResponse?.token);
       dispatch(loginSuccess({ userData: parsedResponse, token: parsedResponse?.token }));
       await saveAuthData(parsedResponse, parsedResponse?.token);
+
+      const languageId = strings.getLanguage() === 'en' ? 1 : 2;
+      const resLang = await SetLanguageApi({ languageId }, setLoading);
+      console.log("Language Set API Response:", resLang);
+
       if (parsedResponse?.type === "Delivery") {
         if (parsedResponse?.completionStatus?.isDocumentsUploaded === true) {
           param.navigation.navigate(ScreenNameEnum.DeliveryTabNavigator);
@@ -156,7 +161,7 @@ const Verifyotp = async (param: any, setLoading: any, dispatch: any) => {
 
   } catch (error: any) {
     console.error('Login error:', error);
-    errorToast(strings.NetworkErrorTryAgain);
+    errorToast(error?.message || strings.NetworkErrorTryAgain);
   } finally {
     setLoading(false);
   }
@@ -262,7 +267,7 @@ const UpdateProfile = async (
     console.log("parsedResponse", error)
 
     console.error("UpdateProfile error:", error);
-    errorToast(strings.SomethingWentWrong);
+    errorToast(error?.message || "");
     return null;
   } finally {
     setLoading(false);

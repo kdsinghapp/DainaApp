@@ -9,8 +9,7 @@ import {
   ScrollView,
   Animated,
   RefreshControl,
-  Platform,
-  Dimensions,
+
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import imageIndex from '../../../assets/imageIndex';
@@ -21,6 +20,7 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import { styles } from './style';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import strings from '../../../localization/Localization';
+import { successToast } from '../../../utils/customToast';
 
 export default function DocumentShow() {
   const [loading, setLoading] = useState(true);
@@ -78,8 +78,6 @@ export default function DocumentShow() {
       if (vehicleResult.status == 1) {
         setVehicleInfo(vehicleResult?.data || vehicleResult);
       }
-
-      // 3. Fetch Bank Setup
       const bankResponse = await fetch(`${base_url}/bank-setup`, {
         method: 'GET',
         headers: {
@@ -89,6 +87,7 @@ export default function DocumentShow() {
       });
       const bankResult = await bankResponse.json();
       if (bankResult.status == 1) {
+        successToast(bankResult?.message)
         setBankInfo(bankResult?.data || bankResult);
       }
 
@@ -127,7 +126,6 @@ export default function DocumentShow() {
   };
 
   const DocumentCard = ({ title, imageUrl, icon, status }: any) => {
-    const statusInfo = getStatusInfo(status || 'pending');
 
     return (
       <Animated.View style={[styles.card, { opacity: fadeAnim }]}>
@@ -136,9 +134,7 @@ export default function DocumentShow() {
             <View style={styles.iconContainer}>{icon}</View>
             <Text style={styles.cardTitle}>{title}</Text>
           </View>
-          <View style={[styles.statusBadge, statusInfo.badgeStyle]}>
-            <Text style={[styles.statusText, statusInfo.textStyle]}>{statusInfo.label}</Text>
-          </View>
+
         </View>
 
         <TouchableOpacity
@@ -172,19 +168,17 @@ export default function DocumentShow() {
             </View>
             <Text style={styles.cardTitle}>{strings.VehicleInformation}</Text>
           </View>
-          <View style={[styles.statusBadge, statusInfo.badgeStyle]}>
-            <Text style={[styles.statusText, statusInfo.textStyle]}>{statusInfo.label}</Text>
-          </View>
+
         </View>
 
         <View style={styles.infoGrid}>
           <View style={styles.infoItem}>
-            <Text style={styles.infoLabel}>{strings.VehicleType}</Text>
-            <Text style={styles.infoValue}>{data?.vehicleType || '-'}</Text>
+            <Text style={styles.infoLabel}>{strings?.VehicleType}</Text>
+            <Text style={styles.infoValue}>{data?.vehicleType || ''}</Text>
           </View>
           <View style={styles.infoItem}>
             <Text style={styles.infoLabel}>{strings.VehicleNumber}</Text>
-            <Text style={styles.infoValue}>{data?.vehicleNumber || '-'}</Text>
+            <Text style={styles.infoValue}>{data?.vehicleNumber || ''}</Text>
           </View>
           {data?.vehicleModel && (
             <View style={styles.infoItem}>
@@ -223,6 +217,7 @@ export default function DocumentShow() {
   const BankCard = ({ data }: any) => {
     if (!data) return <EmptyState />;
 
+    console.log("data", data)
     return (
       <Animated.View style={[styles.bankCard, { opacity: fadeAnim }]}>
         <View style={styles.bankHeader}>
@@ -241,7 +236,7 @@ export default function DocumentShow() {
           </View>
           <View style={{ alignItems: 'flex-end' }}>
             <Text style={styles.bankLabel}>{strings.IFSCCode}</Text>
-            <Text style={styles.bankValue}>{data.bankIfscCode || '-'}</Text>
+            <Text style={styles.bankValue}>{data.bankIfscCode || ''}</Text>
           </View>
         </View>
       </Animated.View>
@@ -274,7 +269,6 @@ export default function DocumentShow() {
     <SafeAreaView style={styles.container}>
       <StatusBarComponent />
       <CustomHeader label={strings.MyDocuments} />
-
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
@@ -283,15 +277,15 @@ export default function DocumentShow() {
         }
       >
         <View style={styles.tabContainer}>
-          {tabs.map((tab) => (
+          {tabs?.map((tab) => (
             <TouchableOpacity
               key={tab.id}
-              style={[styles.tabButton, activeTab === tab.id && styles.activeTabButton]}
+              style={[styles.tabButton, activeTab === tab?.id && styles.activeTabButton]}
               onPress={() => setActiveTab(tab.id)}
               activeOpacity={0.7}
             >
-              <Text style={[styles.tabText, activeTab === tab.id && styles.activeTabText]}>
-                {tab.label}
+              <Text style={[styles.tabText, activeTab === tab?.id && styles.activeTabText]}>
+                {tab?.label}
               </Text>
             </TouchableOpacity>
           ))}
@@ -300,9 +294,9 @@ export default function DocumentShow() {
         {activeTab === 'identity' && (
           <>
             <Text style={styles.sectionTitle}>{strings.Identification}</Text>
-            {documents.drivingLicense || documents.idDocument || documents.vehiclePapers ? (
+            {documents?.drivingLicense || documents?.idDocument || documents?.vehiclePapers ? (
               <>
-                {documents.drivingLicense && (
+                {documents?.drivingLicense && (
                   <DocumentCard
                     title={strings.DrivingLicense}
                     imageUrl={documents?.drivingLicense}
@@ -310,7 +304,7 @@ export default function DocumentShow() {
                     status={verificationStatus}
                   />
                 )}
-                {documents.idDocument && (
+                {documents?.idDocument && (
                   <DocumentCard
                     title={strings.IDDocument}
                     imageUrl={documents?.idDocument}
@@ -318,7 +312,7 @@ export default function DocumentShow() {
                     status={verificationStatus}
                   />
                 )}
-                {documents.vehiclePapers && (
+                {documents?.vehiclePapers && (
                   <DocumentCard
                     title={strings.VehiclePapers}
                     imageUrl={documents?.vehiclePapers}
@@ -333,14 +327,14 @@ export default function DocumentShow() {
 
         {activeTab === 'vehicle' && (
           <>
-            <Text style={styles.sectionTitle}>{strings.Vehicle}</Text>
+            <Text style={styles.sectionTitle}>{strings?.Vehicle}</Text>
             <VehicleCard data={vehicleInfo} />
           </>
         )}
 
         {activeTab === 'bank' && (
           <>
-            <Text style={styles.sectionTitle}>{strings.Banking}</Text>
+            <Text style={styles.sectionTitle}>{strings?.Banking}</Text>
             <BankCard data={bankInfo} />
           </>
         )}

@@ -13,14 +13,12 @@ import Constcounty from "./Constcounty";
 import { LogiApi } from "../../../Api/apiRequest";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import LoadingModal from "../../../utils/Loader";
-import NotificationService from "../../../services/NotificationService";
 import { getMessaging } from "@react-native-firebase/messaging";
 import strings from "../../../localization/Localization";
 
 const PhoneLogin = () => {
   // const [phoneNumber, setPhoneNumber] = useState("9440589340");
   // const [phoneNumber, setPhoneNumber] = useState("");
-
   const [phoneNumber, setPhoneNumber] = useState("9773967567677");
   const [countryCode, setCountryCode] = useState("IN");
   const [callingCode, setCallingCode] = useState("+91");
@@ -63,18 +61,15 @@ const PhoneLogin = () => {
       setFilteredCountries(filtered);
     }
   }, [searchText]);
-
   const handleSelectCountry = (country) => {
     setCountryCode(country?.code);
     setCallingCode(country?.dial_code);
     setModalVisible(false);
     setSearchText(""); // reset search
   };
-
   const handleContinue = async () => {
     const trimmedNumber = phoneNumber.replace(/\D/g, ""); // Remove non-digit characters
     const userType = await AsyncStorage.getItem('selectedRole');
-
     // Validation
     if (!trimmedNumber) {
       setError(strings.PleaseEnterPhone);
