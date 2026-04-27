@@ -37,6 +37,7 @@ import CreateParcelFrom from "../screen/BottomTab/DashBoard/CreateParcel/CreateP
 import NearbyDriversMap from "../screen/BottomTab/NearbyDriversMap/NearbyDriversMap";
 import LanguageSelection from "../screen/Profile/LanguageSelection/LanguageSelection";
 import BankSetupScreen from "../screen/auth/BankSetup/BankSetupScreen";
+import EditProfileDeliver from "../screen/DeliveryBottomTab/EditProfileDeliver/EditProfileDeliver";
 const _routes: any = {
   REGISTRATION_ROUTE: [
     {
@@ -164,6 +165,10 @@ const _routes: any = {
     {
       name: ScreenNameEnum.ViewDetails,
       Component: ViewDetails,
+    },
+    {
+      name: ScreenNameEnum.EditProfileDeliver,
+      Component: EditProfileDeliver,
     },
 
 

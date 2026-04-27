@@ -368,31 +368,259 @@ export const styles = StyleSheet.create({
     borderBottomLeftRadius: 20,
     borderBottomRightRadius: 20,
   },
+  // Tab styles
   tabContainer: {
     flexDirection: 'row',
-    backgroundColor: '#FFF',
-    padding: 6,
-    borderRadius: 14,
+    backgroundColor: '#F0F0F0',
+    padding: 4,
+    borderRadius: 30,
     marginBottom: 24,
-    borderWidth: 1,
-    borderColor: '#F0F0F0',
+    marginHorizontal: 4,
   },
   tabButton: {
     flex: 1,
-    paddingVertical: 10,
+    paddingVertical: 12,
     alignItems: 'center',
-    borderRadius: 10,
+    borderRadius: 26,
   },
   activeTabButton: {
     backgroundColor: '#FFCC00',
+    shadowColor: '#FFCC00',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 6,
   },
   tabText: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: '#666',
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#8E8E93',
     fontFamily: font.MonolithRegular,
   },
   activeTabText: {
     color: '#000',
+    fontWeight: '700',
   },
+
+  // Premium Card styles
+  card: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 24,
+    marginBottom: 20,
+    padding: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.05,
+    shadowRadius: 15,
+    elevation: 5,
+    borderWidth: 1,
+    borderColor: '#F2F2F7',
+  },
+  cardHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: 16,
+  },
+  titleContainer: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  iconContainer: {
+    width: 48,
+    height: 48,
+    borderRadius: 16,
+    backgroundColor: '#FFF9E6',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 14,
+  },
+  cardTitle: {
+    fontSize: 17,
+    fontWeight: '700',
+    color: '#1C1C1E',
+    fontFamily: font.MonolithRegular,
+  },
+  statusBadge: {
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 10,
+  },
+  statusText: {
+    fontSize: 11,
+    fontWeight: '700',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  },
+  verifiedBadge: { backgroundColor: '#E1F8E9' },
+  reviewBadge: { backgroundColor: '#E3F2FD' },
+  pendingBadge: { backgroundColor: '#FFF3E0' },
+  
+  verifiedText: { color: '#34C759' },
+  reviewText: { color: '#007AFF' },
+  pendingText: { color: '#FF9500' },
+
+  // Info Grid styles
+  infoGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    marginTop: 8,
+  },
+  infoItem: {
+    width: '50%',
+    marginBottom: 16,
+  },
+  infoLabel: {
+    fontSize: 12,
+    color: '#8E8E93',
+    marginBottom: 4,
+    fontFamily: font.MonolithRegular,
+  },
+  infoValue: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: '#1C1C1E',
+    fontFamily: font.MonolithRegular,
+  },
+
+  // Document Image styles
+  docImageWrapper: {
+    borderRadius: 18,
+    overflow: 'hidden',
+    backgroundColor: '#F2F2F7',
+    marginTop: 10,
+  },
+  image: {
+    width: '100%',
+    height: 180,
+  },
+  imageOverlay: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    paddingVertical: 8,
+    alignItems: 'center',
+  },
+  overlayText: {
+    color: '#FFF',
+    fontSize: 12,
+    fontWeight: '600',
+  },
+
+  // Bank Card Specific
+  bankCard: {
+    backgroundColor: '#1C1C1E',
+    borderRadius: 24,
+    padding: 24,
+    minHeight: 200,
+    justifyContent: 'space-between',
+  },
+  bankHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  bankName: {
+    color: '#FFF',
+    fontSize: 18,
+    fontWeight: '700',
+  },
+  bankChip: {
+    width: 45,
+    height: 35,
+    backgroundColor: '#FFCC00',
+    borderRadius: 8,
+    opacity: 0.8,
+  },
+  accountNumber: {
+    color: '#FFF',
+    fontSize: 22,
+    letterSpacing: 2,
+    marginVertical: 20,
+    fontFamily: 'Courier',
+  },
+  bankFooter: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-end',
+  },
+  bankLabel: {
+    color: 'rgba(255,255,255,0.5)',
+    fontSize: 10,
+    textTransform: 'uppercase',
+    marginBottom: 4,
+  },
+  bankValue: {
+    color: '#FFF',
+    fontSize: 14,
+    fontWeight: '600',
+  },
+
+  // Empty State
+  emptyContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 40,
+    marginTop: 50,
+  },
+  emptyTitle: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#1C1C1E',
+    marginTop: 20,
+  },
+  emptySubtitle: {
+    fontSize: 14,
+    color: '#8E8E93',
+    textAlign: 'center',
+    marginTop: 8,
+    lineHeight: 20,
+  },
+
+  // Modal styles
+  modalContainer: {
+    flex: 1,
+    backgroundColor: '#000',
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    paddingTop: 60,
+    paddingHorizontal: 20,
+  },
+  closeButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  fullImage: {
+    flex: 1,
+    width: width,
+  },
+
+  // Header helpers
+  sectionTitle: {
+    fontSize: 22,
+    fontWeight: '800',
+    color: '#1C1C1E',
+    marginBottom: 16,
+    marginLeft: 4,
+  },
+  center: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#FFF',
+  },
+  loadingText: {
+    marginTop: 12,
+    color: '#8E8E93',
+    fontWeight: '500',
+  }
 });

@@ -127,7 +127,7 @@ const DeliveryProfile: React.FC<Props> = ({
         <TouchableOpacity
 
           onPress={() => {
-            navigation.navigate(ScreenNameEnum.ProfileSetup)
+            navigation.navigate(ScreenNameEnum.EditProfileDeliver)
           }}
           style={styles.profileCard}>
           <View style={styles.avatarWrap}>
@@ -165,13 +165,13 @@ const DeliveryProfile: React.FC<Props> = ({
         {/* Menu */}
         <View style={styles.card}>
 
-          <ListItem
+          {/* <ListItem
             icon={<SvgIndex.Earing />}
             label={strings.EarningsReports}
             onPress={() => {
               navigation.navigate(ScreenNameEnum.EarningsScreen)
             }}
-          />
+          /> */}
           <ListItem
             icon={<Image source={imageIndex.document}
 
@@ -187,12 +187,12 @@ const DeliveryProfile: React.FC<Props> = ({
           />
 
           <ItemDivider />
-          <ListItem
+          {/* <ListItem
             icon={<SvgIndex.Wallert />}
             label={strings.Wallet}
             onPress={() => {
               navigation.navigate(ScreenNameEnum.WalletScreen)
-            }} />
+            }} /> */}
           <ItemDivider />
           <ListItem
             icon={<SvgIndex.Notiftaction />}

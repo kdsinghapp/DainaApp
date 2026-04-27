@@ -251,7 +251,7 @@ const ParcelDetails = () => {
     });
     return () => showSub.remove();
   }, []);
-
+  console.log("item", item)
 
   return (
     <View style={styles.container}>

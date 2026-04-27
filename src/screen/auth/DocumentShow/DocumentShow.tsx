@@ -133,48 +133,144 @@ export default function DocumentShow() {
   };
 
   const DocumentCard = ({ title, imageUrl, icon, status = 'verified' }: any) => {
+    const isVerified = status === 'verified';
+    const isInReview = status === 'in_review';
+
     const getStatusStyle = () => {
-      switch (status) {
-        case 'verified': return styles.verifiedBadge;
-        case 'in_review': return styles.reviewBadge;
-        default: return styles.pendingBadge;
-      }
+      if (isVerified) return [styles.statusBadge, styles.verifiedBadge];
+      if (isInReview) return [styles.statusBadge, styles.reviewBadge];
+      return [styles.statusBadge, styles.pendingBadge];
+    };
+
+    const getStatusTextStyle = () => {
+      if (isVerified) return styles.verifiedText;
+      if (isInReview) return styles.reviewText;
+      return styles.pendingText;
     };
 
     const getStatusText = () => {
-      switch (status) {
-        case 'verified': return 'Verified';
-        case 'in_review': return 'In Review';
-        default: return 'Pending';
-      }
+      if (isVerified) return 'Verified';
+      if (isInReview) return 'In Review';
+      return 'Pending';
     };
 
     return (
       <Animated.View style={[styles.card, { opacity: fadeAnim }]}>
         <View style={styles.cardHeader}>
           <View style={styles.titleContainer}>
-            <View style={styles.iconTitleWrapper}>
+            <View style={styles.iconContainer}>
               {icon}
-              <Text style={[styles.cardTitle, { marginLeft: 12 }]}>{title}</Text>
             </View>
-            <View style={[styles.statusBadge, getStatusStyle()]}>
-              <Text style={styles.statusText}>{getStatusText()}</Text>
-            </View>
+            <Text style={styles.cardTitle}>{title}</Text>
+          </View>
+          <View style={getStatusStyle()}>
+            <Text style={[styles.statusText, getStatusTextStyle()]}>{getStatusText()}</Text>
           </View>
         </View>
 
-        <View style={styles.cardBody}>
+        <TouchableOpacity
+          style={styles.docImageWrapper}
+          onPress={() => imageUrl && setSelectedImage(imageUrl)}
+          activeOpacity={0.9}
+        >
+          <Image
+            source={imageUrl ? { uri: imageUrl } : imageIndex.Addressicone}
+            style={styles.image}
+            resizeMode="cover"
+          />
+          <View style={styles.imageOverlay}>
+            <Text style={styles.overlayText}>Tap to enlarge</Text>
+          </View>
+        </TouchableOpacity>
+      </Animated.View>
+    );
+  };
+
+  const VehicleCard = ({ data }: any) => {
+    if (!data) return <EmptyState />;
+    
+    return (
+      <Animated.View style={[styles.card, { opacity: fadeAnim }]}>
+        <View style={styles.cardHeader}>
+          <View style={styles.titleContainer}>
+            <View style={styles.iconContainer}>
+              <Icon name="directions-car" size={24} color="#FFCC00" />
+            </View>
+            <Text style={styles.cardTitle}>Vehicle Information</Text>
+          </View>
+          <View style={[styles.statusBadge, data.verificationStatus === 'verified' ? styles.verifiedBadge : styles.reviewBadge]}>
+            <Text style={[styles.statusText, data.verificationStatus === 'verified' ? styles.verifiedText : styles.reviewText]}>
+              {data.verificationStatus === 'in_review' ? 'In Review' : 'Verified'}
+            </Text>
+          </View>
+        </View>
+
+        <View style={styles.infoGrid}>
+          <View style={styles.infoItem}>
+            <Text style={styles.infoLabel}>Vehicle Type</Text>
+            <Text style={styles.infoValue}>{data.vehicleType || 'N/A'}</Text>
+          </View>
+          <View style={styles.infoItem}>
+            <Text style={styles.infoLabel}>Vehicle Number</Text>
+            <Text style={styles.infoValue}>{data.vehicleNumber || 'N/A'}</Text>
+          </View>
+          {data.vehicleModel && (
+            <View style={styles.infoItem}>
+              <Text style={styles.infoLabel}>Model</Text>
+              <Text style={styles.infoValue}>{data.vehicleModel}</Text>
+            </View>
+          )}
+          {data.vehicleColor && (
+            <View style={styles.infoItem}>
+              <Text style={styles.infoLabel}>Color</Text>
+              <Text style={styles.infoValue}>{data.vehicleColor}</Text>
+            </View>
+          )}
+        </View>
+
+        {data.vehicleRegistration && (
           <TouchableOpacity
-            style={styles.imageContainer}
-            onPress={() => imageUrl && setSelectedImage(imageUrl)}
-            activeOpacity={0.8}
+            style={styles.docImageWrapper}
+            onPress={() => setSelectedImage(data.vehicleRegistration)}
+            activeOpacity={0.9}
           >
             <Image
-              source={imageUrl ? { uri: imageUrl } : imageIndex.Addressicone}
+              source={{ uri: data.vehicleRegistration }}
               style={styles.image}
               resizeMode="cover"
             />
+            <View style={styles.imageOverlay}>
+              <Text style={styles.overlayText}>Registration Paper</Text>
+            </View>
           </TouchableOpacity>
+        )}
+      </Animated.View>
+    );
+  };
+
+  const BankCard = ({ data }: any) => {
+    if (!data) return <EmptyState />;
+    
+    return (
+      <Animated.View style={[styles.bankCard, { opacity: fadeAnim }]}>
+        <View style={styles.bankHeader}>
+          <Text style={styles.bankName}>{data.bankName || 'Your Bank'}</Text>
+          <View style={styles.bankChip} />
+        </View>
+
+        <Text style={styles.accountNumber}>
+          {data.bankAccountNumber ? `**** **** ${data.bankAccountNumber.slice(-4)}` : '**** **** **** ****'}
+        </Text>
+
+        <View style={styles.bankFooter}>
+          <View>
+            <Text style={styles.bankLabel}>Account Holder</Text>
+            <Text style={styles.bankValue}>DRIVER PARTNER</Text>
+          </View>
+          <View style={{ alignItems: 'flex-end' }}>
+            <Text style={styles.bankLabel}>IFSC Code</Text>
+            <Text style={styles.bankValue}>{data.bankIfscCode || 'N/A'}</Text>
+          </View>
         </View>
       </Animated.View>
     );
@@ -182,7 +278,7 @@ export default function DocumentShow() {
 
   const getDocumentIcon = (title: any) => {
     const iconMap = {
-      'Driving License': 'directions-car',
+      'Driving License': 'assignment-ind',
       'ID Document': 'badge',
       'Vehicle Papers': 'description',
     };
@@ -190,7 +286,7 @@ export default function DocumentShow() {
     return (
       <Icon
         name={iconMap[title] || 'insert-drive-file'}
-        size={24}
+        size={22}
         color="#FFCC00"
       />
     );
@@ -198,26 +294,22 @@ export default function DocumentShow() {
 
   const EmptyState = () => (
     <View style={styles.emptyContainer}>
-      <Icon name="folder-open" size={80} color="#E0E0E0" />
-      <Text style={styles.emptyTitle}>No Documents Found</Text>
+      <Icon name="cloud-off" size={64} color="#E0E0E0" />
+      <Text style={styles.emptyTitle}>No Data Found</Text>
       <Text style={styles.emptySubtitle}>
-        It seems you haven't uploaded any documents yet.
+        Information will appear here once it has been processed.
       </Text>
-      {/* <TouchableOpacity style={styles.uploadBtn} activeOpacity={0.7}>
-        <Text style={styles.uploadBtnText}>Upload Documents</Text>
-      </TouchableOpacity> */}
     </View>
   );
 
   if (loading && !refreshing) {
     return (
       <View style={styles.center}>
-        <ActivityIndicator size="large" color="#d0b500ff" />
-        <Text style={styles.loadingText}>Loading your documents...</Text>
+        <ActivityIndicator size="large" color="#FFCC00" />
+        <Text style={styles.loadingText}>Fetching details...</Text>
       </View>
     );
   }
-
 
   return (
     <SafeAreaView style={styles.container}>
@@ -228,32 +320,24 @@ export default function DocumentShow() {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
       >
-        {/* Tab Navigation */}
         <View style={styles.tabContainer}>
-          <TouchableOpacity
-            style={[styles.tabButton, activeTab === 'identity' && styles.activeTabButton]}
-            onPress={() => setActiveTab('identity')}
-          >
-            <Text style={[styles.tabText, activeTab === 'identity' && styles.activeTabText]}>Identity</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.tabButton, activeTab === 'vehicle' && styles.activeTabButton]}
-            onPress={() => setActiveTab('vehicle')}
-          >
-            <Text style={[styles.tabText, activeTab === 'vehicle' && styles.activeTabText]}>Vehicle</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.tabButton, activeTab === 'bank' && styles.activeTabButton]}
-            onPress={() => setActiveTab('bank')}
-          >
-            <Text style={[styles.tabText, activeTab === 'bank' && styles.activeTabText]}>Bank</Text>
-          </TouchableOpacity>
+          {['identity', 'vehicle', 'bank'].map((tab) => (
+            <TouchableOpacity
+              key={tab}
+              style={[styles.tabButton, activeTab === tab && styles.activeTabButton]}
+              onPress={() => setActiveTab(tab)}
+              activeOpacity={0.7}
+            >
+              <Text style={[styles.tabText, activeTab === tab && styles.activeTabText]}>
+                {tab.charAt(0).toUpperCase() + tab.slice(1)}
+              </Text>
+            </TouchableOpacity>
+          ))}
         </View>
 
-        {/* Identity Tab Content */}
         {activeTab === 'identity' && (
           <>
-            <Text style={styles.sectionTitle}>Identification Documents</Text>
+            <Text style={styles.sectionTitle}>Identification</Text>
             {documents.drivingLicense || documents.idDocument || documents.vehiclePapers ? (
               <>
                 <DocumentCard
@@ -275,112 +359,29 @@ export default function DocumentShow() {
                   status={verificationStatus}
                 />
               </>
-            ) : (
-              <EmptyState />
-            )}
+            ) : <EmptyState />}
           </>
         )}
 
-        {/* Vehicle Tab Content */}
         {activeTab === 'vehicle' && (
-          <View>
-            <Text style={styles.sectionTitle}>Vehicle Details</Text>
-            {vehicleInfo ? (
-              <View style={[styles.card, { borderLeftWidth: 4, borderLeftColor: '#FFCC00' }]}>
-                <View style={styles.cardHeader}>
-                  <View style={styles.titleContainer}>
-                    <View style={styles.iconTitleWrapper}>
-                      <Icon name="directions-car" size={24} color="#FFCC00" />
-                      <Text style={[styles.cardTitle, { marginLeft: 12, fontWeight: '700' }]}>Information</Text>
-                    </View>
-                    <View style={[styles.statusBadge, vehicleInfo.verificationStatus === 'verified' ? styles.verifiedBadge : styles.reviewBadge]}>
-                      <Text style={styles.statusText}>{vehicleInfo.verificationStatus === 'in_review' ? 'In Review' : 'Verified'}</Text>
-                    </View>
-                  </View>
-                </View>
-
-                <View style={{ paddingVertical: 8 }}>
-                  <View style={styles.infoRowDetail}>
-                    <Text style={styles.infoLabel}>Vehicle Type</Text>
-                    <Text style={styles.infoValue}>{vehicleInfo?.vehicleType || 'N/A'}</Text>
-                  </View>
-                  <View style={[styles.infoRowDetail, { marginTop: 12 }]}>
-                    <Text style={styles.infoLabel}>Vehicle Number</Text>
-                    <Text style={styles.infoValue}>{vehicleInfo?.vehicleNumber || 'N/A'}</Text>
-                  </View>
-                  {vehicleInfo?.vehicleModel && (
-                    <View style={[styles.infoRowDetail, { marginTop: 12 }]}>
-                      <Text style={styles.infoLabel}>Vehicle Model</Text>
-                      <Text style={styles.infoValue}>{vehicleInfo?.vehicleModel}</Text>
-                    </View>
-                  )}
-                  {vehicleInfo?.vehicleColor && (
-                    <View style={[styles.infoRowDetail, { marginTop: 12 }]}>
-                      <Text style={styles.infoLabel}>Vehicle Color</Text>
-                      <Text style={styles.infoValue}>{vehicleInfo?.vehicleColor}</Text>
-                    </View>
-                  )}
-                </View>
-
-                {vehicleInfo?.vehicleRegistration && (
-                  <TouchableOpacity
-                    style={[styles.imageContainer, { marginTop: 16 }]}
-                    onPress={() => setSelectedImage(vehicleInfo?.vehicleRegistration)}
-                    activeOpacity={0.8}
-                  >
-                    <Image
-                      source={{ uri: vehicleInfo?.vehicleRegistration }}
-                      style={[styles.image, { width: '100%', height: 180 }]}
-                      resizeMode="cover"
-                    />
-                    <View style={styles.imageOverlayText}>
-                      <Text style={{ color: '#FFF', fontSize: 12, fontWeight: '600' }}>Registration Paper</Text>
-                    </View>
-                  </TouchableOpacity>
-                )}
-              </View>
-            ) : <EmptyState />}
-          </View>
+          <>
+            <Text style={styles.sectionTitle}>Vehicle</Text>
+            <VehicleCard data={vehicleInfo} />
+          </>
         )}
 
-        {/* Bank Tab Content */}
         {activeTab === 'bank' && (
-          <View>
-            <Text style={styles.sectionTitle}>Bank Information</Text>
-            {bankInfo ? (
-              <View style={[styles.card, { borderLeftWidth: 4, borderLeftColor: '#4CAF50' }]}>
-                <View style={styles.cardHeader}>
-                  <View style={styles.iconTitleWrapper}>
-                    <Icon name="account-balance" size={24} color="#4CAF50" />
-                    <Text style={[styles.cardTitle, { marginLeft: 12, fontWeight: '700' }]}>Account Details</Text>
-                  </View>
-                </View>
-
-                <View style={{ paddingVertical: 8 }}>
-                  <View style={styles.infoRowDetail}>
-                    <Text style={styles.infoLabel}>Bank Name</Text>
-                    <Text style={styles.infoValue}>{bankInfo?.bankName || 'N/A'}</Text>
-                  </View>
-                  <View style={[styles.infoRowDetail, { marginTop: 16 }]}>
-                    <Text style={styles.infoLabel}>Account Number</Text>
-                    <Text style={styles.infoValue}>{bankInfo?.bankAccountNumber || 'N/A'}</Text>
-                  </View>
-                  <View style={[styles.infoRowDetail, { marginTop: 16 }]}>
-                    <Text style={styles.infoLabel}>IFSC Code</Text>
-                    <Text style={styles.infoValue}>{bankInfo?.bankIfscCode || 'N/A'}</Text>
-                  </View>
-                </View>
-              </View>
-            ) : <EmptyState />}
-          </View>
+          <>
+            <Text style={styles.sectionTitle}>Banking</Text>
+            <BankCard data={bankInfo} />
+          </>
         )}
       </ScrollView>
 
-      {/* Enhanced Image Modal */}
       <Modal
         visible={!!selectedImage}
         transparent
-        animationType="slide"
+        animationType="fade"
         statusBarTranslucent
       >
         <View style={styles.modalContainer}>
@@ -388,37 +389,17 @@ export default function DocumentShow() {
             <TouchableOpacity
               style={styles.closeButton}
               onPress={() => setSelectedImage(null)}
-              activeOpacity={0.7}
             >
               <Icon name="close" size={24} color="#FFF" />
             </TouchableOpacity>
           </View>
 
-          <View style={styles.imageContainerModal}>
+          <View style={{ flex: 1 }}>
             <Image
               source={{ uri: selectedImage }}
               style={styles.fullImage}
               resizeMode="contain"
             />
-          </View>
-
-          <View style={styles.modalFooter}>
-            <TouchableOpacity
-              style={styles.modalActionBtn}
-              onPress={() => handleDownload(selectedImage, 'Document')}
-              activeOpacity={0.7}
-            >
-              <Icon name="file-download" size={20} color="#FFCC00" />
-              <Text style={styles.modalActionText}>Download</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={styles.modalActionBtn}
-              activeOpacity={0.7}
-            >
-              <Icon name="share" size={20} color="#FFCC00" />
-              <Text style={styles.modalActionText}>Share</Text>
-            </TouchableOpacity>
           </View>
         </View>
       </Modal>
