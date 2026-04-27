@@ -105,7 +105,7 @@ const DeliveryHome = () => {
       <CurrentLocation ref={locationRef} />
       <HomeHeaderBar
         location={currentlocation || address}
-        onNotificationPress={() => console.log("Notifications clicked")}
+        onNotificationPress={() => navigation.navigate(ScreenNameEnum.NotificationsScreen)}
         hasNotification={false}
       />
       {/* 

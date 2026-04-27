@@ -405,6 +405,7 @@ const strings = new LocalizedStrings({
     NewDeliveryRequestMessage: "A parcel pickup is nearby. Tap below to see details and send your offer.",
     Later: "Later",
     ViewOrder: "View order",
+    NoNotifications: "No notifications found",
   },
   mn: {
     ChangeLanguage: "Хэл солих",
@@ -819,6 +820,7 @@ const strings = new LocalizedStrings({
     NewDeliveryRequestMessage: "Ойролцоо илгээмж авах газар байна. Дэлгэрэнгүйг үзэж, саналаа илгээхийн тулд доор товшино уу.",
     Later: "Дараа",
     ViewOrder: "Захиалга харах",
+    NoNotifications: "Мэдэгдэл олдсонгүй",
   },
 });
 

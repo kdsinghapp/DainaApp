@@ -23,5 +23,6 @@ export const endpointCustomer = {
   paymentCash: "/bikedoctor/payment/cash",
   addshopdetails: "/bikedoctor/dealer/add-shop-details",
   adddocuments: "/bikedoctor/dealer/add-dealer-documents",
-  setLanguage: "set-language"
+  setLanguage: "set-language",
+  notifications: "/notifications"
 };

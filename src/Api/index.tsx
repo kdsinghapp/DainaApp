@@ -11,15 +11,10 @@ export interface ApiRequest {
 }
 // https://python.aitechnotech.in/DAINA/docs
 // DAINA API - Swagger UI
-
 // wss://python.aitechnotech.in/DAINA/ws
-
 // DAINA API - Swagger UI
-
 // export const base_url = 'https://python.aitechnotech.in/DAINA/api';
 // export const WebSocket_Url = `wss://python.aitechnotech.in/DAINA/ws`
-
-
 export const base_url = 'https://api.daina.tech/api';
 export const WebSocket_Url = `wss://api.daina.tech/ws`
 

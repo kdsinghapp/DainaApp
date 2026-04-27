@@ -98,22 +98,17 @@ const LogiApi = async (
 
 const Verifyotp = async (param: any, setLoading: any, dispatch: any, setGeneralAlert?: any) => {
   setLoading(true);
-  const fcmToken = await AsyncStorage.getItem('fcmToken');
-  console.log("fcmToken --- ", fcmToken)
   try {
-    // ✅ Create FormData
+    const fcmToken = await AsyncStorage.getItem('fcmToken');
     const formdata = new FormData();
     formdata.append('countryCode', param?.code || '');
     formdata.append('phoneNumber', param?.phone || '');
     formdata.append('otp', param?.otp || '');
     formdata.append('fcmToken', fcmToken || '');
-    // formdata.append('otp', "9999" || '');
 
     const response = await fetch(`${base_url}/verify-otp`, {
       method: 'POST',
-      headers: {
-        Accept: 'application/json',
-      },
+      headers: { Accept: 'application/json' },
       body: formdata,
     });
 
@@ -122,71 +117,47 @@ const Verifyotp = async (param: any, setLoading: any, dispatch: any, setGeneralA
     try {
       parsedResponse = JSON.parse(textResponse);
     } catch (error) {
-      if (setGeneralAlert) {
-        setGeneralAlert({ visible: true, type: 'error', message: strings.InvalidServerResponse });
-      } else {
-        errorToast(strings.InvalidServerResponse);
-      }
-      return;
+      throw new Error(strings.InvalidServerResponse);
     }
 
+    console.log("Verify OTP Response:", parsedResponse);
+
     if (parsedResponse?.status == 1) {
-      if (setGeneralAlert) {
-        setGeneralAlert({
-          visible: true,
-          type: 'success',
-          title: 'Verified!',
-          message: parsedResponse?.message || 'Verification successful',
-          onClose: async () => {
-            await AsyncStorage.setItem('token', parsedResponse?.token);
-            dispatch(loginSuccess({ userData: parsedResponse, token: parsedResponse?.token }));
-            await saveAuthData(parsedResponse, parsedResponse?.token);
+      await AsyncStorage.setItem('token', parsedResponse?.token);
+      dispatch(loginSuccess({ userData: parsedResponse, token: parsedResponse?.token }));
+      await saveAuthData(parsedResponse, parsedResponse?.token);
 
-            const languageId = strings.getLanguage() === 'en' ? 1 : 2;
-            await SetLanguageApi({ languageId }, setLoading);
+      const languageId = strings.getLanguage() === 'en' ? 1 : 2;
+      await SetLanguageApi({ languageId }, setLoading);
 
-            if (parsedResponse?.type === "Delivery") {
-              if (parsedResponse?.completionStatus?.isDocumentsUploaded === true) {
-                param.navigation.navigate(ScreenNameEnum.DeliveryTabNavigator);
-              } else {
-                param.navigation.navigate(ScreenNameEnum.ProfileSetup);
-              }
-            } else {
-              param.navigation.navigate(ScreenNameEnum.ProfileSetup, { type: "otp" });
-            }
-          }
-        });
-      } else {
-        // successToast(parsedResponse?.message);
-        // Fallback if setGeneralAlert is not provided
-        await AsyncStorage.setItem('token', parsedResponse?.token);
-        dispatch(loginSuccess({ userData: parsedResponse, token: parsedResponse?.token }));
-        await saveAuthData(parsedResponse, parsedResponse?.token);
-        const languageId = strings.getLanguage() === 'en' ? 1 : 2;
-        await SetLanguageApi({ languageId }, setLoading);
-        if (parsedResponse?.type === "Delivery") {
-          if (parsedResponse?.completionStatus?.isDocumentsUploaded === true) {
-            param.navigation.navigate(ScreenNameEnum.DeliveryTabNavigator);
-          } else {
-            param.navigation.navigate(ScreenNameEnum.ProfileSetup);
-          }
+      if (parsedResponse?.type === "Delivery") {
+        if (parsedResponse?.completionStatus?.isDocumentsUploaded) {
+          param.navigation.navigate(ScreenNameEnum.DeliveryTabNavigator);
         } else {
-          param.navigation.navigate(ScreenNameEnum.ProfileSetup, { type: "otp" });
+          param.navigation.navigate(ScreenNameEnum.ProfileSetup);
         }
-      }
-    } else {
-      if (setGeneralAlert) {
-        setGeneralAlert({ visible: true, type: 'error', message: parsedResponse?.message });
       } else {
-        errorToast(parsedResponse?.message);
+        param.navigation.navigate(ScreenNameEnum.ProfileSetup, { type: "otp" });
+      }
+
+
+
+
+    } else {
+      const errorMessage = parsedResponse?.message || strings.SomethingWentWrong;
+      if (setGeneralAlert) {
+        setGeneralAlert({ visible: true, type: 'error', message: errorMessage });
+      } else {
+        errorToast(errorMessage);
       }
     }
   } catch (error: any) {
-    console.error('Login error:', error);
+    console.error('Verify OTP error:', error);
+    const errorMessage = error?.message || strings.NetworkErrorTryAgain;
     if (setGeneralAlert) {
-      setGeneralAlert({ visible: true, type: 'error', message: error?.message || strings.NetworkErrorTryAgain });
+      setGeneralAlert({ visible: true, type: 'error', message: errorMessage });
     } else {
-      errorToast(error?.message || strings.NetworkErrorTryAgain);
+      errorToast(errorMessage);
     }
   } finally {
     setLoading(false);
@@ -871,6 +842,41 @@ const SetLanguageApi = async (param: any, setLoading: (loading: boolean) => void
   }
 };
 
+const GetNotifications = async (
+  setLoading: (loading: boolean) => void
+): Promise<any | null> => {
+  setLoading(true);
+  const token = await AsyncStorage.getItem('token');
+  try {
+    const response = await fetch(`${base_url}/notifications`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+
+    const responseData = await response.json();
+    console.log("Notifications Response:", responseData);
+
+    if (responseData.status === "1" || responseData.status === 1) {
+      return responseData;
+    } else {
+      // If unauthorized, you might want to handle it (e.g. status 0 or 401)
+      if (responseData.status === 0 || responseData.message === "Not authenticated") {
+        console.warn("User not authenticated for notifications");
+      }
+      return responseData;
+    }
+  } catch (error) {
+    console.error("GetNotifications API call error:", error);
+    errorToast(strings.NetworkErrorTryAgain);
+    return null;
+  } finally {
+    setLoading(false);
+  }
+};
+
 export {
   LogiApi,
   Verifyotp,
@@ -890,5 +896,6 @@ export {
   Parceldetails,
   DeliveryAvailableRequests,
   GetApi,
-  SetLanguageApi
+  SetLanguageApi,
+  GetNotifications
 }

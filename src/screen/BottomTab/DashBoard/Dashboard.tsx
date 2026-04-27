@@ -67,7 +67,8 @@ const ShippingScreen = () => {
 
       <HomeHeaderBar
         location={currentlocation || address}
-        onNotificationPress={() => console.log("Notifications clicked")}
+        onNotificationPress={() => navigation.navigate(ScreenNameEnum.NotificationsScreen)}
+
         hasNotification={false}
       />
 

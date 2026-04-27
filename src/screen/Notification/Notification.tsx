@@ -1,66 +1,29 @@
-import React from 'react';
-import { View, Text, StyleSheet, SectionList } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, StyleSheet, SectionList, ActivityIndicator, FlatList } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import CustomHeader from '../../compoent/CustomHeader';
 import imageIndex from '../../assets/imageIndex';
 import { useNavigation } from '@react-navigation/native';
 import strings from '../../localization/Localization';
+import { GetNotifications } from '../../Api/apiRequest';
+import { color } from '../../constant';
+import moment from 'moment';
+import { RefreshControl } from 'react-native';
 
-const notifications = [
-  {
-    title: strings.Today || 'Today',
-    data: [
-      {
-        id: '1',
-        title: 'Your weekly review has been answered',
-        date: 'Jun 2, 2024 at 09:41 AM',
-        unread: false,
-      },
-      {
-        id: '2',
-        title: 'Unread notification title',
-        date: 'Date',
-        unread: true,
-      },
-    ],
-  },
-  {
-    title: strings.ThisWeek || 'This week',
-    data: [
-      {
-        id: '3',
-        title: 'Unread notification title',
-        date: 'Date',
-        unread: true,
-      },
-      {
-        id: '4',
-        title: 'Notification title',
-        date: 'Date',
-        unread: false,
-      },
-      {
-        id: '5',
-        title: 'Notification title',
-        date: 'Date',
-        unread: false,
-      },
-    ],
-  },
-];
 
 const NotificationItem = ({ item }) => {
   return (
     <View
       style={[
         styles.itemContainer,
-        item.unread && styles.unreadBackground
+        (item.isRead === false || item.isRead === 0) && styles.unreadBackground
       ]}
     >
-      <View style={styles.dot} />
+      <View style={[styles.dot, (item.isRead === true || item.isRead === 1) && { backgroundColor: '#E0E0E0' }]} />
       <View style={styles.textContainer}>
         <Text style={styles.title}>{item.title}</Text>
-        <Text style={styles.date}>{item.date}</Text>
+        <Text style={styles.body}>{item.body}</Text>
+        <Text style={styles.date}>{moment(item.createdAt).fromNow()}</Text>
       </View>
     </View>
   );
@@ -68,6 +31,54 @@ const NotificationItem = ({ item }) => {
 
 const NotificationsScreen = () => {
   const navigation = useNavigation()
+  const [loading, setLoading] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
+  const [sections, setSections] = useState([]);
+
+  useEffect(() => {
+    fetchNotifications();
+  }, []);
+
+  const groupNotifications = (data) => {
+    const grouped = [
+      { title: strings.Today || 'Today', data: [] },
+      { title: strings.Yesterday || 'Yesterday', data: [] },
+      { title: strings.Earlier || 'Earlier', data: [] },
+    ];
+
+    data.forEach(item => {
+      const date = moment(item.createdAt);
+      if (date.isSame(moment(), 'day')) {
+        grouped[0].data.push(item);
+      } else if (date.isSame(moment().subtract(1, 'days'), 'day')) {
+        grouped[1].data.push(item);
+      } else {
+        grouped[2].data.push(item);
+      }
+    });
+
+    return grouped.filter(section => section.data.length > 0);
+  };
+
+  const fetchNotifications = async (isRefreshing = false) => {
+    if (isRefreshing) setRefreshing(true);
+    else setLoading(true);
+
+    const res = await GetNotifications(setLoading);
+
+    console.log("Notifications Screen Response:", res);
+    if (res && (res.status === 1 || res.status === "1")) {
+      const groupedData = groupNotifications(res.notifications || []);
+      setSections(groupedData);
+    }
+    setRefreshing(false);
+    setLoading(false);
+  };
+
+  const onRefresh = () => {
+    fetchNotifications(true);
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <CustomHeader
@@ -75,19 +86,30 @@ const NotificationsScreen = () => {
         menuIcon={imageIndex.left}
         leftPress={true}
         navigation={navigation}
-      // rightIcons={[
-      //     { icon: imageIndex.close, onPress:()=>navigation.navigate(ScreenNameEnum.NotificationsScreen)}
-      // ]}
       />
-      <SectionList
-        sections={notifications}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => <NotificationItem item={item} />}
-        renderSectionHeader={({ section: { title } }) => (
-          <Text style={styles.sectionHeader}>{title}</Text>
-        )}
-        contentContainerStyle={{ paddingBottom: 20 }}
-      />
+      {loading && !refreshing ? (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color={color.green} />
+        </View>
+      ) : (
+        <SectionList
+          sections={sections}
+          keyExtractor={(item, index) => item.id?.toString() || index.toString()}
+          renderItem={({ item }) => <NotificationItem item={item} />}
+          renderSectionHeader={({ section: { title } }) => (
+            <Text style={styles.sectionHeader}>{title}</Text>
+          )}
+          ListEmptyComponent={
+            <View style={styles.emptyContainer}>
+              <Text style={styles.emptyText}>{strings.NoNotifications || "No notifications found"}</Text>
+            </View>
+          }
+          contentContainerStyle={{ paddingBottom: 20 }}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[color.green]} />
+          }
+        />
+      )}
     </SafeAreaView>
   );
 };
@@ -96,8 +118,22 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#FFFFFF',
-    paddingHorizontal: 16,
-    paddingTop: 20,
+    paddingHorizontal: 10,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 100,
+  },
+  emptyText: {
+    fontSize: 16,
+    color: '#999',
   },
   sectionHeader: {
     fontSize: 16,
@@ -128,12 +164,18 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 15,
+    fontWeight: '600',
     color: '#333',
   },
+  body: {
+    fontSize: 14,
+    color: '#666',
+    marginTop: 2,
+  },
   date: {
-    fontSize: 13,
+    fontSize: 12,
     color: '#999',
-    marginTop: 4,
+    marginTop: 6,
   },
 });
 
