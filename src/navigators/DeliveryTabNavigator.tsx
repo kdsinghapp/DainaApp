@@ -10,39 +10,39 @@ import NewOrderNotificationModal from '../compoent/NewOrderNotificationModal';
 import OfferAcceptedModal from '../compoent/OfferAcceptedModal';
 import InboxDeliver from '../screen/DeliveryBottomTab/InboxDeliver/InboxDeliver';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { Platform } from 'react-native';
+import { Platform, Image } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const Tab = createBottomTabNavigator();
-
-const TAB_CONFIG = {
-  Home: {
-    label: strings.Home,
-    iconActive: SvgIndex.HomeAtive,
-    iconInactive: SvgIndex.Home,
-  },
-  Orders: {
-    label: strings.Orders,
-    iconActive: SvgIndex.Box,
-    iconInactive: SvgIndex.Box1,
-  },
-  Inbox: {
-    label: strings.Inbox,
-    iconActive: SvgIndex.MessageActive,
-    iconInactive: SvgIndex.Message,
-  },
-  Profile: {
-    label: strings.Profile,
-    iconActive: SvgIndex.UserActive,
-    iconInactive: SvgIndex.User,
-  },
-};
 
 const TAB_BAR_HEIGHT = Platform.OS === 'ios' ? 80 : 70;
 const ICON_SIZE = 26;
 
 export default function DeliveryTabNavigator() {
   const insets = useSafeAreaInsets();
+
+  const TAB_CONFIG: any = {
+    Home: {
+      label: strings.Home,
+      iconActive: SvgIndex.HomeAtive,
+      iconInactive: SvgIndex.Home,
+    },
+    Orders: {
+      label: strings.Orders,
+      iconActive: SvgIndex.Box,
+      iconInactive: SvgIndex.Box1,
+    },
+    Inbox: {
+      label: strings.Inbox,
+      iconActive: SvgIndex.MessageActive,
+      iconInactive: SvgIndex.Message,
+    },
+    Profile: {
+      label: strings.Profile,
+      iconActive: SvgIndex.UserActive,
+      iconInactive: SvgIndex.User,
+    },
+  };
   return (
     <>
       <Tab.Navigator

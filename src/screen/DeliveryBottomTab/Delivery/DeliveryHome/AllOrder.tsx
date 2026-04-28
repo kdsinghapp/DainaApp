@@ -21,6 +21,7 @@ import CustomHeader from "../../../../compoent/CustomHeader";
 import { styles } from "./style";
 import NewOrderNotificationModal from "../../../../compoent/NewOrderNotificationModal";
 import OfferAcceptedModal from "../../../../compoent/OfferAcceptedModal";
+import strings from "../../../../localization/Localization";
 
 
 
@@ -213,7 +214,7 @@ const AllOrder = () => {
             )
           }}
           ListEmptyComponent={
-            <Text style={styles.emptyText}>No orders here yet.</Text>
+            <Text style={styles.emptyText}>{strings.NoOrdersHereYet}</Text>
           }
         />
       </Animated.View>

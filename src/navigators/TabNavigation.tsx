@@ -14,35 +14,35 @@ import strings from '../localization/Localization';
 
 const Tab = createBottomTabNavigator();
 
-const TAB_CONFIG: any = {
-  [ScreenNameEnum.HomeStack]: {
-    label: strings.Home,
-    iconActive: SvgIndex.HomeAtive,
-    iconInactive: SvgIndex.Home,
-  },
-
-  Orders: {
-    label: strings.Orders,
-    iconActive: SvgIndex.Box,
-    iconInactive: SvgIndex.Box1,
-  },
-  Inbox: {
-    label: strings.Inbox,
-    iconActive: SvgIndex.MessageActive,
-    iconInactive: SvgIndex.Message,
-  },
-  Profile: {
-    label: strings.Profile,
-    iconActive: SvgIndex.UserActive,
-    iconInactive: SvgIndex.User,
-  },
-};
-
 const TAB_BAR_HEIGHT = Platform.OS === 'ios' ? 80 : 70;
 const ICON_SIZE = 26;
 
 export default function TabNavigator() {
   const insets = useSafeAreaInsets();
+
+  const TAB_CONFIG: any = {
+    [ScreenNameEnum.HomeStack]: {
+      label: strings.Home,
+      iconActive: SvgIndex.HomeAtive,
+      iconInactive: SvgIndex.Home,
+    },
+
+    Orders: {
+      label: strings.Orders,
+      iconActive: SvgIndex.Box,
+      iconInactive: SvgIndex.Box1,
+    },
+    Inbox: {
+      label: strings.Inbox,
+      iconActive: SvgIndex.MessageActive,
+      iconInactive: SvgIndex.Message,
+    },
+    Profile: {
+      label: strings.Profile,
+      iconActive: SvgIndex.UserActive,
+      iconInactive: SvgIndex.User,
+    },
+  };
   return (
     <Tab.Navigator
       screenOptions={({ route }) => {

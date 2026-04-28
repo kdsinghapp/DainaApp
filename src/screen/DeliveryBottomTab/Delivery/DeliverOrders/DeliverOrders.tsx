@@ -21,6 +21,7 @@ import { base_url } from "../../../../Api";
 import LoadingModal from "../../../../utils/Loader";
 import { styles } from "./style";
 import { STATUS, STATUS_COLORS, STATUS_LABELS } from "../../../../utils/Constant";
+import strings from "../../../../localization/Localization";
 
 type OrderStatus = "Pending" | "Completed" | "Cancelled";
 type Order = {
@@ -151,7 +152,7 @@ const DeliveryHome = () => {
         style={styles.card}
         activeOpacity={0.9}
         onPress={() => {
-           if (st == STATUS.PENDING) {
+          if (st == STATUS.PENDING) {
             navigation.navigate(ScreenNameEnum.ParcelDetails, {
               item: { ...item, ...item?.parcel }
             });
@@ -226,13 +227,13 @@ const DeliveryHome = () => {
           />
 
           <View style={{ flex: 1 }}>
-            <Text style={styles.stopLabel}>Pickup Location</Text>
+            <Text style={styles.stopLabel}>{strings.PickupLocation}</Text>
             <Text style={styles.stopValue} numberOfLines={2}>
               {item?.parcel?.pickupLocation}
             </Text>
 
             <Text style={[styles.stopLabel, { marginTop: 10 }]}>
-              Drop Location
+              {strings.DropLocation}
             </Text>
             <Text style={styles.stopValue} numberOfLines={2}>
               {item?.parcel?.dropLocation}
@@ -248,14 +249,14 @@ const DeliveryHome = () => {
       <StatusBarComponent />
       <LoadingModal visible={isLoading} />
 
-      <View style={styles.ordersHeader}>
+      {/* <View style={styles.ordersHeader}>
         <Text style={styles.sectionTitle}>Orders</Text>
         <Image
           source={imageIndex?.Filter || { uri: "" }}
           style={{ height: 22, width: 22 }}
           resizeMode="contain"
         />
-      </View>
+      </View> */}
 
       {/* Tabs */}
       <View style={styles.tabs}>
@@ -291,7 +292,7 @@ const DeliveryHome = () => {
           contentContainerStyle={{ paddingBottom: 80 }}
           renderItem={renderItem}
           ListEmptyComponent={
-            <Text style={styles.emptyText}>No orders here yet.</Text>
+            <Text style={styles.emptyText}>{strings.NoOrdersHereYet}</Text>
           }
         />
       </Animated.View>

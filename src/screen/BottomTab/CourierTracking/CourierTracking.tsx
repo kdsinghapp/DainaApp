@@ -28,6 +28,7 @@ import { GetApi } from "../../../Api/apiRequest";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { successToast } from "../../../utils/customToast";
 import RatingModal from "../../../compoent/RatingModal";
+import strings from "../../../localization/Localization";
 
 const { width, height } = Dimensions.get("window");
 const PANEL_PEEK_HEIGHT = 280;
@@ -367,7 +368,7 @@ const CourierTrackingScreen = () => {
         // await PostApi({ url: `/rate-delivery`, body: { parcelId, rating, comment } });
         ratingSubmittedRef.current = true;
         setShowRatingModal(false);
-        successToast("Thanks for your rating!");
+        successToast(strings?.RatingSuccess);
         nav.goBack();
       } catch (_) {
       } finally {
@@ -475,13 +476,13 @@ const CourierTrackingScreen = () => {
           showsVerticalScrollIndicator={false}
         >
           {/* Rapido-style ETA strip: X mins • Y km */}
-          {routePointsValid && (
+          {/* {routePointsValid && (
             <View style={styles.etaStrip}>
               <Text style={styles.etaStripText}>{eta}</Text>
               <Text style={styles.etaStripDot}>•</Text>
               <Text style={styles.etaStripDistance}>{(distance != null ? distance.toFixed(1) : "—")} km</Text>
             </View>
-          )}
+          )} */}
           {/* <View style={styles.driverSection}>
             {driver?.image ? (
               <Image source={{ uri: driver?.image }} style={styles.avatar} />
@@ -646,12 +647,12 @@ const CourierTrackingScreen = () => {
                 onPress={() => setShowRatingModal(true)}
               >
                 <Text style={styles.rateDeliveryButtonText}>
-                  Rate delivery
+                  {strings.RateDelivery}
                 </Text>
               </TouchableOpacity>
             ) : (
               <View style={styles.otpContainer}>
-                <Text style={styles.otpLabel}>OTP</Text>
+                <Text style={styles.otpLabel}>{strings?.OTP}</Text>
 
                 <Text style={styles.otpValue}>
                   {(() => {
@@ -672,11 +673,11 @@ const CourierTrackingScreen = () => {
             )}
           </View>
           <View style={styles.parcelCard}>
-            <Text style={styles.sectionTitle}>Parcel details</Text>
+            <Text style={styles.sectionTitle}>{strings?.ParcelDetails}</Text>
             <View style={styles.grid}>
-              <StatBox label="Size" value={item?.packageSize ?? ""} />
-              <StatBox label="Type" value={item?.consignmentType ?? ""} />
-              <StatBox label="Service" value={item?.deliveryType ?? ""} />
+              <StatBox label={strings?.Size} value={item?.packageSize ?? ""} />
+              <StatBox label={strings?.Type} value={item?.consignmentType ?? ""} />
+              <StatBox label={strings?.Service} value={item?.deliveryType ?? ""} />
             </View>
           </View>
 
@@ -687,7 +688,7 @@ const CourierTrackingScreen = () => {
                 <View style={[styles.addressDot, { backgroundColor: "#22C55E" }]} />
               </View>
               <View style={styles.addressTextContainer}>
-                <Text style={styles.addressLabel}>PICKUP</Text>
+                <Text style={styles.addressLabel}>{strings?.Pickup}</Text>
                 <Text style={styles.addressText} numberOfLines={2}>{item?.pickupLocation ?? ""}</Text>
               </View>
             </View>
@@ -696,7 +697,7 @@ const CourierTrackingScreen = () => {
                 <View style={[styles.addressDot, { backgroundColor: "#EF4444" }]} />
               </View>
               <View style={styles.addressTextContainer}>
-                <Text style={styles.addressLabel}>DROP</Text>
+                <Text style={styles.addressLabel}>{strings?.Drop}</Text>
                 <Text style={styles.addressText} numberOfLines={2}>{item?.dropLocation ?? ""}</Text>
               </View>
             </View>

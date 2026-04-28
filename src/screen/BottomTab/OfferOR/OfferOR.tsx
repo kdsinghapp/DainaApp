@@ -19,6 +19,7 @@ import { openDialer } from "../../../utils/Constant";
 
 
 import Animated, { FadeInDown } from "react-native-reanimated";
+import strings from "../../../localization/Localization";
 
 export default function OfferOR() {
   const [Open, setOpen] = useState(false)
@@ -42,7 +43,7 @@ export default function OfferOR() {
           flexDirection: "row",
           justifyContent: "space-between"
         }}>
-          <Text style={styles.carrierText}>Carrier : <Text style={[styles.bold, {
+          <Text style={styles.carrierText}>{strings?.Carrier} : <Text style={[styles.bold, {
             color: "#878787",
             fontFamily: font.MonolithRegular
 
@@ -61,19 +62,19 @@ export default function OfferOR() {
           </TouchableOpacity>
 
         </View>
-        <Text style={styles.offerText}>Offer Price : <Text style={[styles.bold, {
+        <Text style={styles.offerText}> {strings?.OfferPrice} : <Text style={[styles.bold, {
           color: "#878787",
           fontFamily: font.MonolithRegular
 
         }]}>{item?.offerAmount}</Text>
 
         </Text>
-        <Text style={styles.offerText}>Message : <Text style={[styles.bold, {
+        <Text style={styles.offerText}>{strings?.MessageLabel} : <Text style={[styles.bold, {
           color: "#878787",
           fontFamily: font.MonolithRegular,
 
         }]}>{item?.message}</Text></Text>
-        <Text style={styles.offerText}>Phone : <Text style={[styles.bold, {
+        <Text style={styles.offerText}>{strings?.PhoneLabel} : <Text style={[styles.bold, {
           color: "#878787",
           fontFamily: font.MonolithRegular,
 
@@ -83,7 +84,7 @@ export default function OfferOR() {
           <TouchableOpacity style={[styles.button, styles.acceptBtn]}
             onPress={() => onAccept(item?.id || item?.offerId)}
           >
-            <Text style={styles.acceptText}>ACCEPT</Text>
+            <Text style={styles.acceptText}>{strings?.Accept}</Text>
           </TouchableOpacity>
 
           <TouchableOpacity onPress={() => {
@@ -91,7 +92,7 @@ export default function OfferOR() {
             setOpen(true);
           }}
             style={[styles.button, styles.counterBtn]}>
-            <Text style={styles.counterText}>COUNTER OFFER</Text>
+            <Text style={styles.counterText}>{strings?.CounterOfferLabel}</Text>
           </TouchableOpacity>
 
 
@@ -103,23 +104,22 @@ export default function OfferOR() {
             }}
 
             style={[styles.button, styles.chatBtn]}>
-            <Text style={styles.chatText}>CHAT</Text>
+            <Text style={styles.chatText}>{strings?.Chat}</Text>
           </TouchableOpacity>
         </View>
       </View>
     );
   };
   const nav = useNavigation()
-  console.log("offerData", offerData)
   return (
     <SafeAreaView style={styles.container}>
       <StatusBarComponent />
       <LoadingModal visible={isLoading} />
-      <CustomHeader label={"Back"} />
+      <CustomHeader label={strings?.Back} />
       <View style={{
         marginHorizontal: 15
       }}>
-        <Text style={styles.header}>OFFERS FOR YOUR AD</Text>
+        <Text style={styles.header}>{strings.OffersForYourAd}</Text>
         {/* <Text style={styles.subHeader}>Your Ad: 10 Boxes | 20 Kg | ₹2000 Proposed</Text> */}
 
         <FlatList
@@ -128,14 +128,13 @@ export default function OfferOR() {
           }}
           ListEmptyComponent={() => (
             <Text style={styles.emptyText}>
-              No offers available for your ad yet.
+              {strings?.NoOffersAvailable}
             </Text>
           )}
 
           data={offerData?.offers}
           keyExtractor={(item) => item.id}
           renderItem={({ item, index }) => {
-            console.log("sssss", item)
             return (
               <Animated.View entering={FadeInDown.delay(index * 100).duration(600)}>
                 <OfferCard item={item} onCounterPress={

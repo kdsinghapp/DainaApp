@@ -6,7 +6,7 @@ import CustomHeader from '../../../compoent/CustomHeader';
 import { color } from '../../../constant';
 import font from '../../../theme/font';
 import strings from '../../../localization/Localization';
- 
+
 // If you want icons, install react-native-vector-icons, or use any icon library you prefer
 // import Icon from 'react-native-vector-icons/Ionicons';
 
@@ -22,11 +22,11 @@ const NotificationsSetting = () => {
       <StatusBarComponent />
       <View   >
         <CustomHeader
-        
+
           label={strings.Notifications || "Notifications"} />
 
         {/* Body */}
-        <View style={{ marginTop: 40,marginHorizontal:15 }}>
+        <View style={{ marginTop: 40, marginHorizontal: 15 }}>
 
           <View style={styles.notificationOption}>
             <Text style={styles.optionText}>{strings.GeneralNotification || "General Notification"}</Text>
@@ -104,7 +104,7 @@ const styles = StyleSheet.create({
   optionText: {
     fontSize: 16,
     color: "#1D3A70",
-    fontFamily:font.MonolithRegular,
-    lineHeight:15
+    fontFamily: font.MonolithRegular,
+    lineHeight: 15
   },
 });

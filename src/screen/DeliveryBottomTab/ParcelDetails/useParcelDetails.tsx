@@ -90,7 +90,7 @@ export const useParcelDetails = () => {
     // }
     const amountValue = parseFloat(amount);
     if (isNaN(amountValue) || amountValue <= 0) {
-      Alert.alert("Error", "Please enter a valid amount");
+      Alert.alert(strings.Error,);
       return;
     }
 

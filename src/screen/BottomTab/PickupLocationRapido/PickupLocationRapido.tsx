@@ -5,7 +5,6 @@ import {
   StyleSheet,
   Platform,
   PermissionsAndroid,
-  TouchableOpacity,
   ActivityIndicator,
 } from 'react-native';
 import MapView, { PROVIDER_GOOGLE } from 'react-native-maps';
@@ -19,7 +18,8 @@ import CustomButton from '../../../compoent/CustomButton';
 import font from '../../../theme/font';
 import { GOOGLE_MAPS_APIKEY } from '../../../Api';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { width } from '../../../utils/Constant';
+import { s, width } from '../../../utils/Constant';
+import strings from '../../../localization/Localization';
 
 Geocoder.init(GOOGLE_MAPS_APIKEY);
 
@@ -36,7 +36,7 @@ const PickupLocationRapido = () => {
     longitudeDelta: 0.05,
   });
 
-  const [address, setAddress] = useState('Locating...');
+  const [address, setAddress] = useState(strings?.Locating);
   const [isFetchingAddress, setIsFetchingAddress] = useState(false);
   const [isLocatingUser, setIsLocatingUser] = useState(false);
 
@@ -47,11 +47,11 @@ const PickupLocationRapido = () => {
   const fetchAddressForCoords = async (lat: number, lng: number) => {
     try {
       const json = await Geocoder.from(lat, lng);
-      const formatted = json.results?.[0]?.formatted_address || 'Unknown Location';
+      const formatted = json.results?.[0]?.formatted_address || strings?.UnknownLocation;
       setAddress(formatted);
       searchRef.current?.setAddressText(formatted);
     } catch {
-      setAddress('Unknown Location');
+      setAddress(strings?.UnknownLocation);
     } finally {
       setIsFetchingAddress(false);
     }
@@ -63,7 +63,7 @@ const PickupLocationRapido = () => {
         PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION
       );
       if (granted !== PermissionsAndroid.RESULTS.GRANTED) {
-        setAddress('Location permission denied');
+        setAddress(strings?.PermissionDenied);
         return;
       }
     }
@@ -83,7 +83,7 @@ const PickupLocationRapido = () => {
       (err) => {
         setIsLocatingUser(false);
         setIsFetchingAddress(false);
-        setAddress('Unable to get location');
+        setAddress(strings?.PermissionDenied,);
       },
       { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 }
     );
@@ -119,7 +119,7 @@ const PickupLocationRapido = () => {
         // Sync search bar text with map movement
         searchRef.current?.setAddressText(addressComponent);
       } catch (error) {
-        setAddress('Unknown Location');
+        setAddress(strings?.UnknownLocation);
       } finally {
         setIsFetchingAddress(false);
       }
@@ -160,7 +160,7 @@ const PickupLocationRapido = () => {
       <View pointerEvents="none" style={styles.pinWrapper}>
         <View style={styles.pinContainer}>
           <View style={styles.pinCallout}>
-            {isFetchingAddress ? <ActivityIndicator size="small" color="#000" /> : <Text style={styles.calloutText}>Set Pickup</Text>}
+            {isFetchingAddress ? <ActivityIndicator size="small" color="#000" /> : <Text style={styles.calloutText}>{strings?.SetPickup}</Text>}
           </View>
           <Icon name="location-on" size={48} color="#FF3B30" />
         </View>
@@ -173,7 +173,7 @@ const PickupLocationRapido = () => {
       <View style={styles.bottomCard}>
         <View style={styles.indicator} />
         <Text style={styles.addressText} numberOfLines={2}>{address}</Text>
-        <CustomButton title="Confirm Location"
+        <CustomButton title={strings?.ConfirmLocation}
           // onPress={() => navigation.goBack()} 
           onPress={confirmLocation}
           disable={isFetchingAddress || address === 'Locating...'}

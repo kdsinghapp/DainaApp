@@ -16,7 +16,7 @@ import font from '../../../../theme/font';
  import AsyncStorage from '@react-native-async-storage/async-storage';
 import LoadingModal from '../../../../utils/Loader';
 import { SafeAreaView } from 'react-native-safe-area-context';
-
+import strings from '../../../../localization/Localization';
   
 
 import { useDashboardContext } from '../../../../context/DashboardContext';
@@ -222,7 +222,7 @@ const DeliveryRequest = () => {
 
   const renderMapCard = () => (
     <Animated.View entering={FadeInDown.delay(100).duration(600)} style={styles.mapCard}>
-      <Text style={styles.sectionTitle}>Route Map</Text>
+      <Text style={styles.sectionTitle}>{strings.RouteMap}</Text>
       <View style={styles.mapContainer}>
         <MapView
           provider={PROVIDER_GOOGLE}
@@ -262,22 +262,22 @@ const DeliveryRequest = () => {
  
   const renderScheduleDetails = () => (
     <Animated.View entering={FadeInDown.delay(300).duration(600)} style={styles.detailsCard}>
-      <Text style={styles.sectionTitle}>Delivery Schedule</Text>
+      <Text style={styles.sectionTitle}>{strings.DeliverySchedule}</Text>
       <View style={styles.detailsGrid}>
         <View style={styles.detailItem}>
-          <Text style={styles.detailLabel}>Pickup Date</Text>
+          <Text style={styles.detailLabel}>{strings.PickupDate}</Text>
           <Text style={styles.detailValue}>
             {deliveryData?.pickupDate ? new Date(deliveryData.pickupDate).toLocaleDateString() : 'N/A'}
           </Text>
         </View>
         <View style={styles.detailItem}>
-          <Text style={styles.detailLabel}>Pickup Time</Text>
+          <Text style={styles.detailLabel}>{strings.PickupTime}</Text>
           <Text style={styles.detailValue}>
             {deliveryData?.pickupTime ? new Date(deliveryData.pickupTime).toLocaleTimeString() : 'N/A'}
           </Text>
         </View>
         <View style={styles.detailItem}>
-          <Text style={styles.detailLabel}>Offer Status</Text>
+          <Text style={styles.detailLabel}>{strings.OfferStatus}</Text>
           <Text style={styles.detailValue}>{deliveryData?.offerStatus || 'N/A'}</Text>
         </View>
       </View>
@@ -294,7 +294,7 @@ const DeliveryRequest = () => {
           onPress={handleCancel}
           disabled={loading}
         >
-          <Text style={styles.rejectButtonText}>Reject</Text>
+          <Text style={styles.rejectButtonText}>{strings.Reject}</Text>
         </TouchableOpacity>
         
         <TouchableOpacity 
@@ -306,7 +306,7 @@ const DeliveryRequest = () => {
             <ActivityIndicator color="#fff" size="small" />
           ) : (
             <>
-              <Text style={styles.acceptButtonText}>Accept Delivery</Text>
+              <Text style={styles.acceptButtonText}>{strings.AcceptDelivery}</Text>
             
             </>
           )}

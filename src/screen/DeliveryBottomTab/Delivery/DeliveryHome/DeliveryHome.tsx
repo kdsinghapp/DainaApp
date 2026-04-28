@@ -25,6 +25,7 @@ import useDashboard from "../../../BottomTab/DashBoard/useDashboard";
 import NewOrderNotificationModal from "../../../../compoent/NewOrderNotificationModal";
 import OfferAcceptedModal from "../../../../compoent/OfferAcceptedModal";
 import { GetDashboardCounts } from "../../../../Api/apiRequest";
+import strings from "../../../../localization/Localization";
 
 const TABS = ["Pending", "Complete", "Canceled"] as const;
 const DeliveryHome = () => {
@@ -42,7 +43,6 @@ const DeliveryHome = () => {
 
   const fetchCounts = async () => {
     const res = await GetDashboardCounts(() => { });
-    console.log("res 555555 ", res)
     if (res && (res.status === 1 || res.status === "1")) {
       setCounts(res);
     }
@@ -156,7 +156,7 @@ const DeliveryHome = () => {
         </View>
         <View style={styles.container1}>
           {/* Earnings */}
-          <ReAnimated.View 
+          <ReAnimated.View
             entering={FadeInDown.delay(100).duration(500)}
             style={styles.card1}
           >
@@ -168,7 +168,7 @@ const DeliveryHome = () => {
               }}
               resizeMode="contain"
             />
-            <Text style={styles.title}>Pending Rides</Text>
+            <Text style={styles.title}>{strings.PendingRides}</Text>
             <Text
               style={{
                 color: "#fff",
@@ -182,7 +182,7 @@ const DeliveryHome = () => {
           </ReAnimated.View>
 
           {/* Rides */}
-          <ReAnimated.View 
+          <ReAnimated.View
             entering={FadeInDown.delay(200).duration(500)}
             style={styles.card1}
           >
@@ -194,7 +194,7 @@ const DeliveryHome = () => {
               }}
               resizeMode="contain"
             />
-            <Text style={styles.title}>Today's Rides</Text>
+            <Text style={styles.title}>{strings.TodaysRides}</Text>
             <Text
               style={{
                 color: "#fff",
@@ -209,7 +209,7 @@ const DeliveryHome = () => {
         </View>
         <View style={styles.container1}>
           {/* Earnings */}
-          <ReAnimated.View 
+          <ReAnimated.View
             entering={FadeInDown.delay(300).duration(500)}
             style={styles.card1}
           >
@@ -221,7 +221,7 @@ const DeliveryHome = () => {
               }}
               resizeMode="contain"
             />
-            <Text style={styles.title}>Total Earnings</Text>
+            <Text style={styles.title}>{strings.TotalEarnings}</Text>
             <Text
               style={{
                 color: "#fff",
@@ -235,7 +235,7 @@ const DeliveryHome = () => {
           </ReAnimated.View>
 
           {/* Rides */}
-          <ReAnimated.View 
+          <ReAnimated.View
             entering={FadeInDown.delay(400).duration(500)}
             style={styles.card1}
           >
@@ -247,7 +247,7 @@ const DeliveryHome = () => {
               }}
               resizeMode="contain"
             />
-            <Text style={styles.title}>Weekly's Rides</Text>
+            <Text style={styles.title}>{strings.WeeklyRides}</Text>
             <Text
               style={{
                 color: "#fff",
@@ -377,7 +377,7 @@ const DeliveryHome = () => {
             }}
             ListEmptyComponent={
               <ReAnimated.View entering={FadeIn.delay(300)}>
-                <Text style={styles.emptyText}>No orders here yet.</Text>
+                <Text style={styles.emptyText}>{strings.NoOrdersHereYet}</Text>
               </ReAnimated.View>
             }
           />
