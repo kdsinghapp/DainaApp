@@ -35,7 +35,7 @@ type Order = {
   avatar?: string; // remote/avatar uri if you have
 };
 
-const TABS = ["Pending", "Complete", "Cancelled"] as const;
+const TABS = ["Pending", "Completed", "Cancelled"] as const;
 
 const STATUS_STYLES: Record<
   OrderStatus,
@@ -75,7 +75,7 @@ const DeliveryHome = () => {
       );
     }
 
-    if (activeTab === "Complete") {
+    if (activeTab === "Completed") {
       return COMPLETED_STATUSES.includes(status);
     }
 
@@ -262,6 +262,7 @@ const DeliveryHome = () => {
       <View style={styles.tabs}>
         {TABS.map((tab) => {
           const active = tab === activeTab;
+          const label = tab === "Completed" ? strings.Complete : tab === "Cancelled" ? strings.Canceled : strings[tab as keyof typeof strings] || tab;
           return (
             <Pressable
               key={tab}
@@ -269,7 +270,7 @@ const DeliveryHome = () => {
               style={[styles.tab, active && styles.tabActive]}
             >
               <Text style={[styles.tabText, active && styles.tabTextActive]}>
-                {tab}
+                {label}
               </Text>
             </Pressable>
           );

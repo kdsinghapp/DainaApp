@@ -139,8 +139,6 @@ export const styles = StyleSheet.create({
     fontSize: 14,
     marginTop: 8
   },
-
-
   card: {
     backgroundColor: "#fff",
     borderRadius: 16,

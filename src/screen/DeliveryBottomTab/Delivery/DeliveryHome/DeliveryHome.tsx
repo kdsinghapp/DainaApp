@@ -11,7 +11,7 @@ import {
   Animated,
 } from "react-native";
 import ReAnimated, { FadeInDown, FadeIn, Layout } from "react-native-reanimated";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { SafeAreaView, } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
 import StatusBarComponent from "../../../../compoent/StatusBarCompoent";
 import HomeHeaderBar from "../../../../compoent/HomeHeaderBar";
@@ -27,19 +27,16 @@ import OfferAcceptedModal from "../../../../compoent/OfferAcceptedModal";
 import { GetDashboardCounts } from "../../../../Api/apiRequest";
 import strings from "../../../../localization/Localization";
 
-const TABS = [strings?.Pending, strings?.Complete, strings?.Canceled] as const;
+const TABS = [strings.Pending, strings.Complete, strings.Canceled] as const;
 const DeliveryHome = () => {
   const ctx = useDeliveryContext();
   if (!ctx) return null;
   const { isLoading, requests, coords, newOrderNotification, fetchAvailableRequests } = ctx;
   // console.log("newOrderNotification",newOrderNotification?.data?.user?.name)
-  const [activeTab, setActiveTab] = useState<(typeof TABS)[number]>(strings?.Pending);
+  const [activeTab, setActiveTab] = useState<(typeof TABS)[number]>(strings.Pending);
   const [counts, setCounts] = useState<any>(null);
   const [refreshing, setRefreshing] = useState(false);
 
-  useEffect(() => {
-    fetchCounts();
-  }, []);
 
   const fetchCounts = async () => {
     const res = await GetDashboardCounts(() => { });
@@ -84,6 +81,7 @@ const DeliveryHome = () => {
         animationRef.current = null;
       } catch (_) { }
     };
+
   }, [activeTab]);
 
   const translateX = listSlide.interpolate({
@@ -267,7 +265,6 @@ const DeliveryHome = () => {
             </Text>
           </ReAnimated.View>
         </View>
-        <Text></Text>
         <View style={styles.tabs}>
           {TABS.map((tab) => {
             const active = tab === activeTab;

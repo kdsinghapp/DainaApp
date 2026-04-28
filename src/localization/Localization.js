@@ -410,6 +410,7 @@ const strings = new LocalizedStrings({
     ViewOrder: "View order",
     NoNotifications: "No notifications found",
   },
+
   mn: {
     ChangeLanguage: "Хэл солих",
     Logout: "Гарах",
