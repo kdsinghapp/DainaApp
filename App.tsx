@@ -10,6 +10,10 @@ import NotificationService from './src/services/NotificationService';
 import { getLanguage } from './src/localization/localeStorage';
 import strings from './src/localization/Localization';
 
+
+
+
+
 LogBox.ignoreAllLogs();
 (Text as any).defaultProps = (Text as any).defaultProps || {};
 

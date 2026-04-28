@@ -16,7 +16,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation, useRoute, useFocusEffect } from "@react-navigation/native";
 import ScreenNameEnum from "../../../routes/screenName.enum";
 import { GetApi } from "../../../Api/apiRequest";
- import { STATUS, STATUS_LABELS, STATUS_ICONS, STATUS_COLORS } from "../../../utils/Constant";
+import { STATUS, STATUS_LABELS, STATUS_ICONS, STATUS_COLORS } from "../../../utils/Constant";
 import Icon from "react-native-vector-icons/Ionicons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { successToast } from "../../../utils/customToast";
@@ -55,7 +55,7 @@ export default function ViewDetails() {
   const ratingSubmittedRef = useRef(false);
   const closeRatingModal = useCallback(() => {
     setShowRatingModal(false);
-   }, [nav]);
+  }, [nav]);
   const handleRatingSubmit = useCallback(
     async (rating: number, comment: string) => {
       if (rating < 1) return;

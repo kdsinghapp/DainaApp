@@ -1,10 +1,7 @@
-import React from 'react';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { Text, Platform, Image } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-
 import font from '../theme/font';
 import SvgIndex from '../assets/svgIndex';
+import strings from '../localization/Localization';
+import Animated, { useAnimatedStyle, withSpring, withTiming } from 'react-native-reanimated';
 import DeliveryHome from '../screen/DeliveryBottomTab/Delivery/DeliveryHome/DeliveryHome';
 import DeliverOrders from '../screen/DeliveryBottomTab/Delivery/DeliverOrders/DeliverOrders';
 import Inbox from '../screen/BottomTab/Inbox/Inbox';
@@ -12,27 +9,30 @@ import DeliveryProfile from '../screen/DeliveryBottomTab/DeliveryProfile/Deliver
 import NewOrderNotificationModal from '../compoent/NewOrderNotificationModal';
 import OfferAcceptedModal from '../compoent/OfferAcceptedModal';
 import InboxDeliver from '../screen/DeliveryBottomTab/InboxDeliver/InboxDeliver';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { Platform } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const Tab = createBottomTabNavigator();
 
 const TAB_CONFIG = {
   Home: {
-    label: 'Home',
+    label: strings.Home,
     iconActive: SvgIndex.HomeAtive,
     iconInactive: SvgIndex.Home,
   },
   Orders: {
-    label: 'Orders',
+    label: strings.Orders,
     iconActive: SvgIndex.Box,
     iconInactive: SvgIndex.Box1,
   },
   Inbox: {
-    label: 'Inbox',
+    label: strings.Inbox,
     iconActive: SvgIndex.MessageActive,
     iconInactive: SvgIndex.Message,
   },
   Profile: {
-    label: 'Profile',
+    label: strings.Profile,
     iconActive: SvgIndex.UserActive,
     iconInactive: SvgIndex.User,
   },
@@ -50,33 +50,54 @@ export default function DeliveryTabNavigator() {
           const tab = TAB_CONFIG[route.name];
           return {
             headerShown: false,
-            tabBarLabel: ({ focused }) => (
-              <Text
-                allowFontScaling={false}
-                style={{
-                  fontSize: 12,
-                  color: focused ? '#FFCC00' : '#2F4858',
-                  marginTop: 4,
-                  fontFamily: font.MonolithRegular,
-                }}
-              >
-                {tab?.label ?? route.name}
-              </Text>
-            ),
+            tabBarLabel: ({ focused }) => {
+              const animatedTextStyle = useAnimatedStyle(() => {
+                return {
+                  transform: [{ scale: withSpring(focused ? 1.05 : 1) }],
+                  opacity: withTiming(focused ? 1 : 0.8),
+                };
+              });
+
+              return (
+                <Animated.Text
+                  allowFontScaling={false}
+                  style={[
+                    {
+                      fontSize: 11,
+                      color: focused ? '#FFCC00' : '#2F4858',
+                      marginTop: 2,
+                      fontFamily: font.MonolithRegular,
+                    },
+                    animatedTextStyle,
+                  ]}
+                >
+                  {tab?.label ?? route.name}
+                </Animated.Text>
+              );
+            },
             tabBarIcon: ({ focused }) => {
               const Icon = focused ? tab?.iconActive : tab?.iconInactive;
-              if (typeof Icon === 'function') {
-                return <Icon width={ICON_SIZE} height={ICON_SIZE} />;
-              }
+              const animatedIconStyle = useAnimatedStyle(() => {
+                return {
+                  transform: [{ scale: withSpring(focused ? 1.2 : 1) }],
+                };
+              });
+
               return (
-                <Image
-                  source={Icon}
-                  style={{
-                    width: ICON_SIZE,
-                    height: ICON_SIZE,
-                    resizeMode: 'contain',
-                  }}
-                />
+                <Animated.View style={animatedIconStyle}>
+                  {typeof Icon === 'function' ? (
+                    <Icon width={ICON_SIZE} height={ICON_SIZE} />
+                  ) : (
+                    <Image
+                      source={Icon}
+                      style={{
+                        width: ICON_SIZE,
+                        height: ICON_SIZE,
+                        resizeMode: 'contain',
+                      }}
+                    />
+                  )}
+                </Animated.View>
               );
             },
             tabBarStyle: {

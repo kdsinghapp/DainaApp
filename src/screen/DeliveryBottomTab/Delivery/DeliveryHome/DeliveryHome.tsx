@@ -4,21 +4,19 @@ import {
   Text,
   Image,
   TouchableOpacity,
-  Animated,
   Easing,
   FlatList,
   ScrollView,
   RefreshControl,
+  Animated,
 } from "react-native";
+import ReAnimated, { FadeInDown, FadeIn, Layout } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
 import StatusBarComponent from "../../../../compoent/StatusBarCompoent";
 import HomeHeaderBar from "../../../../compoent/HomeHeaderBar";
 import imageIndex from "../../../../assets/imageIndex";
-import OnlineSlideRight from "../../../../compoent/OnlineSlideRight";
-import { successToast } from "../../../../utils/customToast";
 import { useDeliveryContext } from "../../../../context/DeliveryContext";
-import LoadingModal from "../../../../utils/Loader";
 import { styles } from "./style";
 import CurrentLocation from "../../../../CurrentLocation";
 import { Pressable } from "react-native";
@@ -35,7 +33,6 @@ const DeliveryHome = () => {
   const { isLoading, requests, coords, newOrderNotification, fetchAvailableRequests } = ctx;
   // console.log("newOrderNotification",newOrderNotification?.data?.user?.name)
   const [activeTab, setActiveTab] = useState<(typeof TABS)[number]>("Pending");
-  const [isOnline, setIsOnline] = useState(false);
   const [counts, setCounts] = useState<any>(null);
   const [refreshing, setRefreshing] = useState(false);
 
@@ -159,7 +156,10 @@ const DeliveryHome = () => {
         </View>
         <View style={styles.container1}>
           {/* Earnings */}
-          <View style={styles.card1}>
+          <ReAnimated.View 
+            entering={FadeInDown.delay(100).duration(500)}
+            style={styles.card1}
+          >
             <Image
               source={imageIndex.cars}
               style={{
@@ -179,10 +179,13 @@ const DeliveryHome = () => {
             >
               {counts?.pendingRides || "0"}
             </Text>
-          </View>
+          </ReAnimated.View>
 
           {/* Rides */}
-          <View style={styles.card1}>
+          <ReAnimated.View 
+            entering={FadeInDown.delay(200).duration(500)}
+            style={styles.card1}
+          >
             <Image
               source={imageIndex.cars}
               style={{
@@ -202,11 +205,14 @@ const DeliveryHome = () => {
             >
               {counts?.todayRides || "0"}
             </Text>
-          </View>
+          </ReAnimated.View>
         </View>
         <View style={styles.container1}>
           {/* Earnings */}
-          <View style={styles.card1}>
+          <ReAnimated.View 
+            entering={FadeInDown.delay(300).duration(500)}
+            style={styles.card1}
+          >
             <Image
               source={imageIndex.earing}
               style={{
@@ -226,10 +232,13 @@ const DeliveryHome = () => {
             >
               0.00€
             </Text>
-          </View>
+          </ReAnimated.View>
 
           {/* Rides */}
-          <View style={styles.card1}>
+          <ReAnimated.View 
+            entering={FadeInDown.delay(400).duration(500)}
+            style={styles.card1}
+          >
             <Image
               source={imageIndex.cars}
               style={{
@@ -249,7 +258,7 @@ const DeliveryHome = () => {
             >
               {counts?.weeklyRides || "0"}
             </Text>
-          </View>
+          </ReAnimated.View>
         </View>
         <Text></Text>
         <View style={styles.tabs}>
@@ -293,79 +302,83 @@ const DeliveryHome = () => {
             keyExtractor={(item: any) => item.id}
             showsVerticalScrollIndicator={false}
             contentContainerStyle={{ paddingBottom: 20 }}
-            renderItem={({ item }) => {
+            renderItem={({ item, index }) => {
               return (
-                <TouchableOpacity
-                  style={styles.card}
-                  onPress={() => {
-                    navigation.navigate(ScreenNameEnum.ParcelDetails, {
-                      item: item,
-                    });
-                  }}
-                >
-                  <View style={styles.cardTop}>
-                    <View style={[styles.iconBox]}>
+                <ReAnimated.View entering={FadeInDown.delay(index * 100)}>
+                  <TouchableOpacity
+                    style={styles.card}
+                    onPress={() => {
+                      navigation.navigate(ScreenNameEnum.ParcelDetails, {
+                        item: item,
+                      });
+                    }}
+                  >
+                    <View style={styles.cardTop}>
+                      <View style={[styles.iconBox]}>
+                        <Image
+                          source={imageIndex?.icons || { uri: "" }}
+                          style={{ height: 24, width: 24 }}
+                          resizeMode="contain"
+                        />
+                      </View>
+
+                      <Text style={[styles.cardId, styles.bold]}>
+                        {item?.trackingId}
+                      </Text>
+                      <View
+                        style={{
+                          borderWidth: 3,
+                          borderColor: "#D2D6DB",
+                          borderRadius: 20,
+                        }}
+                      />
+                      <Text
+                        style={[
+                          styles.cardDate,
+                          {
+                            marginLeft: 5,
+                          },
+                        ]}
+                      >
+                        {item?.date}
+                      </Text>
+
+                      <View style={{ flex: 1 }} />
                       <Image
-                        source={imageIndex?.icons || { uri: "" }}
-                        style={{ height: 24, width: 24 }}
-                        resizeMode="contain"
+                        source={imageIndex.more_vert}
+                        style={{
+                          height: 22,
+                          width: 22,
+                        }}
                       />
                     </View>
 
-                    <Text style={[styles.cardId, styles.bold]}>
-                      {item?.trackingId}
-                    </Text>
-                    <View
-                      style={{
-                        borderWidth: 3,
-                        borderColor: "#D2D6DB",
-                        borderRadius: 20,
-                      }}
-                    />
-                    <Text
-                      style={[
-                        styles.cardDate,
-                        {
-                          marginLeft: 5,
-                        },
-                      ]}
-                    >
-                      {item?.date}
-                    </Text>
+                    <View style={styles.routeRow}>
+                      <Image
+                        source={imageIndex?.Vector || { uri: "" }}
+                        style={{ height: 88, width: 10 }}
+                        resizeMode="contain"
+                      />
+                      <View style={{ flex: 1, marginLeft: 10 }}>
+                        <Text style={styles.label}>From</Text>
+                        <Text style={[styles.value, { marginTop: 6 }]}>
+                          {item?.pickupLocation || item?.pickup?.location}
+                        </Text>
+                        <Text style={[styles.label, { marginTop: 10 }]}>To</Text>
+                        <Text style={[styles.value, { marginTop: 6 }]}>
+                          {item?.dropLocation || item?.drop?.location}
+                        </Text>
 
-                    <View style={{ flex: 1 }} />
-                    <Image
-                      source={imageIndex.more_vert}
-                      style={{
-                        height: 22,
-                        width: 22,
-                      }}
-                    />
-                  </View>
-
-                  <View style={styles.routeRow}>
-                    <Image
-                      source={imageIndex?.Vector || { uri: "" }}
-                      style={{ height: 88, width: 10 }}
-                      resizeMode="contain"
-                    />
-                    <View style={{ flex: 1, marginLeft: 10 }}>
-                      <Text style={styles.label}>From</Text>
-                      <Text style={[styles.value, { marginTop: 6 }]}>
-                        {item?.pickupLocation || item?.pickup?.location}
-                      </Text>
-                      <Text style={[styles.label, { marginTop: 10 }]}>To</Text>
-                      <Text style={[styles.value, { marginTop: 6 }]}>
-                        {item?.dropLocation || item?.drop?.location}
-                      </Text>
-
+                      </View>
                     </View>
-                  </View>
-                </TouchableOpacity>
+                  </TouchableOpacity>
+                </ReAnimated.View>
               );
             }}
             ListEmptyComponent={
-              <Text style={styles.emptyText}>No orders here yet.</Text>
+              <ReAnimated.View entering={FadeIn.delay(300)}>
+                <Text style={styles.emptyText}>No orders here yet.</Text>
+              </ReAnimated.View>
             }
           />
         </Animated.View>
