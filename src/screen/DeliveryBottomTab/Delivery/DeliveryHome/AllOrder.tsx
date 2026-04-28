@@ -2,7 +2,6 @@ import React, { useMemo, useRef, useState, useEffect } from "react";
 import {
   View,
   Text,
-  StyleSheet,
   Image,
   FlatList,
   Pressable,
@@ -190,11 +189,11 @@ const AllOrder = () => {
                       resizeMode="contain"
                     />
                     <View style={{ flex: 1, marginLeft: 10 }}>
-                      <Text style={styles.label}>From</Text>
+                      <Text style={styles.label}>{strings.From}</Text>
                       <Text style={[styles.value, { marginTop: 6 }]}>
                         {item?.pickupLocation}
                       </Text>
-                      <Text style={[styles.label, { marginTop: 10 }]}>To</Text>
+                      <Text style={[styles.label, { marginTop: 10 }]}>{strings.To}</Text>
                       <Text style={[styles.value, { marginTop: 6 }]}>{item?.dropLocation}</Text>
                       {/* <View style={styles.statusRow}>
                       <Text style={styles.statusText}>Delivery Status :</Text>

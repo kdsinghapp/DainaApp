@@ -22,14 +22,12 @@ export const useDeliveryHome = () => {
     visible: boolean;
     data: unknown;
   } | null>(null);
-  const [acceptCounterOfferLoading, setAcceptCounterOfferLoading] = useState(false);
-
+  const [acceptCounterOfferLoading] = useState(false);
   const locationRef = useRef(null);
   const [isConnected, setIsConnected] = useState(false);
   const socketRef = useRef<WebSocket | null>(null);
   const socketLiveRef = useRef<WebSocket | null>(null);
   const cancelledRef = useRef(false);
-
   // Store lat/long for API; only updates when user moves ≥20m (see watchPosition)
   const [coords, setCoords] = useState<{ lat: number; lon: number } | null>(null);
   const coordsRef = useRef<{ lat: number; lon: number } | null>(null);

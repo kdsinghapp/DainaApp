@@ -28,7 +28,7 @@ const impactOptions = {
     light_both: 'impactlight',
     medium_both: 'impactMedium',
     heavy_both: 'impactHeavy',
-    rigid_both: 'rigid', 
+    rigid_both: 'rigid',
     soft_both: 'soft',
     notification_success_both: 'notificationSuccess',
     notification_warning_both: 'notificationWarning',
@@ -89,13 +89,13 @@ const getCloser = (value, checkOne, checkTwo) =>
     Math.abs(value - checkOne) < Math.abs(value - checkTwo) ? checkOne : checkTwo;
 
 const openDialer = (phoneNumber) => {
-  const cleanedNumber = phoneNumber.replace(/\s+/g, '');
+    const cleanedNumber = phoneNumber.replace(/\s+/g, '');
 
-  const phoneUrl = `tel:${cleanedNumber}`;
+    const phoneUrl = `tel:${cleanedNumber}`;
 
-  Linking.openURL(phoneUrl).catch(() =>
-    Alert.alert('Error', 'Unable to open dialer')
-  );
+    Linking.openURL(phoneUrl).catch(() =>
+        Alert.alert('Error', 'Unable to open dialer')
+    );
 };
 
 
@@ -103,51 +103,51 @@ import strings from '../localization/Localization';
 
 // constants/statusConstants.js
 export const STATUS = {
-  PENDING: 'pending',
-  ASSIGNED: 'assigned',
-  GOING_TO_PICKUP: 'going_to_pickup',
-  PICKED_UP: 'picked_up',
-  ON_THE_WAY: 'on_the_way',
-  ARRIVING: 'arriving',
-  DELIVERED: 'delivered',
-  COMPLETED: 'completed',
-  CANCELLED: 'cancelled'
+    PENDING: 'pending',
+    ASSIGNED: 'assigned',
+    GOING_TO_PICKUP: 'going_to_pickup',
+    PICKED_UP: 'picked_up',
+    ON_THE_WAY: 'on_the_way',
+    ARRIVING: 'arriving',
+    DELIVERED: 'delivered',
+    COMPLETED: 'completed',
+    CANCELLED: 'cancelled'
 };
 
 export const STATUS_LABELS = {
-  [STATUS.PENDING]: strings.StatusPending,
-  [STATUS.ASSIGNED]: strings.StatusAssigned,
-  [STATUS.GOING_TO_PICKUP]: strings.StatusGoingToPickup,
-  [STATUS.PICKED_UP]: strings.StatusPickedUp,
-  [STATUS.ON_THE_WAY]: strings.StatusOnTheWay,
-  [STATUS.ARRIVING]: strings.StatusArriving,
-  [STATUS.DELIVERED]: strings.StatusDelivered,
-  [STATUS.COMPLETED]: strings.StatusCompleted,
-  [STATUS.CANCELLED]: strings.StatusCancelled,
+    get [STATUS.PENDING]() { return strings.StatusPending; },
+    get [STATUS.ASSIGNED]() { return strings.StatusAssigned; },
+    get [STATUS.GOING_TO_PICKUP]() { return strings.StatusGoingToPickup; },
+    get [STATUS.PICKED_UP]() { return strings.StatusPickedUp; },
+    get [STATUS.ON_THE_WAY]() { return strings.StatusOnTheWay; },
+    get [STATUS.ARRIVING]() { return strings.StatusArriving; },
+    get [STATUS.DELIVERED]() { return strings.StatusDelivered; },
+    get [STATUS.COMPLETED]() { return strings.StatusCompleted; },
+    get [STATUS.CANCELLED]() { return strings.StatusCancelled; },
 };
 
 export const STATUS_COLORS = {
-  [STATUS.PENDING]: '#FF9500', // Orange
-  [STATUS.ASSIGNED]: '#007AFF', // Blue
-  [STATUS.GOING_TO_PICKUP]: '#5856D6', // Purple
-  [STATUS.PICKED_UP]: '#34C759', // Green
-  [STATUS.ON_THE_WAY]: '#5AC8FA', // Light Blue
-  [STATUS.ARRIVING]: '#FF2D55', // Pink
-  [STATUS.DELIVERED]: '#32D74B', // Bright Green
-  [STATUS.COMPLETED]: '#64D2FF', // Sky Blue
-  [STATUS.CANCELLED]: '#FF3B30' // Red
+    [STATUS.PENDING]: '#FF9500', // Orange
+    [STATUS.ASSIGNED]: '#007AFF', // Blue
+    [STATUS.GOING_TO_PICKUP]: '#5856D6', // Purple
+    [STATUS.PICKED_UP]: '#34C759', // Green
+    [STATUS.ON_THE_WAY]: '#5AC8FA', // Light Blue
+    [STATUS.ARRIVING]: '#FF2D55', // Pink
+    [STATUS.DELIVERED]: '#32D74B', // Bright Green
+    [STATUS.COMPLETED]: '#64D2FF', // Sky Blue
+    [STATUS.CANCELLED]: '#FF3B30' // Red
 };
 
 export const STATUS_ICONS = {
-  [STATUS.PENDING]: 'time-outline',
-  [STATUS.ASSIGNED]: 'person-outline',
-  [STATUS.GOING_TO_PICKUP]: 'car-outline',
-  [STATUS.PICKED_UP]: 'cube-outline',
-  [STATUS.ON_THE_WAY]: 'navigate-outline',
-  [STATUS.ARRIVING]: 'location-outline',
-  [STATUS.DELIVERED]: 'checkmark-circle-outline',
-  [STATUS.COMPLETED]: 'flag-outline',
-  [STATUS.CANCELLED]: 'close-circle-outline'
+    [STATUS.PENDING]: 'time-outline',
+    [STATUS.ASSIGNED]: 'person-outline',
+    [STATUS.GOING_TO_PICKUP]: 'car-outline',
+    [STATUS.PICKED_UP]: 'cube-outline',
+    [STATUS.ON_THE_WAY]: 'navigate-outline',
+    [STATUS.ARRIVING]: 'location-outline',
+    [STATUS.DELIVERED]: 'checkmark-circle-outline',
+    [STATUS.COMPLETED]: 'flag-outline',
+    [STATUS.CANCELLED]: 'close-circle-outline'
 };
 export {
     hp,
