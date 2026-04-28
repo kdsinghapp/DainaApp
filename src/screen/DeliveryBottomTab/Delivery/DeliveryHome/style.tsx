@@ -91,7 +91,7 @@ export const styles = StyleSheet.create({
     alignItems: "center",
   },
   tabActive: {
-    backgroundColor: "#000000",
+    backgroundColor: "#FFCC00",
     height: 45,
     borderRadius: 30,
     shadowColor: "#000",
@@ -120,11 +120,10 @@ export const styles = StyleSheet.create({
   },
   card1: {
     flex: 1,
-    backgroundColor: "#000",
+    backgroundColor: "#FFCC00",
     borderRadius: 12,
     padding: 16,
     marginHorizontal: 6,
-    shadowColor: "#000",
     shadowOpacity: 0.2,
     shadowOffset: { width: 0, height: 2 },
     shadowRadius: 4,
@@ -136,7 +135,7 @@ export const styles = StyleSheet.create({
     marginBottom: 11,
   },
   title: {
-    color: "#EDEDED",
+    color: "black",
     fontSize: 14,
     marginTop: 8
   },

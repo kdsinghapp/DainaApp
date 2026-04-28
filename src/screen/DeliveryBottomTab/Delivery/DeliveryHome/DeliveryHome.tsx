@@ -27,13 +27,13 @@ import OfferAcceptedModal from "../../../../compoent/OfferAcceptedModal";
 import { GetDashboardCounts } from "../../../../Api/apiRequest";
 import strings from "../../../../localization/Localization";
 
-const TABS = ["Pending", "Complete", "Canceled"] as const;
+const TABS = [strings?.Pending, strings?.Complete, strings?.Canceled] as const;
 const DeliveryHome = () => {
   const ctx = useDeliveryContext();
   if (!ctx) return null;
   const { isLoading, requests, coords, newOrderNotification, fetchAvailableRequests } = ctx;
   // console.log("newOrderNotification",newOrderNotification?.data?.user?.name)
-  const [activeTab, setActiveTab] = useState<(typeof TABS)[number]>("Pending");
+  const [activeTab, setActiveTab] = useState<(typeof TABS)[number]>(strings?.Pending);
   const [counts, setCounts] = useState<any>(null);
   const [refreshing, setRefreshing] = useState(false);
 
@@ -164,6 +164,7 @@ const DeliveryHome = () => {
               source={imageIndex.cars}
               style={{
                 height: 35,
+                tintColor: "gray",
                 width: 35,
               }}
               resizeMode="contain"
@@ -191,6 +192,8 @@ const DeliveryHome = () => {
               style={{
                 height: 35,
                 width: 35,
+                tintColor: "gray",
+
               }}
               resizeMode="contain"
             />
@@ -218,6 +221,8 @@ const DeliveryHome = () => {
               style={{
                 height: 35,
                 width: 35,
+                tintColor: "gray",
+
               }}
               resizeMode="contain"
             />
@@ -243,6 +248,8 @@ const DeliveryHome = () => {
               source={imageIndex.cars}
               style={{
                 height: 35,
+                tintColor: "gray",
+
                 width: 35,
               }}
               resizeMode="contain"
@@ -360,11 +367,11 @@ const DeliveryHome = () => {
                         resizeMode="contain"
                       />
                       <View style={{ flex: 1, marginLeft: 10 }}>
-                        <Text style={styles.label}>From</Text>
+                        <Text style={styles.label}>{strings?.From}</Text>
                         <Text style={[styles.value, { marginTop: 6 }]}>
                           {item?.pickupLocation || item?.pickup?.location}
                         </Text>
-                        <Text style={[styles.label, { marginTop: 10 }]}>To</Text>
+                        <Text style={[styles.label, { marginTop: 10 }]}>{strings?.To}</Text>
                         <Text style={[styles.value, { marginTop: 6 }]}>
                           {item?.dropLocation || item?.drop?.location}
                         </Text>

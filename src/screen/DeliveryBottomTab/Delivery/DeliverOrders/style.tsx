@@ -1,8 +1,8 @@
 import { StyleSheet, Dimensions } from "react-native";
 import font from "../../../../theme/font";
- 
 
- 
+
+
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -22,7 +22,7 @@ export const styles = StyleSheet.create({
     fontSize: 18,
     color: "#000",
     fontWeight: "700",
-   },
+  },
 
   /* summary cards */
   summaryRow: {
@@ -64,8 +64,8 @@ export const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 20,
     marginBottom: 12,
-     alignItems: "center",
-    marginTop:12
+    alignItems: "center",
+    marginTop: 12
   },
   tab: {
     flex: 1,
@@ -75,18 +75,18 @@ export const styles = StyleSheet.create({
     justifyContent: "center",
   },
   tabActive: {
-    backgroundColor: "#000",
+    backgroundColor: "#FFCC00",
     height: 40,
   },
   tabText: {
     fontSize: 13,
     color: "#1C1B1B",
-   },
+  },
   tabTextActive: {
     color: "#FFF",
     fontWeight: "700",
     fontSize: 15,
-   },
+  },
 
   /* cards */
   card: {
@@ -94,14 +94,14 @@ export const styles = StyleSheet.create({
     borderRadius: 16,
     padding: 16,
     marginBottom: 16,
-  borderColor: "#eee",
-  borderWidth: 1,
+    borderColor: "#eee",
+    borderWidth: 1,
 
-  // ✅ iOS shadow
-  shadowColor: "#000",
-  shadowOffset: { width: 0, height: 0 },
-  shadowOpacity: 0.1,
-  shadowRadius: 6,
+    // ✅ iOS shadow
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
   },
   cardTop: {
     flexDirection: "row",
@@ -117,7 +117,7 @@ export const styles = StyleSheet.create({
     fontSize: 15,
     color: "black",
     fontWeight: "700",
-   },
+  },
   phone: {
     marginTop: 2,
     fontSize: 13,
@@ -138,18 +138,18 @@ export const styles = StyleSheet.create({
     fontFamily: font.MonolithRegular,
   },
   code: {
-     marginLeft: 52, // align under name (40 avatar + 12 gap)
+    marginLeft: 52, // align under name (40 avatar + 12 gap)
     fontSize: 12,
     color: "#9AA4AF",
     fontFamily: font.MonolithRegular,
   },
 
   splitter: {
-     borderWidth:0.5,
-     borderColor:"#D9D9D9",
-     marginTop:10 ,
-     marginBottom:5
-   },
+    borderWidth: 0.5,
+    borderColor: "#D9D9D9",
+    marginTop: 10,
+    marginBottom: 5
+  },
 
   stopsRow: {
     flexDirection: "row",
@@ -160,14 +160,14 @@ export const styles = StyleSheet.create({
   stopLabel: {
     fontSize: 13,
     color: "#3B4051",
-    fontWeight:"500"
-   },
+    fontWeight: "500"
+  },
   stopValue: {
     fontSize: 13,
     color: "#808080",
     marginTop: 4,
     lineHeight: 20,
-    fontWeight:"500"
+    fontWeight: "500"
   },
 
   emptyText: {
