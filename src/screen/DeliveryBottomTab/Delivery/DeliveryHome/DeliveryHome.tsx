@@ -27,13 +27,13 @@ import OfferAcceptedModal from "../../../../compoent/OfferAcceptedModal";
 import { GetDashboardCounts } from "../../../../Api/apiRequest";
 import strings from "../../../../localization/Localization";
 
-const TABS = [strings.Pending, strings.Complete, strings.Canceled] as const;
+const TABS = ["Pending", "Complete", "Cancelled"] as const;
 const DeliveryHome = () => {
   const ctx = useDeliveryContext();
   if (!ctx) return null;
   const { isLoading, requests, coords, newOrderNotification, fetchAvailableRequests } = ctx;
   // console.log("newOrderNotification",newOrderNotification?.data?.user?.name)
-  const [activeTab, setActiveTab] = useState<(typeof TABS)[number]>(strings.Pending);
+  const [activeTab, setActiveTab] = useState<(typeof TABS)[number]>("Pending");
   const [counts, setCounts] = useState<any>(null);
   const [refreshing, setRefreshing] = useState(false);
 
@@ -268,6 +268,7 @@ const DeliveryHome = () => {
         <View style={styles.tabs}>
           {TABS.map((tab) => {
             const active = tab === activeTab;
+            const label = tab === "Complete" ? strings.Complete : tab === "Cancelled" ? strings.Canceled : strings[tab as keyof typeof strings] || tab;
             return (
               <Pressable
                 key={tab}
@@ -275,7 +276,7 @@ const DeliveryHome = () => {
                 style={[styles.tab, active && styles.tabActive]}
               >
                 <Text style={[styles.tabText, active && styles.tabTextActive]}>
-                  {tab}
+                  {label}
                 </Text>
               </Pressable>
             );
