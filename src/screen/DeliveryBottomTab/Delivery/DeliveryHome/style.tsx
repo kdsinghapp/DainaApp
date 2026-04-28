@@ -120,14 +120,13 @@ export const styles = StyleSheet.create({
   },
   card1: {
     flex: 1,
-    backgroundColor: "#FFCC00",
+    // backgroundColor: "#FFCC00",
     borderRadius: 12,
     padding: 16,
+    borderWidth: 1,
+    borderColor: "#FFCC00",
     marginHorizontal: 6,
-    shadowOpacity: 0.2,
-    shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 4,
-    elevation: 4,
+
   },
   icon: {
     height: 28,

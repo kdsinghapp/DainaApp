@@ -162,7 +162,7 @@ const DeliveryHome = () => {
               source={imageIndex.cars}
               style={{
                 height: 35,
-                tintColor: "gray",
+                tintColor: "#FFCC00",
                 width: 35,
               }}
               resizeMode="contain"
@@ -170,7 +170,7 @@ const DeliveryHome = () => {
             <Text style={styles.title}>{strings.PendingRides}</Text>
             <Text
               style={{
-                color: "#fff",
+                color: "black",
                 fontSize: 18,
                 fontWeight: "bold",
                 marginTop: 5,
@@ -190,7 +190,7 @@ const DeliveryHome = () => {
               style={{
                 height: 35,
                 width: 35,
-                tintColor: "gray",
+                tintColor: "#FFCC00"
 
               }}
               resizeMode="contain"
@@ -198,7 +198,7 @@ const DeliveryHome = () => {
             <Text style={styles.title}>{strings.TodaysRides}</Text>
             <Text
               style={{
-                color: "#fff",
+                color: "black",
                 fontSize: 18,
                 fontWeight: "bold",
                 marginTop: 5,
@@ -219,7 +219,7 @@ const DeliveryHome = () => {
               style={{
                 height: 35,
                 width: 35,
-                tintColor: "gray",
+                tintColor: "#FFCC00"
 
               }}
               resizeMode="contain"
@@ -227,7 +227,8 @@ const DeliveryHome = () => {
             <Text style={styles.title}>{strings.TotalEarnings}</Text>
             <Text
               style={{
-                color: "#fff",
+                color: "black",
+
                 fontSize: 18,
                 fontWeight: "bold",
                 marginTop: 5,
@@ -246,7 +247,7 @@ const DeliveryHome = () => {
               source={imageIndex.cars}
               style={{
                 height: 35,
-                tintColor: "gray",
+                tintColor: "#FFCC00",
 
                 width: 35,
               }}
@@ -255,7 +256,8 @@ const DeliveryHome = () => {
             <Text style={styles.title}>{strings.WeeklyRides}</Text>
             <Text
               style={{
-                color: "#fff",
+                color: "black",
+
                 fontSize: 18,
                 fontWeight: "bold",
                 marginTop: 5,
