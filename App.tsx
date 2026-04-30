@@ -9,6 +9,8 @@ import { queryClient } from './src/services/queryClient';
 import NotificationService from './src/services/NotificationService';
 import { getLanguage } from './src/localization/localeStorage';
 import strings from './src/localization/Localization';
+import { getMessaging } from '@react-native-firebase/messaging';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
 
@@ -41,11 +43,28 @@ const App: FunctionComponent<any> = () => {
     // Initialize Language
     const lang = await getLanguage();
     strings.setLanguage(lang);
-
+    getFcmToken()
     // Initialize Notifications
     await initNotifications();
   };
 
+  const getFcmToken = async () => {
+    try {
+      const fcmToken = await getMessaging().getToken();
+
+      if (fcmToken) {
+        await AsyncStorage.setItem('fcmToken', fcmToken);
+        console.log('✅ FCM Token:', fcmToken);
+        return fcmToken;
+      } else {
+        throw new Error('FCM Token not received');
+      }
+
+    } catch (error) {
+      console.log(`❌ FCM Token Error: `, error);
+      return null;
+    }
+  };
   const initNotifications = async () => {
     try {
       // Step 1: iOS ke liye register

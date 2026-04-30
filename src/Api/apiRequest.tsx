@@ -77,14 +77,14 @@ const LogiApi = async (
 
     // ✅ Handle API response
     if (parsedResponse?.status === 1) {
-      successToast(parsedResponse.message);
+      successToast(strings.LoginSuccess);
       param.navigation.navigate(ScreenNameEnum.OtpScreen, {
         code: param?.code,
         phone: param?.phone,
       });
       return parsedResponse;
     } else {
-      errorToast(parsedResponse.message);
+      errorToast(strings.LoginFailed);
       return parsedResponse;
     }
 
@@ -98,8 +98,12 @@ const LogiApi = async (
 
 const Verifyotp = async (param: any, setLoading: any, dispatch: any, setGeneralAlert?: any) => {
   setLoading(true);
+
+
   try {
     const fcmToken = await AsyncStorage.getItem('fcmToken');
+    console.log("fcmToken ------", fcmToken);
+
     const formdata = new FormData();
     formdata.append('countryCode', param?.code || '');
     formdata.append('phoneNumber', param?.phone || '');
@@ -123,6 +127,7 @@ const Verifyotp = async (param: any, setLoading: any, dispatch: any, setGeneralA
     console.log("Verify OTP Response:", parsedResponse);
 
     if (parsedResponse?.status == 1) {
+      successToast(strings.VerificationSuccess);
       await AsyncStorage.setItem('token', parsedResponse?.token);
       dispatch(loginSuccess({ userData: parsedResponse, token: parsedResponse?.token }));
       await saveAuthData(parsedResponse, parsedResponse?.token);
@@ -139,12 +144,8 @@ const Verifyotp = async (param: any, setLoading: any, dispatch: any, setGeneralA
       } else {
         param.navigation.navigate(ScreenNameEnum.ProfileSetup, { type: "otp" });
       }
-
-
-
-
     } else {
-      const errorMessage = parsedResponse?.message || strings.SomethingWentWrong;
+      const errorMessage = strings.InvalidOTP;
       if (setGeneralAlert) {
         setGeneralAlert({ visible: true, type: 'error', message: errorMessage });
       } else {
@@ -188,10 +189,10 @@ const Resend_otp = async (param: any, setLoading: any) => {
     }
 
     if (parsedResponse?.status === 1) {
-      successToast(parsedResponse?.message);
+      successToast(strings.ResendSuccess);
       return parsedResponse;
     } else {
-      errorToast(parsedResponse?.message);
+      errorToast(strings.ResendFailed);
       return parsedResponse;
     }
 

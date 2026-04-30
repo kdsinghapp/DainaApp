@@ -29,8 +29,8 @@ const UploadDocumentsScreen = () => {
   const pickDocument = async (type: string) => {
     const options: any = {
       mediaType: "photo",
-      quality: 0.6, // Compressing image to 60% quality
       maxWidth: 1200, // Resizing to 1200px width
+      quality: 0.9,
     };
 
     try {

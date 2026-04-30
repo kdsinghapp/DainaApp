@@ -162,7 +162,8 @@ const DeliveryHome = () => {
               source={imageIndex.cars}
               style={{
                 height: 35,
-                tintColor: "#FFCC00",
+                tintColor: "#7B3F00",
+                // tintColor: "#D2B48C",
                 width: 35,
               }}
               resizeMode="contain"
@@ -190,7 +191,7 @@ const DeliveryHome = () => {
               style={{
                 height: 35,
                 width: 35,
-                tintColor: "#FFCC00"
+                tintColor: "#7B3F00",
 
               }}
               resizeMode="contain"
@@ -219,7 +220,7 @@ const DeliveryHome = () => {
               style={{
                 height: 35,
                 width: 35,
-                tintColor: "#FFCC00"
+                tintColor: "#7B3F00",
 
               }}
               resizeMode="contain"
@@ -247,7 +248,7 @@ const DeliveryHome = () => {
               source={imageIndex.cars}
               style={{
                 height: 35,
-                tintColor: "#FFCC00",
+                tintColor: "#7B3F00",
 
                 width: 35,
               }}
