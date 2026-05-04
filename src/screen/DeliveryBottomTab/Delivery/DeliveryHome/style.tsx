@@ -1,4 +1,4 @@
-import { StyleSheet } from "react-native";
+import { StyleSheet, Platform } from "react-native";
 import font from "../../../../theme/font";
 
 export const styles = StyleSheet.create({
@@ -140,19 +140,22 @@ export const styles = StyleSheet.create({
   },
   card: {
     backgroundColor: "#fff",
-    borderRadius: 16,
-    padding: 17,
-    marginBottom: 16,
-    borderColor: "#eee",
+    borderRadius: 24,
+    padding: 20,
     borderWidth: 1,
-
-    // ✅ iOS shadow
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.1,
-    shadowRadius: 6,
-
-    // ✅ Android shadow
+    borderColor: "rgba(0,0,0,0.02)",
+    marginBottom: 16,
+    ...Platform.select({
+      ios: {
+        shadowColor: "#0F172A",
+        shadowOffset: { width: 0, height: 10 },
+        shadowOpacity: 0.05,
+        shadowRadius: 15,
+      },
+      android: {
+        elevation: 6,
+      },
+    }),
   },
   cardTop: {
     flexDirection: "row",
