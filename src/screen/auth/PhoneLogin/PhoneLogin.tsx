@@ -20,9 +20,9 @@ import strings from "../../../localization/Localization";
 
 const PhoneLogin = () => {
 
-  // const [phoneNumber, setPhoneNumber] = useState("5655656");
-  const [phoneNumber, setPhoneNumber] = useState("98765432");
-  // const [phoneNumber, setPhoneNumber] = useState("98765432");
+
+  // const [phoneNumber, setPhoneNumber] = useState("94645633");
+  const [phoneNumber, setPhoneNumber] = useState("940309344034");
   const [countryCode, setCountryCode] = useState("IN");
   const [callingCode, setCallingCode] = useState("+91");
   const [loading, setLoading] = useState(false);

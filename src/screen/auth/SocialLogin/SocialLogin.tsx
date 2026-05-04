@@ -11,7 +11,7 @@ import strings from '../../../localization/Localization';
 const SocialLogin = () => {
   const {
 
-    isLoading, handleGoogleLogin,
+
     navigation } = useChooseRoleScreen()
   return (
     <ImageBackground style={styles.container}

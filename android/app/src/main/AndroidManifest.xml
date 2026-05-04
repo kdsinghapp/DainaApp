@@ -25,10 +25,11 @@
         android:icon="@mipmap/ic_launcher"
         android:allowBackup="false"
         android:usesCleartextTraffic="true"
-    android:hardwareAccelerated="true"
+        android:hardwareAccelerated="true"
         android:theme="@style/AppTheme"
-          android:requestLegacyExternalStorage="true"
-        android:supportsRtl="true">
+        android:requestLegacyExternalStorage="true"
+        android:supportsRtl="true"
+        android:extractNativeLibs="false">
             <meta-data
         android:name="com.google.android.gms.version"
         android:value="@integer/google_play_services_version"/>
