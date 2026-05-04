@@ -135,7 +135,14 @@ const ShippingScreen = () => {
         ItemSeparatorComponent={() => <View style={{ height: 14 }} />}
         showsVerticalScrollIndicator={false}
         ListEmptyComponent={() => (
-          <Text style={styles.emptyText}>{strings.NoOrdersFound}</Text>
+          <View style={styles.emptyWrap}>
+            <View style={styles.illustrationWrap}>
+              <View style={styles.illustrationBg} />
+              <Image source={imageIndex.ordePracle} style={styles.emptyIcon} />
+            </View>
+            <Text style={styles.emptyTitle}>{strings.NoOrder}</Text>
+            <Text style={styles.emptySubtitle}>{strings.NoOrdersFound1}</Text>
+          </View>
         )}
       />
       <AddressModalInput
@@ -239,11 +246,46 @@ const styles = StyleSheet.create({
     padding: 16,
     backgroundColor: "#fff",
   },
-  emptyText: {
-    fontSize: 14,
-    marginLeft: 6,
+  emptyWrap: {
+    paddingVertical: 60,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: 40,
+  },
+  illustrationWrap: {
+    width: 160,
+    height: 160,
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 24,
+    position: 'relative',
+  },
+  illustrationBg: {
+    position: 'absolute',
+    width: 140,
+    height: 140,
+    borderRadius: 70,
+    backgroundColor: "#FFCC00",
+    opacity: 0.1,
+  },
+  emptyIcon: {
+    height: 120,
+    width: 120,
+    resizeMode: 'contain',
+  },
+  emptyTitle: {
+    fontSize: 22,
+    color: "#0F172A",
     fontFamily: font.MonolithRegular,
-    textAlign: "center"
+    marginBottom: 10,
+    textAlign: 'center',
+  },
+  emptySubtitle: {
+    fontSize: 15,
+    color: "#64748B",
+    fontFamily: font.MonolithRegular,
+    textAlign: 'center',
+    lineHeight: 22,
   },
   locationRow: {
     flexDirection: "row",

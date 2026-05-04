@@ -8,6 +8,7 @@ import {
   Image,
   TouchableOpacity,
   RefreshControl,
+  Platform,
 } from "react-native";
 import imageIndex from "../../../assets/imageIndex";
 import font from "../../../theme/font";
@@ -187,9 +188,14 @@ export default function OrdersScreen() {
           ItemSeparatorComponent={() => <View style={{ height: 14 }} />}
           showsVerticalScrollIndicator={false}
           ListEmptyComponent={() => (
-            <Text style={{ textAlign: 'center', marginTop: 20, color: 'gray' }}>
-              {strings.NoOrdersFound}
-            </Text>
+            <View style={styles.emptyWrap}>
+              <View style={styles.illustrationWrap}>
+                <View style={styles.illustrationBg} />
+                <Image source={imageIndex.ordePracle} style={styles.emptyIcon} />
+              </View>
+              <Text style={styles.emptyTitle}>{strings.NoOrder}</Text>
+              <Text style={styles.emptySubtitle}>{strings.NoOrdersFound1}</Text>
+            </View>
           )}
           refreshControl={
             <RefreshControl
@@ -336,42 +342,71 @@ const styles = StyleSheet.create({
 
   tabsWrap: {
     flexDirection: "row",
-    backgroundColor: "white",
-    padding: 10,
-    borderRadius: 14,
-    marginBottom: 14,
-    shadowColor: "#000", // For iOS shadow
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.2,
-    marginTop: 11,
-    shadowRadius: 1.41,
-    borderWidth: 0.8,
-    borderColor: "#eee",
+    backgroundColor: "#fff",
+    padding: 12,
+    borderRadius: 20,
+    marginBottom: 20,
+    marginTop: 10,
+
+    // Shadow (iOS)
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+
+    // Shadow (Android)
+    elevation: 4,
   },
   tab: {
     flex: 1,
-    paddingVertical: 10,
-    borderRadius: 10,
+    paddingVertical: 15,
+    borderRadius: 14,
     alignItems: "center",
+    justifyContent: "center",
   },
-  tabActive: { backgroundColor: "#FFCC00" },
-  tabText: { fontSize: 14, fontFamily: font.MonolithRegular, color: "#FFCC00" },
-  tabTextActive: { color: "#000", fontSize: 14, fontFamily: font.MonolithRegular, },
+  tabActive: {
+    backgroundColor: "#FFCC00",
+    ...Platform.select({
+      ios: {
+        shadowColor: "#FFCC00",
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 8,
+      },
+      android: {
+        elevation: 4,
+      },
+    }),
+  },
+  tabText: {
+    fontSize: 14,
+    fontFamily: font.MonolithRegular,
+    color: "#94A3B8",
+  },
+  tabTextActive: {
+    color: "#000",
+    fontSize: 14,
+    fontFamily: font.MonolithRegular,
+  },
 
   card: {
-    backgroundColor: CARD,
-    borderRadius: 16,
-    padding: 14,
+    backgroundColor: "#FFF",
+    borderRadius: 24,
+    padding: 20,
     borderWidth: 1,
-    borderColor: BORDER,
-
-    // iOS
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 10,
-    margin: 6,
-    // Android
+    borderColor: "rgba(0,0,0,0.02)",
+    marginBottom: 16,
+    ...Platform.select({
+      ios: {
+        shadowColor: "#0F172A",
+        shadowOffset: { width: 0, height: 10 },
+        shadowOpacity: 0.05,
+        shadowRadius: 15,
+      },
+      android: {
+        elevation: 6,
+      },
+    }),
   },
   cardHeader: {
     flexDirection: "row",
@@ -453,4 +488,45 @@ const styles = StyleSheet.create({
   },
   pillText: { fontFamily: font.MonolithRegular, fontSize: 15, color: TEXT },
   viewDetails: { color: YELLOW, fontFamily: font.MonolithRegular, },
+  emptyWrap: {
+    paddingVertical: 60,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: 40,
+  },
+  illustrationWrap: {
+    width: 160,
+    height: 160,
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 24,
+    position: 'relative',
+  },
+  illustrationBg: {
+    position: 'absolute',
+    width: 140,
+    height: 140,
+    borderRadius: 70,
+    backgroundColor: YELLOW,
+    opacity: 0.1,
+  },
+  emptyIcon: {
+    height: 120,
+    width: 120,
+    resizeMode: 'contain',
+  },
+  emptyTitle: {
+    fontSize: 22,
+    color: TEXT,
+    fontFamily: font.MonolithRegular,
+    marginBottom: 10,
+    textAlign: 'center',
+  },
+  emptySubtitle: {
+    fontSize: 15,
+    color: MUTED,
+    fontFamily: font.MonolithRegular,
+    textAlign: 'center',
+    lineHeight: 22,
+  },
 });

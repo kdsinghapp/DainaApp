@@ -22,8 +22,8 @@ import Animated, {
   interpolate,
 } from "react-native-reanimated";
 import ReactNativeHapticFeedback from "react-native-haptic-feedback";
-import SvgIndex from "../../../assets/svgIndex";
 import font from "../../../theme/font";
+import Icon from 'react-native-vector-icons/Ionicons';
 import imageIndex from "../../../assets/imageIndex";
 import ScreenNameEnum from "../../../routes/screenName.enum";
 import { useNavigation } from "@react-navigation/native";
@@ -149,66 +149,30 @@ const ProfileScreen: React.FC = () => {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
       >
-        {/* Luxury Header */}
-        <View style={styles.header}>
-          <View style={styles.headerTop}>
-            <Animated.Text entering={FadeInDown.delay(200)} style={styles.headerTitle}>
-              {strings.Profile}
-            </Animated.Text>
-            <TouchableOpacity
-              onPress={() => navigation.navigate(ScreenNameEnum.EditProfile)}
-              style={styles.headerSettings}
-            >
-              <Image source={imageIndex.eoditphots} style={styles.settingsIcon} />
-            </TouchableOpacity>
-          </View>
-
-          <View style={styles.profileSection}>
+        <View style={styles.profileCard}>
+          <View style={styles.profileHeader}>
             <Animated.View entering={FadeInDown.delay(300)} style={styles.avatarWrap}>
               <View style={styles.avatarGlow} />
               <Image
                 source={userData?.image ? { uri: userData?.image } : imageIndex.prfile}
                 style={styles.avatar}
               />
-              <TouchableOpacity
+              {/* <TouchableOpacity
                 style={styles.editBadge}
                 onPress={() => navigation.navigate(ScreenNameEnum.EditProfile)}
               >
                 <Image source={imageIndex.eoditphots} style={styles.editBadgeIcon} />
-              </TouchableOpacity>
+              </TouchableOpacity> */}
             </Animated.View>
 
-            <Animated.View entering={FadeInDown.delay(400)} style={styles.nameSection}>
+            <View style={styles.nameSection}>
               <Text style={styles.nameText}>{userData?.firstName || "User"}</Text>
               <Text style={styles.emailText}>{userData?.email || "No email provided"}</Text>
-              <View style={styles.verifiedContainer}>
-                <View style={styles.verifiedDot} />
-                <Text style={styles.verifiedText}>Gold Member</Text>
-              </View>
-            </Animated.View>
+
+            </View>
           </View>
 
-          {/* Stats Row */}
-          <View style={styles.statsRow}>
-            <StatItem
-              index={0}
-              label={strings.Orders || "Orders"}
-              value="12"
-              icon={<SvgIndex.Box width={18} height={18} />}
-            />
-            <StatItem
-              index={1}
-              label={strings.Messages || "Inbox"}
-              value="05"
-              icon={<SvgIndex.Edit width={18} height={18} />}
-            />
-            <StatItem
-              index={2}
-              label={strings.Points || "Credits"}
-              value="250"
-              icon={<SvgIndex.Terms width={18} height={18} />}
-            />
-          </View>
+
         </View>
 
         {/* Menu Sections */}
@@ -218,20 +182,20 @@ const ProfileScreen: React.FC = () => {
             <View style={styles.card}>
               <MenuItem
                 index={0}
-                icon={<SvgIndex.Edit width={20} height={20} />}
+                icon={<Icon name="person-outline" size={22} color={color.primary} />}
                 label={strings.EditProfile}
                 onPress={() => navigation.navigate(ScreenNameEnum.EditProfile)}
               />
               <MenuItem
                 index={1}
-                icon={<SvgIndex.Edit width={20} height={20} />}
+                icon={<Icon name="language-outline" size={22} color={color.primary} />}
                 label={strings.ChangeLanguage}
                 onPress={() => navigation.navigate(ScreenNameEnum.language)}
               />
               <MenuItem
                 index={2}
                 isLast
-                icon={<SvgIndex.Box width={20} height={20} />}
+                icon={<Icon name="cart-outline" size={22} color={color.primary} />}
                 label={strings.MyOrders}
                 onPress={() => navigation.navigate(ScreenNameEnum.OrdersPrfile)}
               />
@@ -243,14 +207,14 @@ const ProfileScreen: React.FC = () => {
             <View style={styles.card}>
               <MenuItem
                 index={3}
-                icon={<SvgIndex.Privacy width={20} height={20} />}
+                icon={<Icon name="shield-checkmark-outline" size={22} color={color.primary} />}
                 label={strings.PrivacyPolicy}
                 onPress={() => navigation.navigate(ScreenNameEnum.PrivacyPolicy)}
               />
               <MenuItem
                 index={4}
                 isLast
-                icon={<SvgIndex.Terms width={20} height={20} />}
+                icon={<Icon name="document-text-outline" size={22} color={color.primary} />}
                 label={strings.TermsConditions}
                 onPress={() => navigation.navigate(ScreenNameEnum.LegalPoliciesScreen)}
               />
@@ -271,7 +235,6 @@ const ProfileScreen: React.FC = () => {
             </TouchableOpacity>
           </Animated.View>
 
-          <Text style={styles.versionText}>Version 1.0.2 (Build 45)</Text>
         </View>
       </ScrollView>
 
@@ -290,57 +253,48 @@ const ProfileScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F4F7FA",
+    backgroundColor: "#F8FAFC",
   },
   scrollContent: {
-    paddingBottom: hp(10),
+    paddingBottom: hp(20),
+    paddingTop: hp(8),
   },
-  header: {
-    backgroundColor: "#121212",
-    paddingTop: hp(4),
-    paddingBottom: hp(8),
-    borderBottomLeftRadius: 40,
-    borderBottomRightRadius: 40,
-    paddingHorizontal: 24,
-  },
-  headerTop: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 30,
-  },
-  headerTitle: {
-    fontSize: 28,
-    fontFamily: font.TrialBold,
-    color: "#FFF",
-  },
-  headerSettings: {
-    width: 44,
-    height: 44,
-    borderRadius: 14,
-    backgroundColor: "rgba(255, 255, 255, 0.1)",
+  profileCard: {
+    backgroundColor: "#FFF",
+    marginHorizontal: 24,
+    borderRadius: 32,
     justifyContent: "center",
     alignItems: "center",
+    padding: 22,
+    borderWidth: 1,
+    borderColor: "rgba(0,0,0,0.02)",
+    ...Platform.select({
+      ios: {
+        shadowColor: "#0F172A",
+        shadowOffset: { width: 0, height: 12 },
+        shadowOpacity: 0.06,
+        shadowRadius: 16,
+      },
+      android: {
+        elevation: 6,
+      },
+    }),
   },
-  settingsIcon: {
-    width: 20,
-    height: 20,
-    tintColor: "#FFF",
-  },
-  profileSection: {
+  profileHeader: {
     flexDirection: "row",
     alignItems: "center",
+    marginBottom: 24,
   },
   avatarWrap: {
     position: "relative",
   },
   avatarGlow: {
     position: "absolute",
-    top: -4,
-    left: -4,
-    right: -4,
-    bottom: -4,
-    borderRadius: 44,
+    top: -3,
+    left: -3,
+    right: -3,
+    bottom: -3,
+    borderRadius: 43,
     borderWidth: 2,
     borderColor: color.primary,
     opacity: 0.5,
@@ -350,7 +304,7 @@ const styles = StyleSheet.create({
     height: 80,
     borderRadius: 40,
     borderWidth: 3,
-    borderColor: "#121212",
+    borderColor: "#FFF",
   },
   editBadge: {
     position: "absolute",
@@ -361,7 +315,7 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     backgroundColor: color.primary,
     borderWidth: 3,
-    borderColor: "#121212",
+    borderColor: "#FFF",
     justifyContent: "center",
     alignItems: "center",
   },
@@ -371,24 +325,26 @@ const styles = StyleSheet.create({
     tintColor: "#000",
   },
   nameSection: {
-    marginLeft: 20,
+    marginLeft: 18,
+    flex: 1,
   },
   nameText: {
-    fontSize: 24,
-    fontFamily: font.TrialBold,
-    color: "#FFF",
+    fontSize: 22,
+    fontFamily: font.MonolithRegular,
+    color: "#0F172A",
+    letterSpacing: -0.5,
   },
   emailText: {
-    fontSize: 14,
-    fontFamily: font.TrialMedium,
-    color: "rgba(255, 255, 255, 0.6)",
-    marginTop: 4,
+    fontSize: 13,
+    fontFamily: font.MonolithRegular,
+    color: "#64748B",
+    marginTop: 2,
   },
   verifiedContainer: {
     flexDirection: "row",
     alignItems: "center",
     marginTop: 8,
-    backgroundColor: "rgba(255, 204, 0, 0.15)",
+    backgroundColor: "rgba(255, 204, 0, 0.12)",
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 8,
@@ -402,34 +358,24 @@ const styles = StyleSheet.create({
     marginRight: 6,
   },
   verifiedText: {
-    fontSize: 11,
-    fontFamily: font.TrialBold,
+    fontSize: 10,
+    fontFamily: font.MonolithRegular,
     color: color.primary,
     textTransform: "uppercase",
-    letterSpacing: 0.5,
+    letterSpacing: 1,
   },
   statsRow: {
     flexDirection: "row",
-    backgroundColor: "#FFF",
-    borderRadius: 24,
-    position: "absolute",
-    bottom: -hp(5),
-    left: 24,
-    right: 24,
-    height: hp(11),
     alignItems: "center",
-    justifyContent: "space-around",
-    ...Platform.select({
-      ios: {
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 10 },
-        shadowOpacity: 0.1,
-        shadowRadius: 15,
-      },
-      android: {
-        elevation: 8,
-      },
-    }),
+    justifyContent: "space-between",
+    paddingTop: 20,
+    borderTopWidth: 1,
+    borderTopColor: "#F1F5F9",
+  },
+  statDivider: {
+    width: 1,
+    height: 30,
+    backgroundColor: "#F1F5F9",
   },
   statItem: {
     alignItems: "center",
@@ -439,53 +385,60 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: 10,
-    backgroundColor: "#F8F9FA",
+    backgroundColor: "#FFF9E6",
     justifyContent: "center",
     alignItems: "center",
     marginBottom: 6,
   },
   statValue: {
     fontSize: 16,
-    fontFamily: font.TrialBold,
-    color: "#121212",
+    fontFamily: font.MonolithRegular,
+    color: "#0F172A",
   },
   statLabel: {
-    fontSize: 10,
-    fontFamily: font.TrialMedium,
-    color: "#757575",
+    fontSize: 9,
+    fontFamily: font.MonolithRegular,
+    color: "#94A3B8",
     marginTop: 1,
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
   },
   menuContainer: {
-    paddingTop: hp(8),
     paddingHorizontal: 24,
+    marginTop: 24,
   },
   sectionWrap: {
     marginBottom: 24,
   },
   sectionTitle: {
-    fontSize: 14,
-    fontFamily: font.TrialBold,
-    color: "#757575",
+    fontSize: 12,
+    fontFamily: font.MonolithRegular,
+    color: "#94A3B8",
     marginBottom: 12,
     marginLeft: 4,
     textTransform: "uppercase",
-    letterSpacing: 1,
+    letterSpacing: 1.5,
   },
   card: {
     backgroundColor: "#FFF",
     borderRadius: 24,
     overflow: "hidden",
+    borderWidth: 1,
+    borderColor: "rgba(0,0,0,0.02)",
     ...Platform.select({
       ios: {
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.05,
+        shadowColor: "#0F172A",
+        shadowOffset: { width: 0, height: 6 },
+        shadowOpacity: 0.04,
         shadowRadius: 10,
       },
       android: {
         elevation: 2,
       },
     }),
+  },
+  menuItemContainer: {
+    width: "100%",
   },
   menuItem: {
     flexDirection: "row",
@@ -494,64 +447,53 @@ const styles = StyleSheet.create({
     paddingVertical: 18,
     paddingHorizontal: 20,
     borderBottomWidth: 1,
-    borderBottomColor: "#F4F7FA",
+    borderBottomColor: "#F8FAFC",
   },
   menuLeft: {
     flexDirection: "row",
     alignItems: "center",
   },
   menuIconWrap: {
-    width: 40,
-    height: 40,
+    width: 42,
+    height: 42,
     borderRadius: 12,
-    backgroundColor: "#FFF9E6",
+    backgroundColor: "#F8FAFC",
     justifyContent: "center",
     alignItems: "center",
     marginRight: 16,
   },
   menuLabel: {
     fontSize: 16,
-    fontFamily: font.TrialMedium,
-    color: "#121212",
+    fontFamily: font.MonolithRegular,
+    color: "#0F172A",
   },
   menuArrow: {
     width: 14,
     height: 14,
-    tintColor: "#BBB",
+    tintColor: "#CBD5E1",
   },
   logoutBtn: {
     height: 60,
-    borderRadius: 20,
+    borderRadius: 22,
     backgroundColor: "#FFF",
     borderWidth: 2,
-    borderColor: "#FF3B30",
+    borderColor: "rgba(239, 68, 68, 0.1)",
     justifyContent: "center",
     alignItems: "center",
-    marginTop: 10,
-    ...Platform.select({
-      ios: {
-        shadowColor: "#FF3B30",
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.1,
-        shadowRadius: 8,
-      },
-      android: {
-        elevation: 2,
-      },
-    }),
+    marginTop: 8,
   },
   logoutText: {
     fontSize: 16,
-    fontFamily: font.TrialBold,
-    color: "#FF3B30",
+    fontFamily: font.MonolithRegular,
+    color: "#EF4444",
   },
   versionText: {
     textAlign: "center",
-    marginTop: 30,
+    marginTop: 40,
     fontSize: 12,
-    fontFamily: font.TrialMedium,
-    color: "#BBB",
-    letterSpacing: 0.5,
+    fontFamily: font.MonolithRegular,
+    color: "#94A3B8",
+    letterSpacing: 1,
   },
 });
 

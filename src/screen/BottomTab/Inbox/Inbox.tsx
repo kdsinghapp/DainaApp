@@ -10,6 +10,7 @@ import {
   ActivityIndicator,
   RefreshControl,
   ScrollView,
+  Platform,
 } from "react-native";
 import StatusBarComponent from "../../../compoent/StatusBarCompoent";
 import { SafeAreaView, } from "react-native-safe-area-context";
@@ -19,6 +20,10 @@ import ScreenNameEnum from "../../../routes/screenName.enum";
 import { base_url } from "../../../Api";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import strings from "../../../localization/Localization";
+import imageIndex from "../../../assets/imageIndex";
+import { hp } from "../../../utils/Constant";
+import Icon from 'react-native-vector-icons/Ionicons';
+import { color } from "../../../constant";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -119,7 +124,10 @@ const UnreadBadge = ({ count }: { count: number }) => {
 
 const EmptyState = () => (
   <View style={styles.emptyWrap}>
-    <Text style={styles.emptyIcon}>💬</Text>
+    <View style={styles.illustrationWrap}>
+      <View style={styles.illustrationBg} />
+      <Image source={imageIndex.bubleYeelow} style={styles.emptyIcon} />
+    </View>
     <Text style={styles.emptyTitle}>{strings.NoChatsYet}</Text>
     <Text style={styles.emptySubtitle}>{strings.NoConversationsSubtitle}</Text>
   </View>
@@ -302,9 +310,10 @@ export default function ChatInboxScreen() {
         showsVerticalScrollIndicator={false}>
         {/* Search */}
         <View style={styles.searchBox}>
+          <Icon name="search-outline" size={20} color="#94A3B8" style={{ marginRight: 10 }} />
           <TextInput
             placeholder={strings.SearchInboxPlaceholder}
-            placeholderTextColor="#9aa0a6"
+            placeholderTextColor="black"
             value={query}
             onChangeText={setQuery}
             style={styles.input}
@@ -375,17 +384,24 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: "white",
-    borderRadius: 10,
-    paddingHorizontal: 12,
-    marginBottom: 8,
-    height: 48,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 4,
-    elevation: 6,
-    borderWidth: 0.5,
-    borderColor: "#eee",
+    borderRadius: 15,
+    paddingHorizontal: 20,
+    marginBottom: 20,
+    marginTop: 10,
+    height: 65,
+    ...Platform.select({
+      ios: {
+        shadowColor: "#0F172A",
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.04,
+        shadowRadius: 8,
+      },
+      android: {
+        elevation: 2,
+      },
+    }),
+    borderWidth: 1,
+    borderColor: "rgba(0,0,0,0.02)",
   },
   searchIcon: {
     fontSize: 16,
@@ -514,22 +530,43 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
-    paddingTop: 80,
+    paddingTop: hp(15),
+    paddingHorizontal: 40,
+  },
+  illustrationWrap: {
+    width: 160,
+    height: 160,
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 24,
+    position: 'relative',
+  },
+  illustrationBg: {
+    position: 'absolute',
+    width: 140,
+    height: 140,
+    borderRadius: 70,
+    backgroundColor: '#FFCC00',
+    opacity: 0.1,
   },
   emptyIcon: {
-    fontSize: 48,
-    marginBottom: 12,
+    height: 100,
+    width: 100,
+    resizeMode: 'contain',
   },
   emptyTitle: {
-    fontSize: 18,
-    color: "#0f172a",
+    fontSize: 22,
+    color: "#0F172A",
     fontFamily: font.MonolithRegular,
-    marginBottom: 6,
+    marginBottom: 10,
+    textAlign: 'center',
   },
   emptySubtitle: {
-    fontSize: 14,
-    color: "#94a3b8",
+    fontSize: 15,
+    color: "#64748B",
     fontFamily: font.MonolithRegular,
+    textAlign: 'center',
+    lineHeight: 22,
   },
   errorBanner: {
     backgroundColor: "#fef2f2",
