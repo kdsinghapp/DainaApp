@@ -24,6 +24,8 @@ import { styles } from "./style";
 import strings from "../../../localization/Localization";
 import NewOrderNotificationModal from "../../../compoent/NewOrderNotificationModal";
 import OfferAcceptedModal from "../../../compoent/OfferAcceptedModal";
+import { color } from "../../../constant";
+import Icon from 'react-native-vector-icons/Ionicons';
 
 type Props = {
   onEditProfile?: () => void;
@@ -52,28 +54,26 @@ const ListItem = ({
   onPress?: () => void;
   secure?: boolean;
 }) => (
-  <Pressable
+  <TouchableOpacity
     onPress={onPress}
-    style={({ pressed }) => [
-      styles.row,
-      { opacity: pressed ? 0.6 : 1, },
-    ]}
+    activeOpacity={0.7}
+    style={styles.row}
   >
     <View style={styles.left}>
       <View style={[styles.iconWrap, secure && styles.secureIconWrap]}>
         {icon}
       </View>
-      <Text style={styles.rowLabel}>{label} {"  "}</Text>
+      <Text style={styles.rowLabel}>{label}</Text>
     </View>
-    <Image source={imageIndex.right}
-
+    <Image
+      source={imageIndex.right}
       style={{
-        height: 22,
-        width: 22
+        height: 18,
+        width: 18,
+        tintColor: "#CBD5E1"
       }}
     />
-
-  </Pressable>
+  </TouchableOpacity>
 );
 
 const DeliveryProfile: React.FC<Props> = ({
@@ -125,7 +125,6 @@ const DeliveryProfile: React.FC<Props> = ({
 
         {/* Profile card */}
         <TouchableOpacity
-
           onPress={() => {
             navigation.navigate(ScreenNameEnum.EditProfileDeliver)
           }}
@@ -136,117 +135,66 @@ const DeliveryProfile: React.FC<Props> = ({
             ) : (
               <Image source={{ uri: user.avatarUrl }} style={styles.avatar} />
             )}
-
-
-
-
+            <View style={styles.statusBadge} />
           </View>
 
           <View style={{ flex: 1 }}>
-            <Text style={[styles.name, {
-              color: "#FFCC00",
-              fontFamily: font.MonolithRegular
-
-            }]}>{isLogin?.firstName}</Text>
-
-            <Text style={[styles.email, {
-              color: "#9DB2BF",
-              fontFamily: font.MonolithRegular
-            }]}>{isLogin?.email}
-
-            </Text>
-            <Text style={[styles.email, {
-              color: "#9DB2BF",
-              fontFamily: font.MonolithRegular
-            }]}>
-
-              {isLogin?.phoneNumber}
-
-            </Text>
+            <Text style={styles.name}>{isLogin?.firstName || user.name}</Text>
+            <Text style={styles.email}>{isLogin?.email || user.email}</Text>
+            <Text style={styles.phoneNumber}>{isLogin?.phoneNumber || "+1 234 567 890"}</Text>
           </View>
           <Image source={imageIndex.right}
-
             style={{
-              height: 22,
-              width: 22
+              height: 20,
+              width: 20,
+              tintColor: "#CBD5E1"
             }}
           />
         </TouchableOpacity>
 
         {/* Menu */}
         <View style={styles.card}>
-
-          {/* <ListItem
-            icon={<SvgIndex.Earing />}
-            label={strings.EarningsReports}
-            onPress={() => {
-              navigation.navigate(ScreenNameEnum.EarningsScreen)
-            }}
-          /> */}
           <ListItem
-            icon={<Image source={imageIndex.document}
-
-              style={{
-                height: 34,
-                width: 34,
-              }}
-            />}
+            icon={<Icon name="document-text-outline" size={24} color={color.primary} />}
             label={strings.DocumentShow}
             onPress={() => {
               navigation.navigate(ScreenNameEnum.DocumentShow)
             }}
           />
-
-          <ItemDivider />
-          {/* <ListItem
-            icon={<SvgIndex.Wallert />}
-            label={strings.Wallet}
-            onPress={() => {
-              navigation.navigate(ScreenNameEnum.WalletScreen)
-            }} /> */}
-          <ItemDivider />
-          {/* <ListItem
-            icon={<SvgIndex.Notiftaction />}
-            label={strings.Notifications}
-            onPress={() => {
-              navigation.navigate(ScreenNameEnum.NotificationsSetting)
-            }} /> */}
           <ItemDivider />
           <ListItem
-            icon={<SvgIndex.Edit />}
+            icon={<Icon name="language-outline" size={24} color={color.primary} />}
             label={strings.ChangeLanguage}
             onPress={() => {
               navigation.navigate(ScreenNameEnum.language);
             }}
+            secure
           />
           <ItemDivider />
           <ListItem
-            icon={<SvgIndex.Soupport />}
+            icon={<Icon name="headset-outline" size={24} color={color.primary} />}
             label={strings.Support}
             onPress={() => {
               navigation.navigate(ScreenNameEnum.HelpSupport)
             }}
-
-            secure
           />
           <ItemDivider />
-
           <ListItem
-            icon={<SvgIndex.Privacys />}
+            icon={<Icon name="shield-checkmark-outline" size={24} color={color.primary} />}
             label={strings.PrivacyPolicy}
             onPress={() => {
               navigation.navigate(ScreenNameEnum.LegalPoliciesScreen)
             }}
           />
-          <ItemDivider />
-
-          <ListItem
-            icon={<SvgIndex.Logout />}
-            label={strings.Logout}
-            onPress={() => {
-              setModal(true)
-            }} />
         </View>
+
+        <TouchableOpacity
+          activeOpacity={0.8}
+          onPress={() => setModal(true)}
+          style={styles.logoutBtn}
+        >
+          <Text style={styles.logoutText}>{strings.Logout}</Text>
+        </TouchableOpacity>
 
         {/* Logout */}
 

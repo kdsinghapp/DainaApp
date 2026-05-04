@@ -1,90 +1,160 @@
-import { StyleSheet, Dimensions } from "react-native";
+import { StyleSheet, Dimensions, Platform } from "react-native";
 import { color } from "../../../constant";
 import font from "../../../theme/font";
 
 const { width, height } = Dimensions.get('window');
 
 const YELLOW_DARK = "#FDB400";
-const TEXT = "#1C1C1C";
-const SUBTLE = "#9A9A9A";
-const BORDER = "#EFEFEF";
+const TEXT = "#0F172A";
+const SUBTLE = "#64748B";
+const BORDER = "#F1F5F9";
 const BG = "#FFFFFF";
+
 export const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: "white" },
-  container: { padding: 16, paddingBottom: 28 },
-  title: { fontSize: 22, color: TEXT, marginBottom: 12 },
+  safe: {
+    flex: 1,
+    backgroundColor: "#F8FAFC"
+  },
+  container: {
+    padding: 20,
+    paddingBottom: 40
+  },
+  title: {
+    fontSize: 32,
+    fontFamily: font.MonolithRegular,
+    color: TEXT,
+    marginBottom: 20,
+    letterSpacing: -0.5,
+  },
   profileCard: {
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: BG,
-    borderRadius: 16,
-    marginBottom: 16,
-    marginTop: 11,
+    borderRadius: 24,
+    padding: 16,
+    marginBottom: 24,
+    borderWidth: 1,
+    borderColor: "rgba(0,0,0,0.02)",
+    ...Platform.select({
+      ios: {
+        shadowColor: "#0F172A",
+        shadowOffset: { width: 0, height: 10 },
+        shadowOpacity: 0.08,
+        shadowRadius: 15,
+      },
+      android: {
+        elevation: 6,
+      },
+    }),
   },
-  avatarWrap: { marginRight: 15 },
-  avatar: { width: 70, height: 70, borderRadius: 35 },
-  avatarFallback: {
-    backgroundColor: "#EAEAEA",
-    alignItems: "center",
-    justifyContent: "center",
+  avatarWrap: {
+    marginRight: 16,
+    position: "relative"
   },
-  avatarInitials: { fontFamily: font.MonolithRegular, fontSize: 18, color: TEXT },
-  statusDot: {
+  avatar: {
+    width: 76,
+    height: 76,
+    borderRadius: 38,
+    borderWidth: 2,
+    borderColor: color.primary,
+  },
+  statusBadge: {
     position: "absolute",
-    right: -2,
-    bottom: -2,
+    bottom: 0,
+    right: 0,
+    backgroundColor: "#34C759",
     width: 20,
     height: 20,
     borderRadius: 10,
-    backgroundColor: YELLOW_DARK,
-    alignItems: "center",
-    justifyContent: "center",
-    borderWidth: 2,
+    borderWidth: 3,
     borderColor: BG,
   },
-  name: { fontSize: 16, fontFamily: font.MonolithRegular, color: TEXT },
-  email: { fontSize: 13, color: SUBTLE, marginTop: 5, fontFamily: font.MonolithRegular, },
+  name: {
+    fontSize: 20,
+    fontFamily: font.MonolithRegular,
+    color: TEXT,
+    lineHeight: 26,
+  },
+  email: {
+    fontSize: 13,
+    color: SUBTLE,
+    marginTop: 2,
+    fontFamily: font.TrialMedium,
+  },
+  phoneNumber: {
+    fontSize: 12,
+    color: color.primary,
+    fontFamily: font.MonolithRegular,
+    marginTop: 4,
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
+  },
   card: {
     backgroundColor: BG,
-    marginTop: 5
-
+    borderRadius: 24,
+    paddingVertical: 8,
+    marginBottom: 24,
+    borderWidth: 1,
+    borderColor: "rgba(0,0,0,0.01)",
+    ...Platform.select({
+      ios: {
+        shadowColor: "#0F172A",
+        shadowOffset: { width: 0, height: 8 },
+        shadowOpacity: 0.04,
+        shadowRadius: 12,
+      },
+      android: {
+        elevation: 3,
+      },
+    }),
   },
   row: {
-    paddingVertical: 14,
+    paddingVertical: 16,
+    paddingHorizontal: 16,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    marginTop: 12,
-    marginHorizontal: 5
   },
-  left: { flexDirection: "row", alignItems: "center" },
+  left: {
+    flexDirection: "row",
+    alignItems: "center"
+  },
   iconWrap: {
-    width: 28,
-    height: 28,
+    width: 44,
+    height: 44,
     borderRadius: 14,
     alignItems: "center",
     justifyContent: "center",
-    marginRight: 10,
+    backgroundColor: "#F8FAFC",
   },
   secureIconWrap: {
-    backgroundColor: "#FFF1C2",
+    backgroundColor: "rgba(255, 204, 0, 0.1)",
   },
-  rowLabel: { marginLeft: 15, fontSize: 15, color: TEXT, },
+  rowLabel: {
+    marginLeft: 16,
+    fontSize: 16,
+    fontFamily: font.MonolithRegular,
+    color: TEXT,
+  },
   divider: {
-    height: StyleSheet.hairlineWidth,
-    backgroundColor: BORDER,
-    marginLeft: 54,
+    height: 1,
+    backgroundColor: "#F1F5F9",
+    marginHorizontal: 16,
   },
   logoutBtn: {
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: "#FFCC00",
+    height: 64,
+    borderRadius: 20,
+    backgroundColor: "#FFF",
+    borderWidth: 1.5,
+    borderColor: "#FEE2E2",
     alignItems: "center",
     justifyContent: "center",
-    marginTop: 18,
-    flexDirection: "row",
-    gap: 8,
+    marginTop: 10,
   },
-  logoutText: { fontSize: 14, fontFamily: font.MonolithRegular, color: TEXT },
+  logoutText: {
+    fontSize: 17,
+    fontFamily: font.MonolithRegular,
+    color: "#EF4444"
+  },
 
 });

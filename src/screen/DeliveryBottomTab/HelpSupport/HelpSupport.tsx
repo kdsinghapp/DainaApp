@@ -4,9 +4,13 @@ import {
     Text,
     StyleSheet,
     TextInput,
-    Image
+    Image,
+    ScrollView,
+    KeyboardAvoidingView,
+    Platform,
+    Dimensions
 } from 'react-native';
- 
+
 import { useSelector } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -16,91 +20,77 @@ import LoadingModal from '../../../utils/Loader';
 import CustomButton from '../../../compoent/CustomButton';
 import imageIndex from '../../../assets/imageIndex';
 import strings from '../../../localization/Localization';
+import font from '../../../theme/font';
+import { color } from '../../../constant';
 
+const { width } = Dimensions.get('window');
 
 const HelpSupport = () => {
     const navigation = useNavigation()
-    const  [SupportHelp,setSupportHelp] = useState('')
-    const  [isLoading,setLoading] = useState(false)
+    const [SupportHelp, setSupportHelp] = useState('')
+    const [isLoading, setLoading] = useState(false)
     const isLogin = useSelector((state: any) => state?.auth);
 
     const handleSubmit = async () => {
-        if(!SupportHelp){
+        if (!SupportHelp) {
             navigation.goBack();
-        } 
-        else{
+        }
+        else {
             try {
                 // const response = await Support_Api(SupportHelp, setLoading,isLogin?.userData?.id,navigation);
-             } catch (error) {
-             }
+            } catch (error) {
+            }
         }
-      
-      }
+    }
+
     return (
         <SafeAreaView style={styles.container}>
             <StatusBarComponent />
-            {isLoading ? <LoadingModal /> : null}
-            <View >
+            {isLoading ? <LoadingModal visible={isLoading} /> : null}
 
-                <CustomHeader
-                   
-                 label={strings.Support} />
+            <KeyboardAvoidingView
+                behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+                style={{ flex: 1 }}
+            >
+                <ScrollView
+                    showsVerticalScrollIndicator={false}
+                    contentContainerStyle={styles.scrollContent}
+                >
+                    <CustomHeader label={strings.Support} />
 
-                <View style={{ marginHorizontal: 15, }}>
-                    <View style={styles.illustrationContainer}>
-                        {/* Replace this with your own illustration asset */}
-                        <Image
-                            source={imageIndex.helpPrva}
-                            style={styles.illustration}
-                            resizeMode="contain"
-                        />
+                    <View style={styles.content}>
+                        <View style={styles.illustrationWrap}>
+                            <Image
+                                source={imageIndex.helpPrva}
+                                style={styles.illustration}
+                                resizeMode="contain"
+                            />
+                        </View>
+
+                        <View style={styles.card}>
+                            <Text style={styles.cardHeaderTitle}>{strings.HowCanWeHelp}</Text>
+                            <View style={styles.inputWrapper}>
+                                <TextInput
+                                    value={SupportHelp}
+                                    onChangeText={setSupportHelp}
+                                    style={styles.textInput}
+                                    placeholder={strings.TypeHere}
+                                    placeholderTextColor="#94A3B8"
+                                    multiline
+                                    textAlignVertical="top"
+                                />
+                            </View>
+                        </View>
+
+                        <View style={styles.buttonWrap}>
+                            <CustomButton
+                                title={strings.Submit}
+                                onPress={handleSubmit}
+                            />
+                        </View>
                     </View>
-
-                    {/* Text input for user’s query */}
-                    <View style={{
-                        borderWidth: 1,           // thickness of the border
-                        borderColor: 'black',    // color of the border
-                        borderRadius: 15,         // rounded corners
-                        height: 140
-                    }}>
-                        <Text style={{
-                            fontSize: 14,
-                            color: 'black',
-                            marginBottom: 8,
-                            marginLeft: 10,
-                            marginTop: 5,
-                            fontWeight: "800"
-                        }}>{strings.HowCanWeHelp}</Text>
-                        <TextInput
-                        value={SupportHelp}
-                        onChangeText={setSupportHelp}
-
-                            style={{
-                                fontSize: 12,
-                                color: "black",
-                                marginLeft: 10,
-                                fontWeight: "500",
-                                bottom: 10,
-                                textAlignVertical: 'top', // Ensures text starts at the top in Android
-                            }}
-                            placeholder={strings.TypeHere}
-                            placeholderTextColor="rgba(84, 84, 84, 1)"
-                            multiline
-                        />
-                    </View>
-
-                    <View style={{
-                        flex: 1, position: 'relative', top: 100,
-
-                    }}>
-                        <CustomButton
-                            title={strings.Submit}
-                            onPress={()=>handleSubmit()}
-
-                        />
-                    </View>
-                </View>
-            </View>
+                </ScrollView>
+            </KeyboardAvoidingView>
         </SafeAreaView>
     );
 };
@@ -110,46 +100,73 @@ export default HelpSupport;
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#FFFFFF'
+        backgroundColor: '#F8FAFC'
     },
-    header: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        paddingHorizontal: 16,
-        paddingTop: 16,
-        paddingBottom: 12,
-        backgroundColor: '#fff'
+    scrollContent: {
+        flexGrow: 1,
     },
-    illustrationContainer: {
-        marginTop: 55,
-        alignItems: 'center',
+    content: {
+        paddingHorizontal: 24,
+        paddingBottom: 40,
+    },
+    illustrationWrap: {
+        height: 300,
         justifyContent: 'center',
+        alignItems: 'center',
+        marginVertical: 20,
+        position: 'relative',
+    },
+    illustrationBg: {
+        position: 'absolute',
+        width: width * 0.7,
+        height: width * 0.7,
+        borderRadius: width * 0.35,
+        backgroundColor: color.primary,
+        opacity: 0.05,
     },
     illustration: {
         width: '100%',
-        height: 270,
+        height: '100%',
     },
-    input: {
-        marginTop: 20,
-        marginHorizontal: 16,
-        padding: 55,
+    card: {
+        backgroundColor: '#FFFFFF',
+        borderRadius: 28,
+        padding: 24,
         borderWidth: 1,
-        borderColor: '#EEE',
-        borderRadius: 8,
-        textAlignVertical: 'top', // Ensures multiline text starts at top
-        fontSize: 16
+        borderColor: 'rgba(0,0,0,0.01)',
+        ...Platform.select({
+            ios: {
+                shadowColor: '#0F172A',
+                shadowOffset: { width: 0, height: 12 },
+                shadowOpacity: 0.06,
+                shadowRadius: 16,
+            },
+            android: {
+                elevation: 6,
+            },
+        }),
     },
-    submitButton: {
-        marginTop: 20,
-        marginHorizontal: 16,
-        paddingVertical: 14,
-        borderRadius: 8,
-        backgroundColor: '#FF6B00',
-        alignItems: 'center',
+    cardHeaderTitle: {
+        fontSize: 18,
+        fontFamily: font.MonolithRegular,
+        color: '#0F172A',
+        marginBottom: 16,
     },
-    submitButtonText: {
-        color: '#FFF',
-        fontSize: 16,
-        fontWeight: '600',
+    inputWrapper: {
+        backgroundColor: '#F8FAFC',
+        borderRadius: 16,
+        padding: 16,
+        minHeight: 160,
+        borderWidth: 1,
+        borderColor: '#EEF2F6',
+    },
+    textInput: {
+        fontSize: 15,
+        fontFamily: font.MonolithRegular,
+        color: '#0F172A',
+        flex: 1,
+    },
+    buttonWrap: {
+        marginTop: 32,
     }
 });

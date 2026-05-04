@@ -421,6 +421,7 @@ const DeliveryUploadDocument = async (
     });
 
     console.log("Upload Success Response:", response.data);
+    console.log(" Success Response:", response);
     if (response.data.status == "1" || response.data.status == 1) {
       successToast(response.data.message || "Documents uploaded successfully");
     } else {

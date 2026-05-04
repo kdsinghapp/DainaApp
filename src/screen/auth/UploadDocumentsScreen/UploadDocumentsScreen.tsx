@@ -6,7 +6,7 @@ import {
   ScrollView,
   TouchableOpacity,
 } from "react-native";
-import { launchImageLibrary } from "react-native-image-picker";
+import { pickDocument } from "../../../utils/documentPickerHelper";
 import imageIndex from "../../../assets/imageIndex";
 import StatusBarComponent from "../../../compoent/StatusBarCompoent";
 import CustomHeader from "../../../compoent/CustomHeader";
@@ -26,36 +26,12 @@ const UploadDocumentsScreen = () => {
   const [vehicleDoc, setVehicleDoc] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(false);
   const navigation: any = useNavigation();
-  const pickDocument = async (type: string) => {
-    const options: any = {
-      mediaType: "photo",
-      maxWidth: 1200, // Resizing to 1200px width
-      quality: 0.9,
-    };
-
-    try {
-      const result: any = await launchImageLibrary(options);
-
-      if (result.didCancel) {
-        console.log("User cancelled image selection");
-      } else if (result.errorCode) {
-        console.log("ImagePicker Error: ", result.errorMessage);
-        errorToast(strings.ErrorPickingImage);
-      } else if (result.assets && result.assets.length > 0) {
-        const res = result.assets[0];
-        const fileObj = {
-          uri: res.uri,
-          name: res.fileName || `doc_${Date.now()}.jpg`,
-          type: res.type || "image/jpeg",
-        };
-
-        if (type === "id") setIdDoc(fileObj);
-        if (type === "license") setLicenseDoc(fileObj);
-        if (type === "vehicle") setVehicleDoc(fileObj);
-      }
-    } catch (err) {
-      console.log("Error picking document:", err);
-      errorToast(strings.SomethingWentWrong);
+  const handlePickDocument = async (type: string) => {
+    const result = await pickDocument();
+    if (result) {
+      if (type === "id") setIdDoc(result);
+      if (type === "license") setLicenseDoc(result);
+      if (type === "vehicle") setVehicleDoc(result);
     }
   };
 
@@ -98,10 +74,19 @@ const UploadDocumentsScreen = () => {
         {/* ID Document */}
         <TouchableOpacity
           style={styles.uploadBox}
-          onPress={() => pickDocument("id")}
+          onPress={() => handlePickDocument("id")}
         >
           {idDoc ? (
-            <Image source={{ uri: idDoc.uri }} style={styles.previewImage} />
+            idDoc.type === "application/pdf" ? (
+              <View style={{ alignItems: "center" }}>
+                <Image source={imageIndex.document} style={styles.icon} />
+                <Text style={[styles.placeholderText, { fontSize: 12 }]} numberOfLines={1}>
+                  {idDoc.name}
+                </Text>
+              </View>
+            ) : (
+              <Image source={{ uri: idDoc.uri }} style={styles.previewImage} />
+            )
           ) : (
             <>
               <Image source={imageIndex.document} style={styles.icon} />
@@ -113,13 +98,22 @@ const UploadDocumentsScreen = () => {
         {/* Driving License */}
         <TouchableOpacity
           style={styles.uploadBox}
-          onPress={() => pickDocument("license")}
+          onPress={() => handlePickDocument("license")}
         >
           {licenseDoc ? (
-            <Image
-              source={{ uri: licenseDoc.uri }}
-              style={styles.previewImage}
-            />
+            licenseDoc.type === "application/pdf" ? (
+              <View style={{ alignItems: "center" }}>
+                <Image source={imageIndex.document} style={styles.icon} />
+                <Text style={[styles.placeholderText, { fontSize: 12 }]} numberOfLines={1}>
+                  {licenseDoc.name}
+                </Text>
+              </View>
+            ) : (
+              <Image
+                source={{ uri: licenseDoc.uri }}
+                style={styles.previewImage}
+              />
+            )
           ) : (
             <>
               <Image source={imageIndex.document} style={styles.icon} />
@@ -131,13 +125,22 @@ const UploadDocumentsScreen = () => {
         {/* Vehicle Papers */}
         <TouchableOpacity
           style={styles.uploadBox}
-          onPress={() => pickDocument("vehicle")}
+          onPress={() => handlePickDocument("vehicle")}
         >
           {vehicleDoc ? (
-            <Image
-              source={{ uri: vehicleDoc.uri }}
-              style={styles.previewImage}
-            />
+            vehicleDoc.type === "application/pdf" ? (
+              <View style={{ alignItems: "center" }}>
+                <Image source={imageIndex.document} style={styles.icon} />
+                <Text style={[styles.placeholderText, { fontSize: 12 }]} numberOfLines={1}>
+                  {vehicleDoc.name}
+                </Text>
+              </View>
+            ) : (
+              <Image
+                source={{ uri: vehicleDoc.uri }}
+                style={styles.previewImage}
+              />
+            )
           ) : (
             <>
               <Image source={imageIndex.document} style={styles.icon} />

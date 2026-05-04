@@ -10,7 +10,7 @@ import {
   ActivityIndicator,
   ScrollView,
 } from "react-native";
-import { pick, types } from "@react-native-documents/picker";
+import { pickDocument } from "../../../utils/documentPickerHelper";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
 
@@ -39,17 +39,9 @@ const VehicleSetupScreen = () => {
   ];
 
   const handlePickDocument = async (type: "registration" | "papers") => {
-    try {
-      const [res] = await pick({ type: [types.images, types.pdf] });
-      if (res) {
-        if (type === "registration") setVehicleRegistration(res);
-      }
-    } catch (error: any) {
-      if (error?.message?.includes("cancelled")) {
-        console.log("User cancelled document selection");
-      } else {
-        console.log("Error picking document: ", error);
-      }
+    const result = await pickDocument();
+    if (result) {
+      if (type === "registration") setVehicleRegistration(result);
     }
   };
 
