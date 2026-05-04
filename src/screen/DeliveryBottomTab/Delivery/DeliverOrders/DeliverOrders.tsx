@@ -20,7 +20,7 @@ import axios from "axios";
 import { base_url } from "../../../../Api";
 import LoadingModal from "../../../../utils/Loader";
 import { styles } from "./style";
-import { STATUS, STATUS_COLORS, STATUS_LABELS } from "../../../../utils/Constant";
+import { hp, STATUS, STATUS_COLORS, STATUS_LABELS } from "../../../../utils/Constant";
 import strings from "../../../../localization/Localization";
 
 type OrderStatus = "Pending" | "Completed" | "Cancelled";
@@ -293,7 +293,14 @@ const DeliveryHome = () => {
           contentContainerStyle={{ paddingBottom: 80 }}
           renderItem={renderItem}
           ListEmptyComponent={
-            <Text style={styles.emptyText}>{strings.NoOrdersHereYet}</Text>
+            <View style={styles.emptyWrap}>
+              <View style={styles.illustrationWrap}>
+                <View style={styles.illustrationBg} />
+                <Image source={imageIndex?.ordePracle} style={styles.emptyIcon} />
+              </View>
+              <Text style={styles.emptyTitle}>{strings.NoOrder}</Text>
+              <Text style={styles.emptySubtitle}>{strings.NoOrdersFound1}</Text>
+            </View>
           }
         />
       </Animated.View>

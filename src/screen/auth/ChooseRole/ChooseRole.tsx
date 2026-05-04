@@ -82,7 +82,8 @@ const ChooseRole = () => {
     }
     await NotificationService.requestPermission();
     await AsyncStorage.setItem('selectedRole', selected.type);
-    navigation.navigate(ScreenNameEnum.SocialLogin);
+    navigation.navigate(ScreenNameEnum.PhoneLogin);
+    // navigation.navigate(ScreenNameEnum.SocialLogin);
   };
 
 
@@ -106,63 +107,88 @@ const ChooseRole = () => {
             resizeMode="contain"
           />
 
-          {/* Title */}
-          <Text style={styles.title}>{strings.ChooseRole}</Text>
+          {/* Title & Subtitle */}
+          <View style={styles.headerTextWrap}>
+            <Text style={styles.title}>{strings.ChooseRole}</Text>
+            <Text style={styles.subtitle}>{strings.PleaseSelectRole}</Text>
+          </View>
 
           {/* Options */}
-          {options?.map((item) => {
-            const isSelected = selected?.id === item.id;
-            return (
-              <TouchableOpacity
-                key={item.id}
-                style={styles.touchContainer}
-                activeOpacity={0.9}
-                onPress={() => handleSelect(item)}
-              >
-                <Animated.View
-                  style={[
-                    styles.option,
-                    isSelected && styles.optionSelected,
-                    {
-                      transform: [
-                        {
-                          scale: isSelected ? pulseAnim : 1,
-                        },
-                      ],
-                    },
-                  ]}
+          <View style={styles.optionsWrap}>
+            {options?.map((item) => {
+              const isSelected = selected?.id === item.id;
+              return (
+                <TouchableOpacity
+                  key={item.id}
+                  style={styles.touchContainer}
+                  activeOpacity={0.9}
+                  onPress={() => handleSelect(item)}
                 >
-                  <Image
-                    source={item.image}
+                  <Animated.View
                     style={[
-                      styles.optionIcon,
-                      { tintColor: isSelected ? '#FFCC00' : '#FFCC00' },
-                    ]}
-                    resizeMode="contain"
-                  />
-                  <Text
-                    style={[
-                      styles.optionText,
-                      isSelected && styles.optionTextSelected,
+                      styles.option,
+                      isSelected && styles.optionSelected,
+                      {
+                        transform: [
+                          {
+                            scale: isSelected ? pulseAnim : 1,
+                          },
+                        ],
+                      },
                     ]}
                   >
-                    {item.label}
-                  </Text>
-                </Animated.View>
-              </TouchableOpacity>
-            );
-          })}
+                    <View style={[styles.iconWrap, isSelected && styles.iconWrapSelected]}>
+                      <Image
+                        source={item.image}
+                        style={[
+                          styles.optionIcon,
+                          { tintColor: isSelected ? '#000' : '#FFCC00' },
+                        ]}
+                        resizeMode="contain"
+                      />
+                    </View>
+                    <View style={styles.optionContent}>
+                      <Text
+                        style={[
+                          styles.optionText,
+                          isSelected && styles.optionTextSelected,
+                        ]}
+                      >
+                        {item.label}
+                      </Text>
+                      <Text style={styles.optionDesc}>
+                        {item.type === 'user' ? 'Send and track your parcels' : 'Deliver and earn with us'}
+                      </Text>
+                    </View>
+                    <View style={[styles.radio, isSelected && styles.radioSelected]}>
+                      {isSelected && <View style={styles.radioInner} />}
+                    </View>
+                  </Animated.View>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
         </Animated.View>
       </ScrollView>
 
       {/* Bottom Button */}
       <View style={styles.bottomButtonContainer}>
-        <CustomButton
-          title={strings.Continue}
+        <TouchableOpacity
+          activeOpacity={0.8}
           onPress={handleNext}
-          style={styles.nextButton}
-          textStyle={styles.nextButtonText}
-        />
+          style={[
+            styles.nextButton,
+            !selected && styles.nextButtonDisabled
+          ]}
+          disabled={!selected}
+        >
+          <Text style={[
+            styles.nextButtonText,
+            !selected && styles.nextButtonTextDisabled
+          ]}>
+            {strings.Continue}
+          </Text>
+        </TouchableOpacity>
       </View>
     </SafeAreaView>
   );

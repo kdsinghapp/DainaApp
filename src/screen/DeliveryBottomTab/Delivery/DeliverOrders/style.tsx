@@ -81,11 +81,13 @@ export const styles = StyleSheet.create({
   tabText: {
     fontSize: 13,
     color: "#1C1B1B",
+    fontFamily: font.MonolithRegular
+
   },
   tabTextActive: {
     color: "#FFF",
-    fontWeight: "700",
     fontSize: 15,
+    fontFamily: font.MonolithRegular
   },
 
   /* cards */
@@ -170,11 +172,46 @@ export const styles = StyleSheet.create({
     fontWeight: "500"
   },
 
-  emptyText: {
-    textAlign: "center",
-    marginTop: 40,
-    color: "#9AA4AF",
+  emptyWrap: {
+    paddingVertical: 60,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: 40,
+  },
+  illustrationWrap: {
+    width: 160,
+    height: 160,
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 24,
+    position: 'relative',
+  },
+  illustrationBg: {
+    position: 'absolute',
+    width: 140,
+    height: 140,
+    borderRadius: 70,
+    backgroundColor: "#FFCC00",
+    opacity: 0.1,
+  },
+  emptyIcon: {
+    height: 120,
+    width: 120,
+    resizeMode: 'contain',
+  },
+  emptyTitle: {
+    fontSize: 22,
+    color: "#0F172A",
     fontFamily: font.MonolithRegular,
+    marginBottom: 10,
+    textAlign: 'center',
+  },
+  emptySubtitle: {
+    fontSize: 15,
+    color: "#64748B",
+    fontFamily: font.MonolithRegular,
+    textAlign: 'center',
+    lineHeight: 22,
   },
 
 });

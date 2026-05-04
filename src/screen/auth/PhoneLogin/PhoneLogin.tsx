@@ -24,8 +24,8 @@ const PhoneLogin = () => {
   // const [phoneNumber, setPhoneNumber] = useState("9090990909");
 
 
-  const [phoneNumber, setPhoneNumber] = useState("47556232334");
-  // const [phoneNumber, setPhoneNumber] = useState("687544332");
+  // const [phoneNumber, setPhoneNumber] = useState("47556232334");
+  const [phoneNumber, setPhoneNumber] = useState("687544332");
   const [countryCode, setCountryCode] = useState("IN");
   const [callingCode, setCallingCode] = useState("+91");
   const [loading, setLoading] = useState(false);

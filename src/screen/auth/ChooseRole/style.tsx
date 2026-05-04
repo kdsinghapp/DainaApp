@@ -2,7 +2,8 @@
 import { Dimensions, StyleSheet } from 'react-native';
 import font from '../../../theme/font';
 import { color } from '../../../constant';
- const { width, height } = Dimensions.get('window');
+import { Platform } from 'react-native';
+const { width, height } = Dimensions.get('window');
 export const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
@@ -15,81 +16,139 @@ export const styles = StyleSheet.create({
   },
   container: {
     alignItems: 'center',
-    padding: 20,
-    marginTop: 30,
+    paddingHorizontal: 24,
+    paddingTop: 40,
+    paddingBottom: 100,
   },
   image: {
-    height: 75,
-    width: 167,
-    marginBottom: 25,
+    height: 80,
+    width: 180,
+    marginBottom: 40,
+  },
+  headerTextWrap: {
+    alignItems: 'center',
+    marginBottom: 40,
   },
   title: {
-    fontSize: 24,
+    fontSize: 28,
     fontFamily: font.MonolithRegular,
     textAlign: 'center',
-    marginBottom: 30,
-    color: '#222',
+    color: '#0F172A',
+    marginBottom: 8,
+  },
+  subtitle: {
+    fontSize: 16,
+    fontFamily: font.MonolithRegular,
+    color: '#64748B',
+    textAlign: 'center',
+  },
+  optionsWrap: {
+    width: '100%',
+    paddingHorizontal: 4,
   },
   touchContainer: {
-    marginTop: 12,
+    marginBottom: 16,
     width: '100%',
   },
   option: {
-    height: 67,
-    borderRadius: 13,
-    marginBottom: 18,
+    height: 90,
+    borderRadius: 24,
     backgroundColor: '#fff',
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 20,
-    marginHorizontal: 5,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.1,
-    shadowRadius: 6,
-    // elevation: 4,
-    borderWidth: 0.1,
-    borderColor: color.grey,
-    
+    borderWidth: 1.5,
+    borderColor: '#F1F5F9',
+    shadowColor: "#0F172A",
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.04,
+    shadowRadius: 12,
+    elevation: 3,
   },
   optionSelected: {
-     shadowColor: color.baground,
-    borderColor: color.baground,
-        borderWidth: 0.5,
-            borderRadius: 13,
-
-
-   },
+    borderColor: '#FFCC00',
+    backgroundColor: '#FFFDF0',
+    shadowOpacity: 0.1,
+    shadowColor: '#FFCC00',
+  },
+  iconWrap: {
+    width: 52,
+    height: 52,
+    borderRadius: 16,
+    backgroundColor: '#F8FAFC',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 16,
+  },
+  iconWrapSelected: {
+    backgroundColor: '#FFCC00',
+  },
   optionIcon: {
-    height: 35,
-    width: 35,
+    height: 28,
+    width: 28,
+  },
+  optionContent: {
+    flex: 1,
   },
   optionText: {
-    fontSize: 14.5,
-    color: '#333',
-     marginLeft: 16,
+    fontSize: 18,
+    color: '#0F172A',
     fontFamily: font.MonolithRegular,
+    marginBottom: 2,
   },
   optionTextSelected: {
-        color: '#333',
-
-        fontFamily: font.MonolithRegular,
-        fontSize:14
-
+    color: '#000',
+  },
+  optionDesc: {
+    fontSize: 13,
+    color: '#64748B',
+    fontFamily: font.MonolithRegular,
+  },
+  radio: {
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    borderWidth: 2,
+    borderColor: '#E2E8F0',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  radioSelected: {
+    borderColor: '#FFCC00',
+  },
+  radioInner: {
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+    backgroundColor: '#FFCC00',
   },
   bottomButtonContainer: {
-    marginHorizontal: 24,
-    marginBottom: 25,
+    paddingHorizontal: 24,
+    paddingTop: 16,
+    paddingBottom: Platform.OS === 'ios' ? 34 : 24,
+
   },
   nextButton: {
-    backgroundColor:color.baground,
-    borderRadius: 30,
-    height: 55,
+    backgroundColor: '#FFCC00',
+    borderRadius: 20,
+    height: 60,
+    justifyContent: 'center',
+    alignItems: 'center',
+
   },
   nextButtonText: {
-    color: 'white',
-    fontSize: 16,
-    fontFamily:font.MonolithRegular
-   },
-
- });
+    color: '#000',
+    fontSize: 17,
+    fontWeight: '600',
+    fontFamily: font.MonolithRegular,
+  },
+  nextButtonDisabled: {
+    opacity: 0.6,
+    backgroundColor: '#E2E8F0',
+    shadowOpacity: 0,
+    elevation: 0,
+  },
+  nextButtonTextDisabled: {
+    color: '#94A3B8',
+  },
+});
