@@ -163,6 +163,9 @@ const ProfileScreen: React.FC = () => {
             <View style={styles.nameSection}>
               <Text style={styles.nameText}>{userData?.firstName || "User"}</Text>
               <Text style={styles.emailText}>{userData?.email || ""}</Text>
+              <Text style={[styles.emailText, {
+                color: color.primary
+              }]}>{userData?.phoneNumber || ""}</Text>
 
             </View>
           </View>
