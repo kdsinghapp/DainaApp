@@ -157,17 +157,12 @@ const ProfileScreen: React.FC = () => {
                 source={userData?.image ? { uri: userData?.image } : imageIndex.prfile}
                 style={styles.avatar}
               />
-              {/* <TouchableOpacity
-                style={styles.editBadge}
-                onPress={() => navigation.navigate(ScreenNameEnum.EditProfile)}
-              >
-                <Image source={imageIndex.eoditphots} style={styles.editBadgeIcon} />
-              </TouchableOpacity> */}
+
             </Animated.View>
 
             <View style={styles.nameSection}>
               <Text style={styles.nameText}>{userData?.firstName || "User"}</Text>
-              <Text style={styles.emailText}>{userData?.email || "No email provided"}</Text>
+              <Text style={styles.emailText}>{userData?.email || ""}</Text>
 
             </View>
           </View>
@@ -265,9 +260,9 @@ const styles = StyleSheet.create({
     borderRadius: 32,
     justifyContent: "center",
     alignItems: "center",
-    padding: 22,
+    padding: 12,
     borderWidth: 1,
-    borderColor: "rgba(0,0,0,0.02)",
+    borderColor: "#d6e1f9ff",
     ...Platform.select({
       ios: {
         shadowColor: "#0F172A",
@@ -276,14 +271,13 @@ const styles = StyleSheet.create({
         shadowRadius: 16,
       },
       android: {
-        elevation: 6,
+        elevation: 0,
       },
     }),
   },
   profileHeader: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 24,
   },
   avatarWrap: {
     position: "relative",
@@ -300,10 +294,10 @@ const styles = StyleSheet.create({
     opacity: 0.5,
   },
   avatar: {
-    width: 80,
-    height: 80,
+    width: 66,
+    height: 66,
     borderRadius: 40,
-    borderWidth: 3,
+    borderWidth: 1,
     borderColor: "#FFF",
   },
   editBadge: {
@@ -424,7 +418,7 @@ const styles = StyleSheet.create({
     borderRadius: 24,
     overflow: "hidden",
     borderWidth: 1,
-    borderColor: "rgba(0,0,0,0.02)",
+    borderColor: "#d6e1f9ff",
     ...Platform.select({
       ios: {
         shadowColor: "#0F172A",
@@ -433,7 +427,7 @@ const styles = StyleSheet.create({
         shadowRadius: 10,
       },
       android: {
-        elevation: 2,
+        elevation: 0,
       },
     }),
   },
@@ -476,8 +470,6 @@ const styles = StyleSheet.create({
     height: 60,
     borderRadius: 22,
     backgroundColor: "#FFF",
-    borderWidth: 2,
-    borderColor: "rgba(243, 217, 50, 0.1)",
     justifyContent: "center",
     alignItems: "center",
     marginTop: 8,
@@ -485,7 +477,7 @@ const styles = StyleSheet.create({
   logoutText: {
     fontSize: 16,
     fontFamily: font.MonolithRegular,
-    color: "#EF4444",
+    color: "red",
   },
   versionText: {
     textAlign: "center",

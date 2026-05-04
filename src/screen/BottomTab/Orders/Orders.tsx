@@ -347,7 +347,8 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     marginBottom: 20,
     marginTop: 10,
-
+    borderWidth: 1,
+    borderColor: "#d6e1f9ff",
     // Shadow (iOS)
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 3 },
@@ -355,7 +356,7 @@ const styles = StyleSheet.create({
     shadowRadius: 6,
 
     // Shadow (Android)
-    elevation: 4,
+
   },
   tab: {
     flex: 1,
@@ -374,7 +375,7 @@ const styles = StyleSheet.create({
         shadowRadius: 8,
       },
       android: {
-        elevation: 4,
+        elevation: 0,
       },
     }),
   },
@@ -393,9 +394,10 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFF",
     borderRadius: 24,
     padding: 20,
-    borderWidth: 1,
-    borderColor: "rgba(0,0,0,0.02)",
+
     marginBottom: 16,
+    borderWidth: 1,
+    borderColor: "#d6e1f9ff",
     ...Platform.select({
       ios: {
         shadowColor: "#0F172A",
@@ -404,7 +406,7 @@ const styles = StyleSheet.create({
         shadowRadius: 15,
       },
       android: {
-        elevation: 6,
+        elevation: 0,
       },
     }),
   },

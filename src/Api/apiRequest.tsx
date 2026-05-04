@@ -137,12 +137,21 @@ const Verifyotp = async (param: any, setLoading: any, dispatch: any, setGeneralA
 
       if (parsedResponse?.type === "Delivery") {
         if (parsedResponse?.completionStatus?.isDocumentsUploaded) {
-          param.navigation.navigate(ScreenNameEnum.DeliveryTabNavigator);
+          param.navigation.reset({
+            index: 0,
+            routes: [{ name: ScreenNameEnum.DeliveryTabNavigator }],
+          });
         } else {
-          param.navigation.navigate(ScreenNameEnum.ProfileSetup);
+          param.navigation.reset({
+            index: 0,
+            routes: [{ name: ScreenNameEnum.ProfileSetup }],
+          });
         }
       } else {
-        param.navigation.navigate(ScreenNameEnum.ProfileSetup, { type: "otp" });
+        param.navigation.reset({
+          index: 0,
+          routes: [{ name: ScreenNameEnum.ProfileSetup, type: "otp" }],
+        });
       }
     } else {
       const errorMessage = strings.InvalidOTP;
@@ -432,10 +441,20 @@ const DeliveryUploadDocument = async (
   } catch (error: any) {
     console.log("Upload Error Details:", error.response?.data || error.message);
 
-    // Handle 422 Validation Errors specifically if they exist
-    const errorMessage = error.response?.data?.message ||
-      error.response?.data?.detail?.[0]?.msg ||
-      "";
+    let errorMessage = strings.SomethingWentWrong;
+
+    if (error.response?.status === 413) {
+      // Specifically handle Nginx "413 Request Entity Too Large"
+      errorMessage = strings.FileTooLarge;
+    } else {
+      // Extract from response data if available
+      const data = error.response?.data;
+      errorMessage =
+        data?.message ||
+        data?.detail?.[0]?.msg ||
+        error.message ||
+        strings.SomethingWentWrong;
+    }
 
     errorToast(errorMessage);
     return null;

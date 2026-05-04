@@ -357,8 +357,8 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 6,
 
-    // Shadow (Android)
-    elevation: 4,
+    borderWidth: 1,
+    borderColor: "#d6e1f9ff",
   },
   tab: {
     flex: 1,
@@ -396,9 +396,10 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFF",
     borderRadius: 24,
     padding: 20,
-    borderWidth: 1,
-    borderColor: "rgba(0,0,0,0.02)",
+
     marginBottom: 16,
+    borderWidth: 1,
+    borderColor: "#d6e1f9ff",
     ...Platform.select({
       ios: {
         shadowColor: "#0F172A",
@@ -407,7 +408,7 @@ const styles = StyleSheet.create({
         shadowRadius: 15,
       },
       android: {
-        elevation: 6,
+        elevation: 0,
       },
     }),
   },

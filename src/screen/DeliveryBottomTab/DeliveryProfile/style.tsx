@@ -34,7 +34,7 @@ export const styles = StyleSheet.create({
     padding: 16,
     marginBottom: 24,
     borderWidth: 1,
-    borderColor: "rgba(0,0,0,0.02)",
+    borderColor: "#d6e1f9ff",
     ...Platform.select({
       ios: {
         shadowColor: "#0F172A",
@@ -43,7 +43,7 @@ export const styles = StyleSheet.create({
         shadowRadius: 15,
       },
       android: {
-        elevation: 6,
+        elevation: 0,
       },
     }),
   },
@@ -95,7 +95,7 @@ export const styles = StyleSheet.create({
     paddingVertical: 8,
     marginBottom: 24,
     borderWidth: 1,
-    borderColor: "rgba(0,0,0,0.01)",
+    borderColor: "#d6e1f9ff",
     ...Platform.select({
       ios: {
         shadowColor: "#0F172A",
@@ -104,7 +104,7 @@ export const styles = StyleSheet.create({
         shadowRadius: 12,
       },
       android: {
-        elevation: 3,
+        elevation: 0,
       },
     }),
   },
@@ -144,12 +144,11 @@ export const styles = StyleSheet.create({
   logoutBtn: {
     height: 64,
     borderRadius: 20,
-    backgroundColor: "#FFF",
-    borderWidth: 1.5,
-    borderColor: "#FEE2E2",
     alignItems: "center",
     justifyContent: "center",
     marginTop: 10,
+
+    backgroundColor: "white"
   },
   logoutText: {
     fontSize: 17,

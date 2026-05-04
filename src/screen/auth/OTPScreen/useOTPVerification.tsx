@@ -63,7 +63,6 @@ export const useOtpVerification = (cellCount: number = 4) => {
 
     setIsLoading(true);
     try {
-      setIsLoading(false)
       const params = { phone, otp: value, navigation, code };
       await Verifyotp(params, setIsLoading, dispatch, dashboardCtx?.setGeneralAlert);
     } catch (error) {

@@ -142,9 +142,10 @@ export const styles = StyleSheet.create({
     backgroundColor: "#fff",
     borderRadius: 24,
     padding: 20,
-    borderWidth: 1,
-    borderColor: "rgba(0,0,0,0.02)",
+
     marginBottom: 16,
+    borderWidth: 1,
+    borderColor: "#d6e1f9ff",
     ...Platform.select({
       ios: {
         shadowColor: "#0F172A",
@@ -153,7 +154,7 @@ export const styles = StyleSheet.create({
         shadowRadius: 15,
       },
       android: {
-        elevation: 6,
+        elevation: 0,
       },
     }),
   },

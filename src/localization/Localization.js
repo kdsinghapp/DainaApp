@@ -419,6 +419,7 @@ const strings = new LocalizedStrings({
     Later: "Later",
     ViewOrder: "View order",
     NoNotifications: "No notifications found",
+    FileTooLarge: "File size is too large for upload. Please select a smaller file.",
   },
 
   mn: {
@@ -849,6 +850,7 @@ const strings = new LocalizedStrings({
     Later: "Дараа",
     ViewOrder: "Захиалга харах",
     NoNotifications: "Мэдэгдэл олдсонгүй",
+    FileTooLarge: "Файлын хэмжээ хэтэрхий том байна. Жижиг файл сонгоно уу.",
   },
 });
 

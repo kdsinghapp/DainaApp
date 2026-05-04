@@ -57,13 +57,14 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 20,
-    borderWidth: 1.5,
-    borderColor: '#F1F5F9',
+
     shadowColor: "#0F172A",
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.04,
     shadowRadius: 12,
-    elevation: 3,
+    borderWidth: 1,
+    borderColor: "#d6e1f9ff",
+    // elevation: 3,
   },
   optionSelected: {
     borderColor: '#FFCC00',

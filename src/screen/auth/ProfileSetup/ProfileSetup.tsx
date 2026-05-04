@@ -118,10 +118,15 @@ const ProfileSetup = () => {
         await getProfileApi();
         if (userData?.type === "Delivery") {
           // param.navigation.navigate(ScreenNameEnum.UploadDocumentsScreen);
-
-          navigation.navigate(ScreenNameEnum.UploadDocumentsScreen);
+          navigation.reset({
+            index: 0,
+            routes: [{ name: ScreenNameEnum.UploadDocumentsScreen }],
+          });
         } else {
-          navigation.navigate(ScreenNameEnum.TabNavigator);
+          navigation.reset({
+            index: 0,
+            routes: [{ name: ScreenNameEnum.TabNavigator }],
+          });
         }
       }
     } catch (error) {

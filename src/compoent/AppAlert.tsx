@@ -52,15 +52,15 @@ const AppAlert: React.FC = () => {
     >
       <View style={styles.modalCard}>
         <View style={[styles.accentBar, { backgroundColor: getColor() }]} />
-        
+
         <View style={[styles.iconWrap, { backgroundColor: getColor() + '10' }]}>
-           <Icon name={getIcon()} size={48} color={getColor()} />
+          <Icon name={getIcon()} size={48} color={getColor()} />
         </View>
 
         <Text style={styles.title}>
           {generalAlert.title || (generalAlert.type === 'error' ? 'Error' : 'Success')}
         </Text>
-        
+
         <Text style={styles.message}>
           {generalAlert.message}
         </Text>
@@ -95,8 +95,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     paddingBottom: 28,
     alignItems: 'center',
+
     borderWidth: 1,
-    borderColor: 'rgba(0,0,0,0.06)',
+    borderColor: "#d6e1f9ff",
     ...Platform.select({
       ios: {
         shadowColor: '#000',
@@ -104,7 +105,7 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.18,
         shadowRadius: 24,
       },
-      android: { elevation: 16 },
+      android: { elevation: 0 },
     }),
   },
   accentBar: {

@@ -438,7 +438,10 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
     shadowRadius: 8,
-    elevation: 4,
+    // elevation: 4,
+      borderWidth: 1,
+    borderColor: "#d6e1f9ff",
+ 
   },
    
   sectionTitle: {

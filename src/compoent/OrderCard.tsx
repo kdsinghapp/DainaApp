@@ -89,9 +89,10 @@ const OrderCard = ({ order, onPress }: { order: any; onPress: () => void }) => {
         </View>
       </View>
       <View style={{
-        backgroundColor: color.baground,
+        backgroundColor: color.primary,
         width: "40%",
         padding: 6,
+        height: 40,
         borderRadius: 10,
         marginTop: 10,
         alignItems: "center",
@@ -109,16 +110,22 @@ export default OrderCard;
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: CARD_BG,
-    borderRadius: 20,
-    padding: 16,
-    marginBottom: 15,
+    backgroundColor: "#FFFFFF",
+    borderRadius: 24,
+    padding: 20,
+    marginBottom: 16,
     borderWidth: 1,
-    borderColor: BORDER,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
+    borderColor: "#d6e1f9ff",
+    ...Platform.select({
+      ios: {
+        shadowColor: "#0F172A",
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.08,
+        shadowRadius: 12,
+      },
+      android: {
+      },
+    }),
   },
   cardTop: {
     flexDirection: "row",
@@ -213,7 +220,7 @@ const styles = StyleSheet.create({
   },
   viewDetailsText: {
     fontSize: 14,
-    color: color.baground,
+    color: color.primary,
     // textDecorationLine: "underline",
     fontFamily: font.MonolithRegular,
   },
