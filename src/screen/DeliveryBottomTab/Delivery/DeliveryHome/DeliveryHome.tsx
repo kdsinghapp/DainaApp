@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useState, useEffect } from "react";
+import React, { useMemo, useRef, useState, useEffect, useCallback } from "react";
 import {
   View,
   Text,
@@ -12,7 +12,7 @@ import {
 } from "react-native";
 import ReAnimated, { FadeInDown, FadeIn, Layout } from "react-native-reanimated";
 import { SafeAreaView, } from "react-native-safe-area-context";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import StatusBarComponent from "../../../../compoent/StatusBarCompoent";
 import HomeHeaderBar from "../../../../compoent/HomeHeaderBar";
 import imageIndex from "../../../../assets/imageIndex";
@@ -117,6 +117,22 @@ const DeliveryHome = () => {
         return requests;
     }
   }, [activeTab, requests]);
+  useFocusEffect(
+    useCallback(() => {
+      const fetchCounts = async () => {
+        const res = await GetDashboardCounts(() => { });
+        if (res && (res?.status === 1 || res.status === "1")) {
+          setCounts(res);
+        }
+      };
+
+      fetchCounts();
+
+      return () => {
+        // optional cleanup if needed
+      };
+    }, [])
+  );
   const { locationRef, address, currentlocation } = useDashboard()
   return (
     <SafeAreaView style={styles.container}>
@@ -142,6 +158,9 @@ const DeliveryHome = () => {
       /> */}
       <ScrollView
         showsVerticalScrollIndicator={false}
+        style={{
+          marginBottom: 70
+        }}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
@@ -354,13 +373,7 @@ const DeliveryHome = () => {
                       </Text>
 
                       <View style={{ flex: 1 }} />
-                      <Image
-                        source={imageIndex.more_vert}
-                        style={{
-                          height: 22,
-                          width: 22,
-                        }}
-                      />
+
                     </View>
 
                     <View style={styles.routeRow}>

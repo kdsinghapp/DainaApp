@@ -22,6 +22,10 @@ import { DeliveryVehicleDocument } from "../../../Api/apiRequest";
 import { errorToast } from "../../../utils/customToast";
 import { styles } from "./style";
 import strings from "../../../localization/Localization";
+import ReactNativeModal from "react-native-modal";
+import { openCamera } from "../../../utils/cameraHelper";
+import { openGallery } from "../../../utils/galleryHelper";
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
 const VehicleSetupScreen = () => {
   const [vehicleType, setVehicleType] = useState("");
@@ -38,11 +42,50 @@ const VehicleSetupScreen = () => {
     { label: strings.Truck, value: "Truck" }
   ];
 
-  const handlePickDocument = async (type: "registration" | "papers") => {
+  const [isDocModalVisible, setIsDocModalVisible] = useState(false);
+
+  const handlePickDocument = async () => {
+    setIsDocModalVisible(true);
+  };
+
+  const handleSelectPDF = async () => {
+    setIsDocModalVisible(false);
     const result = await pickDocument();
     if (result) {
-      if (type === "registration") setVehicleRegistration(result);
+      setVehicleRegistration(result);
     }
+  };
+
+  const handleCamera = async () => {
+    setIsDocModalVisible(false);
+    await openCamera((result) => {
+      if ('asset' in result && result.asset.uri) {
+        const doc = {
+          uri: result.asset.uri,
+          name: result.asset.fileName || `img_${Date.now()}.jpg`,
+          type: result.asset.type || 'image/jpeg',
+        };
+        setVehicleRegistration(doc);
+      }
+    });
+  };
+
+  const handleGallery = async () => {
+    setIsDocModalVisible(false);
+    const result = await openGallery();
+    if ('asset' in result && result.asset.uri) {
+      const doc = {
+        uri: result.asset.uri,
+        name: result.asset.fileName || `img_${Date.now()}.jpg`,
+        type: result.asset.type || 'image/jpeg',
+      };
+      setVehicleRegistration(doc);
+    }
+  };
+
+  const handleRemove = () => {
+    setIsDocModalVisible(false);
+    setVehicleRegistration(null);
   };
 
   const handleContinue = async () => {
@@ -78,7 +121,7 @@ const VehicleSetupScreen = () => {
       <ScrollView
         showsVerticalScrollIndicator={false}
         style={styles.content}>
-        
+
         <TouchableOpacity
           style={styles.dropdown}
           onPress={() => setShowDropdown(true)}
@@ -102,18 +145,34 @@ const VehicleSetupScreen = () => {
         />
 
         <TouchableOpacity
-          style={styles.uploadBox}
-          onPress={() => handlePickDocument("registration")}
+          style={[styles.uploadBox, vehicleRegistration && { paddingVertical: 0, height: 150 }]}
+          onPress={handlePickDocument}
         >
-          <Image
-            source={imageIndex.document}
-            style={{ width: 22, height: 22, tintColor: "#FFCC00" }}
-          />
-          <Text style={styles.uploadText}>
-            {vehicleRegistration
-              ? vehicleRegistration.name
-              : strings.UploadVehicleRegistration}
-          </Text>
+          {vehicleRegistration ? (
+            <View style={styles.previewContainer}>
+              {vehicleRegistration.type === "application/pdf" ? (
+                <View style={{ alignItems: "center" }}>
+                  <Image source={imageIndex.document} style={styles.icon} />
+                  <Text style={[styles.uploadText, { fontSize: 12, marginTop: 5 }]} numberOfLines={1}>
+                    {vehicleRegistration.name}
+                  </Text>
+                </View>
+              ) : (
+                <Image source={{ uri: vehicleRegistration.uri }} style={styles.previewImage} />
+              )}
+              {/* <View style={styles.editBadge}>
+                <MaterialCommunityIcons name="pencil" size={16} color="#FFF" />
+              </View> */}
+            </View>
+          ) : (
+            <>
+              <Image
+                source={imageIndex.document}
+                style={{ width: 22, height: 22, tintColor: "#FFCC00" }}
+              />
+              <Text style={styles.uploadText}>{strings.UploadVehicleRegistration}</Text>
+            </>
+          )}
         </TouchableOpacity>
 
         <Modal visible={showDropdown} transparent animationType="fade">
@@ -142,6 +201,58 @@ const VehicleSetupScreen = () => {
           </TouchableOpacity>
         </Modal>
       </ScrollView>
+
+      {/* Document Selection Modal */}
+      <ReactNativeModal
+        isVisible={isDocModalVisible}
+        onBackdropPress={() => setIsDocModalVisible(false)}
+        onBackButtonPress={() => setIsDocModalVisible(false)}
+        style={styles.modal}
+        backdropOpacity={0.5}
+        animationIn="slideInUp"
+        animationOut="slideOutDown"
+      >
+        <View style={styles.modalContent}>
+          <View style={styles.modalHeader}>
+            <Text style={styles.modalTitle}>{strings.ChooseOption}</Text>
+            <TouchableOpacity onPress={() => setIsDocModalVisible(false)}>
+              <MaterialCommunityIcons name="close" size={24} color="#666" />
+            </TouchableOpacity>
+          </View>
+
+          <View style={styles.modalBody}>
+            <TouchableOpacity style={styles.optionItem} onPress={handleCamera}>
+              <View style={[styles.optionIconContainer, { backgroundColor: '#E3F2FD' }]}>
+                <MaterialCommunityIcons name="camera" size={26} color="#1E88E5" />
+              </View>
+              <Text style={styles.optionText}>{strings.Camera}</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.optionItem} onPress={handleGallery}>
+              <View style={[styles.optionIconContainer, { backgroundColor: '#F3E5F5' }]}>
+                <MaterialCommunityIcons name="image" size={26} color="#8E24AA" />
+              </View>
+              <Text style={styles.optionText}>{strings.Gallery || "Gallery"}</Text>
+            </TouchableOpacity>
+
+            {/* <TouchableOpacity style={styles.optionItem} onPress={handleSelectPDF}>
+              <View style={[styles.optionIconContainer, { backgroundColor: '#FFF3E0' }]}>
+                <MaterialCommunityIcons name="file-pdf-box" size={26} color="#FB8C00" />
+              </View>
+              <Text style={styles.optionText}>{strings.PDF}</Text>
+            </TouchableOpacity> */}
+
+            {vehicleRegistration ? (
+              <TouchableOpacity style={styles.optionItem} onPress={handleRemove}>
+                <View style={[styles.optionIconContainer, { backgroundColor: '#FFEBEE' }]}>
+                  <MaterialCommunityIcons name="delete" size={26} color="#E53935" />
+                </View>
+                <Text style={[styles.optionText, { color: '#E53935' }]}>{strings.Remove}</Text>
+              </TouchableOpacity>
+            ) : null}
+          </View>
+        </View>
+      </ReactNativeModal>
 
       <TouchableOpacity
         style={[styles.button, isLoading && { opacity: 0.7 }]}

@@ -8,6 +8,8 @@ const strings = new LocalizedStrings({
     PhysicalData: "Physical Data",
     UsefulTips: "Useful Tips",
     PaymentHistory: "Payment History",
+    Camera: "Camera",
+    Gallery: "Gallery",
     Help: "Help",
     ContactInfo: "Contact Info",
     PushNotifications: "Push Notifications",
@@ -856,6 +858,10 @@ const strings = new LocalizedStrings({
     ViewOrder: "Захиалга харах",
     NoNotifications: "Мэдэгдэл олдсонгүй",
     FileTooLarge: "Файлын хэмжээ хэтэрхий том байна. Жижиг файл сонгоно уу.",
+    Camera: "Камер",
+    PDF: "PDF",
+    Remove: "Хасах",
+    ChooseOption: "Сонголт сонгох",
   },
 });
 

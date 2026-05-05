@@ -581,6 +581,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     paddingHorizontal: 20,
     paddingTop: 20,
+
   },
   locationBox: {
     backgroundColor: "#FFFFFF", // pure white better shadow deta hai
@@ -596,8 +597,8 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.08,
     shadowRadius: 6,
-
-    elevation: 5, // 2 se increase karo
+    borderWidth: 1,
+    // elevation: 5, // 2 se increase karo
 
     flexDirection: "row",
   },
