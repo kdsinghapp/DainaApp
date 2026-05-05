@@ -15,6 +15,7 @@ const strings = new LocalizedStrings({
     Version: "Version",
     Profile: "Profile",
     Add: "Add",
+    Rating: "Thanks for your rating!",
     TypeAMessagePlaceholder: "Type a message...",
     // Onboarding
     ShipYourParcel: "Ship Your Parcel",
@@ -321,6 +322,8 @@ const strings = new LocalizedStrings({
     Express: "Express",
     Normal: "Normal",
     Fast: "Fast",
+    OrderCancelled: "Order cancelled successfully",
+
     PickupLocationRequired: "Pickup location is required",
     DropLocationRequired: "Drop location is required",
     PickupRequestSuccess: "Pickup request submitted successfully!",
@@ -848,6 +851,8 @@ const strings = new LocalizedStrings({
     CounterOfferMessage: "Хэрэглэгч эсрэг санал ирүүлсэн байна. Үзэж, хариу өгөхийн тулд товшино уу.",
     NewDeliveryRequestMessage: "Ойролцоо илгээмж авах газар байна. Дэлгэрэнгүйг үзэж, саналаа илгээхийн тулд доор товшино уу.",
     Later: "Дараа",
+    Rating: "Үнэлгээ өгсөнд баярлалаа!",
+    OrderCancelled: "Захиалгыг амжилттай цуцалсан",
     ViewOrder: "Захиалга харах",
     NoNotifications: "Мэдэгдэл олдсонгүй",
     FileTooLarge: "Файлын хэмжээ хэтэрхий том байна. Жижиг файл сонгоно уу.",

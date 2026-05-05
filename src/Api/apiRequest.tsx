@@ -928,6 +928,31 @@ const GetDashboardCounts = async (
   }
 };
 
+const CancelParcelApi = async (
+  id: string | number,
+  setLoading: (loading: boolean) => void
+): Promise<any | null> => {
+  setLoading(true);
+  const token = await AsyncStorage.getItem('token');
+  try {
+    const response = await fetch(`${base_url}/parcel-details/${id}`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+
+    const responseData = await response.json();
+    return responseData;
+  } catch (error) {
+    console.error("CancelParcelApi API call error:", error);
+    return null;
+  } finally {
+    setLoading(false);
+  }
+};
+
 export {
   LogiApi,
   Verifyotp,
@@ -949,5 +974,6 @@ export {
   GetApi,
   SetLanguageApi,
   GetNotifications,
-  GetDashboardCounts
+  GetDashboardCounts,
+  CancelParcelApi
 }

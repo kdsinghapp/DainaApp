@@ -21,9 +21,9 @@ const useDashboard = () => {
 
   const orderData = ctx?.orderData ?? [];
   const counterOfferAcceptedModal = ctx?.counterOfferAcceptedModal ?? { visible: false, data: null };
-  const setCounterOfferAcceptedModal = ctx?.setCounterOfferAcceptedModal ?? (() => {});
-  const getParceldetailsApi = ctx?.getParceldetailsApi ?? (async () => {});
-  const registerOrderUpdateCallback = ctx?.registerOrderUpdateCallback ?? (() => {});
+  const setCounterOfferAcceptedModal = ctx?.setCounterOfferAcceptedModal ?? (() => { });
+  const getParceldetailsApi = ctx?.getParceldetailsApi ?? (async () => { });
+  const registerOrderUpdateCallback = ctx?.registerOrderUpdateCallback ?? (() => { });
   const initialFetchDone = useRef(false);
 
   useEffect(() => {
@@ -41,9 +41,9 @@ const useDashboard = () => {
     }
   }, [ctx]);
 
-  useEffect(()=>{
-  getParceldetailsApi(setLoading)
-  },[])
+  useEffect(() => {
+    getParceldetailsApi(setLoading)
+  }, [])
 
   useEffect(() => {
     if (ctx) {
@@ -65,7 +65,7 @@ const useDashboard = () => {
   };
   // Inside your component
   const [pickupLocation, setPickupLocation] = useState(null);
-   const [currentLocation, setCurrentLocation] = useState('');
+  const [currentLocation, setCurrentLocation] = useState('');
   const handleGetLocation = async () => {
     try {
       const data = await locationRef?.current?.fetchLocation();

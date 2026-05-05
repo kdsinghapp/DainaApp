@@ -142,6 +142,7 @@ const DeliveryProfile: React.FC<Props> = ({
             <Text style={styles.name}>{isLogin?.firstName || user.name}</Text>
             <Text style={styles.email}>{isLogin?.email || user.email}</Text>
             <Text style={styles.phoneNumber}>{isLogin?.phoneNumber || "+1 234 567 890"}</Text>
+            <Text style={styles.phoneNumber}>{isLogin?.type || "+1 234 567 890"}</Text>
           </View>
           <Image source={imageIndex.right}
             style={{

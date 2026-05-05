@@ -62,7 +62,7 @@ const DeliveryHome = () => {
   }, [isOnline]);
 
   const [activeTab, setActiveTab] = useState<(typeof TABS)[number]>("Pending");
-  const filteredOrders = ordersSeed.filter((item) => {
+  const filteredOrders = ordersSeed?.filter((item) => {
     const status = item?.parcel?.deliveryStatus?.toLowerCase();
 
     const COMPLETED_STATUSES = ["delivered", "completed"];

@@ -15,6 +15,7 @@ import Geolocation from '@react-native-community/geolocation';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import StatusBarComponent from '../../../../compoent/StatusBarCompoent';
+import { GetApi, CancelParcelApi } from '../../../../Api/apiRequest';
 import imageIndex from '../../../../assets/imageIndex';
 import ScreenNameEnum from '../../../../routes/screenName.enum';
 import CustomHeader from '../../../../compoent/CustomHeader';
@@ -165,8 +166,13 @@ const wsUrl = `${WebSocket_Url}/parcel/${parcelId?.parcel?.id}?token=${token}&ro
     handleReconnect();
   };
 
-  const handleGoBack = () => {
+  const handleGoBack = async () => {
     clearCountdown();
+    const id = parcelId?.parcel?.id;
+    if (id) {
+      // setLoading(true);
+      await CancelParcelApi(id, () => { });
+    }
     if (navigation.canGoBack()) {
       navigation.goBack();
     } else {

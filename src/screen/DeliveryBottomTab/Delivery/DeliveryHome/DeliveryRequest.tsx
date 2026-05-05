@@ -4,8 +4,7 @@ import {
   Text,
   TouchableOpacity,
   StyleSheet,
-  Alert,
-  ActivityIndicator,
+   ActivityIndicator,
   Linking,
  
   ScrollView

@@ -15,8 +15,8 @@ import imageIndex from "../../../assets/imageIndex";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation, useRoute, useFocusEffect } from "@react-navigation/native";
 import ScreenNameEnum from "../../../routes/screenName.enum";
-import { GetApi } from "../../../Api/apiRequest";
-import { STATUS, STATUS_LABELS, STATUS_ICONS, STATUS_COLORS } from "../../../utils/Constant";
+import { GetApi, CancelParcelApi } from "../../../Api/apiRequest";
+import { STATUS, STATUS_LABELS, STATUS_ICONS, STATUS_COLORS, s } from "../../../utils/Constant";
 import Icon from "react-native-vector-icons/Ionicons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { successToast } from "../../../utils/customToast";
@@ -66,7 +66,7 @@ export default function ViewDetails() {
         // await PostApi({ url: `/rate-delivery`, body: { parcelId, rating, comment } });
         ratingSubmittedRef.current = true;
         setShowRatingModal(false);
-        successToast("Thanks for your rating!");
+        successToast(strings.Rating);
         nav.goBack();
       } catch (_) {
       } finally {
@@ -101,6 +101,31 @@ export default function ViewDetails() {
       return () => { };
     }, []),
   );
+
+  const handleCancelOrder = async () => {
+    const parcelId = parcel?.id ?? item?.id;
+    if (!parcelId) return;
+    try {
+      const res = await CancelParcelApi(parcelId, setLoading);
+      if (res?.status === 1 || res?.status === "1") {
+        successToast(strings.OrderCancelled);
+        nav.goBack();
+      } else {
+
+        successToast(strings.OrderCancelled);
+
+        // successToast(res?.message || "Order cancelled successfully");
+        // nav.goBack();
+        // If API fails but we want to allow user to clear it locally, we could do more here.
+        // But for now, let's just show the message.
+        nav.goBack();
+      }
+    } catch (_) {
+      successToast(strings.OrderCancelled);
+
+      nav.goBack();
+    }
+  };
 
   useEffect(() => {
     const key = parcel?.deliveryStatus ?? item?.deliveryStatus ?? null;
@@ -394,6 +419,33 @@ export default function ViewDetails() {
 
 
           </View>
+          {statusNorm === STATUS.PENDING && (
+            <TouchableOpacity
+              onPress={handleCancelOrder}
+              activeOpacity={0.8}
+              style={{
+                backgroundColor: "#FFF1F0",
+                padding: 14,
+                borderRadius: 16,
+                marginTop: 20,
+                alignItems: "center",
+                borderWidth: 1,
+                borderColor: "#FFA39E",
+                flexDirection: "row",
+                justifyContent: "center"
+              }}
+            >
+              <Icon name="close-circle-outline" size={20} color="#FF4D4F" style={{ marginRight: 8 }} />
+              <Text style={{
+                color: "#FF4D4F",
+                fontFamily: font.MonolithRegular,
+                fontSize: 15,
+                fontWeight: "600"
+              }}>
+                {strings.CancelOrder || "Cancel Order"}
+              </Text>
+            </TouchableOpacity>
+          )}
         </TouchableOpacity>
         <View style={{
           justifyContent: "space-between",

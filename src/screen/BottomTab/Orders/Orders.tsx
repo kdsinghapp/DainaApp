@@ -1,4 +1,5 @@
 import React, { useCallback, useMemo, useState } from "react";
+import { useFocusEffect } from "@react-navigation/native";
 import {
   View,
   Text,
@@ -67,6 +68,12 @@ export default function OrdersScreen() {
   const [tab, setTab] = useState<"pending" | "complete" | "cancelled">("pending");
   const nava = useNavigation()
   const [refreshing, setRefreshing] = useState(false);
+
+  useFocusEffect(
+    useCallback(() => {
+      getParceldetailsApi();
+    }, [])
+  );
 
   // Pending = all except Complete & Cancelled. Complete = delivered/completed. Cancelled = cancelled only.
   const data = useMemo(() => {

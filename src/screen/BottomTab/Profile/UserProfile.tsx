@@ -117,7 +117,6 @@ const ProfileScreen: React.FC = () => {
 
   const dispatch = useDispatch();
   const userData: any = useSelector<any>((state) => state?.auth?.userData);
-
   useEffect(() => {
     getProfileApi();
   }, []);
@@ -165,7 +164,7 @@ const ProfileScreen: React.FC = () => {
               <Text style={styles.emailText}>{userData?.email || ""}</Text>
               <Text style={[styles.emailText, {
                 color: color.primary
-              }]}>{userData?.phoneNumber || ""}</Text>
+              }]}>{userData?.phoneNumber || ""}   </Text>
 
             </View>
           </View>
@@ -176,7 +175,7 @@ const ProfileScreen: React.FC = () => {
         {/* Menu Sections */}
         <View style={styles.menuContainer}>
           <Animated.View entering={FadeInDown.delay(700)} style={styles.sectionWrap}>
-            <Text style={styles.sectionTitle}>Account Settings</Text>
+            <Text style={styles.sectionTitle}>Account Settings. {userData?.type}</Text>
             <View style={styles.card}>
               <MenuItem
                 index={0}

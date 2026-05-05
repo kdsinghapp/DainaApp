@@ -25,6 +25,7 @@ export const useDeliveryHome = () => {
   const [acceptCounterOfferLoading] = useState(false);
   const locationRef = useRef(null);
   const [isConnected, setIsConnected] = useState(false);
+  const [isOnline, setIsOnline] = useState(false);
   const socketRef = useRef<WebSocket | null>(null);
   const socketLiveRef = useRef<WebSocket | null>(null);
   const cancelledRef = useRef(false);
@@ -282,6 +283,10 @@ export const useDeliveryHome = () => {
 
   // Helper: send location on nearby-parcels socket (called after connect + when coords change)
   const sendNearbyLocationOnce = useCallback((ws: WebSocket, lat: number, lon: number) => {
+
+
+    console.log("lat ----   ws  parsel ", lat)
+    console.log("lon ----   ws  parsel ", lon)
     if (ws.readyState !== WebSocket.OPEN) return;
     const payload = JSON.stringify({ type: 'location', lat, lon });
     console.log('📤 [onopen] Sending initial location to nearby-parcels:', payload);
@@ -430,6 +435,12 @@ export const useDeliveryHome = () => {
 
     init();
 
+    const loadOnlineStatus = async () => {
+      const status = await AsyncStorage.getItem('driverOnlineStatus');
+      if (status === 'online') setIsOnline(true);
+    };
+    loadOnlineStatus();
+
     return () => {
       cancelledRef.current = true;
       console.log('🛑 Disconnect WebSockets');
@@ -560,6 +571,8 @@ export const useDeliveryHome = () => {
     setNewOrderNotification,
     acceptCounterOffer,
     acceptCounterOfferLoading,
-    RejectcounterOffer
+    RejectcounterOffer,
+    isOnline,
+    setIsOnline
   };
 };

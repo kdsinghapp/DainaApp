@@ -20,14 +20,14 @@ const NetworkStatusModal: React.FC<Props> = ({
   const openSettings = () => {
     if (Platform.OS === 'ios') {
       Linking.openURL('App-Prefs:root=MOBILE_DATA_SETTINGS_ID');
-        //     Linking.openURL('App-Prefs:root=WIFI');
+      //     Linking.openURL('App-Prefs:root=WIFI');
 
     } else {
       Linking.openSettings();
     }
   };
 
-   
+
 
   const getStatusText = () => {
     if (isConnected === null) return checkingText || 'Checking connection...';
@@ -38,7 +38,7 @@ const NetworkStatusModal: React.FC<Props> = ({
     <Modal visible={modalVisible} transparent animationType="fade">
       <View style={styles.modalContainer}>
         <View style={styles.modalContent}>
-           <Text allowFontScaling={false} style={styles.text}>
+          <Text allowFontScaling={false} style={styles.text}>
             {getStatusText()}
           </Text>
           {!isConnected && (
@@ -78,11 +78,11 @@ const styles = StyleSheet.create({
   },
   text: {
     fontSize: 18,
-     color: '#333',
+    color: '#333',
     textAlign: 'center',
     marginBottom: 15,
-    lineHeight:20 ,
-    fontFamily:font.MonolithRegular
+    lineHeight: 20,
+    fontFamily: font.MonolithRegular
   },
   button: {
     marginTop: 10,
@@ -94,7 +94,7 @@ const styles = StyleSheet.create({
   buttonText: {
     fontSize: 16,
     color: 'white',
-      fontFamily:font.MonolithRegular
+    fontFamily: font.MonolithRegular
 
   },
 });

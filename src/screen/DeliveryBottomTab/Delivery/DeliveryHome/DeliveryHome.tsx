@@ -26,12 +26,14 @@ import NewOrderNotificationModal from "../../../../compoent/NewOrderNotification
 import OfferAcceptedModal from "../../../../compoent/OfferAcceptedModal";
 import { GetDashboardCounts } from "../../../../Api/apiRequest";
 import strings from "../../../../localization/Localization";
+import OnlineSlideRight from "../../../../compoent/OnlineSlideRight";
+import { successToast } from "../../../../utils/customToast";
 
 const TABS = ["Pending", "Complete", "Cancelled"] as const;
 const DeliveryHome = () => {
   const ctx = useDeliveryContext();
   if (!ctx) return null;
-  const { isLoading, requests, coords, newOrderNotification, fetchAvailableRequests } = ctx;
+  const { isLoading, requests, coords, newOrderNotification, fetchAvailableRequests, isOnline, setIsOnline } = ctx;
   // console.log("newOrderNotification",newOrderNotification?.data?.user?.name)
   const [activeTab, setActiveTab] = useState<(typeof TABS)[number]>("Pending");
   const [counts, setCounts] = useState<any>(null);
@@ -150,7 +152,7 @@ const DeliveryHome = () => {
             marginBottom: 5,
           }}
         >
-          {/* <OnlineSlideRight onSlideSuccess={() => successToast("Online")} isOnline={isOnline} setIsOnline={setIsOnline} /> */}
+          <OnlineSlideRight isOnline={isOnline} setIsOnline={setIsOnline} />
         </View>
         <View style={styles.container1}>
           {/* Earnings */}
@@ -391,7 +393,7 @@ const DeliveryHome = () => {
           />
         </Animated.View>
       </ScrollView>
-      {/* <OnlineSlideRight coords={coords} onSlideSuccess={() => successToast("Online")} isOnline={isOnline} setIsOnline={setIsOnline} /> */}
+      <OnlineSlideRight coords={coords} onSlideSuccess={() => successToast("Online")} isOnline={isOnline} setIsOnline={setIsOnline} />
     </SafeAreaView>
   );
 };
