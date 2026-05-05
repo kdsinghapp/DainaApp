@@ -23,3 +23,25 @@ buildscript {
 }
 
 apply plugin: "com.facebook.react.rootproject"
+
+subprojects {
+    def apply16KBFixes = {
+        it.defaultConfig {
+            externalNativeBuild {
+                cmake {
+                    arguments "-DCMAKE_SHARED_LINKER_FLAGS=-Wl,-z,common-page-size=16384 -Wl,-z,max-page-size=16384"
+                }
+                ndkBuild {
+                    arguments "APP_LDFLAGS+=-Wl,-z,common-page-size=16384 -Wl,-z,max-page-size=16384"
+                }
+            }
+        }
+    }
+
+    pluginManager.withPlugin('com.android.application') {
+        apply16KBFixes(android)
+    }
+    pluginManager.withPlugin('com.android.library') {
+        apply16KBFixes(android)
+    }
+}

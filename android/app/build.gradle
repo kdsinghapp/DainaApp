@@ -113,17 +113,10 @@ android {
             useLegacyPackaging = false
         }
     }
-
-    packagingOptions {
-        jniLibs {
-            useLegacyPackaging = false
-        }
-    }
 }
 
 dependencies {
-    // The version of react-native is set by the React Native Gradle Plugin
-    
+     
        implementation("com.facebook.react:react-android")
   def camerax_version = "1.3.0"
     implementation "androidx.camera:camera-core:${camerax_version}"
