@@ -425,6 +425,8 @@ const strings = new LocalizedStrings({
     ViewOrder: "View order",
     NoNotifications: "No notifications found",
     FileTooLarge: "File size is too large for upload. Please select a smaller file.",
+    SlideToGoOnline: "Slide to go online",
+    SlideToGoOffline: "Slide to go offline",
   },
 
   mn: {
@@ -862,6 +864,8 @@ const strings = new LocalizedStrings({
     PDF: "PDF",
     Remove: "Хасах",
     ChooseOption: "Сонголт сонгох",
+    SlideToGoOnline: "Онлайн болохын тулд гүйлгэ",
+    SlideToGoOffline: "Оффлайн болохын тулд гүйлгэ",
   },
 });
 

@@ -9,10 +9,27 @@ import { GetNotifications } from '../../Api/apiRequest';
 import { color } from '../../constant';
 import moment from 'moment';
 import { RefreshControl } from 'react-native';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
 
-const NotificationItem = ({ item }) => {
-  console.log("item", item)
+const NotificationItem = ({ item }: any) => {
+  const getIcon = (type: string) => {
+    switch (type) {
+      case 'chat': return 'chat-processing-outline';
+      case 'order': return 'package-variant-closed';
+      case 'offer': return 'tag-outline';
+      default: return 'bell-outline';
+    }
+  };
+
+  const formatDate = (date: string) => {
+    const m = moment(date);
+    if (moment().isSame(m, 'day')) {
+      return m.format('HH:mm');
+    }
+    return m.format('DD MMM, HH:mm');
+  };
+
   return (
     <View
       style={[
@@ -20,11 +37,18 @@ const NotificationItem = ({ item }) => {
         (item.isRead === false || item.isRead === 0) && styles.unreadBackground
       ]}
     >
-      <View style={[styles.dot, (item.isRead === true || item.isRead === 1) && { backgroundColor: '#E0E0E0' }]} />
+      <View style={styles.iconContainer}>
+        <MaterialCommunityIcons
+          name={getIcon(item.data?.type)}
+          size={24}
+          color={item.isRead === false ? color.baground : '#999'}
+        />
+        {item.isRead === false && <View style={styles.dot} />}
+      </View>
       <View style={styles.textContainer}>
         <Text style={styles.title}>{item.title}</Text>
         <Text style={styles.body}>{item.body}</Text>
-        <Text style={styles.date}>{moment(item.createdAt).fromNow()}</Text>
+        <Text style={styles.date}>{formatDate(item.createdAt)}</Text>
       </View>
     </View>
   );
@@ -149,13 +173,24 @@ const styles = StyleSheet.create({
   unreadBackground: {
     backgroundColor: '#F0F8F5',
   },
+  iconContainer: {
+    marginRight: 12,
+    position: 'relative',
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: 40,
+    height: 40,
+  },
   dot: {
     width: 8,
     height: 8,
     borderRadius: 4,
     backgroundColor: '#6FCF97',
-    marginTop: 6,
-    marginRight: 12,
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    borderWidth: 1.5,
+    borderColor: '#FFF',
   },
   textContainer: {
     flex: 1,

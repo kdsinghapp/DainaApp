@@ -146,6 +146,7 @@ const DeliveryHome = () => {
         onNotificationPress={() => navigation.navigate(ScreenNameEnum.NotificationsScreen)}
         hasNotification={false}
       />
+
       {/* 
       <HomeHeaderBar
         location={ "Wallace, Australia"}
@@ -159,19 +160,23 @@ const DeliveryHome = () => {
       <ScrollView
         showsVerticalScrollIndicator={false}
         style={{
-          marginBottom: 70
+          marginBottom: 70,
+
         }}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
       >
+
+        <OnlineSlideRight coords={coords} onSlideSuccess={() => successToast("Online")} isOnline={isOnline} setIsOnline={setIsOnline} />
+
         <View
           style={{
             marginTop: 12,
             marginBottom: 5,
           }}
         >
-          <OnlineSlideRight isOnline={isOnline} setIsOnline={setIsOnline} />
+
         </View>
         <View style={styles.container1}>
           {/* Earnings */}
@@ -289,6 +294,15 @@ const DeliveryHome = () => {
             </Text>
           </ReAnimated.View>
         </View>
+
+        <View style={styles.ordersHeader}>
+          <Text style={styles.sectionTitle1}>{strings.Order}</Text>
+          {/* <Text
+            onPress={() => navigation.navigate('DeliveryOrder')}
+            style={styles.sectionTitle1}
+          >
+          </Text> */}
+        </View>
         <View style={styles.tabs}>
           {TABS.map((tab) => {
             const active = tab === activeTab;
@@ -306,16 +320,10 @@ const DeliveryHome = () => {
             );
           })}
         </View>
-        {/* <View style={styles.ordersHeader}>
-        <Text style={styles.sectionTitle1}>Orders</Text>
-        <Text
-          onPress={() => navigation.navigate('Orders')}
-          style={styles.sectionTitle1}
-        >
-          Sell All
-        </Text>
-      </View> */}
-        {/* List */}
+
+
+
+
         <Animated.View
           style={{
             flex: 1, transform: [{ translateX }], opacity: fade,
@@ -405,8 +413,8 @@ const DeliveryHome = () => {
             }
           />
         </Animated.View>
+
       </ScrollView>
-      {/* <OnlineSlideRight coords={coords} onSlideSuccess={() => successToast("Online")} isOnline={isOnline} setIsOnline={setIsOnline} /> */}
     </SafeAreaView>
   );
 };

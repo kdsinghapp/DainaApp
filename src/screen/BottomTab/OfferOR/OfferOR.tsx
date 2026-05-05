@@ -125,6 +125,7 @@ export default function OfferOR() {
         <FlatList
           style={{
             marginTop: 20,
+            marginBottom: 45
           }}
           ListEmptyComponent={() => (
             <Text style={styles.emptyText}>

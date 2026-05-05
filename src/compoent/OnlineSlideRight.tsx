@@ -15,6 +15,7 @@ import Geolocation from '@react-native-community/geolocation';
 import font from '../theme/font';
 import { base_url } from '../Api';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import strings from '../localization/Localization';
 
 const { width } = Dimensions.get('window');
 const SLIDER_WIDTH = width * 0.85;
@@ -138,12 +139,16 @@ const OnlineSlideRight: React.FC<Props> = ({ isOnline, setIsOnline, coords, onSl
       });
 
       const data = await response.json();
+      console.log('📡 Driver Location API Response:', data);
+
       if (response.status === 200 || data.status === 1 || data.status === '1') {
         await AsyncStorage.setItem('driverOnlineStatus', targetOnline ? 'online' : 'offline');
         if (targetOnline && onSlideSuccess) {
           onSlideSuccess();
         }
       } else {
+        // API rejected the status change
+        console.warn('❌ API status update failed:', data.message);
         setIsOnline(!targetOnline);
       }
     } catch (error) {
@@ -197,7 +202,7 @@ const OnlineSlideRight: React.FC<Props> = ({ isOnline, setIsOnline, coords, onSl
 
   const bgInterpolation = pan.interpolate({
     inputRange: [0, SLIDE_DISTANCE],
-    outputRange: ['#374151', '#22C55E'],
+    outputRange: ['#FFCC00', '#FFCC00'],
   });
 
   const pulseScale = pulseAnim.interpolate({
@@ -214,7 +219,7 @@ const OnlineSlideRight: React.FC<Props> = ({ isOnline, setIsOnline, coords, onSl
     <View style={styles.outerContainer}>
       <Animated.View style={[styles.sliderTrack, { backgroundColor: bgInterpolation }]}>
         <Text style={styles.trackText}>
-          {isOnline ? 'GO OFFLINE' : 'GO ONLINE'}
+          {isOnline ? strings.SlideToGoOffline : strings.SlideToGoOnline}
         </Text>
 
         <Animated.View
@@ -237,12 +242,12 @@ const OnlineSlideRight: React.FC<Props> = ({ isOnline, setIsOnline, coords, onSl
           )}
           <View style={styles.knob}>
             {loading ? (
-              <ActivityIndicator size="small" color={isOnline ? '#22C55E' : '#374151'} />
+              <ActivityIndicator size="small" color={isOnline ? '#FFCC00' : '#374151'} />
             ) : (
               <MaterialCommunityIcons
                 name={isOnline ? 'power' : 'chevron-right'}
                 size={32}
-                color={isOnline ? '#22C55E' : '#374151'}
+                color={isOnline ? '#FFCC00' : '#374151'}
               />
             )}
           </View>
@@ -256,18 +261,20 @@ export default OnlineSlideRight;
 
 const styles = StyleSheet.create({
   outerContainer: {
-    position: 'absolute',
-    bottom: 20,
+    // position: 'absolute',
+    // bottom: 20,
     width: '100%',
     alignItems: 'center',
-    zIndex: 1000,
+    // zIndex: 1000,
+    marginTop: 22,
+
   },
   sliderTrack: {
     width: SLIDER_WIDTH,
     height: 64,
     borderRadius: 32,
     justifyContent: 'center',
-    paddingHorizontal: 5,
+    paddingHorizontal: 4,
     overflow: 'hidden',
     ...Platform.select({
       ios: {
@@ -287,10 +294,9 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     color: '#FFF',
     fontSize: 16,
-    fontWeight: '700',
     fontFamily: font.MonolithRegular,
-    letterSpacing: 1,
-    opacity: 0.8,
+    letterSpacing: 0.5,
+    opacity: 0.9,
   },
   knobContainer: {
     width: KNOB_SIZE,
@@ -305,7 +311,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFF',
     justifyContent: 'center',
     alignItems: 'center',
-    elevation: 4,
+    elevation: 0,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
@@ -316,6 +322,6 @@ const styles = StyleSheet.create({
     width: KNOB_SIZE + 20,
     height: KNOB_SIZE + 20,
     borderRadius: (KNOB_SIZE + 20) / 2,
-    backgroundColor: '#FFF',
+    backgroundColor: '#FFCC00',
   },
 });
