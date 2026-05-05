@@ -12,6 +12,7 @@ import { RefreshControl } from 'react-native';
 
 
 const NotificationItem = ({ item }) => {
+  console.log("item", item)
   return (
     <View
       style={[

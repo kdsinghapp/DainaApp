@@ -406,7 +406,7 @@ const DeliveryHome = () => {
           />
         </Animated.View>
       </ScrollView>
-      <OnlineSlideRight coords={coords} onSlideSuccess={() => successToast("Online")} isOnline={isOnline} setIsOnline={setIsOnline} />
+      {/* <OnlineSlideRight coords={coords} onSlideSuccess={() => successToast("Online")} isOnline={isOnline} setIsOnline={setIsOnline} /> */}
     </SafeAreaView>
   );
 };

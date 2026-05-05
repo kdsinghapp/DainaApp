@@ -1,5 +1,3 @@
-
-
 import React, { useRef, useState, useEffect } from 'react';
 import {
   View,
@@ -7,30 +5,64 @@ import {
   StyleSheet,
   Animated,
   Easing,
-  Switch,
+  PanResponder,
+  Dimensions,
+  Platform,
+  ActivityIndicator,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Geolocation from '@react-native-community/geolocation';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import font from '../theme/font';
 import { base_url } from '../Api';
-import { color } from '../constant';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+
+const { width } = Dimensions.get('window');
+const SLIDER_WIDTH = width * 0.85;
+const KNOB_SIZE = 54;
+const SLIDE_DISTANCE = SLIDER_WIDTH - KNOB_SIZE - 10;
+
 interface Props {
   isOnline: boolean;
   setIsOnline: (val: boolean) => void;
+  coords?: any;
+  onSlideSuccess?: () => void;
 }
-const FloatingOnlineButton: React.FC<Props> = ({ isOnline, setIsOnline }) => {
-  const insets = useSafeAreaInsets();
-  const scaleAnim = useRef(new Animated.Value(1)).current;
+
+const OnlineSlideRight: React.FC<Props> = ({ isOnline, setIsOnline, coords, onSlideSuccess }) => {
+  const pan = useRef(new Animated.Value(isOnline ? SLIDE_DISTANCE : 0)).current;
   const pulseAnim = useRef(new Animated.Value(0)).current;
   const [loading, setLoading] = useState(false);
+
+  // Initialize location from props if available
   const [currentLocation, setCurrentLocation] = useState<{
     lat: string | null;
     lon: string | null;
-  }>({ lat: null, lon: null });
-  // Pulse Loop Logic – with cleanup to avoid leaks
+  }>({
+    lat: coords?.lat?.toString() || null,
+    lon: coords?.lon?.toString() || null,
+  });
+
+  // Update location if props change
   useEffect(() => {
-    if (!isOnline || loading) {
+    if (coords?.lat && coords?.lon) {
+      setCurrentLocation({
+        lat: coords.lat.toString(),
+        lon: coords.lon.toString(),
+      });
+    }
+  }, [coords]);
+
+  useEffect(() => {
+    Animated.spring(pan, {
+      toValue: isOnline ? SLIDE_DISTANCE : 0,
+      useNativeDriver: true,
+      friction: 8,
+      tension: 40,
+    }).start();
+  }, [isOnline]);
+
+  useEffect(() => {
+    if (!isOnline) {
       pulseAnim.setValue(0);
       return;
     }
@@ -44,44 +76,58 @@ const FloatingOnlineButton: React.FC<Props> = ({ isOnline, setIsOnline }) => {
     );
     loop.start();
     return () => loop.stop();
-  }, [isOnline, loading]);
+  }, [isOnline]);
 
-  const pressIn = () => {
-    Animated.spring(scaleAnim, { toValue: 0.9, useNativeDriver: true }).start();
-  };
-  const pressOut = () => {
-    Animated.spring(scaleAnim, { toValue: 1, useNativeDriver: true }).start();
-  };
-  const toggleOnlineStatus = async () => {
+  const toggleOnlineStatus = async (targetOnline: boolean) => {
     if (loading) return;
     const token = await AsyncStorage.getItem('token');
     if (!token) return;
-    // Optimistic: UI toggle turant
-    const nextOnline = !isOnline;
-    setIsOnline(nextOnline);
+
     setLoading(true);
+    // Optimistic UI update
+    setIsOnline(targetOnline);
+
     try {
-      let lat = currentLocation.lat;
-      let lon = currentLocation.lon;
+      // Prioritize coords from props if available
+      let lat = coords?.lat?.toString() || currentLocation.lat;
+      let lon = coords?.lon?.toString() || currentLocation.lon;
+
       if (!lat || !lon) {
-        await new Promise<void>((resolve) => {
-          Geolocation.getCurrentPosition(
-            (position) => {
-              lat = position.coords.latitude.toString();
-              lon = position.coords.longitude.toString();
-              setCurrentLocation({ lat, lon });
-              resolve();
-            },
-            () => resolve(),
-            { enableHighAccuracy: true, timeout: 20000, maximumAge: 10000 }
-          );
-        });
+        try {
+          const position = await new Promise<any>((resolve, reject) => {
+            Geolocation.getCurrentPosition(resolve, reject, {
+              enableHighAccuracy: true,
+              timeout: 15000,
+              maximumAge: 10000,
+            });
+          });
+          lat = position.coords.latitude.toString();
+          lon = position.coords.longitude.toString();
+          setCurrentLocation({ lat, lon });
+        } catch (locError) {
+          console.warn('Location fetch failed:', locError);
+          // If we still don't have location, we cannot go online
+          if (targetOnline) {
+            setIsOnline(false);
+            setLoading(false);
+            return;
+          }
+        }
       }
+
+      // Final check: if we are going online, we MUST have location
+      if (targetOnline && (!lat || !lon || lat === '0' || lon === '0')) {
+        setIsOnline(false);
+        setLoading(false);
+        return;
+      }
+
       const requestBody = {
         lat: lat || '0',
         lon: lon || '0',
-        status: nextOnline ? 'online' : 'offline',
+        status: targetOnline ? 'online' : 'offline',
       };
+
       const response = await fetch(`${base_url}/driver/location`, {
         method: 'POST',
         headers: {
@@ -90,162 +136,186 @@ const FloatingOnlineButton: React.FC<Props> = ({ isOnline, setIsOnline }) => {
         },
         body: JSON.stringify(requestBody),
       });
+
       const data = await response.json();
       if (response.status === 200 || data.status === 1 || data.status === '1') {
-        setIsOnline(nextOnline);
-        await AsyncStorage.setItem('driverOnlineStatus', nextOnline ? 'online' : 'offline');
+        await AsyncStorage.setItem('driverOnlineStatus', targetOnline ? 'online' : 'offline');
+        if (targetOnline && onSlideSuccess) {
+          onSlideSuccess();
+        }
       } else {
-        // API fail → revert UI
-        setIsOnline(!nextOnline);
+        setIsOnline(!targetOnline);
       }
-      // const data = await response.json();
-      //       console.log("data",data)\
-      // if (data?.status) {
-      //   setIsOnline(data?.data?.status === 'online');
-      // } else {
-      //   // API fail → revert UI
-      //   setIsOnline(!nextOnline);
-      // }
     } catch (error) {
       __DEV__ && console.warn('Toggle Error:', error);
-      setIsOnline(!nextOnline);
+      setIsOnline(!targetOnline);
     } finally {
       setLoading(false);
     }
   };
 
-  // Interpolate pulse values
+  const panResponder = useRef(
+    PanResponder.create({
+      onStartShouldSetPanResponder: () => !loading,
+      onMoveShouldSetPanResponder: () => !loading,
+      onPanResponderMove: (_, gestureState) => {
+        if (loading) return;
+        let newX = isOnline ? SLIDE_DISTANCE + gestureState.dx : gestureState.dx;
+        if (newX < 0) newX = 0;
+        if (newX > SLIDE_DISTANCE) newX = SLIDE_DISTANCE;
+        pan.setValue(newX);
+      },
+      onPanResponderRelease: (_, gestureState) => {
+        if (loading) return;
+        const threshold = SLIDE_DISTANCE / 2;
+        const currentX = isOnline ? SLIDE_DISTANCE + gestureState.dx : gestureState.dx;
+
+        if (!isOnline && currentX > threshold) {
+          // Slide to Online
+          Animated.spring(pan, {
+            toValue: SLIDE_DISTANCE,
+            useNativeDriver: true,
+          }).start();
+          toggleOnlineStatus(true);
+        } else if (isOnline && currentX < threshold) {
+          // Slide to Offline
+          Animated.spring(pan, {
+            toValue: 0,
+            useNativeDriver: true,
+          }).start();
+          toggleOnlineStatus(false);
+        } else {
+          // Snap back
+          Animated.spring(pan, {
+            toValue: isOnline ? SLIDE_DISTANCE : 0,
+            useNativeDriver: true,
+          }).start();
+        }
+      },
+    })
+  ).current;
+
+  const bgInterpolation = pan.interpolate({
+    inputRange: [0, SLIDE_DISTANCE],
+    outputRange: ['#374151', '#22C55E'],
+  });
+
   const pulseScale = pulseAnim.interpolate({
     inputRange: [0, 1],
-    outputRange: [1, 1.6], // Grows to 1.6x the size
+    outputRange: [1, 1.4],
   });
 
   const pulseOpacity = pulseAnim.interpolate({
     inputRange: [0, 0.5, 1],
-    outputRange: [0.6, 0.3, 0], // Fades out
+    outputRange: [0.6, 0.3, 0],
   });
 
   return (
-    <View style={[styles.container, { bottom: insets.bottom + 80 }]}>
-      <View style={styles.buttonWrapper}>
+    <View style={styles.outerContainer}>
+      <Animated.View style={[styles.sliderTrack, { backgroundColor: bgInterpolation }]}>
+        <Text style={styles.trackText}>
+          {isOnline ? 'GO OFFLINE' : 'GO ONLINE'}
+        </Text>
 
-        {/* Animated Pulse Circle */}
-        {isOnline && !loading && (
-          <Animated.View
-            style={[
-              styles.pulseCircle,
-              {
-                transform: [{ scale: pulseScale }],
-                opacity: pulseOpacity,
-              },
-            ]}
-          />
-        )}
-
-        {/* Main Button */}
-        <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
-          {/* <TouchableOpacity
-            activeOpacity={0.9}
-            onPress={toggleOnlineStatus}
-            onPressIn={pressIn}
-            onPressOut={pressOut}
-            disabled={loading}
-            style={[
-              styles.button,
-              {
-                backgroundColor: isOnline ? '#22c55e' : '#374151',
-                opacity: loading ? 0.85 : 1,
-              },
-            ]}
-          >
-            <Text style={styles.buttonText}>
-              
-              {isOnline ? 'GO \n OFFLINE' : 'GO \n ONLINE'}
-            </Text>
-          </TouchableOpacity> */}
-          <View style={[
-            styles.button,
-            {
-              backgroundColor: isOnline ? '#22c55e' : color.baground,
-
-
-              opacity: loading ? 0.85 : 1,
-            },
-          ]}>
-            <Switch
-              value={isOnline}
-              onValueChange={toggleOnlineStatus}
-              trackColor={{ false: '#9ca3af', true: 'white' }}
-              thumbColor={isOnline ? '#22c55e' : 'white'}
-              disabled={loading}
+        <Animated.View
+          style={[
+            styles.knobContainer,
+            { transform: [{ translateX: pan }] },
+          ]}
+          {...panResponder.panHandlers}
+        >
+          {isOnline && (
+            <Animated.View
+              style={[
+                styles.pulse,
+                {
+                  transform: [{ scale: pulseScale }],
+                  opacity: pulseOpacity,
+                },
+              ]}
             />
-            <Text style={[styles.buttonText, {
-              color: 'white'
-            }]}>
-
-              {isOnline ? 'GO \n OFFLINE' : 'GO \n ONLINE'}
-            </Text>
+          )}
+          <View style={styles.knob}>
+            {loading ? (
+              <ActivityIndicator size="small" color={isOnline ? '#22C55E' : '#374151'} />
+            ) : (
+              <MaterialCommunityIcons
+                name={isOnline ? 'power' : 'chevron-right'}
+                size={32}
+                color={isOnline ? '#22C55E' : '#374151'}
+              />
+            )}
           </View>
         </Animated.View>
-
-      </View>
-
-
+      </Animated.View>
     </View>
   );
 };
 
-export default FloatingOnlineButton;
+export default OnlineSlideRight;
 
 const styles = StyleSheet.create({
-  container: {
+  outerContainer: {
     position: 'absolute',
-    left: 0,
-    right: 15,
-    alignItems: 'flex-end',
+    bottom: 20,
+    width: '100%',
+    alignItems: 'center',
     zIndex: 1000,
   },
-  buttonWrapper: {
+  sliderTrack: {
+    width: SLIDER_WIDTH,
+    height: 64,
+    borderRadius: 32,
     justifyContent: 'center',
-    alignItems: 'center',
-    height: 100, // Extra space for the pulse
-    width: 100,
+    paddingHorizontal: 5,
+    overflow: 'hidden',
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.2,
+        shadowRadius: 5,
+      },
+      android: {
+        elevation: 0,
+      },
+    }),
   },
-  pulseCircle: {
+  trackText: {
     position: 'absolute',
-    height: 80,
-    width: 80,
-    borderRadius: 40,
-    borderWidth: 2,
-    borderColor: '#22c55e',
-
-
+    width: '100%',
+    textAlign: 'center',
+    color: '#FFF',
+    fontSize: 16,
+    fontWeight: '700',
+    fontFamily: font.MonolithRegular,
+    letterSpacing: 1,
+    opacity: 0.8,
   },
-  button: {
-    height: 100,
-    width: 100,
-    borderRadius: 100,
+  knobContainer: {
+    width: KNOB_SIZE,
+    height: KNOB_SIZE,
     justifyContent: 'center',
     alignItems: 'center',
-    // elevation: 5,
-    bottom: 10
-    // shadowColor: '#000',
-    // shadowOffset: { width: 0, height: 2 },
-    // shadowOpacity: 0.25,
-    // shadowRadius: 3.84,
   },
-  buttonText: {
-    color: '#fff',
-    fontSize: 15,
-    textAlign: 'center',
-    fontFamily: font.MonolithRegular,
-    marginTop: 8,
-
+  knob: {
+    width: KNOB_SIZE,
+    height: KNOB_SIZE,
+    borderRadius: KNOB_SIZE / 2,
+    backgroundColor: '#FFF',
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 2,
   },
-  statusText: {
-    marginTop: 10,
-    fontSize: 14,
-    color: '#000', // Changed to black for visibility on white bg, change back if needed
-    fontFamily: font.MonolithRegular,
+  pulse: {
+    position: 'absolute',
+    width: KNOB_SIZE + 20,
+    height: KNOB_SIZE + 20,
+    borderRadius: (KNOB_SIZE + 20) / 2,
+    backgroundColor: '#FFF',
   },
 });
