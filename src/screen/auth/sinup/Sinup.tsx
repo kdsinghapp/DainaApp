@@ -2,7 +2,7 @@ import React from 'react';
 import { View, StyleSheet, SafeAreaView } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useNavigation } from '@react-navigation/native';
- 
+
 import { color } from '../../../constant';
 import StatusBarComponent from '../../../compoent/StatusBarCompoent';
 import CustomButton from '../../../compoent/CustomButton';
@@ -19,7 +19,7 @@ const Sinup: React.FC = () => {
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <StatusBarComponent backgroundColor={color.baground} />
+      <StatusBarComponent backgroundColor={color.white} />
       <View style={styles.container}>
         <View style={styles.flexGrow} />
         <View style={styles.buttonContainer}>
@@ -28,12 +28,12 @@ const Sinup: React.FC = () => {
             onPress={() => navigation.navigate(ScreenNameEnum.OnboardingScreen as any)}
           />
           <View style={styles.spacing} />
-          <CustomButton 
+          <CustomButton
             style={{
               borderWidth: 1,
               backgroundColor: "white",
               borderColor: "#4CBCA6",
-            }} 
+            }}
             textStyle={{
               color: color.primary,
             }}
@@ -63,12 +63,12 @@ const styles = StyleSheet.create({
   buttonContainer: {
     width: '100%',
     marginBottom: 30,
-    justifyContent:"center" ,
-    alignItems:"center"
+    justifyContent: "center",
+    alignItems: "center"
   },
   spacing: {
-    height: 10, 
-   },
+    height: 10,
+  },
 });
 
 export default Sinup;

@@ -410,9 +410,9 @@ const styles = StyleSheet.create({
   },
   input: {
     flex: 1,
-    fontSize: 15,
-    color: "black",
+    fontSize: 16,
     fontFamily: font.MonolithRegular,
+    color: "#0F172A",
     paddingVertical: 0,
   },
   list: {

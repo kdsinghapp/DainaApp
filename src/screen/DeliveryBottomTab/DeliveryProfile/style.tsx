@@ -79,7 +79,7 @@ export const styles = StyleSheet.create({
     fontSize: 13,
     color: SUBTLE,
     marginTop: 2,
-    fontFamily: font.TrialMedium,
+    fontFamily: font.MonolithRegular,
   },
   phoneNumber: {
     fontSize: 12,

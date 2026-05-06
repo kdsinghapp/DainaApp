@@ -119,6 +119,13 @@ prepare_react_native_project!
 $RNFirebaseAsStaticFramework = true
 
 target 'ChewbeApp' do
+  setup_permissions([
+    'Camera',
+    'PhotoLibrary',
+    'LocationAlways',
+    'LocationWhenInUse',
+    'Notifications'
+  ])
   config = use_native_modules!
 
   # ✅ Frameworks declare karo

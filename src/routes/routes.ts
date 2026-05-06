@@ -3,7 +3,6 @@ import OnboardingScreen from "../screen/auth/Onboarding/Onboarding";
 import ScreenNameEnum from "./screenName.enum";
 import TabNavigator from "../navigators/TabNavigation";
 import NotificationsScreen from "../screen/Notification/Notification";
-// import Sinup from "../screen/auth/sinup/Sinup";
 import HelpScreen from "../screen/Profile/Help/Helps";
 import Splash from "../screen/auth/Splash/Splash";
 import UploadDocumentsScreen from "../screen/auth/UploadDocumentsScreen/UploadDocumentsScreen";

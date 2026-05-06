@@ -3,7 +3,6 @@ import {
   View,
   Text,
   TouchableOpacity,
-  StyleSheet,
   Image,
   Animated,
   ScrollView,
@@ -12,11 +11,9 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import StatusBarComponent from '../../../compoent/StatusBarCompoent';
-import CustomButton from '../../../compoent/CustomButton';
 import ScreenNameEnum from '../../../routes/screenName.enum';
 import imageIndex from '../../../assets/imageIndex';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import font from '../../../theme/font';
 import { errorToast } from '../../../utils/customToast';
 import { styles } from './style';
 import NotificationService from '../../../services/NotificationService';

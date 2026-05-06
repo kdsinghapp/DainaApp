@@ -907,7 +907,6 @@ const styles = StyleSheet.create({
   modalTitle: {
     fontFamily: font.MonolithRegular,
     fontSize: 16,
-    fontWeight: "bold",
     color: "#333",
   },
   offerSection: {
@@ -921,7 +920,6 @@ const styles = StyleSheet.create({
   offerValue: {
     fontFamily: font.MonolithRegular,
     fontSize: 26,
-    fontWeight: "bold",
     color: "#FF9800",
     marginTop: 4,
   },
@@ -945,7 +943,6 @@ const styles = StyleSheet.create({
   },
   modalAcceptText: {
     color: "#000",
-    fontWeight: "700",
     fontSize: 14,
     fontFamily: font.MonolithRegular,
   },
@@ -959,7 +956,6 @@ const styles = StyleSheet.create({
   },
   modalCounterText: {
     color: "#FFCC00",
-    fontWeight: "700",
     fontSize: 14,
     fontFamily: font.MonolithRegular,
   },
@@ -974,7 +970,6 @@ const styles = StyleSheet.create({
   },
   headerAcceptText: {
     color: "#000",
-    fontWeight: "700",
     fontSize: 12,
     fontFamily: font.MonolithRegular,
   },
@@ -990,7 +985,6 @@ const styles = StyleSheet.create({
   },
   headerCounterText: {
     color: "#FFCC00",
-    fontWeight: "700",
     fontSize: 12,
     fontFamily: font.MonolithRegular,
   },
@@ -1006,7 +1000,6 @@ const styles = StyleSheet.create({
     fontSize: 11,
     color: "#7a5f00",
     fontFamily: font.MonolithRegular,
-    fontWeight: "600",
   },
   offerBanner: {
     backgroundColor: "#FFFBE6",

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import {
   View,
   Image,
@@ -26,6 +26,7 @@ import LoadingModal from "../../../utils/Loader";
 import { errorToast } from "../../../utils/customToast";
 import ScreenNameEnum from "../../../routes/screenName.enum";
 import strings from "../../../localization/Localization";
+import CurrentLocation from "../../../CurrentLocation";
 
 const ProfileSetup = () => {
   const navigation = useNavigation<any>();
@@ -40,6 +41,7 @@ const ProfileSetup = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const dispatch = useDispatch();
+  const locationRef = useRef<any>(null);
 
   useEffect(() => {
     getProfileApi();
@@ -144,11 +146,26 @@ const ProfileSetup = () => {
     }
   };
 
+  const handleGetCurrentLocation = async () => {
+    try {
+      setIsLoading(true);
+      const data = await locationRef.current?.fetchLocation();
+      if (data && data.address) {
+        setAddress(data.address);
+      }
+    } catch (error) {
+      console.error("Error fetching location:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <StatusBarComponent />
       <CustomHeader label={strings.Profile} />
       <LoadingModal visible={isLoading} />
+      <CurrentLocation ref={locationRef} />
 
       <KeyboardAvoidingView
         style={{ flex: 1 }}
@@ -191,6 +208,11 @@ const ProfileSetup = () => {
                 value={address}
                 onChangeText={setAddress}
                 leftIcon={<Image source={imageIndex.location1} style={styles.icon} />}
+                rightIcon={
+                  <TouchableOpacity onPress={handleGetCurrentLocation}>
+                    <Image source={imageIndex.locationpin} style={styles.icon} />
+                  </TouchableOpacity>
+                }
               />
             </View>
           </View>
