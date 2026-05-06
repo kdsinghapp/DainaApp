@@ -259,7 +259,7 @@ const styles = StyleSheet.create({
   profileCard: {
     backgroundColor: "#FFF",
     marginHorizontal: 24,
-    borderRadius: 32,
+    borderRadius: 18,
     justifyContent: "center",
     alignItems: "center",
     padding: 12,
@@ -415,7 +415,7 @@ const styles = StyleSheet.create({
   },
   card: {
     backgroundColor: "#FFF",
-    borderRadius: 24,
+    borderRadius: 18,
     overflow: "hidden",
     borderWidth: 1,
     borderColor: "#d6e1f9ff",
@@ -468,7 +468,7 @@ const styles = StyleSheet.create({
   },
   logoutBtn: {
     height: 60,
-    borderRadius: 22,
+    borderRadius: 18,
     backgroundColor: "#FFF",
     justifyContent: "center",
     alignItems: "center",

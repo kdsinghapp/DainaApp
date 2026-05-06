@@ -27,7 +27,11 @@ const useDashboard = () => {
   const initialFetchDone = useRef(false);
 
   useEffect(() => {
-    handleGetLocation();
+    // Add a small delay to ensure refs are attached and system is ready
+    const timer = setTimeout(() => {
+      handleGetLocation();
+    }, 1000);
+    return () => clearTimeout(timer);
   }, []);
 
   useEffect(() => {
@@ -66,25 +70,37 @@ const useDashboard = () => {
   // Inside your component
   const [pickupLocation, setPickupLocation] = useState(null);
   const [currentLocation, setCurrentLocation] = useState('');
-  const handleGetLocation = async () => {
+  const handleGetLocation = async (retryCount = 0) => {
     try {
+      if (!locationRef?.current) {
+        if (retryCount < 3) {
+          console.log(`Location ref not ready, retrying... (${retryCount + 1})`);
+          setTimeout(() => handleGetLocation(retryCount + 1), 1000);
+        }
+        return;
+      }
+
       const data = await locationRef?.current?.fetchLocation();
-      if (data.error) {
-        // Alert.alert('Error', data.error);
-      } else {
+      if (data?.error) {
+        console.log('Location fetch error:', data.error);
+        if (retryCount < 2) {
+          console.log(`Retrying location fetch... (${retryCount + 1})`);
+          setTimeout(() => handleGetLocation(retryCount + 1), 2000);
+        } else {
+          // Final fallback if all else fails
+          setcurrentlocation("Location unavailable");
+        }
+      } else if (data && data.address) {
         // Store in AsyncStorage
         await AsyncStorage.setItem('pickupLocation', JSON.stringify(data));
-        setcurrentlocation(data?.address)
+        setcurrentlocation(data.address);
         // Update state
         setCurrentLocation(data.address);
         setPickupLocation(data);
-        // setPickupLat({
-        //   latitude: data.region.latitude,
-        //   longitude: data.region.longitude,
-        // });
 
         console.log('Stored and set location:', data);
       }
+
     } catch (error) {
       console.error('Error getting location:', error);
     }

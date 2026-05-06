@@ -298,6 +298,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#F8FAFC",
+
   },
   headerRow: {
     flexDirection: 'row',
@@ -357,7 +358,6 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.03,
     shadowRadius: 12,
-    elevation: 2,
   },
   unreadRow: {
     borderColor: "#FFCC0030",

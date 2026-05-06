@@ -186,7 +186,7 @@ const ChatScreen = () => {
 
       const result = await response.json();
       if (response.ok && (result.status == 1 || result.success === true)) {
-        successToast(strings.CounterOfferSentSuccess);
+        // successToast(strings.CounterOfferSentSuccess);
         setCounterModalVisible(false);
         navigation.goBack();
       } else {
@@ -384,7 +384,7 @@ const ChatScreen = () => {
   // ── Handle Phone Call ─────────────────────────────────────────────────────
   const handleCall = (phone: string | number | undefined) => {
     if (!phone) {
-      Alert.alert(strings.Error, strings.PhoneUnavailable);
+      Alert.alert(strings.Error, strings.PhoneNumber);
       return;
     }
     const phoneNumber =
@@ -392,7 +392,7 @@ const ChatScreen = () => {
     Linking.canOpenURL(phoneNumber)
       .then((supported) => {
         if (!supported) {
-          Alert.alert(strings.Error, strings.PhoneNotSupported);
+          Alert.alert(strings.Error, strings.PhoneNumber);
         } else {
           return Linking.openURL(phoneNumber);
         }
@@ -485,7 +485,7 @@ const ChatScreen = () => {
               </Text>
             </View>
           )}
-          <View style={styles.onlineBadge} />
+          {/* <View style={styles.onlineBadge} /> */}
         </View>
 
         <View style={styles.headerInfo}>
@@ -625,8 +625,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 12,
     backgroundColor: "#FFFFFF",
-    borderBottomWidth: 1,
-    borderBottomColor: "#F2F2F2",
+
 
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 1 },
@@ -640,6 +639,7 @@ const styles = StyleSheet.create({
     height: 42,
     width: 42,
     resizeMode: "contain",
+
   },
   avatarContainer: {
     position: "relative",

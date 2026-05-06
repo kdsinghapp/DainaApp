@@ -51,17 +51,28 @@ export const useDeliveryHome = () => {
 
       // If no stored coords yet, get current position once
       if (lat == null || lon == null) {
-        const position = await new Promise<{ coords: { latitude: number; longitude: number } }>((resolve, reject) => {
-          Geolocation.getCurrentPosition(resolve, reject, {
-            enableHighAccuracy: false,
-            timeout: 15000,
-            maximumAge: 10000,
+        try {
+          const position = await new Promise<{ coords: { latitude: number; longitude: number } }>((resolve, reject) => {
+            Geolocation.getCurrentPosition(resolve, (err) => {
+               // Fallback to low accuracy immediately if high accuracy fails
+               Geolocation.getCurrentPosition(resolve, reject, {
+                 enableHighAccuracy: false,
+                 timeout: 10000,
+                 maximumAge: 10000
+               });
+            }, {
+              enableHighAccuracy: true,
+              timeout: 10000,
+              maximumAge: 10000,
+            });
           });
-        });
-        lat = position?.coords?.latitude;
-        lon = position?.coords?.longitude;
-        if (lat != null && lon != null) {
-          setCoords({ lat, lon });
+          lat = position?.coords?.latitude;
+          lon = position?.coords?.longitude;
+          if (lat != null && lon != null) {
+            setCoords({ lat, lon });
+          }
+        } catch (err) {
+          console.warn("Failed to get initial position in fetchAvailableRequests", err);
         }
       }
 
@@ -149,24 +160,31 @@ export const useDeliveryHome = () => {
       console.warn('Location error:', error);
     };
 
+    const startWatching = () => {
+      watchId = Geolocation.watchPosition(onPosition, onError, {
+        enableHighAccuracy: true,
+        distanceFilter: 20,
+      });
+    };
+
     Geolocation.getCurrentPosition(
       (pos) => {
         const lat = pos?.coords?.latitude;
         const lon = pos?.coords?.longitude;
         if (lat != null && lon != null) {
           setCoords({ lat, lon });
-          // fetchAvailableRequests();
           sendLiveLocation(lat, lon);
-          nearbyparcels(lat, lon)
+          nearbyparcels(lat, lon);
         }
-        watchId = Geolocation.watchPosition(onPosition, onError, {
-          enableHighAccuracy: true,
-          distanceFilter: 20,
-        });
+        startWatching();
       },
-      onError,
-      { enableHighAccuracy: false, timeout: 15000, maximumAge: 10000 }
+      (err) => {
+        console.warn('Initial location fetch failed, starting watch anyway:', err);
+        startWatching();
+      },
+      { enableHighAccuracy: false, timeout: 10000, maximumAge: 10000 }
     );
+
 
     return () => {
       if (watchId != null) {

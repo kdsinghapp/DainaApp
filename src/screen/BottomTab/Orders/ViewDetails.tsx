@@ -372,7 +372,6 @@ export default function ViewDetails() {
                   setShowRatingModal(true)
                 }}
                 style={{
-                  backgroundColor: color.baground,
                   padding: 5,
                   borderRadius: 20,
                   paddingVertical: 7
@@ -402,7 +401,6 @@ export default function ViewDetails() {
                 }}
                 activeOpacity={0.5}
                 style={{
-                  backgroundColor: color.baground,
                   padding: 5,
                   borderRadius: 20,
                   paddingVertical: 7
@@ -419,7 +417,7 @@ export default function ViewDetails() {
 
 
           </View>
-          {statusNorm === STATUS.PENDING && (
+          {/* {statusNorm === STATUS.PENDING && (
             <TouchableOpacity
               onPress={handleCancelOrder}
               activeOpacity={0.8}
@@ -442,10 +440,10 @@ export default function ViewDetails() {
                 fontSize: 15,
 
               }}>
-                {strings.CancelOrder || "Cancel Order"}
+                {strings?.CancelOrder || "Cancel Order"}
               </Text>
             </TouchableOpacity>
-          )}
+          )} */}
         </TouchableOpacity>
         <View style={{
           justifyContent: "space-between",

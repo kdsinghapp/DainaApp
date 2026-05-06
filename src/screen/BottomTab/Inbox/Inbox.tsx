@@ -310,8 +310,8 @@ export default function ChatInboxScreen() {
         showsVerticalScrollIndicator={false}>
         {/* Search */}
         <View style={styles.searchBox}>
-          <Icon name="search" size={18} color="#64748B"
-            style={{ marginLeft: 10 }}
+          <Icon name="search" size={20} color="#64748B"
+            style={{ marginLeft: 5 }}
           />
 
           <TextInput
@@ -342,6 +342,7 @@ export default function ChatInboxScreen() {
           <FlatList
             data={filteredChats}                          // ✅ filtered list
             style={styles.list}
+            showsVerticalScrollIndicator={false}
 
             keyExtractor={(item) => String(item.parcelId)} // ✅ correct key
             renderItem={renderItem}
@@ -350,7 +351,6 @@ export default function ChatInboxScreen() {
               { paddingBottom: 24, marginBottom: 120 },
               filteredChats.length === 0 && styles.emptyContainer,
             ]}
-            showsVerticalScrollIndicator={false}
             ListEmptyComponent={<EmptyState />}
             refreshControl={
               <RefreshControl
@@ -421,6 +421,22 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     paddingVertical: 12,
+    borderWidth: 2,
+
+    // iOS shadow
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    borderRadius: 20,
+    marginVertical: 10,
+    borderColor: "#F5F5F5",
+    backgroundColor: "white",
+    paddingHorizontal: 11,
+
   },
   avatarWrap: {
     width: AVATAR_SIZE,
