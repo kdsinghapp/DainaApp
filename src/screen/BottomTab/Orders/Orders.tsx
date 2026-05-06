@@ -269,19 +269,9 @@ const StatusPill = ({ status }: { status: OrderStatus }) => {
       ? strings.StatusCancelled
       : STATUS_LABELS[s as keyof typeof STATUS_LABELS] ?? status ?? strings.StatusPending;
 
-  const pillStyle =
-    s === STATUS.DELIVERED || s === STATUS.COMPLETED
-      ? styles.pillDone
-      : s === STATUS.CANCELLED
-        ? styles.pillCancelled
-        : styles.pillProgress;
 
-  const textColor =
-    s === STATUS.DELIVERED || s === STATUS.COMPLETED
-      ? "#FFFFFF"
-      : s === STATUS.CANCELLED
-        ? "#FFFFFF"
-        : "#000000";
+
+
   const statusKey = s;
   const statusLabel = STATUS_LABELS[statusKey] || 'Unknown';
   const statusColor = STATUS_COLORS[statusKey] || 'black';

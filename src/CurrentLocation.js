@@ -168,7 +168,6 @@ const CurrentLocation = forwardRef(({ onLocationFetched }, ref) => {
       {isFetching && (
         <View style={styles.loaderOverlay}>
           <ActivityIndicator size="large" color="#FFCC00" />
-          <Text style={styles.loaderText}>Fetching location...</Text>
         </View>
       )}
     </>

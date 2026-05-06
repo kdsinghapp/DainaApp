@@ -10,7 +10,6 @@ import Toast from 'react-native-toast-message';
 import toastConfig from '../utils/customToast';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import strings from '../localization/Localization';
-
 import 'react-native-reanimated';
 const AppNavigator: React.FC = () => {
   const [isConnected, setIsConnected] = useState<boolean>(true);

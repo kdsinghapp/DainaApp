@@ -4,15 +4,15 @@ import {
     Text,
     TextInput,
     FlatList,
-    
+
     Animated,
     TouchableWithoutFeedback,
     Keyboard
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import CustomHeader from '../../../compoent/CustomHeader';
- import { styles } from './style';
- import useHelp from './useHelp';
+import { styles } from './style';
+import useHelp from './useHelp';
 import { color } from '../../../constant';
 import SvgIndex from '../../../assets/svgIndex';
 import CustomLoader from '../../../compoent/CustomLoader';
@@ -42,13 +42,13 @@ const HelpScreen = () => {
 
     return (
         <SafeAreaView style={styles.safeContainer}>
- 
+
             <CustomHeader
-                 navigation={navigation}
+                navigation={navigation}
                 menuType="svg"
                 MenuIcon={svgIndex.BackSvg}
                 label={'Helps'}
-           
+
             />
 
             <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
@@ -68,11 +68,11 @@ const HelpScreen = () => {
                             style={{ height: 20, width: 20, marginRight: 10 }}
                             tintColor={'grey'}
                         /> */}
-                        <SvgIndex.Search 
-                         style={{   marginRight: 10 }}
+                        <SvgIndex.Search
+                            style={{ marginRight: 10 }}
                         />
-                        <TextInput 
-                         allowFontScaling={false}
+                        <TextInput
+                            allowFontScaling={false}
                             placeholder="Tap here to search"
                             value={search}
                             placeholderTextColor={"#696969"}
@@ -83,15 +83,15 @@ const HelpScreen = () => {
                         />
                     </Animated.View>
                     {Loading ? (
-        <CustomLoader message="Fetching questions..." />
-      ) : (
-        <>
-          <Text allowFontScaling={false} style={styles.headerText}>
-            Frequently asked questions
-          </Text>
-         </>
-      )} 
-  
+                        <CustomLoader message="" />
+                    ) : (
+                        <>
+                            <Text allowFontScaling={false} style={styles.headerText}>
+                                Frequently asked questions
+                            </Text>
+                        </>
+                    )}
+
                 </View>
             </TouchableWithoutFeedback>
         </SafeAreaView>

@@ -143,9 +143,9 @@ const DeliveryHome = () => {
   };
 
   const renderItem = ({ item }: { item: Order }) => {
-    const st = item.parcel?.deliveryStatus;
-    const statusKey = item.parcel?.deliveryStatus;
-    const statusLabel = STATUS_LABELS[statusKey] || strings.Unknown;
+    const st = item?.parcel?.deliveryStatus;
+    const statusKey = item?.parcel?.deliveryStatus;
+    const statusLabel = STATUS_LABELS[statusKey] || strings?.Unknown;
     const statusColor = STATUS_COLORS[statusKey] || 'black';
     return (
       <TouchableOpacity

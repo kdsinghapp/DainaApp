@@ -109,7 +109,7 @@ export const styles = StyleSheet.create({
 
   },
   tabTextActive: {
-    color: "white",
+    color: "black",
     fontFamily: font.MonolithRegular
     ,
     fontSize: 15,

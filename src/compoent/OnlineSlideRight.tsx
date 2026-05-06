@@ -218,7 +218,7 @@ const OnlineSlideRight: React.FC<Props> = ({ isOnline, setIsOnline, coords, onSl
   return (
     <View style={styles.outerContainer}>
       <Animated.View style={[styles.sliderTrack, { backgroundColor: bgInterpolation }]}>
-        <Text style={styles.trackText}>
+        <Text allowFontScaling={false} style={styles.trackText}>
           {isOnline ? strings.SlideToGoOffline : strings.SlideToGoOnline}
         </Text>
 
@@ -292,7 +292,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     width: '100%',
     textAlign: 'center',
-    color: '#FFF',
+    color: 'black',
     fontSize: 16,
     fontFamily: font.MonolithRegular,
     letterSpacing: 0.5,
