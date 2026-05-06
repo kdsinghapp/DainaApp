@@ -57,7 +57,6 @@ type ChatItem = {
   lastMessage: LastMessage;
   parcelOwner: ParcelOwner;
   parcel: Parcel;
-  // driver may exist on some items
   driver?: {
     id: number;
     name: string;
@@ -96,10 +95,8 @@ const EmptyState = () => (
   </View>
 );
 
-// ─── Fallback avatar ──────────────────────────────────────────────────────────
-
 const FallbackAvatar = ({ name }: { name: string }) => (
-  <View style={[styles.avatar, styles.fallbackAvatar]}>
+  <View style={styles.fallbackAvatar}>
     <Text style={styles.fallbackText}>
       {name ? name.charAt(0).toUpperCase() : "?"}
     </Text>
@@ -141,7 +138,6 @@ export default function InboxDeliver() {
       if (!response.ok) throw new Error(`Server error: ${response.status}`);
 
       const json = await response.json();
-      // API shape: { status, message, count, chats: [...] }
       setChats(Array.isArray(json?.chats) ? json.chats : []);
     } catch (err: any) {
       console.error("fetchChats error:", err);
@@ -151,14 +147,15 @@ export default function InboxDeliver() {
       setRefreshing(false);
     }
   }, []);
+
   useFocusEffect(
     useCallback(() => {
       fetchChats();
     }, [fetchChats])
   );
+
   useEffect(() => { fetchChats(); }, [fetchChats]);
 
-  // ── Filtered list ───────────────────────────────────────────────────────────
   const filtered = query.trim()
     ? chats.filter((c) =>
       c.parcelOwner?.name?.toLowerCase().includes(query.toLowerCase()) ||
@@ -166,12 +163,7 @@ export default function InboxDeliver() {
     )
     : chats;
 
-  // ── Render row ──────────────────────────────────────────────────────────────
   const renderItem = ({ item }: { item: ChatItem }) => {
-    // For "delivery" side: show parcelOwner info; otherwise show driver (if exists)
-    const isDeliverySender = item?.lastMessage?.senderRole === "delivery";
-
-    // Avatar: always show parcelOwner image (delivery-side inbox = parcelOwner is the customer)
     const avatarUri = item?.parcelOwner?.image;
     const displayName = item?.parcelOwner?.name ?? "User";
     const lastMsgText = item?.lastMessage?.text ?? strings.NoMessagesYet;
@@ -180,8 +172,8 @@ export default function InboxDeliver() {
 
     return (
       <TouchableOpacity
-        style={styles.row}
-        activeOpacity={0.7}
+        style={[styles.row, hasUnread && styles.unreadRow]}
+        activeOpacity={0.8}
         onPress={() =>
           navigation.navigate(ScreenNameEnum.ChatScreen, {
             item,
@@ -189,331 +181,365 @@ export default function InboxDeliver() {
           })
         }
       >
-        {/* Avatar */}
-        <View style={styles.avatarWrap}>
-          {avatarUri ? (
-            <Image
-              source={{ uri: avatarUri }}
-              style={styles.avatar}
-            />
-          ) : (
-            <FallbackAvatar name={displayName} />
-          )}
-        </View>
-
-        {/* Text content */}
-        <View style={styles.textCol}>
-          {/* Name + time */}
-          <View style={styles.nameTimeRow}>
-            <Text style={styles.name} numberOfLines={1}>
-              {displayName}
-            </Text>
-            <Text style={styles.time}>{lastMsgTime}</Text>
-          </View>
-
-          {/* Tracking ID */}
-          <Text style={styles.trackingId} numberOfLines={1}>
-            {item.trackingId}
-          </Text>
-
-          {/* Last message + badge */}
-          <View style={styles.messageRow}>
-            <Text
-              style={[styles.lastMessage, hasUnread && styles.unreadMessage]}
-              numberOfLines={1}
-            >
-              {lastMsgText}
-            </Text>
-
-            {hasUnread && (
-              <View style={styles.badge}>
-                <Text style={styles.badgeText}>{item.unreadCount}</Text>
-              </View>
+        <View style={styles.rowContent}>
+          <View style={styles.avatarWrap}>
+            {avatarUri ? (
+              <Image source={{ uri: avatarUri }} style={styles.avatar} />
+            ) : (
+              <FallbackAvatar name={displayName} />
             )}
+            {hasUnread && <View style={styles.unreadIndicator} />}
           </View>
 
-          {/* Delivery status pill */}
-          <View style={[styles.statusPill,]}>
-            <Text style={[styles.statusText, { color: statusColor(item.deliveryStatus) }]}>
-              {item.deliveryStatus}
-            </Text>
+          <View style={styles.textCol}>
+            <View style={styles.nameTimeRow}>
+              <Text style={styles.name} numberOfLines={1}>
+                {displayName}
+              </Text>
+              <Text style={[styles.time, hasUnread && styles.unreadText]}>{lastMsgTime}</Text>
+            </View>
+
+            <View style={styles.idStatusRow}>
+              <Text style={styles.trackingId} numberOfLines={1}>
+                #{item.trackingId}
+              </Text>
+              <View style={[styles.statusPill, { backgroundColor: statusColor(item.deliveryStatus) + '15' }]}>
+                <Text style={[styles.statusText, { color: statusColor(item.deliveryStatus) }]}>
+                  {item.deliveryStatus}
+                </Text>
+              </View>
+            </View>
+
+            <View style={styles.messageRow}>
+              <Text
+                style={[styles.lastMessage, hasUnread && styles.unreadMessageText]}
+                numberOfLines={1}
+              >
+                {lastMsgText}
+              </Text>
+
+              {hasUnread && (
+                <View style={styles.badge}>
+                  <Text style={styles.badgeText}>{item.unreadCount}</Text>
+                </View>
+              )}
+              <Icon name="chevron-forward" size={16} color="#CBD5E1" />
+            </View>
           </View>
         </View>
       </TouchableOpacity>
     );
   };
-  console.log("ssss", filtered)
-  // ── UI ──────────────────────────────────────────────────────────────────────
+
   return (
     <SafeAreaView style={styles.container}>
       <StatusBarComponent />
 
-      <Text style={styles.header}>{strings.Inbox}</Text>
-      <NewOrderNotificationModal />
-      {/* Search */}
-      <View style={styles.searchBox}>
-        <Icon name="search-outline" size={20} color="#94A3B8" style={{ marginRight: 10 }} />
-        <TextInput
-          placeholder={strings.SearchInboxPlaceholder}
-          placeholderTextColor="#94A3B8"
-          value={query}
-          onChangeText={setQuery}
-          style={styles.input}
-          returnKeyType="search"
-          clearButtonMode="while-editing"
-        />
+      <View style={styles.headerRow}>
+        <Text style={styles.header}>{strings.Inbox}</Text>
+        {loading && <ActivityIndicator size="small" color="#FFCC00" />}
       </View>
 
-      {/* Error banner */}
+      <NewOrderNotificationModal />
+
+      <View style={styles.searchContainer}>
+        <View style={styles.searchBox}>
+          <Icon name="search" size={18} color="#64748B" />
+          <TextInput
+            placeholder={strings.SearchInboxPlaceholder}
+            placeholderTextColor="#94A3B8"
+            value={query}
+            onChangeText={setQuery}
+            style={styles.input}
+            returnKeyType="search"
+          />
+          {query.length > 0 && (
+            <TouchableOpacity onPress={() => setQuery("")}>
+              <Icon name="close-circle" size={18} color="#94A3B8" />
+            </TouchableOpacity>
+          )}
+        </View>
+      </View>
+
       {error && (
         <View style={styles.errorBanner}>
+          <Icon name="alert-circle" size={16} color="#dc2626" />
           <Text style={styles.errorText}>{error}</Text>
         </View>
       )}
 
-      {/* Loading spinner (first load) */}
-      {loading && !refreshing ? (
-        <View style={styles.loaderWrap}>
-          <ActivityIndicator size="large" color="#FFCC00" />
-        </View>
-      ) : (
-        <FlatList
-          data={filtered}
-          style={[
-            styles.list,
-            {
-              marginBottom: 11,
-              flex: 1, // ✅ IMPORTANT
-            },
-          ]}
-          keyExtractor={(item) => String(item.parcelId)}
-          renderItem={renderItem}
-          ItemSeparatorComponent={() => <View style={styles.separator} />}
-          contentContainerStyle={[
-            { paddingBottom: 75 },
-            filtered.length === 0 && styles.emptyContainer,
-          ]}
-          showsVerticalScrollIndicator={false}
-          ListEmptyComponent={<EmptyState />}
-          refreshControl={
-            <RefreshControl
-              refreshing={refreshing}
-              onRefresh={() => fetchChats(true)}
-              colors={["#FFCC00"]}
-              tintColor="#FFCC00"
-            />
-          }
-        />
-      )}
+      <FlatList
+        data={filtered}
+        style={styles.list}
+        keyExtractor={(item) => String(item.parcelId)}
+        renderItem={renderItem}
+        contentContainerStyle={[
+          styles.listContent,
+          filtered.length === 0 && styles.emptyContainer,
+        ]}
+        showsVerticalScrollIndicator={false}
+        ListEmptyComponent={!loading ? <EmptyState /> : null}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={() => fetchChats(true)}
+            colors={["#FFCC00"]}
+            tintColor="#FFCC00"
+          />
+        }
+      />
     </SafeAreaView>
   );
 }
 
-// ─── Styles ───────────────────────────────────────────────────────────────────
-
-const AVATAR_SIZE = 50;
+const AVATAR_SIZE = 56;
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#FFFFFF",
-    paddingHorizontal: 16,
-    paddingTop: 12,
+    backgroundColor: "#F8FAFC",
+  },
+  headerRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingTop: 10,
+    paddingBottom: 15,
   },
   header: {
     fontSize: 28,
-    marginBottom: 12,
-    color: "#0f172a",
+    fontWeight: "700",
+    color: "#0F172A",
     fontFamily: font.MonolithRegular,
+  },
+  searchContainer: {
+    paddingHorizontal: 20,
+    marginBottom: 10,
   },
   searchBox: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "white",
-    borderRadius: 18,
-    paddingHorizontal: 20,
-    marginBottom: 20,
-    marginTop: 10,
-    height: 67,
+    backgroundColor: "#FFFFFF",
+    borderRadius: 14,
+    paddingHorizontal: 15,
+    height: 50,
     borderWidth: 1,
-    borderColor: "#d6e1f9ff",
-    ...Platform.select({
-      ios: {
-        shadowColor: "#0F172A",
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.04,
-        shadowRadius: 8,
-      },
-      android: {
-        elevation: 0,
-      },
-    }),
+    borderColor: "#E2E8F0",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
+    elevation: 2,
   },
   input: {
     flex: 1,
     fontSize: 15,
-    color: "black",
+    color: "#1E293B",
     fontFamily: font.MonolithRegular,
+    marginLeft: 10,
     paddingVertical: 0,
   },
-  list: { marginTop: 8 },
-  separator: {
-    height: 1,
-    backgroundColor: "#eef2f7",
-    marginLeft: AVATAR_SIZE + 16,
+  list: {
+    flex: 1,
+  },
+  listContent: {
+    paddingHorizontal: 20,
+    paddingBottom: 40,
+    paddingTop: 10,
   },
   row: {
+    backgroundColor: "#FFFFFF",
+    borderRadius: 16,
+    marginBottom: 12,
+    padding: 12,
+    borderWidth: 1,
+    borderColor: "#F1F5F9",
+    shadowColor: "#0F172A",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.03,
+    shadowRadius: 12,
+    elevation: 2,
+  },
+  unreadRow: {
+    borderColor: "#FFCC0030",
+    backgroundColor: "#FFCC0008",
+  },
+  rowContent: {
     flexDirection: "row",
-    alignItems: "flex-start",
-    paddingVertical: 14,
+    alignItems: "center",
   },
   avatarWrap: {
-    width: AVATAR_SIZE,
-    height: AVATAR_SIZE,
-    marginRight: 14,
+    position: 'relative',
   },
   avatar: {
     width: AVATAR_SIZE,
     height: AVATAR_SIZE,
-    borderRadius: AVATAR_SIZE / 2,
-    backgroundColor: "#f0f0f0",
+    borderRadius: AVATAR_SIZE / 2.2,
+    backgroundColor: "#F1F5F9",
+  },
+  unreadIndicator: {
+    position: 'absolute',
+    top: -2,
+    right: -2,
+    width: 14,
+    height: 14,
+    borderRadius: 7,
+    backgroundColor: "#FFCC00",
+    borderWidth: 2,
+    borderColor: "#FFFFFF",
   },
   fallbackAvatar: {
-    backgroundColor: "#FFCC00",
+    backgroundColor: "#FFCC0020",
     justifyContent: "center",
     alignItems: "center",
+    width: AVATAR_SIZE,
+    height: AVATAR_SIZE,
+    borderRadius: AVATAR_SIZE / 2.2,
   },
   fallbackText: {
-    fontSize: 20,
-    fontFamily: font.MonolithRegular,
-    color: "#0f172a",
+    fontSize: 22,
+    fontWeight: "700",
+    color: "#FFCC00",
   },
-  textCol: { flex: 1 },
+  textCol: {
+    flex: 1,
+    marginLeft: 14,
+  },
   nameTimeRow: {
     flexDirection: "row",
+    justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 2,
+    marginBottom: 4,
   },
   name: {
-    flex: 1,
-    fontSize: 16,
+    fontSize: 17,
+    fontWeight: "600",
+    color: "#0F172A",
     fontFamily: font.MonolithRegular,
-    color: "#0f172a",
+    flex: 1,
   },
   time: {
     fontSize: 12,
-    color: "#64748b",
-    marginLeft: 8,
+    color: "#94A3B8",
     fontFamily: font.MonolithRegular,
   },
+  unreadText: {
+    color: "#FFCC00",
+    fontWeight: "700",
+  },
+  idStatusRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 6,
+  },
   trackingId: {
-    fontSize: 11,
-    color: "#94a3b8",
+    fontSize: 12,
+    color: "#64748B",
     fontFamily: font.MonolithRegular,
-    marginBottom: 4,
+    backgroundColor: '#F1F5F9',
+    paddingHorizontal: 6,
+    paddingVertical: 1,
+    borderRadius: 4,
+  },
+  statusPill: {
+    borderRadius: 6,
+    paddingHorizontal: 8,
+    paddingVertical: 1,
+  },
+  statusText: {
+    fontSize: 10,
+    fontWeight: "700",
+    fontFamily: font.MonolithRegular,
+    textTransform: "uppercase",
   },
   messageRow: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 8,
-    marginBottom: 6,
+    justifyContent: 'space-between',
   },
   lastMessage: {
     flex: 1,
-    fontSize: 13,
-    color: "#64748b",
+    fontSize: 14,
+    color: "#64748B",
     fontFamily: font.MonolithRegular,
+    marginRight: 10,
   },
-  unreadMessage: {
-    color: "#0f172a",
-    fontFamily: font.MonolithRegular,
-
+  unreadMessageText: {
+    color: "#1E293B",
+    fontWeight: "600",
   },
   badge: {
     backgroundColor: "#FFCC00",
     borderRadius: 10,
-    paddingHorizontal: 6,
-    paddingVertical: 2,
+    height: 20,
     minWidth: 20,
+    paddingHorizontal: 5,
+    justifyContent: "center",
     alignItems: "center",
+    marginRight: 6,
   },
   badgeText: {
-    color: "#0f172a",
+    color: "#0F172A",
     fontSize: 11,
-    fontFamily: font.MonolithRegular,
-
+    fontWeight: "700",
   },
-  statusPill: {
-    alignSelf: "flex-start",
-    borderRadius: 20,
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-  },
-  statusText: {
-    fontSize: 11,
-    fontFamily: font.MonolithRegular,
-    textTransform: "capitalize",
-  },
-  loaderWrap: {
+  emptyContainer: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
   },
-  emptyContainer: { flex: 1 },
   emptyWrap: {
-    flex: 1,
     alignItems: "center",
     justifyContent: "center",
-    paddingTop: hp(15),
     paddingHorizontal: 40,
+    marginTop: -40,
   },
   illustrationWrap: {
-    width: 160,
-    height: 160,
+    width: 120,
+    height: 120,
     justifyContent: "center",
     alignItems: "center",
-    marginBottom: 24,
-    position: 'relative',
+    marginBottom: 20,
   },
   illustrationBg: {
     position: 'absolute',
-    width: 140,
-    height: 140,
-    borderRadius: 70,
-    backgroundColor: "#FFCC00",
-    opacity: 0.1,
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    backgroundColor: "#FFCC0010",
   },
   emptyLogo: {
-    height: 100,
-    width: 100,
-    resizeMode: 'contain',
+    height: 80,
+    width: 80,
   },
   emptyTitle: {
     fontSize: 22,
+    fontWeight: "700",
     color: "#0F172A",
-    fontFamily: font.MonolithRegular,
-    marginBottom: 10,
-    textAlign: 'center',
+    marginBottom: 8,
   },
   emptySubtitle: {
     fontSize: 15,
     color: "#64748B",
-    fontFamily: font.MonolithRegular,
-    textAlign: 'center',
+    textAlign: "center",
     lineHeight: 22,
   },
   errorBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
     backgroundColor: "#fef2f2",
-    borderRadius: 8,
-    padding: 10,
-    marginBottom: 8,
+    borderRadius: 12,
+    padding: 12,
+    marginHorizontal: 20,
+    marginBottom: 15,
     borderWidth: 1,
     borderColor: "#fecaca",
+    gap: 8,
   },
   errorText: {
     color: "#dc2626",
     fontSize: 13,
-    fontFamily: font.MonolithRegular,
-    textAlign: "center",
+    flex: 1,
   },
 });

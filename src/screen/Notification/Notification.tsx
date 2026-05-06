@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, SectionList, ActivityIndicator, FlatList } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import CustomHeader from '../../compoent/CustomHeader';
-import imageIndex from '../../assets/imageIndex';
 import { useNavigation } from '@react-navigation/native';
 import strings from '../../localization/Localization';
 import { GetNotifications } from '../../Api/apiRequest';
