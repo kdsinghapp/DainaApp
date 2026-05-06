@@ -141,7 +141,7 @@ const styles = StyleSheet.create({
   cancelText: {
     fontSize: 14,
     color: 'black',
-    fontWeight: '600',
+    fontFamily: font.MonolithRegular
   },
 });
 

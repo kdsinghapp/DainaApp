@@ -440,7 +440,7 @@ export default function ViewDetails() {
                 color: "#FF4D4F",
                 fontFamily: font.MonolithRegular,
                 fontSize: 15,
-                fontWeight: "600"
+
               }}>
                 {strings.CancelOrder || "Cancel Order"}
               </Text>
@@ -587,8 +587,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingHorizontal: 12,
   },
-  backArrow: { fontSize: 26, fontWeight: "700", color: "#6b6b6b", width: 24 },
-  headerTitle: { flex: 1, textAlign: "center", fontWeight: "700", fontSize: 16, color: "#4d4d4d" },
+  backArrow: { fontSize: 26, fontFamily: font.MonolithRegular, color: "#6b6b6b", width: 24 },
+  headerTitle: {
+    flex: 1, textAlign: "center", fontFamily: font.MonolithRegular
+    , fontSize: 16, color: "#4d4d4d"
+  },
 
   card: {
     backgroundColor: CARD,

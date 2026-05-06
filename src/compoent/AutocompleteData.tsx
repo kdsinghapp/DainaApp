@@ -185,7 +185,7 @@ const AddressModalInput = ({ modalVisible, setModalVisible, value, onChange, onS
               ItemSeparatorComponent={() => <View style={styles.separator} />}
               ListEmptyComponent={() => (
                 hasSearched && searchText.length > 0 ? (
-                <View style={styles.emptyState}>
+                  <View style={styles.emptyState}>
                     <Text style={styles.emptyStateTitle}>{strings.NoResultsRegion}</Text>
                     {/* <Text style={styles.emptyStateText}>We only found addresses within {countryCode.toUpperCase()}.</Text> */}
                   </View>
@@ -204,7 +204,7 @@ const styles = StyleSheet.create({
   header: { backgroundColor: "#fff", borderBottomWidth: 1, borderBottomColor: "#f0f0f0", paddingTop: 50 },
   headerContent: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", paddingHorizontal: 20, paddingBottom: 15 },
   title: { fontSize: 20, fontFamily: font.MonolithRegular, color: "#000" },
-  countryHint: { fontSize: 10, color: "#FFCC00", fontWeight: "bold", marginTop: 2 },
+  countryHint: { fontSize: 10, color: "#FFCC00", fontFamily: font.MonolithRegular, marginTop: 2 },
   closeButton: { width: 32, height: 32, borderRadius: 16, backgroundColor: "#f5f5f5", justifyContent: "center", alignItems: 'center' },
   closeText: { fontSize: 16, color: "#333" },
   searchContainer: { padding: 20 },
@@ -221,11 +221,11 @@ const styles = StyleSheet.create({
   suggestionItem: { flexDirection: "row", alignItems: "center", paddingVertical: 15, paddingHorizontal: 20 },
   locationIcon: { width: 36, height: 36, borderRadius: 18, backgroundColor: "#f0f7ff", justifyContent: "center", alignItems: "center", marginRight: 12 },
   suggestionTextContainer: { flex: 1 },
-  suggestionPrimary: { fontSize: 15, fontWeight: "600", color: "#000" },
-  suggestionSecondary: { fontSize: 13, color: "#777", marginTop: 2 },
+  suggestionPrimary: { fontSize: 15, fontFamily: font.MonolithRegular, color: "#000" },
+  suggestionSecondary: { fontSize: 13, fontFamily: font.MonolithRegular, color: "#777", marginTop: 2 },
   separator: { height: 1, backgroundColor: "#f0f0f0", marginLeft: 65 },
   emptyState: { flex: 1, marginTop: 50, alignItems: 'center', paddingHorizontal: 40 },
-  emptyStateTitle: { fontSize: 16, fontWeight: 'bold', color: '#000' },
+  emptyStateTitle: { fontSize: 16, fontFamily: font.MonolithRegular, color: '#000' },
   emptyStateText: { textAlign: 'center', color: '#666', marginTop: 5 }
 });
 

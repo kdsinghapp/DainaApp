@@ -309,7 +309,6 @@ const styles = StyleSheet.create({
   },
   header: {
     fontSize: 28,
-    fontWeight: "700",
     color: "#0F172A",
     fontFamily: font.MonolithRegular,
   },
@@ -399,8 +398,9 @@ const styles = StyleSheet.create({
   },
   fallbackText: {
     fontSize: 22,
-    fontWeight: "700",
     color: "#FFCC00",
+    fontFamily: font.MonolithRegular
+
   },
   textCol: {
     flex: 1,
@@ -414,7 +414,6 @@ const styles = StyleSheet.create({
   },
   name: {
     fontSize: 17,
-    fontWeight: "600",
     color: "#0F172A",
     fontFamily: font.MonolithRegular,
     flex: 1,
@@ -426,7 +425,8 @@ const styles = StyleSheet.create({
   },
   unreadText: {
     color: "#FFCC00",
-    fontWeight: "700",
+    fontFamily: font.MonolithRegular
+
   },
   idStatusRow: {
     flexDirection: 'row',
@@ -450,7 +450,6 @@ const styles = StyleSheet.create({
   },
   statusText: {
     fontSize: 10,
-    fontWeight: "700",
     fontFamily: font.MonolithRegular,
     textTransform: "uppercase",
   },
@@ -468,7 +467,8 @@ const styles = StyleSheet.create({
   },
   unreadMessageText: {
     color: "#1E293B",
-    fontWeight: "600",
+    fontFamily: font.MonolithRegular
+
   },
   badge: {
     backgroundColor: "#FFCC00",
@@ -483,7 +483,8 @@ const styles = StyleSheet.create({
   badgeText: {
     color: "#0F172A",
     fontSize: 11,
-    fontWeight: "700",
+    fontFamily: font.MonolithRegular
+
   },
   emptyContainer: {
     flex: 1,
@@ -515,7 +516,6 @@ const styles = StyleSheet.create({
   },
   emptyTitle: {
     fontSize: 22,
-    fontWeight: "700",
     color: "#0F172A",
     marginBottom: 8,
   },

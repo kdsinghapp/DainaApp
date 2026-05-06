@@ -1,5 +1,6 @@
 import { StyleSheet } from 'react-native';
 import { heightPercentageToDP as hp, widthPercentageToDP as wp } from 'react-native-responsive-screen';
+import font from '../../../theme/font';
 
 export const styles = StyleSheet.create({
   background: {
@@ -24,13 +25,15 @@ export const styles = StyleSheet.create({
   },
   title: {
     fontSize: 24,
-    fontWeight: '700',
+    fontFamily: font.MonolithRegular
+    ,
     color: 'rgba(0, 0, 0, 1)',
     lineHeight: 36,
   },
   description: {
     fontSize: 16,
-    fontWeight: '400',
+    fontFamily: font.MonolithRegular
+    ,
     color: 'rgba(157, 178, 191, 1)',
     lineHeight: 24,
     marginTop: 5,

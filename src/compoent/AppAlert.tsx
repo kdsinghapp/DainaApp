@@ -152,7 +152,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#FFFFFF',
     fontFamily: font.MonolithRegular,
-    fontWeight: '600',
   },
 });
 

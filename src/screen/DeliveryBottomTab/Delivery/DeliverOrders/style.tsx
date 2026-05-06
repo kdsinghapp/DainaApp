@@ -21,7 +21,7 @@ export const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     color: "#000",
-    fontWeight: "700",
+    fontFamily: font.MonolithRegular,
   },
 
   /* summary cards */
@@ -53,7 +53,6 @@ export const styles = StyleSheet.create({
     marginTop: 5,
     color: "#FFF",
     fontSize: 18,
-    fontWeight: "700",
     fontFamily: font.MonolithRegular,
   },
 
@@ -123,7 +122,9 @@ export const styles = StyleSheet.create({
   name: {
     fontSize: 15,
     color: "black",
-    fontWeight: "700",
+    fontFamily: font.MonolithRegular,
+
+
   },
   phone: {
     marginTop: 2,
@@ -141,7 +142,6 @@ export const styles = StyleSheet.create({
   },
   statusPillText: {
     fontSize: 11,
-    fontWeight: "700",
     fontFamily: font.MonolithRegular,
   },
   code: {
@@ -167,14 +167,14 @@ export const styles = StyleSheet.create({
   stopLabel: {
     fontSize: 13,
     color: "#3B4051",
-    fontWeight: "500"
+    fontFamily: font.MonolithRegular,
   },
   stopValue: {
     fontSize: 13,
     color: "#808080",
     marginTop: 4,
     lineHeight: 20,
-    fontWeight: "500"
+    fontFamily: font.MonolithRegular,
   },
 
   emptyWrap: {

@@ -1,40 +1,40 @@
 import { StyleSheet } from "react-native";
 import font from "../../../../theme/font";
- export const styles = StyleSheet.create({
+export const styles = StyleSheet.create({
   container: {
     flex: 1,
-     backgroundColor: "#fff",
-     marginHorizontal:15
+    backgroundColor: "#fff",
+    marginHorizontal: 15
   },
   sectionTitle: {
     fontSize: 16,
-     marginTop: 20,
+    marginTop: 20,
     marginBottom: 10,
     color: "black",
-    fontFamily:font.MonolithRegular
+    fontFamily: font.MonolithRegular
   },
   input: {
-     borderWidth: 1.5,
+    borderWidth: 1.5,
     borderColor: "#F0F0F0",
     borderRadius: 10,
     paddingHorizontal: 15,
-    height:55,
+    height: 55,
     backgroundColor: "#fff",
-     justifyContent: "space-between",
-    color:"black" ,
-    fontFamily:font.MonolithRegular,
-    fontSize:15 ,
-    flexDirection:"row",
-    alignItems:"center",
-    paddingVertical:15,
-    marginBottom:15
-    
-    
+    justifyContent: "space-between",
+    color: "black",
+    fontFamily: font.MonolithRegular,
+    fontSize: 15,
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: 15,
+    marginBottom: 15
+
+
   },
   placeholderText: {
     color: "#ADA4A5",
     fontSize: 15,
-    fontFamily:font.MonolithRegular
+    fontFamily: font.MonolithRegular
   },
   packageRow: {
     flexDirection: "row",
@@ -49,12 +49,12 @@ import font from "../../../../theme/font";
     borderColor: "#EAEAEA",
     justifyContent: "center",
     alignItems: "center",
-    marginTop:11,
+    marginTop: 11,
   },
   packageText: {
     fontSize: 14,
     color: "#333",
-    fontFamily:font.MonolithRegular,
+    fontFamily: font.MonolithRegular,
 
   },
   selectedBox: {
@@ -63,7 +63,8 @@ import font from "../../../../theme/font";
   },
   selectedText: {
     color: "#FFD600",
-    fontWeight: "600",
+    fontFamily: font.MonolithRegular
+
   },
   submitBtn: {
     marginTop: 30,
@@ -74,7 +75,8 @@ import font from "../../../../theme/font";
   },
   submitText: {
     fontSize: 16,
-    fontWeight: "600",
+    fontFamily: font.MonolithRegular
+    ,
     color: "#000",
   },
   inputError: {
@@ -107,7 +109,7 @@ import font from "../../../../theme/font";
   parcelImage: {
     height: 150,
     width: "100%",
-    borderRadius:10
+    borderRadius: 10
 
 
   },

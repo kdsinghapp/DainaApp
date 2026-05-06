@@ -93,7 +93,7 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 18,
-    fontWeight: '600',
+    fontFamily: font.MonolithRegular
   },
   notificationOption: {
     flexDirection: 'row',

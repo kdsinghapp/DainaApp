@@ -389,7 +389,8 @@ const styles = StyleSheet.create({
   },
   titleBadgeText: {
     fontSize: 12,
-    fontWeight: '700',
+     fontFamily: font.MonolithRegular
+ ,
     color: '#FFFFFF',
   },
   timerBadge: {
@@ -403,8 +404,10 @@ const styles = StyleSheet.create({
   },
   timerText: {
     fontSize: 14,
-    fontWeight: '700',
+  
     color: '#FFFFFF',
+        fontFamily: font.MonolithRegular
+    
   },
   headerTitle: {
     fontSize: 24,
@@ -422,7 +425,8 @@ const styles = StyleSheet.create({
   closeIcon: {
     fontSize: 28,
     color: '#666',
-    fontWeight: '300',
+    fontFamily: font.MonolithRegular
+
   },
   content: {
     flex: 1,
@@ -445,8 +449,10 @@ const styles = StyleSheet.create({
    
   sectionTitle: {
     fontSize: 18,
-    fontWeight: '700',
+    
     color: '#1A1A1A',
+        fontFamily: font.MonolithRegular
+    
   },
  
  
@@ -477,7 +483,8 @@ const styles = StyleSheet.create({
   },
   locationType: {
     fontSize: 12,
-    fontWeight: '600',
+    fontFamily: font.MonolithRegular
+,
     color: '#666',
     marginBottom: 4,
     textTransform: 'uppercase',
@@ -500,7 +507,8 @@ const styles = StyleSheet.create({
   contactText: {
     fontSize: 14,
     color: '#007AFF',
-    fontWeight: '600',
+    fontFamily: font.MonolithRegular
+
   },
   routeConnector: {
     alignItems: 'center',
@@ -515,7 +523,8 @@ const styles = StyleSheet.create({
   connectorTime: {
     fontSize: 12,
     color: '#666',
-    fontWeight: '500',
+       fontFamily: font.MonolithRegular
+   
   },
   mapCard: {
     margin: 16,
@@ -583,11 +592,13 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#666',
     marginBottom: 4,
-    fontWeight: '500',
+      fontFamily: font.MonolithRegular
+  
   },
   detailValue: {
     fontSize: 16,
-    fontWeight: '600',
+      fontFamily: font.MonolithRegular
+  ,
     color: '#1A1A1A',
   },
   instructionsCard: {
@@ -663,13 +674,15 @@ const styles = StyleSheet.create({
   amountText: {
     color: '#1A1A1A',
     fontSize: 14,
-    fontWeight: '700',
+       fontFamily: font.MonolithRegular
+   
   },
   timerWarning: {
     textAlign: 'center',
     color: '#FF3B30',
     fontSize: 14,
-    fontWeight: '600',
+      fontFamily: font.MonolithRegular
+  ,
     marginTop: 12,
   },
 });
@@ -1413,14 +1426,13 @@ export default DeliveryRequest;
 //   amountText: {
 //     color: '#1A1A1A',
 //     fontSize: 14,
-//     fontWeight: '700',
-//     fontFamily: font.MonolithRegular,
+ //     fontFamily: font.MonolithRegular,
 //   },
 //   timerWarning: {
 //     textAlign: 'center',
 //     color: '#FF3B30',
 //     fontSize: 14,
-//     fontWeight: '600',
+//     
 //     marginBottom: 12,
 //     fontFamily: font.MonolithRegular,
 //   },

@@ -448,7 +448,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontFamily: font.MonolithRegular,
     color: "#0f172a",
-    fontWeight: "700",
+
   },
   textCol: {
     flex: 1,
@@ -465,7 +465,8 @@ const styles = StyleSheet.create({
     color: "#0f172a",
   },
   nameUnread: {
-    fontWeight: "700",
+    fontFamily: font.MonolithRegular
+
   },
   time: {
     fontSize: 11,
@@ -493,7 +494,8 @@ const styles = StyleSheet.create({
   },
   lastMessageUnread: {
     color: "#0f172a",
-    fontWeight: "600",
+    fontFamily: font.MonolithRegular
+
   },
   badge: {
     borderRadius: 6,
@@ -503,7 +505,7 @@ const styles = StyleSheet.create({
   badgeText: {
     fontSize: 10,
     fontFamily: font.MonolithRegular,
-    fontWeight: "600",
+
   },
   unreadBadge: {
     backgroundColor: "#FFCC00",
@@ -517,7 +519,7 @@ const styles = StyleSheet.create({
     color: "#0f172a",
     fontSize: 10,
     fontFamily: font.MonolithRegular,
-    fontWeight: "700",
+
   },
   loaderWrap: {
     flex: 1,

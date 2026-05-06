@@ -642,8 +642,8 @@ const styles = StyleSheet.create({
     marginLeft: 10,
     color: '#333',
     fontSize: 14,
-    fontWeight: '500',
-    // marginRight:5
+    fontFamily: font.MonolithRegular
+    ,    // marginRight:5
     flex: 1
   },
   driverCard: {
@@ -661,7 +661,7 @@ const styles = StyleSheet.create({
   },
   arrivingText: {
     fontSize: 16,
-    fontWeight: '600',
+    fontFamily: font.MonolithRegular,
     color: '#000',
   },
   timeText: {
@@ -683,7 +683,8 @@ const styles = StyleSheet.create({
   },
   driverName: {
     fontSize: 16,
-    fontWeight: '700',
+    fontFamily: font.MonolithRegular
+
   },
   carDetails: {
     color: '#aaa',
@@ -719,12 +720,12 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#3B4051",
     marginBottom: 8,
-    fontWeight: "700"
+    fontFamily: font.MonolithRegular
+
   },
   textInput: {
     color: "#000",
     fontSize: 14,
-    fontWeight: "500",
     fontFamily: font.MonolithRegular,
     padding: 0,
   },

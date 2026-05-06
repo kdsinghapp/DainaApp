@@ -32,12 +32,12 @@ export const styles = StyleSheet.create({
   pillLeftText: {
     fontSize: 16,
     fontFamily: font.MonolithRegular,
-    fontWeight: "700",
+
   },
   pillRightText: {
     fontSize: 16,
     fontFamily: font.MonolithRegular,
-    fontWeight: "600",
+
   },
   knob: {
     position: "absolute",
@@ -64,12 +64,13 @@ export const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     color: "black",
-    fontWeight: "700",
+    fontFamily: font.MonolithRegular
+
   },
   sectionTitle1: {
     fontSize: 15,
     color: "black",
-    fontWeight: "600",
+    fontFamily: font.MonolithRegular
   },
 
   tabs: {
@@ -103,12 +104,14 @@ export const styles = StyleSheet.create({
   },
   tabText: {
     fontSize: 14,
-    color: "#1C1B1B", fontWeight: "400",
+    color: "#1C1B1B", fontFamily: font.MonolithRegular
+
 
   },
   tabTextActive: {
     color: "white",
-    fontWeight: "700",
+    fontFamily: font.MonolithRegular
+    ,
     fontSize: 15,
 
 
@@ -176,7 +179,10 @@ export const styles = StyleSheet.create({
     marginRight: 8,
     color: "black",
   },
-  bold: { fontWeight: "700", fontSize: 16, color: "black" },
+  bold: {
+    fontFamily: font.MonolithRegular
+    , fontSize: 16, color: "black"
+  },
   cardDate: {
     marginLeft: "auto",
     fontSize: 13,

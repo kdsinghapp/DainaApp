@@ -81,7 +81,7 @@ export default function OtpScreen() {
                 <Text style={{
                   color: color.primary,
                   fontFamily: font.MonolithRegular,
-                  fontWeight: '600',
+
                   marginLeft: 6
                 }}>
                   {Math.floor(timer / 60).toString().padStart(2, '0')}:

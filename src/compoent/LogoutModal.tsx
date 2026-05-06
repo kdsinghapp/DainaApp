@@ -72,7 +72,6 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 18,
-    fontWeight: '700',
     marginBottom: 10,
     fontFamily: font.MonolithRegular,
     textAlign: 'center',
@@ -103,7 +102,7 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 15,
     fontFamily: font.MonolithRegular,
-   },
+  },
   cancelButton: {
     flex: 1,
     backgroundColor: '#EDEDED',
@@ -116,7 +115,6 @@ const styles = StyleSheet.create({
     color: '#333',
     fontSize: 16,
     fontFamily: font.MonolithRegular,
-    fontWeight: '600',
   },
 });
 

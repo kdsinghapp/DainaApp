@@ -12,7 +12,7 @@ export const styles = StyleSheet.create({
   slide: {
     width,
     flex: 1,
-     alignItems: 'center',
+    alignItems: 'center',
     paddingHorizontal: 20,
   },
   image: {
@@ -23,19 +23,19 @@ export const styles = StyleSheet.create({
   },
   title: {
     fontSize: 24,
-     color: '#000',
+    color: '#000',
     textAlign: 'center',
     marginBottom: 12,
-    fontFamily:font.MonolithRegular,
-    marginTop:20
+    fontFamily: font.MonolithRegular,
+    marginTop: 20
   },
   description: {
     fontSize: 16,
     color: '#76889A',
     textAlign: 'center',
-    marginTop:8 ,
-    lineHeight:28,
-    fontFamily:font.MonolithRegular,
+    marginTop: 8,
+    lineHeight: 28,
+    fontFamily: font.MonolithRegular,
 
   },
   skipButton: {
@@ -47,13 +47,13 @@ export const styles = StyleSheet.create({
   skipText: {
     fontSize: 16,
     color: '#FFCC00',
-    fontWeight:"600"
-    },
+    fontFamily: font.MonolithRegular,
+  },
   dotsContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
-    marginBottom: 20, 
-    alignItems:"center"
+    marginBottom: 20,
+    alignItems: "center"
   },
   dot: {
     width: 12,
@@ -62,10 +62,10 @@ export const styles = StyleSheet.create({
     marginHorizontal: 5,
   },
   footerButton: {
-     marginBottom: Platform.OS === 'ios' ? 0 : 10,
-      justifyContent:"center" ,
-     alignItems:"center" ,
-     flex:1 ,
-     marginHorizontal:45
-   },
+    marginBottom: Platform.OS === 'ios' ? 0 : 10,
+    justifyContent: "center",
+    alignItems: "center",
+    flex: 1,
+    marginHorizontal: 45
+  },
 });

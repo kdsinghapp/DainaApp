@@ -28,6 +28,7 @@ import { GetDashboardCounts } from "../../../../Api/apiRequest";
 import strings from "../../../../localization/Localization";
 import OnlineSlideRight from "../../../../compoent/OnlineSlideRight";
 import { successToast } from "../../../../utils/customToast";
+import font from "../../../../theme/font";
 
 const TABS = ["Pending", "Complete", "Cancelled"] as const;
 const DeliveryHome = () => {
@@ -154,7 +155,7 @@ const DeliveryHome = () => {
         onNotificationPress={() => console.log("Notifications clicked")}
         hasNotification={true}
         style1={{
-          fontWeight: "500",
+        
         }}
       /> */}
       <ScrollView
@@ -199,7 +200,8 @@ const DeliveryHome = () => {
               style={{
                 color: "black",
                 fontSize: 18,
-                fontWeight: "bold",
+                fontFamily: font.MonolithRegular
+                ,
                 marginTop: 5,
               }}
             >
@@ -227,7 +229,8 @@ const DeliveryHome = () => {
               style={{
                 color: "black",
                 fontSize: 18,
-                fontWeight: "bold",
+                fontFamily: font.MonolithRegular
+                ,
                 marginTop: 5,
               }}
             >
@@ -256,8 +259,8 @@ const DeliveryHome = () => {
               style={{
                 color: "black",
 
-                fontSize: 18,
-                fontWeight: "bold",
+                fontSize: 18, fontFamily: font.MonolithRegular
+                ,
                 marginTop: 5,
               }}
             >
@@ -286,7 +289,8 @@ const DeliveryHome = () => {
                 color: "black",
 
                 fontSize: 18,
-                fontWeight: "bold",
+                fontFamily: font.MonolithRegular
+                ,
                 marginTop: 5,
               }}
             >

@@ -45,14 +45,15 @@ export const styles = StyleSheet.create({
   },
   title: {
     fontSize: 24,
-    fontWeight: '700',
     color: 'rgba(0, 0, 0, 1)',
     lineHeight: 36,
     marginTop: 40,
+    fontFamily: font.MonolithRegular
   },
   description: {
     fontSize: 16,
-    fontWeight: '400',
+    fontFamily: font.MonolithRegular
+    ,
     color: 'rgba(157, 178, 191, 1)',
     lineHeight: 24,
     marginTop: 10,

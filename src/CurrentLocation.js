@@ -3,6 +3,7 @@ import { Platform, PermissionsAndroid, Modal, View, Text, StyleSheet, TouchableO
 import Geolocation from '@react-native-community/geolocation';
 import { check, PERMISSIONS, RESULTS, request } from 'react-native-permissions';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import font from './theme/font';
 
 const CurrentLocation = forwardRef(({ onLocationFetched }, ref) => {
   const GOOGLE_API_KEY = "AIzaSyDgFGS91BvviXh_f-nmvtEggUHJcaGyUwA";
@@ -182,10 +183,10 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 20,
-    fontWeight: 'bold',
     color: '#333',
     marginBottom: 12,
     textAlign: 'center',
+    fontFamily: font.MonolithRegular
   },
   message: {
     fontSize: 16,
@@ -215,7 +216,7 @@ const styles = StyleSheet.create({
   buttonText: {
     color: '#fff',
     fontSize: 16,
-    fontWeight: '600',
+    fontFamily: font.MonolithRegular
   },
 });
 

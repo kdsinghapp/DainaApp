@@ -572,7 +572,8 @@ const styles = StyleSheet.create({
   },
   statusText: {
     color: '#fff',
-    fontWeight: '600',
+    fontFamily: font.MonolithRegular
+    ,
     fontSize: 14,
   },
   cardContainer: {
@@ -667,7 +668,6 @@ const styles = StyleSheet.create({
   value: {
     color: "#666",
     fontSize: 14,
-    fontWeight: "500",
     fontFamily: font.MonolithRegular
   },
   inputContainer1: {

@@ -21,6 +21,7 @@ import Svg, {
   G,
   Path,
 } from "react-native-svg";
+import font from "../../../theme/font";
 
 const { width } = Dimensions.get("window");
 const RADAR_SIZE = Math.min(width * 0.78, 300);
@@ -364,9 +365,9 @@ const styles = StyleSheet.create({
   statusText: {
     color: THEME.primary,
     fontSize: 13,
-    fontFamily: Platform.OS === "ios" ? "Courier New" : "monospace",
     letterSpacing: 3,
-    fontWeight: "600",
+    fontFamily: font.MonolithRegular
+
   },
   radiusBadge: {
     borderWidth: 1,
@@ -456,8 +457,8 @@ const styles = StyleSheet.create({
   statVal: {
     color: THEME.primary,
     fontSize: 24,
-    fontFamily: Platform.OS === "ios" ? "Courier New" : "monospace",
-    fontWeight: "700",
+    fontFamily: font.MonolithRegular,
+
     letterSpacing: 1,
   },
   statUnit: {

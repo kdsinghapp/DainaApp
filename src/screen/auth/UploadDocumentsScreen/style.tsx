@@ -2,9 +2,9 @@ import { StyleSheet, Dimensions } from "react-native";
 import { color } from "../../../constant";
 import font from "../../../theme/font";
 
- 
+
 export const styles = StyleSheet.create({
-    container: {
+  container: {
     flex: 1,
     backgroundColor: "#fff",
   },
@@ -33,7 +33,7 @@ export const styles = StyleSheet.create({
   placeholderText: {
     marginTop: 10,
     fontSize: 16,
-    fontWeight: "500",
+    fontFamily: font.MonolithRegular,
     color: "#444",
   },
   previewImage: {
@@ -87,7 +87,8 @@ export const styles = StyleSheet.create({
   },
   modalTitle: {
     fontSize: 18,
-    fontWeight: "700",
+    fontFamily: font.MonolithRegular
+    ,
     color: "#333",
   },
   modalBody: {
@@ -108,8 +109,9 @@ export const styles = StyleSheet.create({
   },
   optionText: {
     fontSize: 16,
-    fontWeight: "600",
+    fontFamily: font.MonolithRegular
+    ,
     color: "#444",
   },
 
- });
+});

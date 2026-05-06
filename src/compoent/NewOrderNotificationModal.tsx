@@ -249,7 +249,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#eee',
   },
   textContainer: { marginLeft: 12 },
-  userName: { fontSize: 16, fontWeight: '600', color: '#222' },
+  userName: { fontSize: 16, fontFamily: font.MonolithRegular, color: '#222' },
   buttonRow: {
     flexDirection: 'row',
     gap: 14,

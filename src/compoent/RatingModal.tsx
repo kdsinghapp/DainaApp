@@ -239,7 +239,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontFamily: font.MonolithRegular,
     color: color.primary,
-    fontWeight: "600",
   },
   placeholderLabel: {
     fontSize: 14,
@@ -300,7 +299,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontFamily: font.MonolithRegular,
     color: "#000",
-    fontWeight: "600",
   },
   submitButtonTextDisabled: {
     color: "#94A3B8",
@@ -309,4 +307,3 @@ const styles = StyleSheet.create({
 
 export default memo(RatingModal);
 
-export default memo(RatingModal);

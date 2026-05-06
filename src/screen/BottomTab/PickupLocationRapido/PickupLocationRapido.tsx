@@ -191,7 +191,9 @@ const styles = StyleSheet.create({
   pinWrapper: { ...StyleSheet.absoluteFillObject, justifyContent: 'center', alignItems: 'center' },
   pinContainer: { alignItems: 'center', marginBottom: 48 },
   pinCallout: { backgroundColor: '#fff', padding: 8, borderRadius: 12, elevation: 6, marginBottom: 4 },
-  calloutText: { fontSize: 11, fontWeight: 'bold' },
+  calloutText: {
+    fontSize: 11, fontFamily: font.MonolithRegular
+  },
   recenterBtn: { position: 'absolute', right: 20, bottom: 220, backgroundColor: '#fff', padding: 12, borderRadius: 12, elevation: 5 },
   bottomCard: { position: 'absolute', bottom: 0, width: '100%', backgroundColor: '#fff', padding: 20, borderTopLeftRadius: 24, borderTopRightRadius: 24, elevation: 20 },
   addressText: { fontSize: 14, color: '#333', marginBottom: 15, fontFamily: font.MonolithRegular },

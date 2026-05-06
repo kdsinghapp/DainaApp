@@ -140,7 +140,7 @@ export const styles = StyleSheet.create({
   },
   infoValue: {
     fontSize: 15,
-    fontWeight: '600',
+
     color: DARK,
     fontFamily: font.MonolithRegular,
   },
@@ -167,7 +167,6 @@ export const styles = StyleSheet.create({
   overlayText: {
     color: '#FFF',
     fontSize: 12,
-    fontWeight: '600',
     fontFamily: font.MonolithRegular,
   },
   bankCard: {

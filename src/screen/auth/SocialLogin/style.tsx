@@ -5,8 +5,8 @@ import font from "../../../theme/font";
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
-     padding: 20,
-   },
+    padding: 20,
+  },
   logo: {
     width: 158,
     height: 84,
@@ -14,8 +14,8 @@ export const styles = StyleSheet.create({
   },
   title: {
     fontSize: 20,
-    fontFamily:font.TrialMedium
-,
+    fontFamily: font.TrialMedium
+    ,
     color: '#333333',
     marginBottom: 10,
     textAlign: 'center',
@@ -27,14 +27,14 @@ export const styles = StyleSheet.create({
     lineHeight: 30,
     marginBottom: 80,
     paddingHorizontal: 10,
-    fontFamily:font.TrialRegular
+    fontFamily: font.TrialRegular
   },
   buttonContainer: {
     width: '100%',
     alignItems: 'center',
-    marginBottom:30,
+    marginBottom: 30,
     justifyContent: 'flex-end',
-    flex:1
+    flex: 1
 
   },
   appleButton: {
@@ -78,21 +78,23 @@ export const styles = StyleSheet.create({
   appleButtonText: {
     color: '#000',
     fontSize: 16,
-    fontWeight: '500',
+    fontFamily: font.MonolithRegular
   },
   facebookButtonText: {
     color: '#fff',
     fontSize: 16,
-    fontWeight: '500',
+    fontFamily: font.MonolithRegular
+
   },
   googleButtonText: {
     color: '#000',
     fontSize: 16,
-    fontWeight: '500',
+    fontFamily: font.MonolithRegular
+
   },
-   button: {
-      marginVertical:8,
-     borderRadius:27,
+  button: {
+    marginVertical: 8,
+    borderRadius: 27,
     // elevation:1
   },
 });
