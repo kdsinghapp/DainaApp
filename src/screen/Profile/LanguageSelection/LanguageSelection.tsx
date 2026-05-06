@@ -56,14 +56,14 @@ const LanguageItem = ({ item, isSelected, onSelect }: any) => {
       <Pressable
         onPressIn={handlePressIn}
         onPressOut={handlePressOut}
-        onPress={() => onSelect(item.code)}
+        onPress={() => onSelect(item?.code)}
         style={[
           styles.languageItem,
           isSelected && styles.selectedItem,
         ]}
       >
         <View style={styles.flagContainer}>
-          <Text style={styles.flagText}>{item.flag}</Text>
+          <Text style={styles.flagText}>{item?.flag}</Text>
         </View>
 
         <View style={styles.languageInfo}>

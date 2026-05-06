@@ -102,13 +102,6 @@ const ShippingScreen = () => {
       }}>
         <Text style={styles.sectionTitle}>{strings.ShippingHistory}</Text>
 
-        <Image source={imageIndex.Filter}
-
-          style={{
-            height: 24,
-            width: 24
-          }}
-        />
       </View>
 
       <FlatList
@@ -327,12 +320,12 @@ const styles = StyleSheet.create({
   },
   createBtnText: {
     fontSize: 16,
-    fontWeight: "600",
     color: "#000",
+    fontFamily: font.MonolithRegular,
+
   },
   sectionTitle: {
     fontSize: 16,
-    fontWeight: "600",
     color: "black",
     fontFamily: font.MonolithRegular,
 
@@ -367,9 +360,10 @@ const styles = StyleSheet.create({
     marginRight: 8,
   },
   cardId: {
-    fontWeight: "700",
     fontSize: 15,
     marginRight: 8,
+    fontFamily: font.MonolithRegular
+
   },
   cardDate: {
     fontSize: 14,
@@ -380,6 +374,7 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 14,
     color: "#BABFC5",
+
     marginTop: 6,
     fontFamily: font.MonolithRegular
 
@@ -486,7 +481,6 @@ const offerAcceptedStyles = StyleSheet.create({
   },
   otpValue: {
     fontSize: 18,
-    fontWeight: "700",
     color: "#0F172A",
     fontFamily: font.MonolithRegular,
   },
@@ -518,6 +512,5 @@ const offerAcceptedStyles = StyleSheet.create({
     fontSize: 16,
     fontFamily: font.MonolithRegular,
     color: "#0F172A",
-    fontWeight: "600",
   },
 });

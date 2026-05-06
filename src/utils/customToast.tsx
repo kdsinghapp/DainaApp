@@ -1,6 +1,7 @@
 import React from 'react';
 import { StyleSheet, View, Text } from 'react-native';
 import Toast from 'react-native-toast-message';
+import font from '../theme/font';
 
 const toastConfig = {
   successResponse: ({ text1 }: any) => (
@@ -78,7 +79,8 @@ const styles = StyleSheet.create({
     marginLeft: 12,
     fontSize: 14,
     lineHeight: 20,
-    fontWeight: '600',
+    fontFamily: font.MonolithRegular,
+
   },
   textSuccess: { color: '#065F46' },
   textError: { color: '#B91C1C' },

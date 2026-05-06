@@ -92,7 +92,7 @@ const RequestLoading = () => {
       if (!parcelId?.parcel?.id) {
         throw new Error('Parcel ID not found');
       }
-const wsUrl = `${WebSocket_Url}/parcel/${parcelId?.parcel?.id}?token=${token}&role=user`;
+      const wsUrl = `${WebSocket_Url}/parcel/${parcelId?.parcel?.id}?token=${token}&role=user`;
       // const wsUrl = ` {WebSocket_Url}/parcel/${parcelId.parcel.id}?token=${token}&role=user`;
       // const wsUrl = `wss://aitechnotech.in/DAINA/ws/parcel/${parcelId.parcel.id}?token=${token}&role=user`;
       const ws = new WebSocket(wsUrl);
@@ -152,7 +152,7 @@ const wsUrl = `${WebSocket_Url}/parcel/${parcelId?.parcel?.id}?token=${token}&ro
     try {
       const token = await AsyncStorage.getItem('token');
       if (token) await connectSocket(token);
-    } catch (_) {}
+    } catch (_) { }
   };
 
   const handleRetry = () => {
@@ -235,7 +235,7 @@ const wsUrl = `${WebSocket_Url}/parcel/${parcelId?.parcel?.id}?token=${token}&ro
           mapRef.current?.animateToRegion(region, 1000);
         }, 300);
       },
-      () => {},
+      () => { },
       { enableHighAccuracy: true, timeout: 15000, maximumAge: 3000 }
     );
   }, []);
@@ -254,7 +254,7 @@ const wsUrl = `${WebSocket_Url}/parcel/${parcelId?.parcel?.id}?token=${token}&ro
           startProgressAnimation();
           startCountdown();
         }
-      } catch (_) {}
+      } catch (_) { }
     };
     init();
     return () => {
@@ -350,7 +350,7 @@ const wsUrl = `${WebSocket_Url}/parcel/${parcelId?.parcel?.id}?token=${token}&ro
                 <Text style={styles.retryText}>{strings.RetryLabel}</Text>
               </TouchableOpacity>
             </View>
-          ) :null}
+          ) : null}
         </View>
       </Animated.View>
     </SafeAreaView>
@@ -374,7 +374,7 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 24,
-     color: '#1D1D1F',
+    color: '#1D1D1F',
     marginBottom: 8,
     fontFamily: font.MonolithRegular,
   },
@@ -387,8 +387,8 @@ const styles = StyleSheet.create({
   },
   mapContainer: {
     flex: 1,
-     minHeight:280,
- 
+    minHeight: 280,
+
     overflow: 'hidden',
     backgroundColor: '#E5E7EB',
     ...Platform.select({
@@ -398,8 +398,8 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.08,
         shadowRadius: 12,
       },
-     }),
-     borderRadius:20,
+    }),
+    borderRadius: 20,
   },
   map: {
     ...StyleSheet.absoluteFillObject,
@@ -436,7 +436,6 @@ const styles = StyleSheet.create({
   },
   currentLocationText: {
     fontSize: 13,
-    fontWeight: '600',
     color: '#374151',
     fontFamily: font.MonolithRegular,
   },
@@ -544,11 +543,11 @@ const styles = StyleSheet.create({
   progressText: {
     fontSize: 13,
     color: '#6B7280',
-     fontFamily: font.MonolithRegular,
+    fontFamily: font.MonolithRegular,
   },
   primaryStatus: {
     fontSize: 18,
-     color: '#1D1D1F',
+    color: '#1D1D1F',
     textAlign: 'center',
     marginBottom: 6,
     lineHeight: 24,
@@ -583,7 +582,7 @@ const styles = StyleSheet.create({
   error: { backgroundColor: '#EF4444' },
   connectionText: {
     fontSize: 14,
-     color: '#374151',
+    color: '#374151',
     flex: 1,
     fontFamily: font.MonolithRegular,
   },
@@ -596,7 +595,7 @@ const styles = StyleSheet.create({
   retryText: {
     color: '#FFFFFF',
     fontSize: 13,
-   },
+  },
   timeoutCard: {
     flex: 1,
     justifyContent: 'center',
@@ -619,7 +618,7 @@ const styles = StyleSheet.create({
   },
   timeoutTitle: {
     fontSize: 22,
-     color: '#1D1D1F',
+    color: '#1D1D1F',
     textAlign: 'center',
     marginBottom: 12,
     fontFamily: font.MonolithRegular,
@@ -650,7 +649,7 @@ const styles = StyleSheet.create({
   },
   btnGoBackText: {
     fontSize: 16,
- 
+
     color: '#4B5563',
     fontFamily: font.MonolithRegular,
   },
@@ -660,11 +659,11 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     backgroundColor: '#FFCC00',
     alignItems: 'center',
-    
+
   },
   btnRetryMainText: {
     fontSize: 16,
-     color: '#FFFFFF',
+    color: '#FFFFFF',
     fontFamily: font.MonolithRegular,
   },
 });

@@ -123,7 +123,7 @@ const styles = StyleSheet.create({
   container: {
     width: "100%",
     marginTop: 15,
-    marginBottom:15
+    marginBottom: 15
   },
   dropdown: {
     height: 55,
@@ -132,9 +132,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
     justifyContent: "space-between",
     borderWidth: 1.5,
-    borderColor: "#F7F8F8", 
-    flexDirection:"row" ,
-    alignItems:"center"
+    borderColor: "#F7F8F8",
+    flexDirection: "row",
+    alignItems: "center"
   },
   iconWrapper: {
     position: "absolute",

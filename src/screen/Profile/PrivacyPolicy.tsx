@@ -89,7 +89,6 @@ const styles = StyleSheet.create({
             fontSize: 14,
             color: '#333',
             lineHeight: 24,
-            fontWeight: '500',
             marginTop: 8,
             fontFamily: font.MonolithRegular,
         },

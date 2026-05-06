@@ -1,7 +1,7 @@
 import { StyleSheet } from "react-native";
 import font from "../../../../theme/font";
- export const styles = StyleSheet.create({
-container: { flex: 1, backgroundColor: '#FFCC00' },
+export const styles = StyleSheet.create({
+  container: { flex: 1, backgroundColor: '#FFCC00' },
   content: {
     flex: 1,
     alignItems: 'center',
@@ -17,8 +17,10 @@ container: { flex: 1, backgroundColor: '#FFCC00' },
     height: 200,
     width: 200,
   },
-  emptyText:{
- fontSize: 15, color: 'black', fontWeight: '600',  
+  emptyText: {
+    fontSize: 15, color: 'black',
+    fontFamily: font.MonolithRegular,
+
   },
   circle: {
     width: 120,

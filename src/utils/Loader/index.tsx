@@ -17,7 +17,7 @@ const { width, height } = Dimensions.get('window');
 // Your theme color
 const THEME_COLOR = '#FFCC00';
 
-const LoadingModal = ({ visible, message = "Loading..." }:any) => {
+const LoadingModal = ({ visible, message = "Loading..." }: any) => {
   // Animation values
   const spinValue = useRef(new Animated.Value(0)).current;
   const fadeValue = useRef(new Animated.Value(0)).current;
@@ -146,10 +146,10 @@ const LoadingModal = ({ visible, message = "Loading..." }:any) => {
   return (
     <Modal transparent animationType="fade" visible={visible}>
       <View style={styles.overlay}>
-        <Animated.View 
+        <Animated.View
           style={[
-            styles.modalContainer, 
-            { 
+            styles.modalContainer,
+            {
               opacity: fadeValue,
               transform: [
                 { translateY: float },
@@ -160,7 +160,7 @@ const LoadingModal = ({ visible, message = "Loading..." }:any) => {
         >
           {/* Spinner container */}
           <View style={styles.spinnerContainer}>
-            <Animated.View 
+            <Animated.View
               style={[
                 styles.spinner,
                 { transform: [{ rotate: spin }] }
@@ -169,24 +169,24 @@ const LoadingModal = ({ visible, message = "Loading..." }:any) => {
               <View style={styles.spinnerInner} />
               <View style={styles.spinnerArc} />
             </Animated.View>
-            
+
             {/* Central logo */}
             <View style={styles.centerIcon}>
               <View style={styles.logoPlaceholder}>
-                 <Image source={imageIndex.phonLogoapp}  
-                 resizeMode="stretch"
-                 style={{
+                <Image source={imageIndex.phonLogoapp}
+                  resizeMode="stretch"
+                  style={{
 
-                  height:33,
-                  width:33, 
-                  
-                 }}/>
+                    height: 33,
+                    width: 33,
+
+                  }} />
               </View>
             </View>
           </View>
-          
+
           {/* <Text style={styles.message}>{message}</Text> */}
-          
+
           {/* Progress dots */}
           {/* <View style={styles.dotsContainer}>
             <Animated.View style={[styles.dot, { transform: [{ scale: dot1Scale }] }]} />
@@ -265,20 +265,21 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-     justifyContent: 'center',
+    justifyContent: 'center',
     alignItems: 'center',
   },
   logoText: {
     color: 'white',
-    fontWeight: 'bold',
     fontSize: 12,
+    fontFamily: font.MonolithRegular,
+
   },
   message: {
     fontSize: 15,
-     color: '#708090',
+    color: '#708090',
     marginBottom: 15,
     textAlign: 'center',
-    fontFamily:font.TrialMedium
+    fontFamily: font.MonolithRegular
   },
   dotsContainer: {
     flexDirection: 'row',
