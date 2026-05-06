@@ -627,7 +627,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFFFFF",
     borderBottomWidth: 1,
     borderBottomColor: "#F2F2F2",
-    elevation: 2,
+
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.05,
@@ -790,7 +790,7 @@ const styles = StyleSheet.create({
   myMessage: {
     backgroundColor: YELLOW,
     borderBottomRightRadius: 4,
-    elevation: 1,
+
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
@@ -867,7 +867,6 @@ const styles = StyleSheet.create({
     backgroundColor: YELLOW,
     justifyContent: "center",
     alignItems: "center",
-    elevation: 3,
     shadowColor: YELLOW,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
@@ -890,7 +889,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     borderRadius: 16,
     padding: 20,
-    elevation: 10,
     shadowColor: "#000",
     shadowOpacity: 0.1,
     shadowOffset: { width: 0, height: 4 },
@@ -939,7 +937,6 @@ const styles = StyleSheet.create({
     paddingVertical: 13,
     borderRadius: 8,
     alignItems: "center",
-    elevation: 2,
   },
   modalAcceptText: {
     color: "#000",
@@ -964,7 +961,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 7,
     borderRadius: 8,
-    elevation: 2,
     justifyContent: "center",
     alignItems: "center",
   },

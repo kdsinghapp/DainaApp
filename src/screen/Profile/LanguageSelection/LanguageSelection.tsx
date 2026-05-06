@@ -294,6 +294,8 @@ const styles = StyleSheet.create({
   },
   selectedText: {
     color: '#000',
+    fontFamily: font.MonolithRegular,
+
   },
   recommendedBadge: {
     backgroundColor: '#E7F7F3',

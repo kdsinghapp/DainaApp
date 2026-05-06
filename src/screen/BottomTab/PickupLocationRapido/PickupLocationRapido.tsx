@@ -159,9 +159,9 @@ const PickupLocationRapido = () => {
       {/* FIXED PIN */}
       <View pointerEvents="none" style={styles.pinWrapper}>
         <View style={styles.pinContainer}>
-          <View style={styles.pinCallout}>
+          {/* <View style={styles.pinCallout}>
             {isFetchingAddress ? <ActivityIndicator size="small" color="#000" /> : <Text style={styles.calloutText}>{strings?.SetPickup}</Text>}
-          </View>
+          </View> */}
           <Icon name="location-on" size={48} color="#FF3B30" />
         </View>
       </View>
@@ -185,17 +185,17 @@ const PickupLocationRapido = () => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1 },
+  container: { flex: 1, },
   map: { flex: 1 },
   searchContainer: { position: 'absolute', width: '100%', top: 60, zIndex: 100 },
   pinWrapper: { ...StyleSheet.absoluteFillObject, justifyContent: 'center', alignItems: 'center' },
   pinContainer: { alignItems: 'center', marginBottom: 48 },
-  pinCallout: { backgroundColor: '#fff', padding: 8, borderRadius: 12, elevation: 6, marginBottom: 4 },
+  pinCallout: { backgroundColor: '#fff', padding: 8, borderRadius: 12, marginBottom: 4 },
   calloutText: {
     fontSize: 11, fontFamily: font.MonolithRegular
   },
-  recenterBtn: { position: 'absolute', right: 20, bottom: 220, backgroundColor: '#fff', padding: 12, borderRadius: 12, elevation: 5 },
-  bottomCard: { position: 'absolute', bottom: 0, width: '100%', backgroundColor: '#fff', padding: 20, borderTopLeftRadius: 24, borderTopRightRadius: 24, elevation: 20 },
+  recenterBtn: { position: 'absolute', right: 20, bottom: 220, backgroundColor: '#fff', padding: 12, borderRadius: 12, },
+  bottomCard: { position: 'absolute', bottom: 0, width: '100%', backgroundColor: '#fff', padding: 20, borderTopLeftRadius: 24, borderTopRightRadius: 24, },
   addressText: { fontSize: 14, color: '#333', marginBottom: 15, fontFamily: font.MonolithRegular },
   indicator: { width: 40, height: 4, backgroundColor: '#E0E0E0', alignSelf: 'center', marginBottom: 10 },
 });

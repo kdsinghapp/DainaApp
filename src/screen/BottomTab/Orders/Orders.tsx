@@ -349,19 +349,19 @@ const styles = StyleSheet.create({
 
   tabsWrap: {
     flexDirection: "row",
-    backgroundColor: "#fff",
-    padding: 12,
+    backgroundColor: "#F5F5F5",
     borderRadius: 20,
     marginBottom: 20,
     marginTop: 10,
-    borderWidth: 1,
-    borderColor: "#d6e1f9ff",
     // Shadow (iOS)
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.1,
     shadowRadius: 6,
+    height: 55,
 
+    justifyContent: "center",
+    alignItems: "center",
     // Shadow (Android)
 
   },
@@ -374,6 +374,10 @@ const styles = StyleSheet.create({
   },
   tabActive: {
     backgroundColor: "#FFCC00",
+    justifyContent: "center",
+    alignItems: "center",
+    height: 55,
+
     ...Platform.select({
       ios: {
         shadowColor: "#FFCC00",

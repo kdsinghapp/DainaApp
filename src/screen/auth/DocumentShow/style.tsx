@@ -59,7 +59,6 @@ export const styles = StyleSheet.create({
     fontFamily: font.MonolithRegular,
     color: '#94A3B8',
     marginBottom: 16,
-    textTransform: 'uppercase',
     letterSpacing: 1.5,
   },
   card: {
@@ -114,15 +113,20 @@ export const styles = StyleSheet.create({
   statusText: {
     fontSize: 11,
     fontFamily: font.MonolithRegular,
-    textTransform: 'uppercase',
     letterSpacing: 1,
   },
   verifiedBadge: { backgroundColor: 'rgba(52, 199, 89, 0.1)' },
   reviewBadge: { backgroundColor: 'rgba(0, 122, 255, 0.1)' },
   pendingBadge: { backgroundColor: 'rgba(255, 149, 0, 0.1)' },
-  verifiedText: { color: '#34C759' },
-  reviewText: { color: '#007AFF' },
-  pendingText: { color: '#FF9500' },
+  verifiedText: {
+    color: '#34C759', fontFamily: font.MonolithRegular,
+  },
+  reviewText: {
+    color: '#007AFF', fontFamily: font.MonolithRegular,
+  },
+  pendingText: {
+    color: '#FF9500', fontFamily: font.MonolithRegular,
+  },
   infoGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',

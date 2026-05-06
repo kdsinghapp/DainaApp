@@ -22,9 +22,9 @@ const PhoneLogin = () => {
 
 
   // user  
-  const [phoneNumber, setPhoneNumber] = useState("94645633");
+  // const [phoneNumber, setPhoneNumber] = useState("94645633");
   // const [phoneNumber, setPhoneNumber] = useState("");
-  // const [phoneNumber, setPhoneNumber] = useState("940309344034");
+  const [phoneNumber, setPhoneNumber] = useState("");
   const [countryCode, setCountryCode] = useState("IN");
   const [callingCode, setCallingCode] = useState("+91");
   const [loading, setLoading] = useState(false);
@@ -122,7 +122,8 @@ const PhoneLogin = () => {
         <Text style={{
           color: "#FFCC00",
           fontSize: 15,
-          marginBottom: 15
+          marginBottom: 15,
+          fontFamily: font.MonolithRegular,
         }}>{strings.PhoneNumber}</Text>
         <View style={styles.inputContainer}>
           <TouchableOpacity onPress={() => setModalVisible(true)} style={styles.countryPicker}>

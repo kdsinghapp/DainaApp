@@ -310,10 +310,14 @@ export default function ChatInboxScreen() {
         showsVerticalScrollIndicator={false}>
         {/* Search */}
         <View style={styles.searchBox}>
-          <Icon name="search-outline" size={20} color="#94A3B8" style={{ marginRight: 10 }} />
+          <Icon name="search" size={18} color="#64748B"
+            style={{ marginLeft: 10 }}
+          />
+
           <TextInput
             placeholder={strings.SearchInboxPlaceholder}
-            placeholderTextColor="black"
+            placeholderTextColor="#94A3B8"
+
             value={query}
             onChangeText={setQuery}
             style={styles.input}
@@ -383,26 +387,16 @@ const styles = StyleSheet.create({
   searchBox: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "white",
-    borderRadius: 15,
-    paddingHorizontal: 20,
-    marginBottom: 20,
-    marginTop: 10,
-    height: 65,
+    backgroundColor: "#FFFFFF",
+    borderRadius: 14,
+    paddingHorizontal: 15,
+    height: 56,
     borderWidth: 1,
-    borderColor: "#d6e1f9ff",
-    ...Platform.select({
-      ios: {
-        shadowColor: "#0F172A",
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.04,
-        shadowRadius: 8,
-      },
-      android: {
-        elevation: 0,
-      },
-    }),
-
+    borderColor: "#E2E8F0",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
   },
   searchIcon: {
     fontSize: 16,

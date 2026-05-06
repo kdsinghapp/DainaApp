@@ -21,7 +21,7 @@ interface CustomInputProps extends TextInputProps {
   type?: string;
   onpress?: any,
   date?: string,
-  placeholder:any
+  placeholder: any
 }
 
 const CustomInput: React.FC<CustomInputProps> = ({
@@ -33,7 +33,7 @@ const CustomInput: React.FC<CustomInputProps> = ({
   date,
   rightIcon,
   placeholder,
-editable,
+  editable,
   ...rest
 }) => {
   const [hidePassword, setHidePassword] = useState(secureTextEntryToggle);
@@ -43,23 +43,23 @@ editable,
       {leftIcon && <View style={styles.leftIcon}>{leftIcon}</View>}
 
       {type == "date" ?
-        <TouchableOpacity onPress={onpress} style={{ width: '93%',}}>
-          <Text allowFontScaling={false}   style={[styles.input, { width: '100%' }]}>{date}</Text>
+        <TouchableOpacity onPress={onpress} style={{ width: '93%', }}>
+          <Text allowFontScaling={false} style={[styles.input, { width: '100%' }]}>{date}</Text>
         </TouchableOpacity>
         :
-        
+
         <TextInput
-        allowFontScaling={false}
- placeholder={placeholder}
- editable={editable}
+          allowFontScaling={false}
+          placeholder={placeholder}
+          editable={editable}
           style={styles.input}
           placeholderTextColor="#8F8F8F"
-          secureTextEntry={hidePassword} 
-        
+          secureTextEntry={hidePassword}
+
           {...rest}
         />
       }
-      
+
       {secureTextEntryToggle && (
         <TouchableOpacity onPress={() => setHidePassword(!hidePassword)}>
           <Icon
@@ -69,9 +69,9 @@ editable,
           />
         </TouchableOpacity>
       )}
-      
+
       {rightIcon && <View style={styles.leftIcon}>{rightIcon}</View>}
- 
+
     </View>
   );
 };
@@ -85,8 +85,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
     height: 60,
     marginTop: 15,
-     borderColor:"#708090",
- width:"100%" 
+    borderColor: "#708090",
+    width: "100%"
   },
   leftIcon: {
     marginRight: 10,
@@ -95,7 +95,7 @@ const styles = StyleSheet.create({
     flex: 1,
     color: '#000',
     fontSize: 16,
-    fontFamily:font.MonolithRegular,
+    fontFamily: font.MonolithRegular,
 
   },
 });

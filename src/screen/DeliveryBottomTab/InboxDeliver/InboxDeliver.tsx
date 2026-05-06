@@ -322,14 +322,13 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFFFFF",
     borderRadius: 14,
     paddingHorizontal: 15,
-    height: 50,
+    height: 55,
     borderWidth: 1,
     borderColor: "#E2E8F0",
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.05,
     shadowRadius: 10,
-    elevation: 2,
   },
   input: {
     flex: 1,
@@ -518,12 +517,15 @@ const styles = StyleSheet.create({
     fontSize: 22,
     color: "#0F172A",
     marginBottom: 8,
+    fontFamily: font.MonolithRegular,
   },
   emptySubtitle: {
     fontSize: 15,
     color: "#64748B",
     textAlign: "center",
     lineHeight: 22,
+    fontFamily: font.MonolithRegular,
+
   },
   errorBanner: {
     flexDirection: 'row',

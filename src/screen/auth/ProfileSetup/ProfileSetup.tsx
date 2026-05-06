@@ -119,11 +119,7 @@ const ProfileSetup = () => {
       if (response) {
         await getProfileApi();
         if (userData?.type === "Delivery") {
-          // param.navigation.navigate(ScreenNameEnum.UploadDocumentsScreen);
-          navigation.reset({
-            index: 0,
-            routes: [{ name: ScreenNameEnum.UploadDocumentsScreen }],
-          });
+          navigation.navigate(ScreenNameEnum.UploadDocumentsScreen);
         } else {
           navigation.reset({
             index: 0,

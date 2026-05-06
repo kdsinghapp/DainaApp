@@ -9,6 +9,7 @@ import { color } from '../../constant';
 import moment from 'moment';
 import { RefreshControl } from 'react-native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import font from '../../theme/font';
 
 
 const NotificationItem = ({ item }: any) => {
@@ -36,14 +37,7 @@ const NotificationItem = ({ item }: any) => {
         (item.isRead === false || item.isRead === 0) && styles.unreadBackground
       ]}
     >
-      <View style={styles.iconContainer}>
-        <MaterialCommunityIcons
-          name={getIcon(item.data?.type)}
-          size={24}
-          color={item.isRead === false ? color.baground : '#999'}
-        />
-        {item.isRead === false && <View style={styles.dot} />}
-      </View>
+
       <View style={styles.textContainer}>
         <Text style={styles.title}>{item.title}</Text>
         <Text style={styles.body}>{item.body}</Text>
@@ -115,6 +109,7 @@ const NotificationsScreen = () => {
       ) : (
         <SectionList
           sections={sections}
+          style={{ gap: 1, marginBottom: 8 }}
           keyExtractor={(item, index) => item.id?.toString() || index.toString()}
           renderItem={({ item }) => <NotificationItem item={item} />}
           renderSectionHeader={({ section: { title } }) => (
@@ -155,6 +150,7 @@ const styles = StyleSheet.create({
   emptyText: {
     fontSize: 16,
     color: '#999',
+    fontFamily: font.MonolithRegular,
   },
   sectionHeader: {
     fontSize: 16,
@@ -170,7 +166,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   unreadBackground: {
-    backgroundColor: '#F0F8F5',
+    backgroundColor: 'white',
   },
   iconContainer: {
     marginRight: 12,
@@ -180,34 +176,34 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
   },
-  dot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: '#6FCF97',
-    position: 'absolute',
-    top: 0,
-    right: 0,
-    borderWidth: 1.5,
-    borderColor: '#FFF',
-  },
+
   textContainer: {
     flex: 1,
+    padding: 10,
+    gap: 5,
+    borderColor: '#F5F5F5',
+    borderWidth: 1,
+    borderRadius: 10
   },
   title: {
     fontSize: 15,
-    fontWeight: '600',
+    fontFamily: font.MonolithRegular,
+
     color: '#333',
   },
   body: {
     fontSize: 14,
     color: '#666',
     marginTop: 2,
+    fontFamily: font.MonolithRegular,
+
   },
   date: {
     fontSize: 12,
     color: '#999',
     marginTop: 6,
+    fontFamily: font.MonolithRegular,
+
   },
 });
 

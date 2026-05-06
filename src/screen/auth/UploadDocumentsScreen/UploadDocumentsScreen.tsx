@@ -115,7 +115,10 @@ const UploadDocumentsScreen = () => {
   return (
     <SafeAreaView style={styles.container}>
       <StatusBarComponent />
-      <CustomHeader label={strings.UploadDocuments} />
+      <CustomHeader
+        label={strings.UploadDocuments}
+        leftPress={() => navigation.navigate(ScreenNameEnum.ProfileSetup)}
+      />
       <LoadingModal visible={isLoading} />
 
       <ScrollView

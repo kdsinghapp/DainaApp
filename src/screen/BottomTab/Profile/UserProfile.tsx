@@ -189,13 +189,13 @@ const ProfileScreen: React.FC = () => {
                 label={strings.ChangeLanguage}
                 onPress={() => navigation.navigate(ScreenNameEnum.language)}
               />
-              <MenuItem
+              {/* <MenuItem
                 index={2}
                 isLast
                 icon={<Icon name="cart-outline" size={22} color={color.primary} />}
                 label={strings.MyOrders}
                 onPress={() => navigation.navigate(ScreenNameEnum.OrdersPrfile)}
-              />
+              /> */}
             </View>
           </Animated.View>
 
@@ -357,7 +357,6 @@ const styles = StyleSheet.create({
     fontSize: 10,
     fontFamily: font.MonolithRegular,
     color: color.primary,
-    textTransform: "uppercase",
     letterSpacing: 1,
   },
   statsRow: {
@@ -396,7 +395,7 @@ const styles = StyleSheet.create({
     fontFamily: font.MonolithRegular,
     color: "#94A3B8",
     marginTop: 1,
-    textTransform: "uppercase",
+
     letterSpacing: 0.5,
   },
   menuContainer: {
@@ -412,7 +411,6 @@ const styles = StyleSheet.create({
     color: "#94A3B8",
     marginBottom: 12,
     marginLeft: 4,
-    textTransform: "uppercase",
     letterSpacing: 1.5,
   },
   card: {
