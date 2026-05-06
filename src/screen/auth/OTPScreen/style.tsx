@@ -83,6 +83,7 @@ export const styles = StyleSheet.create({
     textAlignVertical: 'center',
     color: '#000',
     borderRadius: 30,
+    fontFamily: font.MonolithRegular,
     includeFontPadding: false,  // remove extra padding for Android
   },
   focusCell: {
@@ -95,6 +96,8 @@ export const styles = StyleSheet.create({
   errorText: {
     color: 'red',
     marginTop: 18,
+    fontFamily: font.MonolithRegular,
+
   },
   bannerContainer: {
     alignItems: 'center',
