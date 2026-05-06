@@ -63,7 +63,7 @@ const CustomInput: React.FC<CustomInputProps> = ({
       {secureTextEntryToggle && (
         <TouchableOpacity onPress={() => setHidePassword(!hidePassword)}>
           <Icon
-            source={hidePassword ? imageIndex.eye : imageIndex.eye}
+            source={hidePassword ? imageIndex.Addressicone : imageIndex.Addressicone}
             size={20}
             colorIcon="#A59F9F"
           />
