@@ -70,7 +70,6 @@ const CreateParcelFrom = () => {
     shipmentType: "",
     senderName: "",
     senderMobile: "",
-    // senderAddress: "",
     pickupDate: "",
     pickupTime: "",
     consignmentType: "",
