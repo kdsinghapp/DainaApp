@@ -24,7 +24,7 @@ import ScreenNameEnum from "../../../../routes/screenName.enum";
 import useDashboard from "../../../BottomTab/DashBoard/useDashboard";
 import NewOrderNotificationModal from "../../../../compoent/NewOrderNotificationModal";
 import OfferAcceptedModal from "../../../../compoent/OfferAcceptedModal";
-import { GetDashboardCounts } from "../../../../Api/apiRequest";
+import { GetDashboardCounts, GetProfileApi } from "../../../../Api/apiRequest";
 import strings from "../../../../localization/Localization";
 import OnlineSlideRight from "../../../../compoent/OnlineSlideRight";
 import { successToast } from "../../../../utils/customToast";
@@ -169,16 +169,16 @@ const DeliveryHome = () => {
         }
       >
 
-        <OnlineSlideRight coords={coords} onSlideSuccess={() => successToast("Online")} isOnline={isOnline} setIsOnline={setIsOnline} />
-
-        <View
-          style={{
-            marginTop: 12,
-            marginBottom: 5,
+        <OnlineSlideRight
+          coords={coords}
+          onSlideSuccess={(newStatus: boolean) => {
+            // successToast(newStatus ? "You are now Online" : "You are now Offline");
           }}
-        >
+          isOnline={isOnline}
+          setIsOnline={setIsOnline}
+        />
 
-        </View>
+
         <View style={styles.container1}>
           {/* Earnings */}
           <ReAnimated.View

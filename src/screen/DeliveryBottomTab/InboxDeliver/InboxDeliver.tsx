@@ -297,7 +297,7 @@ const AVATAR_SIZE = 56;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F8FAFC",
+    backgroundColor: "white",
 
   },
   headerRow: {

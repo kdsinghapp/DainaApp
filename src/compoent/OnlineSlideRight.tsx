@@ -1,327 +1,230 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
-  View,
-  Text,
-  StyleSheet,
-  Animated,
-  Easing,
-  PanResponder,
-  Dimensions,
-  Platform,
-  ActivityIndicator,
+  View, Text, StyleSheet, TouchableOpacity,
+  Dimensions, ActivityIndicator, Platform, Animated,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import Geolocation from '@react-native-community/geolocation';
+import axios from 'axios';
 import font from '../theme/font';
-import { base_url } from '../Api';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import strings from '../localization/Localization';
+import { base_url, WebSocket_Url } from '../Api';
+import { GetProfileApi } from '../Api/apiRequest';
+import { useDispatch, useSelector } from 'react-redux';
+import { loginSuccess } from '../redux/feature/authSlice';
 
 const { width } = Dimensions.get('window');
-const SLIDER_WIDTH = width * 0.85;
-const KNOB_SIZE = 54;
-const SLIDE_DISTANCE = SLIDER_WIDTH - KNOB_SIZE - 10;
 
 interface Props {
   isOnline: boolean;
   setIsOnline: (val: boolean) => void;
-  coords?: any;
-  onSlideSuccess?: () => void;
+  coords?: { lat?: number; lon?: number };
+  onSlideSuccess?: (newStatus: boolean) => void;
 }
 
-const OnlineSlideRight: React.FC<Props> = ({ isOnline, setIsOnline, coords, onSlideSuccess }) => {
-  const pan = useRef(new Animated.Value(isOnline ? SLIDE_DISTANCE : 0)).current;
-  const pulseAnim = useRef(new Animated.Value(0)).current;
+const OnlineOfflineButton: React.FC<Props> = ({
+  isOnline,
+  setIsOnline,
+  coords,
+  onSlideSuccess,
+}) => {
   const [loading, setLoading] = useState(false);
+  const [isProfileLoading, setIsProfileLoading] = useState(false);
+  const [sessionSeconds, setSessionSeconds] = useState(0);
+  const sessionRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const pulseAnim = useRef(new Animated.Value(1)).current;
 
-  // Initialize location from props if available
-  const [currentLocation, setCurrentLocation] = useState<{
-    lat: string | null;
-    lon: string | null;
-  }>({
-    lat: coords?.lat?.toString() || null,
-    lon: coords?.lon?.toString() || null,
-  });
+  const userData: any = useSelector((state: any) => state.auth.userData);
+  const dispatch = useDispatch();
 
-  // Update location if props change
+  // Pulse animation when online
   useEffect(() => {
-    if (coords?.lat && coords?.lon) {
-      setCurrentLocation({
-        lat: coords.lat.toString(),
-        lon: coords.lon.toString(),
-      });
+    if (isOnline) {
+      Animated.loop(
+        Animated.sequence([
+          Animated.timing(pulseAnim, { toValue: 1.08, duration: 900, useNativeDriver: true }),
+          Animated.timing(pulseAnim, { toValue: 1, duration: 900, useNativeDriver: true }),
+        ])
+      ).start();
+      sessionRef.current = setInterval(() => setSessionSeconds(s => s + 1), 1000);
+    } else {
+      pulseAnim.stopAnimation();
+      pulseAnim.setValue(1);
+      if (sessionRef.current) clearInterval(sessionRef.current);
+      setSessionSeconds(0);
     }
-  }, [coords]);
-
-  useEffect(() => {
-    Animated.spring(pan, {
-      toValue: isOnline ? SLIDE_DISTANCE : 0,
-      useNativeDriver: true,
-      friction: 8,
-      tension: 40,
-    }).start();
+    return () => {
+      if (sessionRef.current) clearInterval(sessionRef.current);
+    };
   }, [isOnline]);
 
-  useEffect(() => {
-    if (!isOnline) {
-      pulseAnim.setValue(0);
-      return;
-    }
-    const loop = Animated.loop(
-      Animated.timing(pulseAnim, {
-        toValue: 1,
-        duration: 2000,
-        easing: Easing.out(Easing.ease),
-        useNativeDriver: true,
-      })
-    );
-    loop.start();
-    return () => loop.stop();
-  }, [isOnline]);
+  const formatSession = (secs: number) => {
+    const m = Math.floor(secs / 60).toString().padStart(2, '0');
+    const s = (secs % 60).toString().padStart(2, '0');
+    return `${m}:${s}`;
+  };
 
-  const toggleOnlineStatus = async (targetOnline: boolean) => {
-    if (loading) return;
-    const token = await AsyncStorage.getItem('token');
-    if (!token) return;
-
-    setLoading(true);
-    // Optimistic UI update
-    setIsOnline(targetOnline);
-
+  const getProfileApi = async () => {
     try {
-      // Prioritize coords from props if available
-      let lat = coords?.lat?.toString() || currentLocation.lat;
-      let lon = coords?.lon?.toString() || currentLocation.lon;
+      const response = await GetProfileApi(setIsProfileLoading);
+      if (response) dispatch(loginSuccess({ userData: response }));
+    } catch (_) { }
+  };
 
-      if (!lat || !lon) {
-        try {
-          const position = await new Promise<any>((resolve, reject) => {
-            Geolocation.getCurrentPosition(resolve, reject, {
-              enableHighAccuracy: true,
-              timeout: 15000,
-              maximumAge: 10000,
-            });
-          });
-          lat = position.coords.latitude.toString();
-          lon = position.coords.longitude.toString();
-          setCurrentLocation({ lat, lon });
-        } catch (locError) {
-          console.warn('Location fetch failed:', locError);
-          // If we still don't have location, we cannot go online
-          if (targetOnline) {
-            setIsOnline(false);
-            setLoading(false);
-            return;
-          }
-        }
-      }
+  const toggleOnlineStatus = async () => {
+    if (loading) return;
+    const targetOnline = !isOnline;
+    setLoading(true);
+    try {
+      const token = await AsyncStorage.getItem('token');
+      if (!token) return;
 
-      // Final check: if we are going online, we MUST have location
-      if (targetOnline && (!lat || !lon || lat === '0' || lon === '0')) {
-        setIsOnline(false);
-        setLoading(false);
-        return;
-      }
+      const lat = coords?.lat ?? 0;
+      const lon = coords?.lon ?? 0;
+      const statusStr = targetOnline ? 'online' : 'offline';
 
-      const requestBody = {
-        lat: lat || '0',
-        lon: lon || '0',
-        status: targetOnline ? 'online' : 'offline',
-      };
+      const response = await axios.post(
+        `${base_url}/driver/location`,
+        { status: statusStr, lat, lon },
+        { headers: { Authorization: `Bearer ${token}`, Accept: 'application/json' } }
+      );
 
-      const response = await fetch(`${base_url}/driver/location`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(requestBody),
-      });
+      // WebSocket notification (fire-and-forget)
+      try {
+        const ws = new WebSocket(`${WebSocket_Url}/driver-live?token=${token}`);
+        ws.onopen = () => {
+          ws.send(JSON.stringify({ status: statusStr, lat, lon }));
+          setTimeout(() => ws.close(), 1500);
+        };
+      } catch (_) { }
 
-      const data = await response.json();
-      console.log('📡 Driver Location API Response:', data);
-
-      if (response.status === 200 || data.status === 1 || data.status === '1') {
-        await AsyncStorage.setItem('driverOnlineStatus', targetOnline ? 'online' : 'offline');
-        if (targetOnline && onSlideSuccess) {
-          onSlideSuccess();
-        }
-      } else {
-        // API rejected the status change
-        console.warn('❌ API status update failed:', data.message);
-        setIsOnline(!targetOnline);
+      if (response.data?.status === 1 || response.status === 200) {
+        setIsOnline(targetOnline);
+        onSlideSuccess?.(targetOnline);
+        await getProfileApi();
       }
     } catch (error) {
-      __DEV__ && console.warn('Toggle Error:', error);
-      setIsOnline(!targetOnline);
+      console.error('❌ Status Toggle Error:', error);
     } finally {
       setLoading(false);
     }
   };
 
-  const panResponder = useRef(
-    PanResponder.create({
-      onStartShouldSetPanResponder: () => !loading,
-      onMoveShouldSetPanResponder: () => !loading,
-      onPanResponderMove: (_, gestureState) => {
-        if (loading) return;
-        let newX = isOnline ? SLIDE_DISTANCE + gestureState.dx : gestureState.dx;
-        if (newX < 0) newX = 0;
-        if (newX > SLIDE_DISTANCE) newX = SLIDE_DISTANCE;
-        pan.setValue(newX);
-      },
-      onPanResponderRelease: (_, gestureState) => {
-        if (loading) return;
-        const threshold = SLIDE_DISTANCE / 2;
-        const currentX = isOnline ? SLIDE_DISTANCE + gestureState.dx : gestureState.dx;
-
-        if (!isOnline && currentX > threshold) {
-          // Slide to Online
-          Animated.spring(pan, {
-            toValue: SLIDE_DISTANCE,
-            useNativeDriver: true,
-          }).start();
-          toggleOnlineStatus(true);
-        } else if (isOnline && currentX < threshold) {
-          // Slide to Offline
-          Animated.spring(pan, {
-            toValue: 0,
-            useNativeDriver: true,
-          }).start();
-          toggleOnlineStatus(false);
-        } else {
-          // Snap back
-          Animated.spring(pan, {
-            toValue: isOnline ? SLIDE_DISTANCE : 0,
-            useNativeDriver: true,
-          }).start();
-        }
-      },
-    })
-  ).current;
-
-  const bgInterpolation = pan.interpolate({
-    inputRange: [0, SLIDE_DISTANCE],
-    outputRange: ['#FFCC00', '#FFCC00'],
-  });
-
-  const pulseScale = pulseAnim.interpolate({
-    inputRange: [0, 1],
-    outputRange: [1, 1.4],
-  });
-
-  const pulseOpacity = pulseAnim.interpolate({
-    inputRange: [0, 0.5, 1],
-    outputRange: [0.6, 0.3, 0],
-  });
 
   return (
-    <View style={styles.outerContainer}>
-      <Animated.View style={[styles.sliderTrack, { backgroundColor: bgInterpolation }]}>
-        <Text allowFontScaling={false} style={styles.trackText}>
-          {isOnline ? strings.SlideToGoOffline : strings.SlideToGoOnline}
-        </Text>
-
+    <View style={styles.container}>
+      {/* Status badge */}
+      <View style={[styles.badge, isOnline ? styles.badgeOnline : styles.badgeOffline]}>
         <Animated.View
           style={[
-            styles.knobContainer,
-            { transform: [{ translateX: pan }] },
+            styles.dot,
+            isOnline ? styles.dotOnline : styles.dotOffline,
+            isOnline && { transform: [{ scale: pulseAnim }] },
           ]}
-          {...panResponder.panHandlers}
-        >
-          {isOnline && (
-            <Animated.View
-              style={[
-                styles.pulse,
-                {
-                  transform: [{ scale: pulseScale }],
-                  opacity: pulseOpacity,
-                },
-              ]}
+        />
+        <Text style={[styles.badgeText, { color: isOnline ? '#0f6e56' : '#5F5E5A' }]}>
+          {userData?.onlineStatus}
+        </Text>
+      </View>
+
+      {/* Toggle button */}
+      <TouchableOpacity
+        onPress={toggleOnlineStatus}
+        disabled={loading}
+        activeOpacity={0.85}
+        style={[
+          styles.button,
+          isOnline ? styles.buttonOnline : styles.buttonOffline,
+        ]}
+      >
+        {loading ? (
+          <ActivityIndicator color={isOnline ? '#FFF' : '#7B3F00'} />
+        ) : (
+          <View style={styles.content}>
+            <MaterialCommunityIcons
+              name="power"
+              size={22}
+              color={isOnline ? '#FFF' : '#7B3F00'}
+              style={styles.icon}
             />
-          )}
-          <View style={styles.knob}>
-            {loading ? (
-              <ActivityIndicator size="small" color={isOnline ? '#FFCC00' : '#374151'} />
-            ) : (
-              <MaterialCommunityIcons
-                name={isOnline ? 'power' : 'chevron-right'}
-                size={32}
-                color={isOnline ? '#FFCC00' : '#374151'}
-              />
-            )}
+            <Text style={[styles.text, { color: isOnline ? '#FFF' : '#7B3F00' }]}>
+              {isOnline ? strings.SlideToGoOffline : strings.SlideToGoOnline}
+            </Text>
           </View>
-        </Animated.View>
-      </Animated.View>
+        )}
+      </TouchableOpacity>
+
+      {/* Hint */}
+
+
     </View>
   );
 };
 
-export default OnlineSlideRight;
+export default OnlineOfflineButton;
 
 const styles = StyleSheet.create({
-  outerContainer: {
-    // position: 'absolute',
-    // bottom: 20,
+  container: {
     width: '100%',
     alignItems: 'center',
-    // zIndex: 1000,
-    marginTop: 22,
-
+    marginVertical: 20,
+    gap: 12,
   },
-  sliderTrack: {
-    width: SLIDER_WIDTH,
-    height: 64,
-    borderRadius: 32,
+  badge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 7,
+    paddingHorizontal: 14,
+    paddingVertical: 6,
+    borderRadius: 20,
+  },
+  badgeOnline: { backgroundColor: '#e1f5ee' },
+  badgeOffline: { backgroundColor: '#F1EFE8' },
+  dot: { width: 8, height: 8, borderRadius: 4 },
+  dotOnline: { backgroundColor: '#1d9e75' },
+  dotOffline: { backgroundColor: '#888780' },
+  badgeText: { fontSize: 13, fontFamily: font.MonolithRegular, fontWeight: '500' },
+  button: {
+    width: width * 0.85,
+    height: 56,
+    borderRadius: 28,
     justifyContent: 'center',
-    paddingHorizontal: 4,
-    overflow: 'hidden',
+    alignItems: 'center',
+  },
+  buttonOnline: {
+    backgroundColor: '#FFCC00',
     ...Platform.select({
-      ios: {
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.2,
-        shadowRadius: 5,
-      },
-      android: {
-        elevation: 0,
-      },
+      ios: { shadowColor: '#7B3F00', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.25, shadowRadius: 8 },
     }),
   },
-  trackText: {
-    position: 'absolute',
-    width: '100%',
-    textAlign: 'center',
-    color: 'black',
-    fontSize: 16,
-    fontFamily: font.MonolithRegular,
-    letterSpacing: 0.5,
-    opacity: 0.9,
+  buttonOffline: {
+    backgroundColor: 'transparent',
+    borderWidth: 1.5,
+    borderColor: '#FFCC00',
   },
-  knobContainer: {
-    width: KNOB_SIZE,
-    height: KNOB_SIZE,
-    justifyContent: 'center',
+  content: { flexDirection: 'row', alignItems: 'center' },
+  icon: { marginRight: 8 },
+  text: { fontSize: 16, fontFamily: font.MonolithRegular, letterSpacing: 0.3 },
+  hint: { fontSize: 13, color: '#888780', fontFamily: font.MonolithRegular },
+  card: {
+    width: width * 0.85,
+    backgroundColor: 'white',
+    borderRadius: 12,
+    borderWidth: 0.5,
+    borderColor: '#E5E7EB',
+    paddingHorizontal: 16,
+    paddingVertical: 4,
+    marginTop: 4,
+
+  },
+  statRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
+    paddingVertical: 10,
+    borderBottomWidth: 0.5,
+    borderColor: '#F1EFE8',
   },
-  knob: {
-    width: KNOB_SIZE,
-    height: KNOB_SIZE,
-    borderRadius: KNOB_SIZE / 2,
-    backgroundColor: '#FFF',
-    justifyContent: 'center',
-    alignItems: 'center',
-    elevation: 0,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 2,
-  },
-  pulse: {
-    position: 'absolute',
-    width: KNOB_SIZE + 20,
-    height: KNOB_SIZE + 20,
-    borderRadius: (KNOB_SIZE + 20) / 2,
-    backgroundColor: '#FFCC00',
-  },
+  statLabel: { fontSize: 13, color: '#888780' },
+  statValue: { fontSize: 13, fontWeight: '500', color: '#2C2C2A' },
 });

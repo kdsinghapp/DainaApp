@@ -82,6 +82,8 @@ const EditProfile = () => {
         navigation.goBack();
       }
     } catch (error) {
+      getProfileApi()
+
       console.error("Error updating profile:", error);
     }
   };

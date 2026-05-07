@@ -8,6 +8,9 @@ import Geolocation from '@react-native-community/geolocation';
 import { successToast, errorToast } from '../../../../utils/customToast';
 import ScreenNameEnum from '../../../../routes/screenName.enum';
 import { STATUS } from '../../../../utils/Constant';
+import { useDispatch, useSelector } from 'react-redux';
+import { loginSuccess } from '../../../../redux/feature/authSlice';
+import { GetProfileApi } from '../../../../Api/apiRequest';
 export const useDeliveryHome = () => {
   const [isLoading, setIsLoading] = useState(false);
   const navigation = useNavigation()
@@ -24,8 +27,11 @@ export const useDeliveryHome = () => {
   } | null>(null);
   const [acceptCounterOfferLoading] = useState(false);
   const locationRef = useRef(null);
+  const dispatch = useDispatch();
+  const userData = useSelector((state: any) => state.auth.userData);
+  
   const [isConnected, setIsConnected] = useState(false);
-  const [isOnline, setIsOnline] = useState(false);
+  const [isOnline, setIsOnline] = useState(userData?.onlineStatus?.toLowerCase() === 'online');
   const socketRef = useRef<WebSocket | null>(null);
   const socketLiveRef = useRef<WebSocket | null>(null);
   const cancelledRef = useRef(false);
@@ -564,6 +570,18 @@ export const useDeliveryHome = () => {
     }
   };
 
+  const getProfileApi = async () => {
+    try {
+      const response = await GetProfileApi(setIsLoading);
+      if (response) {
+        const token = await AsyncStorage.getItem('token') || '';
+        dispatch(loginSuccess({ userData: response, token }));
+      }
+    } catch (error) {
+      console.error('Profile refresh error:', error);
+    }
+  };
+
   return {
     // States
     isLoading,
@@ -591,6 +609,8 @@ export const useDeliveryHome = () => {
     acceptCounterOfferLoading,
     RejectcounterOffer,
     isOnline,
-    setIsOnline
+    setIsOnline,
+    getProfileApi,
+    userData
   };
 };

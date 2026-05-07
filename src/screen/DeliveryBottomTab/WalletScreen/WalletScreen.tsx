@@ -22,8 +22,8 @@ const WalletScreen = () => {
   const [modalType, setModalType] = useState<"add" | "withdraw" | null>(null);
   const [amount, setAmount] = useState("");
 
-  const transactions = [
- 
+  const transactions: any = [
+
   ];
 
   const handleConfirm = () => {
@@ -70,43 +70,43 @@ const WalletScreen = () => {
     <SafeAreaView style={styles.container}>
       <StatusBarComponent />
       <CustomHeader label={strings.Wallet} />
-<View style={{
-  marginHorizontal:15
-}}>
-      {/* Balance Card */}
-      <View style={styles.balanceCard}>
-        <Text style={styles.balanceText}>{strings.AvailableBalance}</Text>
-        <Text style={styles.balanceAmount}>$ 00</Text>
-        <View style={styles.buttonRow}>
-          <TouchableOpacity
-            style={styles.withdrawBtn}
-            onPress={() => {
-              setModalType("withdraw");
-              setModalVisible(true);
-            }}
-          >
-            <Text style={styles.btnText}>{strings.Withdraw}</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.addBtn}
-            onPress={() => {
-              setModalType("add");
-              setModalVisible(true);
-            }}
-          >
-            <Text style={styles.btnText}>{strings.AddAmount}</Text>
-          </TouchableOpacity>
+      <View style={{
+        marginHorizontal: 15
+      }}>
+        {/* Balance Card */}
+        <View style={styles.balanceCard}>
+          <Text style={styles.balanceText}>{strings.AvailableBalance}</Text>
+          <Text style={styles.balanceAmount}>$ 00</Text>
+          <View style={styles.buttonRow}>
+            <TouchableOpacity
+              style={styles.withdrawBtn}
+              onPress={() => {
+                setModalType("withdraw");
+                setModalVisible(true);
+              }}
+            >
+              <Text style={styles.btnText}>{strings.Withdraw}</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.addBtn}
+              onPress={() => {
+                setModalType("add");
+                setModalVisible(true);
+              }}
+            >
+              <Text style={styles.btnText}>{strings.AddAmount}</Text>
+            </TouchableOpacity>
+          </View>
         </View>
-      </View>
 
-      {/* Transactions List */}
-      <FlatList
-        data={transactions}
-        renderItem={renderTransaction}
-        keyExtractor={(item) => item.id}
-        contentContainerStyle={{ paddingBottom: 20 }}
-      />
-</View>
+        {/* Transactions List */}
+        <FlatList
+          data={transactions}
+          renderItem={renderTransaction}
+          keyExtractor={(item) => item.id}
+          contentContainerStyle={{ paddingBottom: 20 }}
+        />
+      </View>
       {/* Custom Modal */}
       <Modal
         visible={isModalVisible}
@@ -157,7 +157,7 @@ const WalletScreen = () => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#fff"  },
+  container: { flex: 1, backgroundColor: "#fff" },
   balanceCard: {
     backgroundColor: "#FFCC00",
     padding: 20,
@@ -168,7 +168,7 @@ const styles = StyleSheet.create({
     shadowColor: "#000",
     shadowOpacity: 0.15,
     shadowRadius: 6,
-   },
+  },
   balanceText: {
     fontSize: 16,
     color: "#FFFFFF",

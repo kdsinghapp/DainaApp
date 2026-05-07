@@ -25,5 +25,7 @@ export const endpointCustomer = {
   adddocuments: "/bikedoctor/dealer/add-dealer-documents",
   setLanguage: "set-language",
   notifications: "/notifications",
-  dashboardCounts: "/delivery/dashboard-counts"
+  dashboardCounts: "/delivery/dashboard-counts",
+  saveDriverLocation: "/driver/location",
+  nearbyDrivers: "/nearby"
 };

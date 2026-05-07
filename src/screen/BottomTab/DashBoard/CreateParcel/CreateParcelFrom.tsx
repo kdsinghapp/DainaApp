@@ -411,8 +411,8 @@ const CreateParcelFrom = () => {
                 onLocationSelect: (data) => {
                   setDropLocation(data?.address);
                   sedroplat({
-                    latitude: data.latitude,
-                    longitude: data.longitude,
+                    latitude: data?.latitude,
+                    longitude: data?.longitude,
                   });
 
                 }
