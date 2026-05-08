@@ -19,7 +19,7 @@ import imageIndex from "../../../../assets/imageIndex";
 import { useDeliveryContext } from "../../../../context/DeliveryContext";
 import { styles } from "./style";
 import CurrentLocation from "../../../../CurrentLocation";
-import { Pressable } from "react-native";
+
 import ScreenNameEnum from "../../../../routes/screenName.enum";
 import useDashboard from "../../../BottomTab/DashBoard/useDashboard";
 import NewOrderNotificationModal from "../../../../compoent/NewOrderNotificationModal";
@@ -30,13 +30,13 @@ import OnlineSlideRight from "../../../../compoent/OnlineSlideRight";
 import { successToast } from "../../../../utils/customToast";
 import font from "../../../../theme/font";
 
-const TABS = ["Pending", "Complete", "Cancelled"] as const;
+
 const DeliveryHome = () => {
   const ctx = useDeliveryContext();
   if (!ctx) return null;
   const { isLoading, requests, coords, newOrderNotification, fetchAvailableRequests, isOnline, setIsOnline } = ctx;
   // console.log("newOrderNotification",newOrderNotification?.data?.user?.name)
-  const [activeTab, setActiveTab] = useState<(typeof TABS)[number]>("Pending");
+
   const [counts, setCounts] = useState<any>(null);
   const [refreshing, setRefreshing] = useState(false);
 
@@ -67,25 +67,16 @@ const DeliveryHome = () => {
   // }, [isOnline]);
 
   const listSlide = useRef(new Animated.Value(0)).current;
-  const animationRef = useRef<Animated.CompositeAnimation | null>(null);
+
   useEffect(() => {
     listSlide.setValue(0);
-    const anim = Animated.timing(listSlide, {
+    Animated.timing(listSlide, {
       toValue: 1,
       duration: 220,
       easing: Easing.out(Easing.quad),
       useNativeDriver: true,
-    });
-    animationRef.current = anim;
-    anim.start();
-    return () => {
-      try {
-        animationRef.current?.stop();
-        animationRef.current = null;
-      } catch (_) { }
-    };
-
-  }, [activeTab]);
+    }).start();
+  }, []);
 
   const translateX = listSlide.interpolate({
     inputRange: [0, 1],
@@ -98,26 +89,10 @@ const DeliveryHome = () => {
   const navigation = useNavigation();
   const filteredRequests = useMemo(() => {
     if (!requests || requests?.length === 0) return [];
-
-    switch (activeTab) {
-      case "Pending":
-        return requests.filter(
-          (item: any) => item.deliveryStatus?.toLowerCase() === "pending",
-        );
-      case "Complete":
-        return requests.filter(
-          (item: any) =>
-            item.deliveryStatus?.toLowerCase() === "completed" ||
-            item.deliveryStatus?.toLowerCase() === "delivered",
-        );
-      case "Cancelled":
-        return requests.filter(
-          (item: any) => item.deliveryStatus?.toLowerCase() === "cancelled",
-        );
-      default:
-        return requests;
-    }
-  }, [activeTab, requests]);
+    return requests.filter(
+      (item: any) => item.deliveryStatus?.toLowerCase() === "pending",
+    );
+  }, [requests]);
   useFocusEffect(
     useCallback(() => {
       const fetchCounts = async () => {
@@ -301,30 +276,10 @@ const DeliveryHome = () => {
         </View>
 
         <View style={styles.ordersHeader}>
-          <Text style={styles.sectionTitle1}>{strings.Order}</Text>
-          {/* <Text
-            onPress={() => navigation.navigate('DeliveryOrder')}
-            style={styles.sectionTitle1}
-          >
-          </Text> */}
+          <Text style={styles.sectionTitle1}> Nearby {strings.Order}</Text>
+
         </View>
-        <View style={styles.tabs}>
-          {TABS.map((tab) => {
-            const active = tab === activeTab;
-            const label = tab === "Complete" ? strings.Complete : tab === "Cancelled" ? strings.Canceled : strings[tab as keyof typeof strings] || tab;
-            return (
-              <Pressable
-                key={tab}
-                onPress={() => setActiveTab(tab)}
-                style={[styles.tab, active && styles.tabActive]}
-              >
-                <Text style={[styles.tabText, active && styles.tabTextActive]}>
-                  {label}
-                </Text>
-              </Pressable>
-            );
-          })}
-        </View>
+
 
 
 
@@ -335,7 +290,7 @@ const DeliveryHome = () => {
           }}
         >
           <FlatList
-            data={filteredRequests.slice(0, 3)}
+            data={filteredRequests}
 
 
             style={{

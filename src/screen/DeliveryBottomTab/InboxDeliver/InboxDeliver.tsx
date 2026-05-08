@@ -271,6 +271,7 @@ export default function InboxDeliver() {
       <FlatList
         data={filtered}
         style={styles.list}
+
         keyExtractor={(item) => String(item.parcelId)}
         renderItem={renderItem}
         contentContainerStyle={[
@@ -341,6 +342,7 @@ const styles = StyleSheet.create({
   },
   list: {
     flex: 1,
+    marginBottom: 55
   },
   listContent: {
     paddingHorizontal: 20,
@@ -349,11 +351,12 @@ const styles = StyleSheet.create({
   },
   row: {
     backgroundColor: "#FFFFFF",
-    borderRadius: 16,
+    borderRadius: 13,
     marginBottom: 12,
     padding: 12,
     borderWidth: 1,
-    borderColor: "#F1F5F9",
+    borderColor: "#d6e1f9ff",
+
     shadowColor: "#0F172A",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.03,

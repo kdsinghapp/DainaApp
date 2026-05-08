@@ -16,7 +16,7 @@ export const styles = StyleSheet.create({
   pill: {
     width: 180,
     height: 48,
-    borderRadius: 24,
+    borderRadius: 12,
     backgroundColor: "#FFD600",
     justifyContent: "center",
     overflow: "hidden",
@@ -44,7 +44,7 @@ export const styles = StyleSheet.create({
     top: 4,
     bottom: 4,
     width: 80,
-    borderRadius: 20,
+    borderRadius: 12,
     backgroundColor: "#fff",
   },
   onlineText: {
@@ -77,7 +77,7 @@ export const styles = StyleSheet.create({
     flexDirection: "row",
     backgroundColor: "#F5F5F5",
     padding: 6,
-    borderRadius: 30,
+    borderRadius: 12,
     marginBottom: 12,
     height: 55,
     justifyContent: "center",
@@ -94,7 +94,7 @@ export const styles = StyleSheet.create({
   tabActive: {
     backgroundColor: "#FFCC00",
     height: 45,
-    borderRadius: 30,
+    borderRadius: 12,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.06,
@@ -143,7 +143,7 @@ export const styles = StyleSheet.create({
   },
   card: {
     backgroundColor: "#fff",
-    borderRadius: 24,
+    borderRadius: 12,
     padding: 20,
 
     marginBottom: 16,

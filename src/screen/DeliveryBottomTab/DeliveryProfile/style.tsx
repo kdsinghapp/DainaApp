@@ -30,7 +30,7 @@ export const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: BG,
-    borderRadius: 24,
+    borderRadius: 12,
     padding: 16,
     marginBottom: 24,
     borderWidth: 1,
@@ -91,7 +91,7 @@ export const styles = StyleSheet.create({
   },
   card: {
     backgroundColor: BG,
-    borderRadius: 24,
+    borderRadius: 12,
     paddingVertical: 8,
     marginBottom: 24,
     borderWidth: 1,
@@ -122,7 +122,7 @@ export const styles = StyleSheet.create({
   iconWrap: {
     width: 44,
     height: 44,
-    borderRadius: 14,
+    borderRadius: 12,
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: "#F8FAFC",

@@ -287,6 +287,7 @@ const DeliveryHome = () => {
           // data={ordersSeed}
           style={{
             marginTop: 10,
+            marginBottom: 8
           }}
           keyExtractor={(i) => i.id}
           showsVerticalScrollIndicator={false}

@@ -92,10 +92,11 @@ export const styles = StyleSheet.create({
   /* cards */
   card: {
     backgroundColor: "#FFF",
-    borderRadius: 24,
+    borderRadius: 12,
     padding: 20,
     borderWidth: 1,
-    borderColor: "rgba(0,0,0,0.02)",
+    borderColor: "#d6e1f9ff",
+
     marginBottom: 16,
     ...Platform.select({
       ios: {

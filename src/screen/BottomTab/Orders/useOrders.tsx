@@ -30,7 +30,7 @@ const useOrders = () => {
   const [currentlocation, setcurrentlocation] = useState(null);
   const [isLoading, setLoading] = useState(false);
   const [orderData, setorderData] = useState([]);
-  
+
   useEffect(() => {
     getParceldetailsApi()
   }, [])
@@ -58,7 +58,7 @@ const useOrders = () => {
   };
   // Inside your component
   const [pickupLocation, setPickupLocation] = useState(null);
-   const [currentLocation, setCurrentLocation] = useState('');
+  const [currentLocation, setCurrentLocation] = useState('');
   const handleGetLocation = async () => {
     try {
       const data = await locationRef?.current?.fetchLocation();
@@ -85,10 +85,10 @@ const useOrders = () => {
   const getParceldetailsApi = async () => {
     try {
       const response = await Parceldetails(setLoading);
-      console.log("response",response.parcels)
-    // const goingToPickupData = response.parcels.filter(
-    //     item => item.deliveryStatus === "going_to_pickup"
-    //   );
+      console.log("response", response.parcels)
+      // const goingToPickupData = response.parcels.filter(
+      //     item => item.deliveryStatus === "going_to_pickup"
+      //   );
       setorderData(response.parcels);
     } catch (error) {
 
@@ -117,7 +117,7 @@ const useOrders = () => {
           // Optional: some servers need a first message (e.g. subscribe/ping) to start sending
           try {
             ws.send(JSON.stringify({ type: 'ping' }));
-          } catch (_) {}
+          } catch (_) { }
           resolve();
         };
 
@@ -140,9 +140,9 @@ const useOrders = () => {
             const data = JSON.parse(raw);
             console.log('📦 socket data:', data);
             setSocketData(data);
-           
+
             if (data?.type === 'parcel_status_update') {
-              successToast(data?.type?.message ||"Parcels successfully")
+              successToast(data?.type?.message || "Parcels successfully")
               getParceldetailsApi()
               // optional: show new_offer modal later
             }
