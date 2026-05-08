@@ -8,6 +8,8 @@ import Geolocation from '@react-native-community/geolocation';
 import { successToast, errorToast } from '../../../../utils/customToast';
 import ScreenNameEnum from '../../../../routes/screenName.enum';
 import { STATUS } from '../../../../utils/Constant';
+import { View, Text, TouchableOpacity, FlatList, AppState, AppStateStatus } from "react-native";
+import NetInfo, { NetInfoState } from "@react-native-community/netinfo";
 import { useDispatch, useSelector } from 'react-redux';
 import { loginSuccess } from '../../../../redux/feature/authSlice';
 import { GetProfileApi } from '../../../../Api/apiRequest';
@@ -52,6 +54,13 @@ export const useDeliveryHome = () => {
   const socketLiveRef = useRef<WebSocket | null>(null);
   const cancelledRef = useRef(false);
   const soundTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const reconnectTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const liveReconnectTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const heartbeatIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const liveHeartbeatIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const appStateRef = useRef(AppState.currentState);
+  const isNetworkConnectedRef = useRef(true);
+
   // Store lat/long for API; only updates when user moves ≥20m (see watchPosition)
   const [coords, setCoords] = useState<{ lat: number; lon: number } | null>(null);
   const coordsRef = useRef<{ lat: number; lon: number } | null>(null);
@@ -224,9 +233,13 @@ export const useDeliveryHome = () => {
   );
 
   const connectSocket = (token: string) => {
+    if (reconnectTimerRef.current) clearTimeout(reconnectTimerRef.current);
+    if (heartbeatIntervalRef.current) clearInterval(heartbeatIntervalRef.current);
+
     return new Promise<void>((resolve, reject) => {
       try {
         const wsUrl = `${WebSocket_Url}/driver?token=${token}`;
+        console.log('🌐 [WebSocket] Connecting to primary socket:', wsUrl);
         const ws = new WebSocket(wsUrl);
 
         ws.onopen = () => {
@@ -234,9 +247,16 @@ export const useDeliveryHome = () => {
             ws.close();
             return;
           }
-          console.log('✅ WebSocket connected');
+          console.log('✅ [WebSocket] Primary driver socket connected');
           setIsConnected(true);
           socketRef.current = ws;
+
+          heartbeatIntervalRef.current = setInterval(() => {
+            if (ws.readyState === WebSocket.OPEN) {
+              ws.send(JSON.stringify({ type: 'ping' }));
+            }
+          }, 30000);
+
           resolve();
         };
 
@@ -250,6 +270,9 @@ export const useDeliveryHome = () => {
           else raw = String(d);
           try {
             const data = JSON.parse(raw);
+            if (data?.type === 'pong') return;
+
+            console.log('📩 [WebSocket] Received primary message type:', data?.type);
 
             if (data?.type === 'new_offer') {
               if (cancelledRef.current) return;
@@ -318,24 +341,34 @@ export const useDeliveryHome = () => {
               console.log("📦 Parcel Status Update:", data?.status);
             }
           } catch (e) {
-            console.warn('❌ Failed to parse message:', e);
+            console.warn('❌ [WebSocket] Failed to parse primary message:', e);
           }
         };
+
         ws.onerror = (event) => {
           const msg = (event && typeof event === 'object' && 'message' in event) ? String((event as { message?: string }).message) : 'WebSocket error';
-          console.error('❌ WebSocket Error:', msg);
+          console.error('❌ [WebSocket] Primary Error:', msg);
           if (!cancelledRef.current) setIsConnected(false);
           reject(new Error(msg));
         };
 
-        ws.onclose = () => {
-          console.log('⚠️ WebSocket Closed');
+        ws.onclose = (event) => {
+          console.log(`⚠️ [WebSocket] Primary Closed: ${event.code} - ${event.reason}`);
+          if (heartbeatIntervalRef.current) clearInterval(heartbeatIntervalRef.current);
           if (!cancelledRef.current) {
             setIsConnected(false);
             socketRef.current = null;
+
+            if (isNetworkConnectedRef.current) {
+              reconnectTimerRef.current = setTimeout(() => {
+                console.log('🔄 [WebSocket] Reconnecting primary driver socket...');
+                connectSocket(token);
+              }, 5000);
+            } else {
+              console.log('🚫 [WebSocket] Network down, waiting for NetInfo to restore primary socket.');
+            }
           }
         };
-
       } catch (error) {
         reject(error instanceof Error ? error : new Error(String(error)));
         console.log('⚠️ Error creating socket:', error);
@@ -356,24 +389,32 @@ export const useDeliveryHome = () => {
     ws.send(payload);
   }, []);
 
-  // Single socket: nearby-parcels – live location (type: 'online') + nearby parcels (type: 'location')
+  // Single socket: nearby-parcels – live location
   const connectLiveLocationSocket = (token: string) => {
+    if (liveReconnectTimerRef.current) clearTimeout(liveReconnectTimerRef.current);
+    if (liveHeartbeatIntervalRef.current) clearInterval(liveHeartbeatIntervalRef.current);
+
     return new Promise<void>((resolve, reject) => {
       try {
         const wsUrl = `${WebSocket_Url}/nearby-parcels?token=${encodeURIComponent(token)}`;
 
-
-        console.log("wsUrl ----   nerby parsel ", wsUrl)
+        console.log("🌐 [WebSocket] Connecting to live/nearby socket:", wsUrl)
         const ws = new WebSocket(wsUrl);
-        console.log("wsUrl ----   ws  parsel ", ws)
 
         ws.onopen = () => {
           if (cancelledRef.current) {
             ws.close();
             return;
           }
-          console.log('✅ Nearby parcels / live WebSocket connected');
+          console.log('✅ [WebSocket] Live/nearby socket connected');
           socketLiveRef.current = ws;
+
+          liveHeartbeatIntervalRef.current = setInterval(() => {
+            if (ws.readyState === WebSocket.OPEN) {
+              ws.send(JSON.stringify({ type: 'ping' }));
+            }
+          }, 30000);
+
           const { lat, lon } = coordsRef.current ?? {};
           if (lat != null && lon != null) {
             sendNearbyLocationOnce(ws, lat, lon);
@@ -388,12 +429,13 @@ export const useDeliveryHome = () => {
                   sendNearbyLocationOnce(ws, la, lo);
                 }
               },
-              (err) => console.warn('Failed to get position for initial nearby send:', err),
+              (err) => console.warn('❌ [WebSocket] Failed to get initial position for nearby send:', err),
               { enableHighAccuracy: false, timeout: 10000, maximumAge: 5000 }
             );
           }
           resolve();
         };
+
         ws.onmessage = async (event: { data: string | Blob | ArrayBuffer }) => {
           if (cancelledRef.current) return;
           let raw: string;
@@ -405,24 +447,25 @@ export const useDeliveryHome = () => {
           try {
             const data = JSON.parse(raw);
             if (!data || typeof data !== 'object') return;
-            console.log("----- nearby_parcel -0- data", data)
+            if (data?.type === 'pong') return;
+
+            console.log('📩 [WebSocket] Received live/nearby message type:', data?.type);
+
             if (data?.type === 'nearby_parcel') {
               if (cancelledRef.current) return;
 
-              // Use ref to get the absolute latest status inside the closure
               if (isOnlineRef.current) {
-                console.log("🔊 Playing sound for nearby_parcel (Status: Online)");
+                console.log("🔊 [WebSocket] Playing sound for nearby_parcel (Status: Online)");
                 playNotificationSound();
                 ReactNativeHapticFeedback.trigger("notificationSuccess", hapticOptions);
 
-                // Stop the sound automatically after 10 seconds
                 if (soundTimerRef.current) clearTimeout(soundTimerRef.current);
                 soundTimerRef.current = setTimeout(() => {
                   stopNotificationSound();
                   soundTimerRef.current = null;
                 }, 10000);
               } else {
-                console.log("🔇 Skipping sound because driver is offline (Ref check)");
+                console.log("🔇 [WebSocket] Skipping sound because driver is offline (Ref check)");
               }
 
               const parcel = data?.parcel ?? data;
@@ -459,10 +502,10 @@ export const useDeliveryHome = () => {
                   deliveryStatus: item?.status,
                 }));
               setRequests(validRequests as never[]);
-              console.log('📋 Requests updated from socket, count:', validRequests.length);
+              console.log('📋 [WebSocket] Requests updated from socket, count:', validRequests.length);
             }
           } catch (e) {
-            console.warn('❌ Failed to parse nearby message:', e);
+            console.warn('❌ [WebSocket] Failed to parse nearby message:', e);
           }
         };
 
@@ -471,13 +514,25 @@ export const useDeliveryHome = () => {
             event && typeof event === 'object' && 'message' in event
               ? String((event as { message?: string }).message)
               : 'WebSocket error';
-          console.error('❌ Live/nearby WebSocket Error:', msg);
+          console.error('❌ [WebSocket] Live/nearby Error:', msg);
           reject(new Error(msg));
         };
 
-        ws.onclose = () => {
-          console.log('⚠️ Live/nearby WebSocket Closed');
-          if (!cancelledRef.current) socketLiveRef.current = null;
+        ws.onclose = (event) => {
+          console.log(`⚠️ [WebSocket] Live/nearby Closed: ${event.code} - ${event.reason}`);
+          if (liveHeartbeatIntervalRef.current) clearInterval(liveHeartbeatIntervalRef.current);
+          if (!cancelledRef.current) {
+            socketLiveRef.current = null;
+
+            if (isNetworkConnectedRef.current) {
+              liveReconnectTimerRef.current = setTimeout(() => {
+                console.log('🔄 [WebSocket] Reconnecting live/nearby WebSocket...');
+                connectLiveLocationSocket(token);
+              }, 5000);
+            } else {
+              console.log('🚫 [WebSocket] Network down, waiting for NetInfo to restore live socket.');
+            }
+          }
         };
       } catch (error) {
         reject(error instanceof Error ? error : new Error(String(error)));
@@ -489,6 +544,46 @@ export const useDeliveryHome = () => {
 
 
 
+
+  const reconnectAll = useCallback(async () => {
+    if (cancelledRef.current || !isNetworkConnectedRef.current) {
+      console.log('🚫 [WebSocket] Reconnect skipped (Cancelled or No Network)');
+      return;
+    }
+    const token = await AsyncStorage.getItem('token');
+    if (!token) return;
+
+    console.log('🔄 [WebSocket] Reconnecting all sockets due to state change...');
+    if (!socketRef.current || socketRef.current.readyState !== WebSocket.OPEN) {
+      connectSocket(token).catch(e => console.log('❌ Primary socket reconnect failed:', e));
+    }
+    if (!socketLiveRef.current || socketLiveRef.current.readyState !== WebSocket.OPEN) {
+      connectLiveLocationSocket(token).catch(e => console.log('❌ Live socket reconnect failed:', e));
+    }
+  }, []);
+
+  useEffect(() => {
+    const appStateListener = AppState.addEventListener('change', (nextAppState: AppStateStatus) => {
+      if (appStateRef.current.match(/inactive|background/) && nextAppState === 'active') {
+        console.log('📱 [WebSocket] App came to foreground, checking connection...');
+        reconnectAll();
+      }
+      appStateRef.current = nextAppState;
+    });
+
+    const netInfoListener = NetInfo.addEventListener((state: NetInfoState) => {
+      if (!isNetworkConnectedRef.current && state.isConnected) {
+        console.log('🌐 [WebSocket] Network restored, reconnecting...');
+        reconnectAll();
+      }
+      isNetworkConnectedRef.current = state.isConnected ?? true;
+    });
+
+    return () => {
+      appStateListener.remove();
+      netInfoListener();
+    };
+  }, [reconnectAll]);
 
   useEffect(() => {
     cancelledRef.current = false;
