@@ -8,8 +8,6 @@ import {
   ScrollView,
   TouchableOpacity,
 } from "react-native";
-import SvgIndex from "../../../assets/svgIndex";
-import font from "../../../theme/font";
 import imageIndex from "../../../assets/imageIndex";
 import ScreenNameEnum from "../../../routes/screenName.enum";
 import { useNavigation } from "@react-navigation/native";

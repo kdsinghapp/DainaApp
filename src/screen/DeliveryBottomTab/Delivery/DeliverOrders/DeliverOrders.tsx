@@ -152,18 +152,18 @@ const DeliveryHome = () => {
         style={styles.card}
         activeOpacity={0.9}
         onPress={() => {
-          if (st == STATUS.PENDING) {
+          if (st === STATUS.PENDING) {
             navigation.navigate(ScreenNameEnum.ParcelDetails, {
               item: { ...item, ...item?.parcel }
             });
           }
-          else if (st == STATUS.ASSIGNED) {
-            navigation.navigate(ScreenNameEnum.TripMap, {
-              item: { ...item, ...item?.parcel }
-            });
-          }
-
-          else {
+          else if ([
+            STATUS.ASSIGNED,
+            STATUS.GOING_TO_PICKUP,
+            STATUS.PICKED_UP,
+            STATUS.ON_THE_WAY,
+            STATUS.ARRIVING
+          ].includes(st as any)) {
             navigation.navigate(ScreenNameEnum.TripMap, {
               item: { ...item, ...item?.parcel }
             });
@@ -174,7 +174,7 @@ const DeliveryHome = () => {
           <Image
             source={
               item?.user?.image
-                ? { uri: item?.user.image }
+                ? { uri: item?.user?.image }
                 : imageIndex?.dpuser || { uri: "https://i.pravatar.cc/100" }
             }
             style={styles.avatar}
@@ -212,7 +212,7 @@ const DeliveryHome = () => {
         </View>
 
         <Text style={styles.code} numberOfLines={1}>
-          {item.trackingId}
+          {item?.trackingId}
         </Text>
 
         {/* Pickup / Drop block */}
