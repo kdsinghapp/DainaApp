@@ -29,8 +29,8 @@ export const useOfferOR = () => {
         },
       });
       const result = await response.json();
-      console.log("result", result)
-      if (result.status == 1 || result.success === true) {
+      console.log("result offers ", result)
+      if (result?.status == 1 || result?.success === true) {
         setOfferData(result);
         setIsLoading(false)
       }

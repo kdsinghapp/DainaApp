@@ -45,6 +45,7 @@ const EditProfile = () => {
 
     }
   };
+
   const pickImageFromGallery = () => {
     launchImageLibrary({ mediaType: "photo", quality: 0.5 }, (response) => {
       if (response.assets && response.assets.length > 0) {

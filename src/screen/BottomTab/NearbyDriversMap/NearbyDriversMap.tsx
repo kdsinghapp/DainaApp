@@ -832,18 +832,18 @@ type WSMessage = {
 
 // ── Theme ──────────────────────────────────────────
 const T = {
-  primary: "#FFCC00",
-  primaryLight: "#FFF8D0",
-  primaryBorder: "#F0E8CC",
-  primaryDim: "rgba(255,204,0,0.18)",
-  primaryText: "#FFCC00",
-  bg: "#FFFDF5",
+  primary: "#5D4037",
+  primaryLight: "#EFEBE9",
+  primaryBorder: "#BCAAA4",
+  primaryDim: "rgba(93, 64, 55, 0.18)",
+  primaryText: "#5D4037",
+  bg: "#FAF7F2",
   bgCard: "#FFFFFF",
   bgHeader: "white",
   textDark: "#1A1200",
   textMid: "black",
-  textFaint: "#FFCC00",
-  border: "#FFCC00",
+  textFaint: "#8D6E63",
+  border: "#5D4037",
 };
 
 // ── Blips ─────────────────────────────────────────
@@ -1405,8 +1405,8 @@ const RadarSearchScreen: React.FC<RadarSearchScreenProps> = ({
             <Svg width={RADAR_SIZE} height={RADAR_SIZE}>
               <Defs>
                 <RadialGradient id="sweepG" cx="50%" cy="50%" r="50%">
-                  <Stop offset="0%" stopColor="#FFCC00" stopOpacity="0.55" />
-                  <Stop offset="100%" stopColor="#FFCC00" stopOpacity="0" />
+                  <Stop offset="0%" stopColor={T.primary} stopOpacity="0.55" />
+                  <Stop offset="100%" stopColor={T.primary} stopOpacity="0" />
                 </RadialGradient>
                 <ClipPath id="sc">
                   <Circle cx={CX} cy={CY} r={R} />
@@ -1421,7 +1421,7 @@ const RadarSearchScreen: React.FC<RadarSearchScreenProps> = ({
                 />
                 <Line
                   x1={CX} y1={CY} x2={CX + R} y2={CY}
-                  stroke="#FFCC00" strokeWidth="2" opacity={1}
+                  stroke={T.primary} strokeWidth="2" opacity={1}
                 />
               </G>
             </Svg>
@@ -1601,7 +1601,7 @@ const s = StyleSheet.create({
   errorBanner: {
     width: "100%",
     maxWidth: 320,
-    backgroundColor: "#FFF3CD",
+    backgroundColor: T.primaryLight,
     borderRadius: 10,
     borderWidth: 1,
     borderColor: T.border,

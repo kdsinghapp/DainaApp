@@ -953,6 +953,55 @@ const CancelParcelApi = async (
   }
 };
 
+const RateDeliveryApi = async (
+  param: { parcelId: number; rating: number; review?: string },
+  setLoading?: (loading: boolean) => void
+) => {
+  try {
+    setLoading?.(true);
+    const token = await AsyncStorage.getItem("token");
+
+    // Construct urlencoded body
+    let body = `parcelId=${encodeURIComponent(param.parcelId)}&rating=${encodeURIComponent(param.rating)}`;
+    if (param.review) {
+      body += `&review=${encodeURIComponent(param.review)}`;
+    }
+
+    const response = await fetch(`${base_url}/user/rate-delivery`, {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/x-www-form-urlencoded",
+        Authorization: `Bearer ${token}`,
+      },
+      body,
+    });
+
+    const textResponse = await response.text();
+    let parsedResponse;
+    try {
+      parsedResponse = JSON.parse(textResponse);
+    } catch {
+      throw new Error(strings.InvalidServerResponse);
+    }
+    console.log("RatingSuccess parsedResponse", parsedResponse);
+
+    if (parsedResponse.status == 1 || parsedResponse.status == "1") {
+      successToast(parsedResponse.message || strings.RatingSuccess);
+    } else {
+      errorToast(parsedResponse.message);
+    }
+
+    return parsedResponse;
+  } catch (error: any) {
+    console.error("RateDeliveryApi error:", error);
+    errorToast(error?.message || strings.SomethingWentWrong);
+    return null;
+  } finally {
+    setLoading?.(false);
+  }
+};
+
 export {
   LogiApi,
   Verifyotp,
@@ -975,5 +1024,6 @@ export {
   SetLanguageApi,
   GetNotifications,
   GetDashboardCounts,
-  CancelParcelApi
+  CancelParcelApi,
+  RateDeliveryApi
 }

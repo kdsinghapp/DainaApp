@@ -24,7 +24,7 @@ import { useFocusEffect, useNavigation, useRoute } from "@react-navigation/nativ
 import ScreenNameEnum from "../../../routes/screenName.enum";
 import { GOOGLE_MAPS_APIKEY, WebSocket_Url } from "../../../Api";
 import { STATUS, STATUS_COLORS, STATUS_LABELS } from "../../../utils/Constant";
-import { GetApi } from "../../../Api/apiRequest";
+import { GetApi, RateDeliveryApi } from "../../../Api/apiRequest";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { successToast } from "../../../utils/customToast";
 import RatingModal from "../../../compoent/RatingModal";
@@ -361,21 +361,29 @@ const CourierTrackingScreen = () => {
   const handleRatingSubmit = useCallback(
     async (rating: number, comment: string) => {
       if (rating < 1) return;
+      const parcelId = parcel?.id ?? item?.id;
+      if (!parcelId) return;
+
       setRatingSubmitting(true);
       try {
-        // TODO: replace with your API e.g. POST /order/{id}/rating or /delivery/rating
-        // const parcelId = parcel?.id ?? item?.id;
-        // await PostApi({ url: `/rate-delivery`, body: { parcelId, rating, comment } });
-        ratingSubmittedRef.current = true;
-        setShowRatingModal(false);
-        successToast(strings?.RatingSuccess);
-        nav.goBack();
-      } catch (_) {
+        const res = await RateDeliveryApi({
+          parcelId: Number(parcelId),
+          rating: rating,
+          review: comment
+        });
+
+        if (res?.status == 1 || res?.status == "1") {
+          ratingSubmittedRef.current = true;
+          setShowRatingModal(false);
+          nav.goBack();
+        }
+      } catch (error) {
+        console.error("Rating submission error:", error);
       } finally {
         setRatingSubmitting(false);
       }
     },
-    [nav]
+    [nav, parcel?.id, item?.id]
   );
 
   const closeRatingModal = useCallback(() => {

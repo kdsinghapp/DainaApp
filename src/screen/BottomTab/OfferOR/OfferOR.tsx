@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Text, TouchableOpacity, FlatList } from "react-native";
+import { View, Text, Image, TouchableOpacity, FlatList } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import StatusBarComponent from "../../../compoent/StatusBarCompoent";
 import CustomHeader from "../../../compoent/CustomHeader";
@@ -11,9 +11,10 @@ import ScreenNameEnum from "../../../routes/screenName.enum";
 import { useOfferOR } from "./useOfferOR";
 import LoadingModal from "../../../utils/Loader";
 import { styles } from "./style";
-import { Image } from "react-native";
 import imageIndex from "../../../assets/imageIndex";
 import { openDialer } from "../../../utils/Constant";
+import Icon from "react-native-vector-icons/MaterialIcons";
+import { color } from "../../../constant";
 
 
 
@@ -80,6 +81,27 @@ export default function OfferOR() {
 
         }]}>{item?.deliveryUser?.phone}</Text></Text>
 
+
+        <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12 }}>
+          <Text style={[styles.offerText, { marginBottom: 0 }]}>{strings?.RatingLabel} : </Text>
+          <View style={{ flexDirection: 'row', alignItems: 'center', marginLeft: 4 }}>
+            {[1, 2, 3, 4, 5].map((star) => (
+              <Icon
+                key={star}
+                name={Number(item?.deliveryUser?.rating || 0) >= star ? "star" : (Number(item?.deliveryUser?.rating || 0) >= star - 0.5 ? "star-half" : "star-border")}
+                size={20}
+                color={Number(item?.deliveryUser?.rating || 0) >= star - 0.5 ? color.primary : "#CBD5E1"}
+              />
+            ))}
+            <Text style={[styles.bold, { color: "#878787", fontFamily: font.MonolithRegular, marginLeft: 8 }]}>
+              {item?.deliveryUser?.rating || 0}
+              {item?.deliveryUser?.totalReviews !== undefined && (
+                <Text style={{ fontWeight: 'normal', color: '#64748B' }}> ({item?.deliveryUser?.totalReviews} {strings?.ReviewsLabel})</Text>
+              )}
+            </Text>
+          </View>
+        </View>
+
         <View style={styles.buttonRow}>
           <TouchableOpacity style={[styles.button, styles.acceptBtn]}
             onPress={() => onAccept(item?.id || item?.offerId)}
@@ -120,7 +142,6 @@ export default function OfferOR() {
         marginHorizontal: 15
       }}>
         <Text style={styles.header}>{strings.OffersForYourAd}</Text>
-        {/* <Text style={styles.subHeader}>Your Ad: 10 Boxes | 20 Kg | ₹2000 Proposed</Text> */}
 
         <FlatList
           style={{

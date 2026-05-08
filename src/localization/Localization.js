@@ -18,6 +18,8 @@ const strings = new LocalizedStrings({
     Profile: "Profile",
     Add: "Add",
     Rating: "Thanks for your rating!",
+    RatingLabel: "Rating",
+    ReviewsLabel: "Reviews",
     TypeAMessagePlaceholder: "Type a message...",
     // Onboarding
     ShipYourParcel: "Ship Your Parcel",
@@ -443,6 +445,8 @@ const strings = new LocalizedStrings({
     Version: "Хувилбар",
     Profile: "Профайл",
     Add: "Нэмэх",
+    RatingLabel: "Үнэлгээ",
+    ReviewsLabel: "Шүүмж",
     // Onboarding
     ShipYourParcel: "Илгээмжээ илгээх",
     ShipAnywhere: "Хаана ч илгээх",

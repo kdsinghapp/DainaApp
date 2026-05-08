@@ -15,7 +15,7 @@ import imageIndex from "../../../assets/imageIndex";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation, useRoute, useFocusEffect } from "@react-navigation/native";
 import ScreenNameEnum from "../../../routes/screenName.enum";
-import { GetApi, CancelParcelApi } from "../../../Api/apiRequest";
+import { GetApi, CancelParcelApi, RateDeliveryApi } from "../../../Api/apiRequest";
 import { STATUS, STATUS_LABELS, STATUS_ICONS, STATUS_COLORS, s } from "../../../utils/Constant";
 import Icon from "react-native-vector-icons/Ionicons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -59,21 +59,29 @@ export default function ViewDetails() {
   const handleRatingSubmit = useCallback(
     async (rating: number, comment: string) => {
       if (rating < 1) return;
+      const parcelId = parcel?.id ?? item?.id;
+      if (!parcelId) return;
+
       setRatingSubmitting(true);
       try {
-        // TODO: replace with your API e.g. POST /order/{id}/rating or /delivery/rating
-        // const parcelId = parcel?.id ?? item?.id;
-        // await PostApi({ url: `/rate-delivery`, body: { parcelId, rating, comment } });
-        ratingSubmittedRef.current = true;
-        setShowRatingModal(false);
-        successToast(strings.Rating);
-        nav.goBack();
-      } catch (_) {
+        const res = await RateDeliveryApi({
+          parcelId: Number(parcelId),
+          rating: rating,
+          review: comment
+        });
+
+        if (res?.status == 1 || res?.status == "1") {
+          ratingSubmittedRef.current = true;
+          setShowRatingModal(false);
+          nav.goBack();
+        }
+      } catch (error) {
+        console.error("Rating submission error:", error);
       } finally {
         setRatingSubmitting(false);
       }
     },
-    [nav]
+    [nav, parcel?.id, item?.id]
   );
 
   const { item } = route?.params || {};

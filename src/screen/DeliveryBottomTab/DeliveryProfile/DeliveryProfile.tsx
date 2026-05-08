@@ -24,6 +24,8 @@ import NewOrderNotificationModal from "../../../compoent/NewOrderNotificationMod
 import OfferAcceptedModal from "../../../compoent/OfferAcceptedModal";
 import { color } from "../../../constant";
 import Icon from 'react-native-vector-icons/Ionicons';
+import StarIcon from 'react-native-vector-icons/MaterialIcons';
+import font from "../../../theme/font";
 
 type Props = {
   onEditProfile?: () => void;
@@ -140,7 +142,29 @@ const DeliveryProfile: React.FC<Props> = ({
             <Text style={styles.name}>{isLogin?.firstName || user.name}</Text>
             <Text style={styles.email}>{isLogin?.email || user.email}</Text>
             <Text style={styles.phoneNumber}>{isLogin?.phoneNumber || "+1 234 567 890"}</Text>
-            <Text style={styles.phoneNumber}>{isLogin?.type || "+1 234 567 890"}</Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 6 }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <StarIcon
+                    key={star}
+                    name={Number(isLogin?.rating || 0) >= star ? "star" : (Number(isLogin?.rating || 0) >= star - 0.5 ? "star-half" : "star-border")}
+                    size={16}
+                    color={Number(isLogin?.rating || 0) >= star - 0.5 ? color.primary : "#CBD5E1"}
+                  />
+                ))}
+              </View>
+              <Text style={{
+                fontSize: 12,
+                fontFamily: font.MonolithRegular,
+                color: "#64748B",
+                marginLeft: 6
+              }}>
+                {isLogin?.rating || 0} ({isLogin?.totalReviews || 0} {strings.ReviewsLabel})
+              </Text>
+            </View>
+            <Text style={styles.phoneNumber}>
+              {isLogin?.type === 'Delivery' ? strings.Delivery : (isLogin?.type === 'User' ? strings.User : isLogin?.type)}
+            </Text>
           </View>
           <Image source={imageIndex.right}
             style={{

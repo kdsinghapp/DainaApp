@@ -11,14 +11,12 @@ import MapView, { PROVIDER_GOOGLE } from 'react-native-maps';
 // import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete'; // New Import
 import Geocoder from 'react-native-geocoding';
 import Geolocation from '@react-native-community/geolocation';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import CustomButton from '../../../compoent/CustomButton';
 import font from '../../../theme/font';
 import { GOOGLE_MAPS_APIKEY } from '../../../Api';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { s, width } from '../../../utils/Constant';
 import strings from '../../../localization/Localization';
 
 Geocoder.init(GOOGLE_MAPS_APIKEY);

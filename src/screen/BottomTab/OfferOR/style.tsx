@@ -1,5 +1,7 @@
 import { StyleSheet } from "react-native";
 import font from "../../../theme/font";
+import { color } from "../../../constant";
+
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -58,7 +60,7 @@ export const styles = StyleSheet.create({
 
   },
   bold: {
-     color: "#111",
+    color: "#111",
     fontFamily: font.MonolithRegular
 
   },
@@ -86,8 +88,8 @@ export const styles = StyleSheet.create({
   },
   acceptText: {
     color: "#fff",
-    fontFamily: font.MonolithRegular ,
- 
+    fontFamily: font.MonolithRegular,
+
 
   },
   counterText: {
@@ -98,10 +100,25 @@ export const styles = StyleSheet.create({
   },
   chatText: {
     color: "#fff",
-      fontFamily: font.MonolithRegular ,
- 
-
+    fontFamily: font.MonolithRegular,
   },
-
-
+  ratingContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: color.primaryLight,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 12,
+    alignSelf: "flex-start",
+    marginTop: 4,
+    borderWidth: 0.5,
+    borderColor: "#FFE082",
+  },
+  ratingText: {
+    fontSize: 12,
+    fontFamily: font.MonolithRegular,
+    color: color.primary,
+    marginLeft: 4,
+    fontWeight: "bold",
+  },
 });

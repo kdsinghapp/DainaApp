@@ -6,7 +6,7 @@ import {
   FlatList,
   Image,
   TextInput,
-  TouchableOpacity,
+  TouchableOpacity, 
   ActivityIndicator,
   RefreshControl,
 } from "react-native";
