@@ -16,6 +16,7 @@ import strings from '../localization/Localization';
 import ScreenNameEnum from '../routes/screenName.enum';
 import { STATUS } from '../utils/Constant';
 import { useDeliveryContext } from '../context/DeliveryContext';
+import { stopNotificationSound } from '../utils/soundPlayer';
 
 const NewOrderNotificationModal: React.FC = () => {
   const ctx = useDeliveryContext();
@@ -48,8 +49,14 @@ const NewOrderNotificationModal: React.FC = () => {
   return (
     <Modal
       isVisible={!!newOrderNotification?.visible}
-      onBackdropPress={() => setNewOrderNotification(null)}
-      onBackButtonPress={() => setNewOrderNotification(null)}
+      onBackdropPress={() => {
+        setNewOrderNotification(null);
+        stopNotificationSound();
+      }}
+      onBackButtonPress={() => {
+        setNewOrderNotification(null);
+        stopNotificationSound();
+      }}
       animationIn="slideInUp"
       animationOut="slideOutDown"
       backdropOpacity={0.5}
@@ -107,8 +114,10 @@ const NewOrderNotificationModal: React.FC = () => {
                   onPress={() => {
                     if (data?.offerId != null) {
                       RejectcounterOffer(data.offerId);
+                      stopNotificationSound();
                     } else {
                       setNewOrderNotification(null);
+                      stopNotificationSound();
                     }
                   }}
                   activeOpacity={0.8}
@@ -123,8 +132,10 @@ const NewOrderNotificationModal: React.FC = () => {
                   onPress={() => {
                     if (data?.offerId != null) {
                       acceptCounterOffer(data.offerId);
+                      stopNotificationSound();
                     } else {
                       setNewOrderNotification(null);
+                      stopNotificationSound();
                     }
                   }}
                   activeOpacity={0.8}
@@ -139,7 +150,10 @@ const NewOrderNotificationModal: React.FC = () => {
               <Animated.View entering={FadeInDown.delay(600).duration(500)} style={{ flex: 1 }}>
                 <TouchableOpacity
                   style={styles.btnDismiss}
-                  onPress={() => setNewOrderNotification(null)}
+                  onPress={() => {
+                    setNewOrderNotification(null);
+                    stopNotificationSound();
+                  }}
                   activeOpacity={0.8}
                 >
                   <Text style={styles.btnDismissText}>{strings.Later}</Text>
@@ -157,6 +171,7 @@ const NewOrderNotificationModal: React.FC = () => {
                         },
                       } as never);
                       setNewOrderNotification(null);
+                      stopNotificationSound();
                     }
                   }}
                   activeOpacity={0.8}

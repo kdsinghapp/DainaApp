@@ -8,3 +8,7 @@
 #   http://developer.android.com/guide/developing/tools/proguard.html
 
 # Add any project specific keep options here:
+
+# react-native-sound keep rules
+-keep class com.zmxv.RNSound.** { *; }
+-keep class com.zmxv.RNSoundPackage { *; }

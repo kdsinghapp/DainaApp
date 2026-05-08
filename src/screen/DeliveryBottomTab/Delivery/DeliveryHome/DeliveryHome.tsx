@@ -110,9 +110,9 @@ const DeliveryHome = () => {
             item.deliveryStatus?.toLowerCase() === "completed" ||
             item.deliveryStatus?.toLowerCase() === "delivered",
         );
-      case "Canceled":
+      case "Cancelled":
         return requests.filter(
-          (item: any) => item.deliveryStatus?.toLowerCase() === "canceled",
+          (item: any) => item.deliveryStatus?.toLowerCase() === "cancelled",
         );
       default:
         return requests;
@@ -141,6 +141,7 @@ const DeliveryHome = () => {
       <NewOrderNotificationModal />
       <OfferAcceptedModal />
       {/* <LoadingModal visible={isLoading} /> */}
+
       <CurrentLocation ref={locationRef} />
       <HomeHeaderBar
         location={currentlocation || address}
@@ -264,7 +265,7 @@ const DeliveryHome = () => {
                 marginTop: 5,
               }}
             >
-              0.00€
+              {counts?.totalEarnings || "0.00"}€
             </Text>
           </ReAnimated.View>
 

@@ -1,8 +1,9 @@
 import messaging from '@react-native-firebase/messaging';
 import { Platform, Alert } from 'react-native';
 import { request, check, PERMISSIONS, RESULTS } from 'react-native-permissions';
-import notifee, { AndroidImportance } from '@notifee/react-native';
+import notifee, { AndroidImportance, EventType } from '@notifee/react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { playNotificationSound, stopNotificationSound } from '../utils/soundPlayer';
 
 class NotificationService {
 
@@ -17,114 +18,79 @@ class NotificationService {
     }
   };
 
- requestPermission = async (): Promise<boolean> => {
-  try {
-    if (Platform.OS === 'android') {
-      if (Platform.Version >= 33) {
-        
-        // ✅ String directly use karo — library version issue bypass
-        const permission = 'android.permission.POST_NOTIFICATIONS' as any;
-        
-        const currentStatus = await check(permission);
+  requestPermission = async (): Promise<boolean> => {
+    try {
+      if (Platform.OS === 'android') {
+        if (Platform.Version >= 33) {
+          const permission = 'android.permission.POST_NOTIFICATIONS' as any;
+          const currentStatus = await check(permission);
 
-        if (currentStatus === RESULTS.GRANTED) {
-          console.log('Android: Permission already granted');
+          if (currentStatus === RESULTS.GRANTED) {
+            console.log('Android: Permission already granted');
+            return true;
+          }
+
+          if (currentStatus === RESULTS.BLOCKED) {
+            Alert.alert(
+              'Notification Permission Required',
+              'Please enable notifications from App Settings.',
+              [{ text: 'OK' }]
+            );
+            return false;
+          }
+
+          const result = await request(permission);
+          console.log('Android 13+ permission result:', result);
+          return result === RESULTS.GRANTED;
+        } else {
+          console.log('Android < 13: No permission needed');
           return true;
         }
-
-        if (currentStatus === RESULTS.BLOCKED) {
-          Alert.alert(
-            'Notification Permission Required',
-            'Please enable notifications from App Settings.',
-            [{ text: 'OK' }]
-          );
-          return false;
-        }
-
-        const result = await request(permission);
-        console.log('Android 13+ permission result:', result);
-        return result === RESULTS.GRANTED;
-
       } else {
-        // Android 12 aur neeche — permission ki zaroorat nahi
-        console.log('Android < 13: No permission needed');
-        return true;
+        const authStatus = await messaging().requestPermission();
+        const enabled =
+          authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
+          authStatus === messaging.AuthorizationStatus.PROVISIONAL;
+        return enabled;
       }
+    } catch (error) {
+      console.log('requestPermission error:', error);
+      return false;
+    }
+  };
 
-    } else {
-      // iOS
-      const authStatus = await messaging().requestPermission();
-      const enabled =
+  checkPermission = async (): Promise<boolean> => {
+    try {
+      if (Platform.OS === 'android' && Platform.Version >= 33) {
+        const permission = 'android.permission.POST_NOTIFICATIONS' as any;
+        const status = await check(permission);
+        return status === RESULTS.GRANTED;
+      }
+      const authStatus = await messaging().hasPermission();
+      return (
         authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
-        authStatus === messaging.AuthorizationStatus.PROVISIONAL;
-      return enabled;
+        authStatus === messaging.AuthorizationStatus.PROVISIONAL
+      );
+    } catch (error) {
+      console.log('checkPermission error:', error);
+      return false;
     }
-  } catch (error) {
-    console.log('requestPermission error:', error);
-    return false;
-  }
-};
-
-checkPermission = async (): Promise<boolean> => {
-  try {
-    if (Platform.OS === 'android' && Platform.Version >= 33) {
-      // ✅ Same fix here
-      const permission = 'android.permission.POST_NOTIFICATIONS' as any;
-      const status = await check(permission);
-      return status === RESULTS.GRANTED;
-    }
-    const authStatus = await messaging().hasPermission();
-    return (
-      authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
-      authStatus === messaging.AuthorizationStatus.PROVISIONAL
-    );
-  } catch (error) {
-    console.log('checkPermission error:', error);
-    return false;
-  }
-};
-  
+  };
 
   getFcmToken = async (): Promise<string | null> => {
     try {
       const hasPermission = await this.checkPermission();
-      if (!hasPermission) {
-        console.log('getFcmToken: No notification permission');
-        return null;
-      }
+      if (!hasPermission) return null;
 
       const cachedToken = await AsyncStorage.getItem('fcmToken');
-      if (cachedToken) {
-        console.log('Using cached FCM token:', cachedToken);
-        return cachedToken;
-      }
+      if (cachedToken) return cachedToken;
 
-      let retries = 3;
-      while (retries > 0) {
-        try {
-          const fcmToken = await messaging().getToken();
-          if (fcmToken) {
-            await AsyncStorage.setItem('fcmToken', fcmToken);
-            console.log('New FCM Token:', fcmToken);
-            return fcmToken;
-          }
-        } catch (err: any) {
-            const fcmToken = await messaging().getToken();
-          if (fcmToken) {
-            await AsyncStorage.setItem('fcmToken', fcmToken);
-            console.log('New FCM Token:', fcmToken);
-            return fcmToken;
-          }
-          console.log(`FCM token fetch failed. Retries left: ${retries} | Error: ${err?.message}`);
-          if (retries > 0) {
-            await new Promise(res => setTimeout(res, 2000));
-          }
-        }
+      const fcmToken = await messaging().getToken();
+      if (fcmToken) {
+        await AsyncStorage.setItem('fcmToken', fcmToken);
+        return fcmToken;
       }
-
-      console.log('FCM token fetch failed after all retries');
       return null;
-
     } catch (error) {
       console.log('getFcmToken error:', error);
       return null;
@@ -134,12 +100,22 @@ checkPermission = async (): Promise<boolean> => {
   createChannel = async (): Promise<void> => {
     try {
       if (Platform.OS === 'android') {
+        // Channel for Orders (with ringtone) - v3 to ensure fresh settings
         await notifee.createChannel({
-          id: 'default',
-          name: 'Default Channel',
+          id: 'delivery_orders_v3',
+          name: 'Delivery Orders',
           importance: AndroidImportance.HIGH,
+          sound: 'ringtone_notification',
+          vibration: true,
+          vibrationPattern: [300, 500, 300, 500],
         });
-        console.log('Android notification channel created');
+        // Channel for General Notifications (default sound)
+        await notifee.createChannel({
+          id: 'default_channel',
+          name: 'General Notifications',
+          importance: AndroidImportance.HIGH,
+          sound: 'default',
+        });
       }
     } catch (error) {
       console.log('createChannel error:', error);
@@ -148,77 +124,145 @@ checkPermission = async (): Promise<boolean> => {
 
   displayLocalNotification = async (remoteMessage: any): Promise<void> => {
     try {
-      const { notification, data } = remoteMessage;
+      const { data, notification } = remoteMessage;
+      
+      // Robust check for nearby_parcel
+      const type = String(data?.type || '').toLowerCase();
+      const title = String(notification?.title || '').toLowerCase();
+      const body = String(notification?.body || '').toLowerCase();
+      
+      const isNearbyParcel = type === 'nearby_parcel' || 
+                             type === 'parcel' || 
+                             title.includes('parcel') || 
+                             body.includes('parcel');
+
+      console.log('--- NOTIFICATION RECEIVED ---', JSON.stringify(remoteMessage, null, 2));
+      console.log('Is Nearby Parcel Detected:', isNearbyParcel, { type, title, body });
 
       const channelId = await notifee.createChannel({
-        id: 'default',
-        name: 'Default Channel',
+        id: isNearbyParcel ? 'delivery_orders_v4' : 'default_channel',
+        name: isNearbyParcel ? 'Delivery Orders' : 'General Notifications',
         importance: AndroidImportance.HIGH,
+        sound: isNearbyParcel ? 'ringtone_notification' : 'default',
+        vibration: true,
       });
 
+      // Show notification
       await notifee.displayNotification({
-        title: notification?.title || data?.title || 'Notification',
-        body: notification?.body || data?.body || '',
+        title: notification?.title || 'Daina App',
+        body: notification?.body || '',
+        data: data,
         android: {
           channelId,
           importance: AndroidImportance.HIGH,
+          sound: isNearbyParcel ? 'ringtone_notification' : 'default',
           pressAction: { id: 'default' },
         },
         ios: {
-          sound: 'default',
+          sound: isNearbyParcel ? 'ringtone_notification.mp3' : 'default',
         },
       });
+
+      // Start the long ringtone for foreground attention if online
+      const authData = await AsyncStorage.getItem('authData');
+      const parsedAuth = authData ? JSON.parse(authData) : null;
+      
+      // Default to online if we can't determine status, to be safe
+      const status = parsedAuth?.userData?.onlineStatus?.toLowerCase() || 'online';
+      const isUserOnline = status === 'online';
+
+      if (isNearbyParcel && isUserOnline) {
+        playNotificationSound();
+        // Automatically stop after 3 seconds
+        setTimeout(() => {
+          stopNotificationSound();
+        }, 3000);
+      }
     } catch (error) {
       console.log('displayLocalNotification error:', error);
     }
   };
 
   setupListeners = (): (() => void) => {
-    // Foreground message handler
+    // Foreground FCM listener
     const unsubscribeForeground = messaging().onMessage(async remoteMessage => {
-      console.log('FCM foreground message received:', JSON.stringify(remoteMessage));
+      console.log('FCM foreground message received');
       await this.displayLocalNotification(remoteMessage);
     });
 
-    // Token refresh handler
-    const unsubscribeTokenRefresh = messaging().onTokenRefresh(async token => {
-      console.log('FCM token refreshed:', token);
-      await AsyncStorage.setItem('fcmToken', token);
+    // Notifee Foreground Event listener (handles taps and dismissals)
+    const unsubscribeNotifee = notifee.onForegroundEvent(({ type, detail }) => {
+      switch (type) {
+        case EventType.DISMISSED:
+        case EventType.PRESS:
+          console.log('User interacted with notification, stopping sound');
+          stopNotificationSound();
+          break;
+      }
     });
 
-    // App was in background and user tapped notification
+    // App opened from background via FCM notification
     messaging().onNotificationOpenedApp(remoteMessage => {
-      console.log('App opened from background via notification:', remoteMessage.notification);
+      console.log('App opened via notification');
+      stopNotificationSound();
     });
 
-    // App was in quit state and user tapped notification
-    messaging()
-      .getInitialNotification()
-      .then(remoteMessage => {
-        if (remoteMessage) {
-          console.log('App opened from quit state via notification:', remoteMessage.notification);
-        }
-      });
+    // App opened from quit state
+    messaging().getInitialNotification().then(remoteMessage => {
+      if (remoteMessage) stopNotificationSound();
+    });
 
     return () => {
       unsubscribeForeground();
-      unsubscribeTokenRefresh();
+      unsubscribeNotifee();
     };
   };
 
   onBackgroundMessage = async (remoteMessage: any): Promise<void> => {
     try {
-      console.log('Background message received:', remoteMessage);
-      if (!remoteMessage.notification && remoteMessage.data) {
-        await notifee.displayNotification({
-          title: remoteMessage.data.title || 'Notification',
-          body: remoteMessage.data.body || '',
-          android: {
-            channelId: 'default',
-            importance: AndroidImportance.HIGH,
-            pressAction: { id: 'default' },
-          },
-        });
+      const { data, notification } = remoteMessage;
+      console.log('Background message received:', JSON.stringify(remoteMessage, null, 2));
+      
+      // Robust check for nearby_parcel
+      const type = String(data?.type || '').toLowerCase();
+      const title = String(notification?.title || '').toLowerCase();
+      const body = String(notification?.body || '').toLowerCase();
+      
+      const isNearbyParcel = type === 'nearby_parcel' || 
+                             type === 'parcel' || 
+                             title.includes('parcel') || 
+                             body.includes('parcel');
+
+      const channelId = await notifee.createChannel({
+        id: isNearbyParcel ? 'delivery_orders_v4' : 'default_channel',
+        name: isNearbyParcel ? 'Delivery Orders' : 'General Notifications',
+        importance: AndroidImportance.HIGH,
+        sound: isNearbyParcel ? 'ringtone_notification' : 'default',
+      });
+
+      await notifee.displayNotification({
+        title: notification?.title || 'New Parcel Request',
+        body: notification?.body || 'You have a new parcel request nearby.',
+        data: data,
+        android: {
+          channelId,
+          importance: AndroidImportance.HIGH,
+          sound: isNearbyParcel ? 'ringtone_notification' : 'default',
+          pressAction: { id: 'default' },
+        },
+        ios: {
+          sound: isNearbyParcel ? 'ringtone_notification.mp3' : 'default',
+        },
+      });
+
+      // Background sound play if online
+      const authData = await AsyncStorage.getItem('authData');
+      const parsedAuth = authData ? JSON.parse(authData) : null;
+      const isUserOnline = (parsedAuth?.userData?.onlineStatus?.toLowerCase() || 'online') === 'online';
+
+      if (isNearbyParcel && isUserOnline) {
+        playNotificationSound();
+        setTimeout(() => stopNotificationSound(), 3000);
       }
     } catch (error) {
       console.log('onBackgroundMessage error:', error);

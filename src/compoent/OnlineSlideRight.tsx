@@ -101,7 +101,12 @@ const OnlineOfflineButton: React.FC<Props> = ({
       if (response.data?.status === 1 || response.status === 200) {
         setIsOnline(targetOnline);
         onSlideSuccess?.(targetOnline);
-        await getProfileApi();
+        const profileResponse = await GetProfileApi(setIsProfileLoading);
+        if (profileResponse) {
+          dispatch(loginSuccess({ userData: profileResponse, token: token || '' }));
+          // ✅ Save to AsyncStorage so NotificationService sees the update
+          await AsyncStorage.setItem('authData', JSON.stringify({ userData: profileResponse, token }));
+        }
       }
     } catch (error) {
       console.error('❌ Status Toggle Error:', error);

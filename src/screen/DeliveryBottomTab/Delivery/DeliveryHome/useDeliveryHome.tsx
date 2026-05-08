@@ -11,6 +11,13 @@ import { STATUS } from '../../../../utils/Constant';
 import { useDispatch, useSelector } from 'react-redux';
 import { loginSuccess } from '../../../../redux/feature/authSlice';
 import { GetProfileApi } from '../../../../Api/apiRequest';
+import { playNotificationSound, stopNotificationSound } from '../../../../utils/soundPlayer';
+import ReactNativeHapticFeedback from "react-native-haptic-feedback";
+
+const hapticOptions = {
+  enableVibrateFallback: true,
+  ignoreAndroidSystemSettings: false,
+};
 export const useDeliveryHome = () => {
   const [isLoading, setIsLoading] = useState(false);
   const navigation = useNavigation()
@@ -29,7 +36,7 @@ export const useDeliveryHome = () => {
   const locationRef = useRef(null);
   const dispatch = useDispatch();
   const userData = useSelector((state: any) => state.auth.userData);
-  
+
   const [isConnected, setIsConnected] = useState(false);
   const [isOnline, setIsOnline] = useState(userData?.onlineStatus?.toLowerCase() === 'online');
   const socketRef = useRef<WebSocket | null>(null);
@@ -60,12 +67,12 @@ export const useDeliveryHome = () => {
         try {
           const position = await new Promise<{ coords: { latitude: number; longitude: number } }>((resolve, reject) => {
             Geolocation.getCurrentPosition(resolve, (err) => {
-               // Fallback to low accuracy immediately if high accuracy fails
-               Geolocation.getCurrentPosition(resolve, reject, {
-                 enableHighAccuracy: false,
-                 timeout: 10000,
-                 maximumAge: 10000
-               });
+              // Fallback to low accuracy immediately if high accuracy fails
+              Geolocation.getCurrentPosition(resolve, reject, {
+                enableHighAccuracy: false,
+                timeout: 10000,
+                maximumAge: 10000
+              });
             }, {
               enableHighAccuracy: true,
               timeout: 10000,
@@ -257,12 +264,20 @@ export const useDeliveryHome = () => {
                 }
                 return arr as never[];
               });
-              if (!cancelledRef.current) setNewOrderNotification({ visible: true, data });
+              if (!cancelledRef.current) {
+                setNewOrderNotification({ visible: true, data });
+                playNotificationSound();
+                ReactNativeHapticFeedback.trigger("notificationSuccess", hapticOptions);
+              }
               return;
             }
 
             if (data?.type === 'counter_offer') {
-              if (!cancelledRef.current) setNewOrderNotification({ visible: true, data });
+              if (!cancelledRef.current) {
+                setNewOrderNotification({ visible: true, data });
+                playNotificationSound();
+                ReactNativeHapticFeedback.trigger("notificationWarning", hapticOptions);
+              }
               return;
             }
 
@@ -369,6 +384,16 @@ export const useDeliveryHome = () => {
             console.log("----- nearby_parcel -0- data", data)
             if (data?.type === 'nearby_parcel') {
               if (cancelledRef.current) return;
+
+              if (isOnline) {
+                playNotificationSound();
+                ReactNativeHapticFeedback.trigger("notificationSuccess", hapticOptions);
+                // Stop the sound automatically after 3 seconds
+                setTimeout(() => {
+                  stopNotificationSound();
+                }, 3000);
+              }
+
               const parcel = data?.parcel ?? data;
               const parcelObj = parcel && typeof parcel === 'object' ? { ...parcel } : {};
               const { type: _t, ...rest } = parcelObj as { type?: string;[k: string]: unknown };
@@ -477,6 +502,7 @@ export const useDeliveryHome = () => {
           socketLiveRef.current.close();
           socketLiveRef.current = null;
         }
+        stopNotificationSound();
       } catch (_) { }
     };
   }, []);

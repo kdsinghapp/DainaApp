@@ -1965,6 +1965,27 @@ PODS:
     - Yoga
   - RNSnackbar (2.9.0):
     - React-Core
+  - RNSound (0.13.0):
+    - DoubleConversion
+    - glog
+    - hermes-engine
+    - RCT-Folly (= 2024.11.18.00)
+    - RCTRequired
+    - RCTTypeSafety
+    - React-Core
+    - React-debug
+    - React-Fabric
+    - React-featureflags
+    - React-graphics
+    - React-ImageManager
+    - React-NativeModulesApple
+    - React-RCTFabric
+    - React-rendererdebug
+    - React-utils
+    - ReactCodegen
+    - ReactCommon/turbomodule/bridging
+    - ReactCommon/turbomodule/core
+    - Yoga
   - RNSVG (15.13.0):
     - React-Core
   - RNVectorIcons (10.3.0):
@@ -2084,6 +2105,7 @@ DEPENDENCIES:
   - RNReanimated (from `../node_modules/react-native-reanimated`)
   - RNScreens (from `../node_modules/react-native-screens`)
   - RNSnackbar (from `../node_modules/react-native-snackbar`)
+  - RNSound (from `../node_modules/react-native-sound`)
   - RNSVG (from `../node_modules/react-native-svg`)
   - RNVectorIcons (from `../node_modules/react-native-vector-icons`)
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
@@ -2278,6 +2300,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-screens"
   RNSnackbar:
     :path: "../node_modules/react-native-snackbar"
+  RNSound:
+    :path: "../node_modules/react-native-sound"
   RNSVG:
     :path: "../node_modules/react-native-svg"
   RNVectorIcons:
@@ -2384,6 +2408,7 @@ SPEC CHECKSUMS:
   RNReanimated: a16a9037c13aabe580f36a8a3330dd261178f54d
   RNScreens: 1d84139259b7999ee93e00764556a9042d43d0b5
   RNSnackbar: c1b235eb606b03938c693ce769ed3059c31dff9b
+  RNSound: 77aae7d201c4df92dee5cce7c8c0636d690c0ffb
   RNSVG: 9e61baffd753e24841e84a87dbf35327798d7fa8
   RNVectorIcons: 9220340395b3a94edad59be7d507ca0aa443e6fb
   SocketRocket: d4aabe649be1e368d1318fdf28a022d714d65748
