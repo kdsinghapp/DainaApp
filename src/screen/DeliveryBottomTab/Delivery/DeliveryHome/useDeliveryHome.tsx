@@ -39,9 +39,19 @@ export const useDeliveryHome = () => {
 
   const [isConnected, setIsConnected] = useState(false);
   const [isOnline, setIsOnline] = useState(userData?.onlineStatus?.toLowerCase() === 'online');
+  const isOnlineRef = useRef(isOnline);
+
+  // Sync isOnline with Redux userData
+  useEffect(() => {
+    const currentStatus = userData?.onlineStatus?.toLowerCase() === 'online';
+    setIsOnline(currentStatus);
+    isOnlineRef.current = currentStatus;
+  }, [userData?.onlineStatus]);
+
   const socketRef = useRef<WebSocket | null>(null);
   const socketLiveRef = useRef<WebSocket | null>(null);
   const cancelledRef = useRef(false);
+  const soundTimerRef = useRef<NodeJS.Timeout | null>(null);
   // Store lat/long for API; only updates when user moves ≥20m (see watchPosition)
   const [coords, setCoords] = useState<{ lat: number; lon: number } | null>(null);
   const coordsRef = useRef<{ lat: number; lon: number } | null>(null);
@@ -266,8 +276,15 @@ export const useDeliveryHome = () => {
               });
               if (!cancelledRef.current) {
                 setNewOrderNotification({ visible: true, data });
-                playNotificationSound();
-                ReactNativeHapticFeedback.trigger("notificationSuccess", hapticOptions);
+                if (isOnlineRef.current) {
+                  if (soundTimerRef.current) clearTimeout(soundTimerRef.current);
+                  playNotificationSound();
+                  ReactNativeHapticFeedback.trigger("notificationSuccess", hapticOptions);
+                  soundTimerRef.current = setTimeout(() => {
+                    stopNotificationSound();
+                    soundTimerRef.current = null;
+                  }, 10000);
+                }
               }
               return;
             }
@@ -275,8 +292,15 @@ export const useDeliveryHome = () => {
             if (data?.type === 'counter_offer') {
               if (!cancelledRef.current) {
                 setNewOrderNotification({ visible: true, data });
-                playNotificationSound();
-                ReactNativeHapticFeedback.trigger("notificationWarning", hapticOptions);
+                if (isOnlineRef.current) {
+                  if (soundTimerRef.current) clearTimeout(soundTimerRef.current);
+                  playNotificationSound();
+                  ReactNativeHapticFeedback.trigger("notificationWarning", hapticOptions);
+                  soundTimerRef.current = setTimeout(() => {
+                    stopNotificationSound();
+                    soundTimerRef.current = null;
+                  }, 10000);
+                }
               }
               return;
             }
@@ -385,13 +409,20 @@ export const useDeliveryHome = () => {
             if (data?.type === 'nearby_parcel') {
               if (cancelledRef.current) return;
 
-              if (isOnline) {
+              // Use ref to get the absolute latest status inside the closure
+              if (isOnlineRef.current) {
+                console.log("🔊 Playing sound for nearby_parcel (Status: Online)");
                 playNotificationSound();
                 ReactNativeHapticFeedback.trigger("notificationSuccess", hapticOptions);
-                // Stop the sound automatically after 3 seconds
-                setTimeout(() => {
+
+                // Stop the sound automatically after 10 seconds
+                if (soundTimerRef.current) clearTimeout(soundTimerRef.current);
+                soundTimerRef.current = setTimeout(() => {
                   stopNotificationSound();
-                }, 3000);
+                  soundTimerRef.current = null;
+                }, 10000);
+              } else {
+                console.log("🔇 Skipping sound because driver is offline (Ref check)");
               }
 
               const parcel = data?.parcel ?? data;
@@ -484,15 +515,14 @@ export const useDeliveryHome = () => {
 
     init();
 
-    const loadOnlineStatus = async () => {
-      const status = await AsyncStorage.getItem('driverOnlineStatus');
-      if (status === 'online') setIsOnline(true);
-    };
-    loadOnlineStatus();
-
     return () => {
       cancelledRef.current = true;
       console.log('🛑 Disconnect WebSockets');
+      if (soundTimerRef.current) {
+        clearTimeout(soundTimerRef.current);
+        soundTimerRef.current = null;
+      }
+      stopNotificationSound(); // Stop any playing sounds on unmount
       try {
         if (socketRef.current) {
           socketRef.current.close();

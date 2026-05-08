@@ -1,8 +1,14 @@
 import Sound from 'react-native-sound';
 import { Platform } from 'react-native';
 
-// Enable playback in silence mode
-Sound.setCategory('Playback');
+// Enable playback in silence mode - try 'true' for mixWithOthers and add safety check
+if (Platform.OS === 'ios') {
+  try {
+    Sound.setCategory('Playback', true);
+  } catch (e) {
+    console.log('[SoundPlayer] setCategory error:', e);
+  }
+}
 
 let notificationSound: Sound | null = null;
 

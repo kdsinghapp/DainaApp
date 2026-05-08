@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import {
-  View, Text, StyleSheet, TouchableOpacity,
-  Dimensions, ActivityIndicator, Platform, Animated,
+  View, Text, StyleSheet, Dimensions, ActivityIndicator, Platform,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
@@ -12,8 +11,27 @@ import { base_url, WebSocket_Url } from '../Api';
 import { GetProfileApi } from '../Api/apiRequest';
 import { useDispatch, useSelector } from 'react-redux';
 import { loginSuccess } from '../redux/feature/authSlice';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withSpring,
+  withRepeat,
+  withSequence,
+  withTiming,
+  interpolate,
+  Extrapolate,
+  runOnJS,
+  useAnimatedGestureHandler,
+} from 'react-native-reanimated';
+import { PanGestureHandler, PanGestureHandlerGestureEvent } from 'react-native-gesture-handler';
+import ReactNativeHapticFeedback from "react-native-haptic-feedback";
 
 const { width } = Dimensions.get('window');
+const BUTTON_WIDTH = width * 0.88;
+const BUTTON_HEIGHT = 64;
+const BUTTON_PADDING = 6;
+const HANDLE_SIZE = BUTTON_HEIGHT - BUTTON_PADDING * 2;
+const SWIPE_RANGE = BUTTON_WIDTH - HANDLE_SIZE - BUTTON_PADDING * 2;
 
 interface Props {
   isOnline: boolean;
@@ -30,51 +48,42 @@ const OnlineOfflineButton: React.FC<Props> = ({
 }) => {
   const [loading, setLoading] = useState(false);
   const [isProfileLoading, setIsProfileLoading] = useState(false);
-  const [sessionSeconds, setSessionSeconds] = useState(0);
-  const sessionRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const pulseAnim = useRef(new Animated.Value(1)).current;
 
   const userData: any = useSelector((state: any) => state.auth.userData);
   const dispatch = useDispatch();
 
-  // Pulse animation when online
+  // Reanimated shared values
+  const translateX = useSharedValue(0);
+  const pulseScale = useSharedValue(1);
+
+  const hapticOptions = {
+    enableVibrateFallback: true,
+    ignoreAndroidSystemSettings: false,
+  };
+
   useEffect(() => {
     if (isOnline) {
-      Animated.loop(
-        Animated.sequence([
-          Animated.timing(pulseAnim, { toValue: 1.08, duration: 900, useNativeDriver: true }),
-          Animated.timing(pulseAnim, { toValue: 1, duration: 900, useNativeDriver: true }),
-        ])
-      ).start();
-      sessionRef.current = setInterval(() => setSessionSeconds(s => s + 1), 1000);
+      pulseScale.value = withRepeat(
+        withSequence(
+          withTiming(1.15, { duration: 800 }),
+          withTiming(1, { duration: 800 })
+        ),
+        -1,
+        true
+      );
     } else {
-      pulseAnim.stopAnimation();
-      pulseAnim.setValue(1);
-      if (sessionRef.current) clearInterval(sessionRef.current);
-      setSessionSeconds(0);
+      pulseScale.value = withTiming(1);
     }
-    return () => {
-      if (sessionRef.current) clearInterval(sessionRef.current);
-    };
   }, [isOnline]);
-
-  const formatSession = (secs: number) => {
-    const m = Math.floor(secs / 60).toString().padStart(2, '0');
-    const s = (secs % 60).toString().padStart(2, '0');
-    return `${m}:${s}`;
-  };
-
-  const getProfileApi = async () => {
-    try {
-      const response = await GetProfileApi(setIsProfileLoading);
-      if (response) dispatch(loginSuccess({ userData: response }));
-    } catch (_) { }
-  };
 
   const toggleOnlineStatus = async () => {
     if (loading) return;
     const targetOnline = !isOnline;
     setLoading(true);
+
+    // Provide haptic feedback on success
+    ReactNativeHapticFeedback.trigger("notificationSuccess", hapticOptions);
+
     try {
       const token = await AsyncStorage.getItem('token');
       if (!token) return;
@@ -104,64 +113,94 @@ const OnlineOfflineButton: React.FC<Props> = ({
         const profileResponse = await GetProfileApi(setIsProfileLoading);
         if (profileResponse) {
           dispatch(loginSuccess({ userData: profileResponse, token: token || '' }));
-          // ✅ Save to AsyncStorage so NotificationService sees the update
           await AsyncStorage.setItem('authData', JSON.stringify({ userData: profileResponse, token }));
         }
       }
     } catch (error) {
       console.error('❌ Status Toggle Error:', error);
+      // Reset slider on error
+      translateX.value = withSpring(0);
     } finally {
       setLoading(false);
+      translateX.value = withSpring(0); // Reset handle position
     }
   };
 
+  const onGestureEvent = useAnimatedGestureHandler<PanGestureHandlerGestureEvent, { startX: number }>({
+    onStart: (_, ctx) => {
+      ctx.startX = translateX.value;
+    },
+    onActive: (event, ctx) => {
+      const newVal = ctx.startX + event.translationX;
+      translateX.value = Math.min(Math.max(newVal, 0), SWIPE_RANGE);
+    },
+    onEnd: () => {
+      if (translateX.value > SWIPE_RANGE * 0.75) {
+        translateX.value = withSpring(SWIPE_RANGE);
+        runOnJS(toggleOnlineStatus)();
+      } else {
+        translateX.value = withSpring(0);
+      }
+    },
+  });
+
+  const handleStyle = useAnimatedStyle(() => ({
+    transform: [{ translateX: translateX.value }],
+  }));
+
+  const textStyle = useAnimatedStyle(() => {
+    const opacity = interpolate(translateX.value, [0, SWIPE_RANGE * 0.5], [1, 0], Extrapolate.CLAMP);
+    return { opacity };
+  });
+
+  const dotStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: pulseScale.value }],
+  }));
+
+  const getStatusText = () => {
+    return isOnline ? strings.SlideToGoOffline : strings.SlideToGoOnline;
+  };
+
+  const getStatusLabel = () => {
+    return userData?.onlineStatus || (isOnline ? 'Online' : 'Offline');
+  };
 
   return (
     <View style={styles.container}>
-      {/* Status badge */}
-      <View style={[styles.badge, isOnline ? styles.badgeOnline : styles.badgeOffline]}>
-        <Animated.View
-          style={[
-            styles.dot,
-            isOnline ? styles.dotOnline : styles.dotOffline,
-            isOnline && { transform: [{ scale: pulseAnim }] },
-          ]}
-        />
-        <Text style={[styles.badgeText, { color: isOnline ? '#0f6e56' : '#5F5E5A' }]}>
-          {userData?.onlineStatus}
-        </Text>
+      {/* Status indicator */}
+      {/* <Text style={[styles.statusText, { color: isOnline ? '#10b981' : '#6b7280' }]}>
+        {getStatusLabel()}
+      </Text> */}
+
+
+      {/* Swipe Component */}
+      <View style={[
+        styles.swipeContainer,
+        isOnline ? styles.swipeContainerOnline : styles.swipeContainerOffline
+      ]}>
+
+        {/* Track Text */}
+        <Animated.View style={[styles.trackContent, textStyle]}>
+          <Text style={[styles.swipeText, { color: isOnline ? '#FFF' : '#3d2000' }]}>
+            {getStatusText()}
+          </Text>
+        </Animated.View>
+
+        {/* Handle */}
+        <PanGestureHandler onGestureEvent={onGestureEvent} enabled={!loading}>
+          <Animated.View style={[styles.handle, handleStyle]}>
+            {loading ? (
+              <ActivityIndicator color={isOnline ? '#000' : '#FFCC00'} size="small" />
+            ) : (
+              <MaterialCommunityIcons
+                name={isOnline ? "power-off" : "power"}
+                size={28}
+                color={isOnline ? '#000' : '#FFCC00'}
+              />
+            )}
+          </Animated.View>
+        </PanGestureHandler>
       </View>
-
-      {/* Toggle button */}
-      <TouchableOpacity
-        onPress={toggleOnlineStatus}
-        disabled={loading}
-        activeOpacity={0.85}
-        style={[
-          styles.button,
-          isOnline ? styles.buttonOnline : styles.buttonOffline,
-        ]}
-      >
-        {loading ? (
-          <ActivityIndicator color={isOnline ? '#FFF' : '#7B3F00'} />
-        ) : (
-          <View style={styles.content}>
-            <MaterialCommunityIcons
-              name="power"
-              size={22}
-              color={isOnline ? '#FFF' : '#7B3F00'}
-              style={styles.icon}
-            />
-            <Text style={[styles.text, { color: isOnline ? '#FFF' : '#7B3F00' }]}>
-              {isOnline ? strings.SlideToGoOffline : strings.SlideToGoOnline}
-            </Text>
-          </View>
-        )}
-      </TouchableOpacity>
-
-      {/* Hint */}
-
-
     </View>
   );
 };
@@ -172,64 +211,71 @@ const styles = StyleSheet.create({
   container: {
     width: '100%',
     alignItems: 'center',
-    marginVertical: 20,
-    gap: 12,
-  },
-  badge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 7,
-    paddingHorizontal: 14,
-    paddingVertical: 6,
-    borderRadius: 20,
-  },
-  badgeOnline: { backgroundColor: '#e1f5ee' },
-  badgeOffline: { backgroundColor: '#F1EFE8' },
-  dot: { width: 8, height: 8, borderRadius: 4 },
-  dotOnline: { backgroundColor: '#1d9e75' },
-  dotOffline: { backgroundColor: '#888780' },
-  badgeText: { fontSize: 13, fontFamily: font.MonolithRegular, fontWeight: '500' },
-  button: {
-    width: width * 0.85,
-    height: 56,
-    borderRadius: 28,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  buttonOnline: {
-    backgroundColor: '#FFCC00',
-    ...Platform.select({
-      ios: { shadowColor: '#7B3F00', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.25, shadowRadius: 8 },
-    }),
-  },
-  buttonOffline: {
-    backgroundColor: 'transparent',
-    borderWidth: 1.5,
-    borderColor: '#FFCC00',
-  },
-  content: { flexDirection: 'row', alignItems: 'center' },
-  icon: { marginRight: 8 },
-  text: { fontSize: 16, fontFamily: font.MonolithRegular, letterSpacing: 0.3 },
-  hint: { fontSize: 13, color: '#888780', fontFamily: font.MonolithRegular },
-  card: {
-    width: width * 0.85,
-    backgroundColor: 'white',
-    borderRadius: 12,
-    borderWidth: 0.5,
-    borderColor: '#E5E7EB',
-    paddingHorizontal: 16,
-    paddingVertical: 4,
-    marginTop: 4,
+    marginVertical: 24,
 
   },
-  statRow: {
+  statusCard: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: 10,
-    borderBottomWidth: 0.5,
-    borderColor: '#F1EFE8',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 24,
+    marginBottom: 20,
+    backgroundColor: '#FFF',
+
   },
-  statLabel: { fontSize: 13, color: '#888780' },
-  statValue: { fontSize: 13, fontWeight: '500', color: '#2C2C2A' },
+  statusCardOnline: { borderLeftWidth: 3, borderLeftColor: '#10b981' },
+  statusCardOffline: { borderLeftWidth: 3, borderLeftColor: '#6b7280' },
+  dot: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    marginRight: 8,
+  },
+  dotOnline: { backgroundColor: '#10b981' },
+  dotOffline: { backgroundColor: '#9ca3af' },
+  statusText: {
+    fontSize: 14,
+    fontFamily: font.MonolithRegular,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  },
+  swipeContainer: {
+    width: BUTTON_WIDTH,
+    height: BUTTON_HEIGHT,
+    borderRadius: BUTTON_HEIGHT / 2,
+    padding: BUTTON_PADDING,
+    justifyContent: 'center',
+    ...Platform.select({
+      ios: { shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.15, shadowRadius: 10 },
+    }),
+  },
+  swipeContainerOnline: {
+    backgroundColor: '#8B4513',
+  },
+  swipeContainerOffline: {
+    backgroundColor: '#FFCC00',
+  },
+  trackContent: {
+    position: 'absolute',
+    width: '100%',
+    alignItems: 'center',
+    left: BUTTON_PADDING,
+  },
+  swipeText: {
+    fontSize: 16,
+    fontFamily: font.MonolithRegular,
+    textAlign: 'center',
+  },
+  handle: {
+    width: HANDLE_SIZE,
+    height: HANDLE_SIZE,
+    borderRadius: HANDLE_SIZE / 2,
+    backgroundColor: '#FFF',
+    justifyContent: 'center',
+    alignItems: 'center',
+    ...Platform.select({
+      ios: { shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.2, shadowRadius: 3 },
+    }),
+  },
 });

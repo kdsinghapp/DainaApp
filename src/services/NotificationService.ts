@@ -125,16 +125,13 @@ class NotificationService {
   displayLocalNotification = async (remoteMessage: any): Promise<void> => {
     try {
       const { data, notification } = remoteMessage;
-      
+
       // Robust check for nearby_parcel
       const type = String(data?.type || '').toLowerCase();
       const title = String(notification?.title || '').toLowerCase();
       const body = String(notification?.body || '').toLowerCase();
-      
-      const isNearbyParcel = type === 'nearby_parcel' || 
-                             type === 'parcel' || 
-                             title.includes('parcel') || 
-                             body.includes('parcel');
+
+      const isNearbyParcel = type === 'nearby_parcel';
 
       console.log('--- NOTIFICATION RECEIVED ---', JSON.stringify(remoteMessage, null, 2));
       console.log('Is Nearby Parcel Detected:', isNearbyParcel, { type, title, body });
@@ -166,17 +163,17 @@ class NotificationService {
       // Start the long ringtone for foreground attention if online
       const authData = await AsyncStorage.getItem('authData');
       const parsedAuth = authData ? JSON.parse(authData) : null;
-      
+
       // Default to online if we can't determine status, to be safe
       const status = parsedAuth?.userData?.onlineStatus?.toLowerCase() || 'online';
       const isUserOnline = status === 'online';
 
       if (isNearbyParcel && isUserOnline) {
         playNotificationSound();
-        // Automatically stop after 3 seconds
+        // Stop after 10 seconds to match the socket behavior in DeliveryHome
         setTimeout(() => {
           stopNotificationSound();
-        }, 3000);
+        }, 10000);
       }
     } catch (error) {
       console.log('displayLocalNotification error:', error);
@@ -222,16 +219,13 @@ class NotificationService {
     try {
       const { data, notification } = remoteMessage;
       console.log('Background message received:', JSON.stringify(remoteMessage, null, 2));
-      
+
       // Robust check for nearby_parcel
       const type = String(data?.type || '').toLowerCase();
       const title = String(notification?.title || '').toLowerCase();
       const body = String(notification?.body || '').toLowerCase();
-      
-      const isNearbyParcel = type === 'nearby_parcel' || 
-                             type === 'parcel' || 
-                             title.includes('parcel') || 
-                             body.includes('parcel');
+
+      const isNearbyParcel = type === 'nearby_parcel';
 
       const channelId = await notifee.createChannel({
         id: isNearbyParcel ? 'delivery_orders_v4' : 'default_channel',
@@ -262,7 +256,7 @@ class NotificationService {
 
       if (isNearbyParcel && isUserOnline) {
         playNotificationSound();
-        setTimeout(() => stopNotificationSound(), 3000);
+        setTimeout(() => stopNotificationSound(), 10000);
       }
     } catch (error) {
       console.log('onBackgroundMessage error:', error);
