@@ -8,7 +8,6 @@ import { GetNotifications } from '../../Api/apiRequest';
 import { color } from '../../constant';
 import moment from 'moment';
 import { RefreshControl } from 'react-native';
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import font from '../../theme/font';
 
 

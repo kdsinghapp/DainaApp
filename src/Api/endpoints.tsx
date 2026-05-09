@@ -26,6 +26,7 @@ export const endpointCustomer = {
   setLanguage: "set-language",
   notifications: "/notifications",
   dashboardCounts: "/delivery/dashboard-counts",
+  markReadNotifications: "/notifications/mark-read",
   saveDriverLocation: "/driver/location",
   nearbyDrivers: "/nearby"
 };

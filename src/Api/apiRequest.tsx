@@ -953,6 +953,46 @@ const CancelParcelApi = async (
   }
 };
 
+const MarkNotificationsAsReadApi = async (
+  param: { notificationId?: number | null },
+  setLoading?: (loading: boolean) => void
+) => {
+  try {
+    setLoading?.(true);
+    const token = await AsyncStorage.getItem("token");
+
+    let body = "";
+    if (param?.notificationId) {
+      body = `notificationId=${encodeURIComponent(param.notificationId)}`;
+    }
+
+    const response = await fetch(`${base_url}/notifications/mark-read`, {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/x-www-form-urlencoded",
+        Authorization: `Bearer ${token}`,
+      },
+      body,
+    });
+
+    const textResponse = await response.text();
+    let parsedResponse;
+    try {
+      parsedResponse = JSON.parse(textResponse);
+    } catch {
+      throw new Error(strings.InvalidServerResponse);
+    }
+
+    return parsedResponse;
+  } catch (error: any) {
+    console.error("MarkNotificationsAsReadApi error:", error);
+    return null;
+  } finally {
+    setLoading?.(false);
+  }
+};
+
 const RateDeliveryApi = async (
   param: { parcelId: number; rating: number; review?: string },
   setLoading?: (loading: boolean) => void
@@ -1025,5 +1065,6 @@ export {
   GetNotifications,
   GetDashboardCounts,
   CancelParcelApi,
-  RateDeliveryApi
+  RateDeliveryApi,
+  MarkNotificationsAsReadApi
 }

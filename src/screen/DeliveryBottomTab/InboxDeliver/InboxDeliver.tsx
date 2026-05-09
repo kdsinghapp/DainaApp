@@ -7,9 +7,7 @@ import {
   Image,
   TextInput,
   TouchableOpacity,
-  ActivityIndicator,
   RefreshControl,
-  Platform,
 } from "react-native";
 import Icon from 'react-native-vector-icons/Ionicons';
 import StatusBarComponent from "../../../compoent/StatusBarCompoent";
@@ -22,7 +20,6 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import NewOrderNotificationModal from "../../../compoent/NewOrderNotificationModal";
 import strings from "../../../localization/Localization";
 import imageIndex from "../../../assets/imageIndex";
-import { hp } from "../../../utils/Constant";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -237,14 +234,14 @@ export default function InboxDeliver() {
 
       <View style={styles.headerRow}>
         <Text style={styles.header}>{strings.Inbox}</Text>
-        {loading && <ActivityIndicator size="small" color="#FFCC00" />}
       </View>
 
       <NewOrderNotificationModal />
 
       <View style={styles.searchContainer}>
         <View style={styles.searchBox}>
-          <Icon name="search" size={18} color="#64748B" />
+          <Image source={imageIndex.search1} style={{ height: 16, width: 16 }} />
+
           <TextInput
             placeholder={strings.SearchInboxPlaceholder}
             placeholderTextColor="#94A3B8"
