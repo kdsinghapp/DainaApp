@@ -38,6 +38,7 @@ export const useDeliveryHome = () => {
   const locationRef = useRef(null);
   const dispatch = useDispatch();
   const userData = useSelector((state: any) => state.auth.userData);
+  const token = useSelector((state: any) => state.auth.token);
 
   const [isConnected, setIsConnected] = useState(false);
   const [isOnline, setIsOnline] = useState(userData?.onlineStatus?.toLowerCase() === 'online');
@@ -236,6 +237,12 @@ export const useDeliveryHome = () => {
     if (reconnectTimerRef.current) clearTimeout(reconnectTimerRef.current);
     if (heartbeatIntervalRef.current) clearInterval(heartbeatIntervalRef.current);
 
+    // Only connect if the user is a Delivery person
+    if (userData?.type !== 'Delivery') {
+      console.log('🚫 [WebSocket] Skipping driver socket: user is not a Delivery role');
+      return Promise.resolve();
+    }
+
     return new Promise<void>((resolve, reject) => {
       try {
         const wsUrl = `${WebSocket_Url}/driver?token=${token}`;
@@ -393,6 +400,12 @@ export const useDeliveryHome = () => {
   const connectLiveLocationSocket = (token: string) => {
     if (liveReconnectTimerRef.current) clearTimeout(liveReconnectTimerRef.current);
     if (liveHeartbeatIntervalRef.current) clearInterval(liveHeartbeatIntervalRef.current);
+
+    // Only connect if the user is a Delivery person
+    if (userData?.type !== 'Delivery') {
+      console.log('🚫 [WebSocket] Skipping live location socket: user is not a Delivery role');
+      return Promise.resolve();
+    }
 
     return new Promise<void>((resolve, reject) => {
       try {
@@ -568,7 +581,12 @@ export const useDeliveryHome = () => {
       console.log('🚫 [WebSocket] Reconnect skipped (Cancelled or No Network)');
       return;
     }
-    const token = await AsyncStorage.getItem('token');
+
+    if (userData?.type !== 'Delivery') {
+      console.log('🚫 [WebSocket] Reconnect skipped: not a Delivery user');
+      return;
+    }
+
     if (!token) return;
 
     console.log('🔄 [WebSocket] Reconnecting all sockets due to state change...');
@@ -578,7 +596,7 @@ export const useDeliveryHome = () => {
     if (!socketLiveRef.current || socketLiveRef.current.readyState !== WebSocket.OPEN) {
       connectLiveLocationSocket(token).catch(e => console.log('❌ Live socket reconnect failed:', e));
     }
-  }, []);
+  }, [token, userData?.type]);
 
   useEffect(() => {
     const appStateListener = AppState.addEventListener('change', (nextAppState: AppStateStatus) => {
@@ -606,14 +624,23 @@ export const useDeliveryHome = () => {
   useEffect(() => {
     cancelledRef.current = false;
 
+    if (!token || userData?.type !== 'Delivery') {
+      console.log('🚫 [WebSocket] Init skipped: No token or not a Delivery user');
+      // Ensure sockets are closed if user is no longer a driver (e.g. logout or role switch)
+      if (socketRef.current) {
+        socketRef.current.close();
+        socketRef.current = null;
+      }
+      if (socketLiveRef.current) {
+        socketLiveRef.current.close();
+        socketLiveRef.current = null;
+      }
+      return;
+    }
+
     const init = async () => {
       try {
         handleGetLocation();
-        const token = await AsyncStorage.getItem('token');
-        if (!token || cancelledRef.current) {
-          console.log('❌ No token in storage');
-          return;
-        }
         await connectSocket(token);
         if (cancelledRef.current) return;
         try {
@@ -648,7 +675,7 @@ export const useDeliveryHome = () => {
         stopNotificationSound();
       } catch (_) { }
     };
-  }, []);
+  }, [token, userData?.type]);
   useEffect(() => {
     if (!coords) return;
     const ws = socketLiveRef.current;
