@@ -450,7 +450,6 @@ export const useDeliveryHome = () => {
             if (data?.type === 'pong') return;
 
             console.log('📩 [WebSocket] Received live/nearby message type:', data?.type);
-
             if (data?.type === 'nearby_parcel') {
               if (cancelledRef.current) return;
 
@@ -492,6 +491,25 @@ export const useDeliveryHome = () => {
               setNewOrderNotification({ visible: true, data });
               return;
             }
+
+            if (data?.type === 'remove_nearby_parcel') {
+              if (cancelledRef.current) return;
+              console.log("🗑️ [WebSocket] Removing nearby parcel notification");
+              const removeId = data?.parcelId ?? data?.id;
+              if (removeId) {
+                setRequests((prev: any[]) => prev.filter((r: any) => String(r.id ?? r.parcelId) !== String(removeId)));
+              }
+              setNewOrderNotification(null);
+              stopNotificationSound();
+              if (soundTimerRef.current) {
+                clearTimeout(soundTimerRef.current);
+                soundTimerRef.current = null;
+              }
+              return;
+            }
+
+
+
 
             const list = data?.requests ?? data?.parcels ?? data?.data ?? data?.result;
             if (Array.isArray(list) && !cancelledRef.current) {

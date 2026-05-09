@@ -6,7 +6,6 @@ import {
   StyleSheet,
    ActivityIndicator,
   Linking,
- 
   ScrollView
 } from 'react-native';
 import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
@@ -16,8 +15,6 @@ import font from '../../../../theme/font';
 import LoadingModal from '../../../../utils/Loader';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import strings from '../../../../localization/Localization';
-  
-
 import { useDashboardContext } from '../../../../context/DashboardContext';
 
 const DeliveryRequest = () => {

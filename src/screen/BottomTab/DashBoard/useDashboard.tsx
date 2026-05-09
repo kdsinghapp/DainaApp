@@ -5,7 +5,6 @@ import { GetProfileApi } from '../../../Api/apiRequest';
 import { loginSuccess } from '../../../redux/feature/authSlice';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useDashboardContext } from '../../../context/DashboardContext';
-
 export type { CounterOfferAcceptedPayload } from '../../../context/DashboardContext';
 
 const useDashboard = () => {
@@ -18,7 +17,6 @@ const useDashboard = () => {
   const [isLoading, setLoading] = useState(false);
   const dispatch = useDispatch();
   const locationRef: any = useRef(null);
-
   const orderData = ctx?.orderData ?? [];
   const counterOfferAcceptedModal = ctx?.counterOfferAcceptedModal ?? { visible: false, data: null };
   const setCounterOfferAcceptedModal = ctx?.setCounterOfferAcceptedModal ?? (() => { });
@@ -87,7 +85,6 @@ const useDashboard = () => {
           console.log(`Retrying location fetch... (${retryCount + 1})`);
           setTimeout(() => handleGetLocation(retryCount + 1), 2000);
         } else {
-          // Final fallback if all else fails
           setcurrentlocation("Location unavailable");
         }
       } else if (data && data.address) {
