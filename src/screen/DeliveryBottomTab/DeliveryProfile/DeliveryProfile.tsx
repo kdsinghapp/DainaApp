@@ -79,10 +79,10 @@ const ListItem = ({
 const DeliveryProfile: React.FC<Props> = ({
 
   user = {
-    name: "Marcus Aminoff",
-    email: "marcus.aminoff@gmail.com",
+    name: "",
+    email: "",
     avatarUrl:
-      "https://images.unsplash.com/photo-1607746882042-944635dfe10e?q=80&w=256&auto=format&fit=crop",
+      "",
   },
 }) => {
   const navigation: any = useNavigation()
@@ -141,7 +141,7 @@ const DeliveryProfile: React.FC<Props> = ({
           <View style={{ flex: 1 }}>
             <Text style={styles.name}>{isLogin?.firstName || user.name}</Text>
             <Text style={styles.email}>{isLogin?.email || user.email}</Text>
-            <Text style={styles.phoneNumber}>{isLogin?.phoneNumber || "+1 234 567 890"}</Text>
+            <Text style={styles.phoneNumber}>{isLogin?.phoneNumber || ""}</Text>
             <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 6 }}>
               <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                 {[1, 2, 3, 4, 5].map((star) => (
