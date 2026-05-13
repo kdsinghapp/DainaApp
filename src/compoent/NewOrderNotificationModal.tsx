@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import {
   View,
   Text,
@@ -9,66 +9,27 @@ import {
   ScrollView,
 } from 'react-native';
 import Modal from 'react-native-modal';
-import Animated, {
-  FadeInDown,
-  ZoomIn,
-  FadeInRight,
-  useAnimatedStyle,
-  withRepeat,
-  withSequence,
-  withTiming,
-  useSharedValue,
-} from 'react-native-reanimated';
 import { useNavigation } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import font from '../theme/font';
-import strings from '../localization/Localization';
 import ScreenNameEnum from '../routes/screenName.enum';
+import strings from '../localization/Localization';
 import { STATUS } from '../utils/Constant';
 import { useDeliveryContext } from '../context/DeliveryContext';
 import { stopNotificationSound } from '../utils/soundPlayer';
+import { color } from '../constant';
 
-const { width, height } = Dimensions.get('window');
+import { useSelector } from 'react-redux';
 
-const PulseIndicator = () => {
-  const scale = useSharedValue(1);
-  const opacity = useSharedValue(0.6);
-
-  useEffect(() => {
-    scale.value = withRepeat(
-      withSequence(
-        withTiming(1.3, { duration: 1200 }),
-        withTiming(1, { duration: 1200 })
-      ),
-      -1,
-      true
-    );
-    opacity.value = withRepeat(
-      withSequence(
-        withTiming(0.1, { duration: 1200 }),
-        withTiming(0.5, { duration: 1200 })
-      ),
-      -1,
-      true
-    );
-  }, []);
-
-  const animatedStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: scale.value }],
-    opacity: opacity.value,
-  }));
-
-  return (
-    <Animated.View style={[styles.pulseCircle, animatedStyle]} />
-  );
-};
+const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
 const NewOrderNotificationModal: React.FC = () => {
   const ctx = useDeliveryContext();
   const navigation = useNavigation();
+  const userData = useSelector((state: any) => state.auth.userData);
 
-  if (!ctx) return null;
+  if (!ctx || userData?.type !== 'Delivery') return null;
 
   const {
     newOrderNotification,
@@ -78,32 +39,13 @@ const NewOrderNotificationModal: React.FC = () => {
     RejectcounterOffer,
   } = ctx;
 
-  const data = newOrderNotification?.data as any;
+  const rawData = newOrderNotification?.data as any;
+  // Robustly merge parcel data if it exists nested
+  const data = { ...rawData, ...(rawData?.parcel ?? {}) };
 
   if (!newOrderNotification?.visible) return null;
 
   const isCounterOffer = data?.type === 'counter_offer';
-
-  // Helper to render a data row
-  const DataRow = ({ icon, label, value, color = "#64748B" }: { icon: string, label: string, value: string, color?: string }) => (
-    <View style={styles.dataRow}>
-      <View style={[styles.rowIconContainer, { backgroundColor: `${color}10` }]}>
-        <Icon name={icon} size={wp(4)} color={color} />
-      </View>
-      <View style={styles.rowTextContainer}>
-        <Text style={styles.rowLabel}>{label}</Text>
-        <Text style={styles.rowValue}>{value || 'N/A'}</Text>
-      </View>
-    </View>
-  );
-
-  const InfoBox = ({ label, value, icon, color = "#FFCC00" }: { label: string, value: string, icon: string, color?: string }) => (
-    <View style={styles.infoBox}>
-      <Icon name={icon} size={wp(4.5)} color={color} style={{ marginBottom: 4 }} />
-      <Text style={styles.infoBoxLabel}>{label}</Text>
-      <Text style={styles.infoBoxValue}>{value}</Text>
-    </View>
-  );
 
   const closeNotification = () => {
     setNewOrderNotification(null);
@@ -115,28 +57,30 @@ const NewOrderNotificationModal: React.FC = () => {
       isVisible={!!newOrderNotification?.visible}
       onBackdropPress={closeNotification}
       onBackButtonPress={closeNotification}
-      animationIn="slideInUp"
-      animationOut="slideOutDown"
+      animationIn="none"
+      animationOut="none"
       backdropOpacity={0.4}
+      deviceHeight={SCREEN_HEIGHT}
+      deviceWidth={SCREEN_WIDTH}
       useNativeDriver
       hideModalContentWhileAnimating
+      statusBarTranslucent
       style={styles.modalContainer}
     >
-      <Animated.View entering={FadeInDown.springify().damping(15)} style={styles.modalCard}>
+      <View style={styles.modalCard}>
         {/* Handle bar */}
         <View style={styles.handleBar} />
 
         {/* Top Header */}
         <View style={styles.header}>
           <View style={styles.headerIconWrapper}>
-            <PulseIndicator />
-            <Animated.View entering={ZoomIn.delay(300)} style={styles.headerIconCircle}>
+            <View style={styles.headerIconCircle}>
               <Icon
                 name={isCounterOffer ? "cash-outline" : "cube"}
                 size={wp(7)}
-                color="#000000"
+                color={color.primary}
               />
-            </Animated.View>
+            </View>
           </View>
 
           <View style={styles.headerTitleContainer}>
@@ -144,7 +88,6 @@ const NewOrderNotificationModal: React.FC = () => {
               {isCounterOffer ? strings.CounterOfferReceived : strings.NewDeliveryRequest}
             </Text>
             <View style={styles.badgeRow}>
-
               {data?.trackingId && (
                 <View style={styles.trackingBadge}>
                   <Text style={styles.trackingIdText}>#{data.trackingId}</Text>
@@ -161,48 +104,77 @@ const NewOrderNotificationModal: React.FC = () => {
           </TouchableOpacity>
         </View>
 
-        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.scrollContent}
+          bounces={false}
+        >
 
-          {/* Price/Value Section if available */}
+          {/* Price/Value Section */}
           {(data?.price || data?.amount || data?.offer_price) && (
-            <Animated.View entering={FadeInRight.delay(400)} style={styles.priceContainer}>
-              <Text style={styles.priceLabel}>{isCounterOffer ? 'Offer Price' : 'Estimated Earnings'}</Text>
-              <Text style={styles.priceValue}>₮{data?.price || data?.amount || data?.offer_price}</Text>
-            </Animated.View>
-          )}
-
-
-
-          {/* Location Path (Timeline) */}
-          <View style={styles.pathContainer}>
-            <View style={styles.pathTimeline}>
-              <View style={styles.pathDotContainer}>
-                <View style={[styles.pathDot, { backgroundColor: '#10B981' }]} />
-                <View style={styles.pathLine} />
-                <View style={[styles.pathDot, { backgroundColor: '#EF4444' }]} />
+            <View style={styles.priceContainer}>
+              <View>
+                <Text style={styles.priceLabel}>{isCounterOffer ? strings.OfferPrice : strings.EstimatedEarnings}</Text>
+                <Text style={styles.priceValue}>₮ {data?.price || data?.amount || data?.offer_price}</Text>
               </View>
 
-              <View style={styles.pathContent}>
-                <View style={styles.pathBlock}>
-                  <Text style={styles.pathLabel}>{strings.Pickup || 'Pickup Address'}</Text>
-                  <Text style={styles.pathAddress} numberOfLines={2}>
-                    {data?.pickup?.location || data?.sender?.address || 'N/A'}
-                  </Text>
+            </View>
+          )}
+
+          {/* Location Path (Timeline) */}
+          {(data?.pickup?.location || data?.sender?.address || data?.pickupLocation || data?.drop?.location || data?.receiver?.address || data?.dropLocation) ? (
+            <View style={styles.pathContainer}>
+              <View style={styles.pathTimeline}>
+                <View style={styles.pathDotContainer}>
+                  <View style={[styles.pathDot, { backgroundColor: '#10B981' }]} />
+                  <View style={styles.pathLine} />
+                  <View style={[styles.pathDot, { backgroundColor: '#EF4444' }]} />
                 </View>
 
-                <View style={styles.pathSpacer} />
+                <View style={styles.pathContent}>
+                  <View style={styles.pathBlock}>
+                    <Text style={styles.pathLabel}>{strings.Pickup || 'Pickup Address'}</Text>
+                    <Text style={styles.pathAddress} numberOfLines={2}>
+                      {data?.pickup?.location || data?.sender?.address || data?.pickupLocation || 'N/A'}
+                    </Text>
+                  </View>
 
-                <View style={styles.pathBlock}>
-                  <Text style={styles.pathLabel}>{strings.Drop || 'Drop Address'}</Text>
-                  <Text style={styles.pathAddress} numberOfLines={2}>
-                    {data?.drop?.location || data?.receiver?.address || 'N/A'}
-                  </Text>
+                  <View style={styles.pathSpacer} />
+
+                  <View style={styles.pathBlock}>
+                    <Text style={styles.pathLabel}>{strings.Drop || 'Drop Address'}</Text>
+                    <Text style={styles.pathAddress} numberOfLines={2}>
+                      {data?.drop?.location || data?.receiver?.address || data?.dropLocation || 'N/A'}
+                    </Text>
+                  </View>
                 </View>
               </View>
             </View>
-          </View>
+          ) : null}
 
-
+          {/* Additional Info Grid */}
+          {(data?.weight || data?.distance) && (
+            <View style={styles.infoGrid}>
+              {data?.weight && (
+                <View style={styles.infoBox}>
+                  <Icon name="scale-outline" size={wp(4.5)} color="#64748B" />
+                  <View>
+                    <Text style={styles.infoBoxLabel}>{strings.Weight}</Text>
+                    <Text style={styles.infoBoxValue}>{data.weight} kg</Text>
+                  </View>
+                </View>
+              )}
+              {data?.distance && (
+                <View style={styles.infoBox}>
+                  <Icon name="navigate-outline" size={wp(4.5)} color="#64748B" />
+                  <View>
+                    <Text style={styles.infoBoxLabel}>{strings.Distance}</Text>
+                    <Text style={styles.infoBoxValue}>{data.distance} km</Text>
+                  </View>
+                </View>
+              )}
+            </View>
+          )}
 
         </ScrollView>
 
@@ -249,7 +221,7 @@ const NewOrderNotificationModal: React.FC = () => {
             </Text>
           </TouchableOpacity>
         </View>
-      </Animated.View>
+      </View>
     </Modal>
   );
 };
@@ -261,15 +233,22 @@ const styles = StyleSheet.create({
   },
   modalCard: {
     backgroundColor: '#FFFFFF',
-    borderTopLeftRadius: wp(8),
-    borderTopRightRadius: wp(8),
+    borderTopLeftRadius: wp(9),
+    borderTopRightRadius: wp(9),
     paddingHorizontal: wp(6),
-    paddingBottom: hp(4),
+    paddingBottom: Platform.OS === 'ios' ? hp(5) : hp(3.5),
     paddingTop: hp(1.5),
-    maxHeight: hp(85),
+    maxHeight: hp(92),
 
-    width: '100%',
-
+    width: SCREEN_WIDTH,
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: -10 },
+        shadowOpacity: 0.1,
+        shadowRadius: 20,
+      },
+    }),
   },
   handleBar: {
     width: wp(12),
@@ -277,12 +256,12 @@ const styles = StyleSheet.create({
     backgroundColor: '#E2E8F0',
     borderRadius: 10,
     alignSelf: 'center',
-    marginBottom: hp(2),
+    marginBottom: hp(2.5),
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: hp(2.5),
+    marginBottom: hp(3),
   },
   headerIconWrapper: {
     width: wp(15),
@@ -297,23 +276,13 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFCC00',
     justifyContent: 'center',
     alignItems: 'center',
-    zIndex: 2,
-  },
-  pulseCircle: {
-    position: 'absolute',
-    width: wp(18),
-    height: wp(18),
-    borderRadius: wp(9),
-    backgroundColor: '#FFCC00',
-    zIndex: 1,
   },
   headerTitleContainer: {
     flex: 1,
     marginLeft: wp(4),
-
   },
   headerTitle: {
-    fontSize: wp(5),
+    fontSize: wp(5.2),
     color: '#0F172A',
     fontFamily: font.MonolithRegular,
   },
@@ -321,89 +290,86 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginTop: 4,
-    gap: 8,
-  },
-  statusBadge: {
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 6,
-  },
-  statusText: {
-    fontSize: wp(2.5),
-    fontFamily: font.MonolithRegular,
-    textTransform: 'uppercase',
   },
   trackingBadge: {
     backgroundColor: '#F1F5F9',
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 6,
+    paddingHorizontal: 10,
+    paddingVertical: 3,
+    borderRadius: 8,
   },
   trackingIdText: {
-    fontSize: wp(2.8),
+    fontSize: wp(3),
     color: '#64748B',
     fontFamily: font.MonolithRegular,
   },
   closeIconButton: {
-    padding: wp(2),
+    padding: wp(2.5),
     backgroundColor: '#F8FAFC',
-    borderRadius: wp(3),
+    borderRadius: wp(3.5),
   },
   scrollContent: {
     paddingBottom: hp(2),
   },
   priceContainer: {
-    backgroundColor: '#0F172A',
-    borderRadius: wp(4),
-    padding: wp(4),
+    borderRadius: wp(5),
+    padding: wp(5),
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: hp(2),
+    marginBottom: hp(3),
   },
   priceLabel: {
     color: '#94A3B8',
     fontSize: wp(3.5),
     fontFamily: font.MonolithRegular,
+    marginBottom: 4,
   },
   priceValue: {
     color: '#FFCC00',
-    fontSize: wp(5.5),
+    fontSize: wp(6.5),
     fontFamily: font.MonolithRegular,
+  },
+  priceIconBg: {
+    width: wp(12),
+    height: wp(12),
+    borderRadius: wp(4),
+    backgroundColor: 'rgba(255, 204, 0, 0.1)',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   infoGrid: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    gap: wp(3),
-    marginBottom: hp(3),
+    gap: wp(4),
+    marginBottom: hp(2),
   },
   infoBox: {
     flex: 1,
     backgroundColor: '#F8FAFC',
     borderRadius: wp(4),
-    paddingVertical: wp(3),
-    paddingHorizontal: wp(2),
+    paddingVertical: wp(3.5),
+    paddingHorizontal: wp(3),
     alignItems: 'center',
     borderWidth: 1,
     borderColor: '#F1F5F9',
+    flexDirection: 'row',
+    gap: 8,
   },
   infoBoxLabel: {
     fontSize: wp(2.6),
-    color: '#94A3B8',
+    color: '#64748B',
     fontFamily: font.MonolithRegular,
-    textTransform: 'uppercase',
     marginBottom: 2,
   },
   infoBoxValue: {
     fontSize: wp(3.5),
-    color: '#1E293B',
+    color: '#0F172A',
     fontFamily: font.MonolithRegular,
   },
   pathContainer: {
     backgroundColor: '#FFFFFF',
-    borderRadius: wp(4),
-    padding: wp(4),
-    borderWidth: 1,
+    borderRadius: wp(5),
+    padding: wp(5),
+    borderWidth: 1.5,
     borderColor: '#F1F5F9',
     marginBottom: hp(3),
   },
@@ -416,103 +382,51 @@ const styles = StyleSheet.create({
     paddingTop: wp(1.5),
   },
   pathDot: {
-    width: wp(2.5),
-    height: wp(2.5),
-    borderRadius: wp(1.25),
+    width: wp(3),
+    height: wp(3),
+    borderRadius: wp(1.5),
   },
   pathLine: {
     width: 2,
     flex: 1,
     backgroundColor: '#E2E8F0',
-    marginVertical: 4,
-    borderStyle: 'dashed',
+    marginVertical: 6,
   },
   pathContent: {
     flex: 1,
-    marginLeft: wp(4),
+    marginLeft: wp(5),
   },
   pathBlock: {
     flex: 1,
   },
   pathLabel: {
-    fontSize: wp(2.8),
+    fontSize: wp(3),
     color: '#94A3B8',
     fontFamily: font.MonolithRegular,
     textTransform: 'uppercase',
-    marginBottom: 2,
+    letterSpacing: 1,
+    marginBottom: 4,
   },
   pathAddress: {
-    fontSize: wp(3.8),
+    fontSize: wp(4),
     color: '#1E293B',
     fontFamily: font.MonolithRegular,
-    lineHeight: wp(5),
-
+    lineHeight: wp(5.5),
   },
   pathSpacer: {
-    height: hp(3),
-  },
-  detailsContainer: {
-    marginBottom: hp(2),
-  },
-  sectionTitle: {
-    fontSize: wp(4),
-    color: '#0F172A',
-    fontFamily: font.MonolithRegular,
-    marginBottom: hp(1.5),
-  },
-  detailsList: {
-    gap: hp(1.5),
-  },
-  dataRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: wp(3.5),
-  },
-  rowIconContainer: {
-    width: wp(9),
-    height: wp(9),
-    borderRadius: wp(2.5),
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  rowTextContainer: {
-    flex: 1,
-  },
-  rowLabel: {
-    fontSize: wp(2.8),
-    color: '#94A3B8',
-    fontFamily: font.MonolithRegular,
-  },
-  rowValue: {
-    fontSize: wp(3.5),
-    color: '#334155',
-    fontFamily: font.MonolithRegular,
-  },
-  noteBox: {
-    flexDirection: 'row',
-    backgroundColor: '#FFFBEB',
-    borderRadius: wp(3),
-    padding: wp(3),
-    gap: wp(2),
-    marginTop: hp(1),
-    borderWidth: 1,
-    borderColor: '#FEF3C7',
-  },
-  noteText: {
-    flex: 1,
-    fontSize: wp(3.2),
-    color: '#92400E',
-    fontFamily: font.MonolithRegular,
-    fontStyle: 'italic',
+    height: hp(3.5),
   },
   footer: {
     flexDirection: 'row',
-    gap: wp(3),
+    gap: wp(4),
+    paddingTop: hp(2),
+    borderTopWidth: 1,
+    borderTopColor: '#F1F5F9',
   },
   btnLater: {
     flex: 1,
-    height: hp(7),
-    borderRadius: wp(4),
+    height: hp(7.5),
+    borderRadius: wp(4.5),
     backgroundColor: '#F1F5F9',
     justifyContent: 'center',
     alignItems: 'center',
@@ -524,19 +438,25 @@ const styles = StyleSheet.create({
   },
   btnAction: {
     flex: 2,
-    height: hp(7),
-    borderRadius: wp(4),
+    height: hp(7.5),
+    borderRadius: wp(4.5),
     backgroundColor: '#FFCC00',
     justifyContent: 'center',
     alignItems: 'center',
-
+    ...Platform.select({
+      ios: {
+        shadowColor: '#FFCC00',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 8,
+      },
+    }),
   },
   btnActionText: {
-    fontSize: wp(4),
+    fontSize: wp(4.2),
     color: '#000000',
     fontFamily: font.MonolithRegular,
   },
 });
 
 export default NewOrderNotificationModal;
-

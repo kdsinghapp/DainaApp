@@ -10,6 +10,7 @@ import Modal from 'react-native-modal';
 import font from '../theme/font';
 import { useDashboardContext } from '../context/DashboardContext';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import strings from '../localization/Localization';
 
 const AppAlert: React.FC = () => {
   const ctx = useDashboardContext();
@@ -71,7 +72,7 @@ const AppAlert: React.FC = () => {
             onPress={closeModal}
             activeOpacity={0.8}
           >
-            <Text style={styles.btnDismissText}>OK</Text>
+            <Text style={styles.btnDismissText}>{strings.OK}</Text>
           </TouchableOpacity>
         </View>
       </View>

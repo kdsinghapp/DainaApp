@@ -1,5 +1,5 @@
 import { StyleSheet, Dimensions } from "react-native";
- import font from "../../../theme/font";
+import font from "../../../theme/font";
 
 export const styles = StyleSheet.create({
   container: {
@@ -23,6 +23,8 @@ export const styles = StyleSheet.create({
   dropdownText: {
     color: "#333",
     fontSize: 15,
+    fontFamily: font.MonolithRegular
+
   },
   input: {
     borderWidth: 1,
@@ -32,6 +34,8 @@ export const styles = StyleSheet.create({
     marginTop: 15,
     fontSize: 15,
     color: "#333",
+    fontFamily: font.MonolithRegular
+
   },
   uploadBox: {
     borderWidth: 1.4,
@@ -47,21 +51,22 @@ export const styles = StyleSheet.create({
     marginTop: 10,
     color: "#333",
     fontSize: 15,
-    fontWeight: "500",
+    fontFamily: font.MonolithRegular
+
   },
   button: {
     backgroundColor: "#FFCC00",
     paddingVertical: 16,
     borderRadius: 30,
     alignItems: "center",
-     marginHorizontal:20,
-    marginBottom:15
+    marginHorizontal: 20,
+    marginBottom: 15
   },
   buttonText: {
     color: "#000",
     fontSize: 16,
-    fontFamily:font.MonolithRegular
-   },
+    fontFamily: font.MonolithRegular
+  },
   modalOverlay: {
     flex: 1,
     backgroundColor: "rgba(0,0,0,0.3)",
@@ -136,7 +141,8 @@ export const styles = StyleSheet.create({
   },
   modalTitle: {
     fontSize: 18,
-    fontWeight: "700",
+    fontFamily: font.MonolithRegular
+    ,
     color: "#333",
   },
   modalBody: {
@@ -157,7 +163,8 @@ export const styles = StyleSheet.create({
   },
   optionText: {
     fontSize: 16,
-    fontWeight: "600",
+    fontFamily: font.MonolithRegular
+    ,
     color: "#444",
   },
- });
+});

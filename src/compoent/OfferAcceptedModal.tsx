@@ -114,7 +114,6 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.18,
         shadowRadius: 24,
       },
-      android: { elevation: 16 },
     }),
   },
   accentBar: {
