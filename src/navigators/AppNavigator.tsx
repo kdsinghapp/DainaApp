@@ -11,6 +11,7 @@ import toastConfig from '../utils/customToast';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import strings from '../localization/Localization';
 import 'react-native-reanimated';
+import { SafeAreaView } from 'react-native-safe-area-context';
 const AppNavigator: React.FC = () => {
   const [isConnected, setIsConnected] = useState<boolean>(true);
 
@@ -32,8 +33,9 @@ const AppNavigator: React.FC = () => {
               modalVisible={!isConnected}
               offlineText={strings.NoInternetConnection}
             />
-
-            <RegistrationRoutes />
+            <SafeAreaView style={{ flex: 1 }} edges={['bottom']} >
+              <RegistrationRoutes />
+            </SafeAreaView>
             <Toast config={toastConfig} />
           </NavigationContainer>
         </GestureHandlerRootView>
