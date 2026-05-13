@@ -9,7 +9,7 @@ import StatusBarComponent from '../../../compoent/StatusBarCompoent';
 import { styles } from './style';
 import { useDispatch } from 'react-redux';
 import { restoreLogin } from '../../../redux/feature/authSlice';
-import { getAuthData } from '../../../Api/apiRequest';
+import { getAuthData, GetVerificationStatusApi } from '../../../Api/apiRequest';
 
 type RootStackParamList = {
   Home: undefined;
@@ -34,15 +34,28 @@ const Splash: React.FC = () => {
     const timer = setTimeout(async () => {
       try {
         const storedAuth = await getAuthData();
-
+        console.log(storedAuth, "storedAuth")
         if (storedAuth?.token) {
           dispatch(restoreLogin(storedAuth));
           if (storedAuth.userData?.type == "Delivery") {
-            navigation.replace(ScreenNameEnum.VerificationPending);
+            const statusRes = await GetVerificationStatusApi();
+            console.log("statusRes", statusRes);
+            const completion = statusRes?.completionStatus;
+            if (!completion?.isProfileComplete) {
+              navigation.replace(ScreenNameEnum.ProfileSetup);
+            } else if (!completion?.isDocumentsUploaded) {
+              navigation.replace(ScreenNameEnum.UploadDocumentsScreen);
+            } else if (!completion?.isVehicleSetupComplete) {
+              navigation.replace(ScreenNameEnum.VehicleSetupScreen);
+            } else if (!completion?.isBankDetailsComplete) {
+              navigation.replace(ScreenNameEnum.BankSetupScreen);
+            } else if (statusRes?.verificationStatus === "in_review") {
+              navigation.replace(ScreenNameEnum.VerificationPending);
+            } else {
+              navigation.replace(ScreenNameEnum.DeliveryTabNavigator);
+            }
           } else {
             navigation.replace(ScreenNameEnum.TabNavigator);
-            // navigation.replace(ScreenNameEnum.RequestLoading);
-            // navigation.replace(ScreenNameEnum.RequestLoading);
           }
         } else {
           navigation.replace(ScreenNameEnum.language, { isFirstTime: true });

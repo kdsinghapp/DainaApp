@@ -137,17 +137,37 @@ const Verifyotp = async (param: any, setLoading: any, dispatch: any, setGeneralA
       console.log("parsedResponse OTP Response:", parsedResponse);
 
       if (parsedResponse?.type === "Delivery") {
-        console.log("  OTP Response:", parsedResponse);
+        const completion = parsedResponse?.completionStatus;
 
-        if (parsedResponse?.completionStatus?.isDocumentsUploaded) {
+        if (!completion?.isProfileComplete) {
           param.navigation.reset({
             index: 0,
-            routes: [{ name: ScreenNameEnum.DeliveryTabNavigator }],
+            routes: [{ name: ScreenNameEnum.ProfileSetup }],
+          });
+        } else if (!completion?.isDocumentsUploaded) {
+          param.navigation.reset({
+            index: 0,
+            routes: [{ name: ScreenNameEnum.UploadDocumentsScreen }],
+          });
+        } else if (!completion?.isVehicleSetupComplete) {
+          param.navigation.reset({
+            index: 0,
+            routes: [{ name: ScreenNameEnum.VehicleSetupScreen }],
+          });
+        } else if (!completion?.isBankDetailsComplete) {
+          param.navigation.reset({
+            index: 0,
+            routes: [{ name: ScreenNameEnum.BankSetupScreen }],
+          });
+        } else if (parsedResponse?.verificationStatus === "in_review") {
+          param.navigation.reset({
+            index: 0,
+            routes: [{ name: ScreenNameEnum.VerificationPending }],
           });
         } else {
           param.navigation.reset({
             index: 0,
-            routes: [{ name: ScreenNameEnum.ProfileSetup }],
+            routes: [{ name: ScreenNameEnum.DeliveryTabNavigator }],
           });
         }
       } else {
@@ -907,7 +927,7 @@ const GetDashboardCounts = async (
   setLoading(true);
   const token = await AsyncStorage.getItem('token');
   try {
-    const response = await fetch(`${base_url}/delivery/dashboard-counts`, {
+    const response = await fetch(`${base_url}/dispatcher/dashboard/counts`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -921,13 +941,38 @@ const GetDashboardCounts = async (
     if (responseData.status === "1" || responseData.status === 1) {
       return responseData;
     } else {
-      return responseData;
+      return null;
     }
   } catch (error) {
     console.error("GetDashboardCounts API call error:", error);
     return null;
   } finally {
     setLoading(false);
+  }
+};
+
+const GetVerificationStatusApi = async (): Promise<any | null> => {
+  const token = await AsyncStorage.getItem('token');
+  try {
+    const response = await fetch(`${base_url}/driver/verification-status`, {
+      method: 'GET',
+      headers: {
+        'Accept': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+
+    const responseData = await response.json();
+    console.log("Verification Status Response:", responseData);
+
+    if (responseData.status === 1 || responseData.status === "1") {
+      return responseData;
+    } else {
+      return null;
+    }
+  } catch (error) {
+    console.error("GetVerificationStatusApi error:", error);
+    return null;
   }
 };
 
@@ -1048,26 +1093,27 @@ const RateDeliveryApi = async (
 export {
   LogiApi,
   Verifyotp,
-  handleLogout,
-  getAuthData,
-  Termsconditions,
-  saveAuthData,
   Resend_otp,
+  UpdateProfile,
   GetProfileApi,
   Privacypolicy,
-  UpdateProfile,
+  Termsconditions,
   DeliveryUploadDocument,
   DeliveryVehicleDocument,
   DeliveryBankSetup,
   GetuploadDocument,
   AddParcelApi,
+  GetApi,
   Parceldetails,
   DeliveryAvailableRequests,
-  GetApi,
   SetLanguageApi,
   GetNotifications,
   GetDashboardCounts,
+  GetVerificationStatusApi,
   CancelParcelApi,
   RateDeliveryApi,
-  MarkNotificationsAsReadApi
-}
+  MarkNotificationsAsReadApi,
+  getAuthData,
+  saveAuthData,
+  handleLogout,
+};

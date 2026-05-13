@@ -4,12 +4,11 @@ import {
   Text,
   StyleSheet,
   TouchableOpacity,
-  SafeAreaView,
   ScrollView,
   RefreshControl,
   Platform,
   Dimensions,
-  StatusBar,
+  Image,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/Ionicons';
@@ -25,7 +24,6 @@ import Animated, {
   withSequence,
   withTiming,
   useSharedValue,
-  withSpring,
 } from 'react-native-reanimated';
 
 import font from '../../../theme/font';
@@ -33,10 +31,11 @@ import strings from '../../../localization/Localization';
 import ScreenNameEnum from '../../../routes/screenName.enum';
 import { logout } from '../../../redux/feature/authSlice';
 import StatusBarComponent from '../../../compoent/StatusBarCompoent';
-import { GetProfileApi } from '../../../Api/apiRequest';
+import { GetProfileApi, GetVerificationStatusApi } from '../../../Api/apiRequest';
 import { loginSuccess } from '../../../redux/feature/authSlice';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
-const { width } = Dimensions.get('window');
+const { width, height } = Dimensions.get('window');
 
 const VerificationPending: React.FC = () => {
   const navigation = useNavigation<any>();
@@ -45,23 +44,28 @@ const VerificationPending: React.FC = () => {
 
   // Animation values
   const pulseScale = useSharedValue(1);
-  const pulseOpacity = useSharedValue(0.3);
-  const buttonScale = useSharedValue(1);
+  const pulseOpacity = useSharedValue(0.2);
+  const rotation = useSharedValue(0);
 
   useEffect(() => {
     pulseScale.value = withRepeat(
       withSequence(
-        withTiming(1.3, { duration: 1800 }),
-        withTiming(1, { duration: 1800 })
+        withTiming(1.4, { duration: 2000 }),
+        withTiming(1, { duration: 2000 })
       ),
       -1,
       false
     );
     pulseOpacity.value = withRepeat(
       withSequence(
-        withTiming(0, { duration: 1800 }),
-        withTiming(0.3, { duration: 1800 })
+        withTiming(0, { duration: 2000 }),
+        withTiming(0.2, { duration: 2000 })
       ),
+      -1,
+      false
+    );
+    rotation.value = withRepeat(
+      withTiming(360, { duration: 10000 }),
       -1,
       false
     );
@@ -72,22 +76,62 @@ const VerificationPending: React.FC = () => {
     opacity: pulseOpacity.value,
   }));
 
-  const animatedButtonStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: buttonScale.value }],
+  const animatedRotationStyle = useAnimatedStyle(() => ({
+    transform: [{ rotate: `${rotation.value}deg` }],
   }));
+
+  useEffect(() => {
+    checkStatus();
+  }, []);
+
+  const checkStatus = async () => {
+    try {
+      const statusRes = await GetVerificationStatusApi();
+      const completion = statusRes?.completionStatus;
+
+      if (!completion?.isProfileComplete) {
+        navigation.replace(ScreenNameEnum.ProfileSetup);
+      } else if (!completion?.isDocumentsUploaded) {
+        navigation.replace(ScreenNameEnum.UploadDocumentsScreen);
+      } else if (!completion?.isVehicleSetupComplete) {
+        navigation.replace(ScreenNameEnum.VehicleSetupScreen);
+      } else if (!completion?.isBankDetailsComplete) {
+        navigation.replace(ScreenNameEnum.BankSetupScreen);
+      } else if (statusRes?.verificationStatus !== 'in_review') {
+        navigation.replace(ScreenNameEnum.DeliveryTabNavigator);
+      }
+    } catch (error) {
+      console.log('Status check error:', error);
+    }
+  };
 
   const onRefresh = async () => {
     setRefreshing(true);
-    buttonScale.value = withSequence(withSpring(0.95), withSpring(1));
     try {
-      const response = await GetProfileApi(() => { });
-      if (response) {
-        dispatch(loginSuccess({ userData: response }));
+      const statusRes = await GetVerificationStatusApi();
+      const completion = statusRes?.completionStatus;
+
+      if (!completion?.isProfileComplete) {
+        navigation.replace(ScreenNameEnum.ProfileSetup);
+      } else if (!completion?.isDocumentsUploaded) {
+        navigation.replace(ScreenNameEnum.UploadDocumentsScreen);
+      } else if (!completion?.isVehicleSetupComplete) {
+        navigation.replace(ScreenNameEnum.VehicleSetupScreen);
+      } else if (!completion?.isBankDetailsComplete) {
+        navigation.replace(ScreenNameEnum.BankSetupScreen);
+      } else if (statusRes?.verificationStatus !== 'in_review') {
+        navigation.replace(ScreenNameEnum.DeliveryTabNavigator);
+      } else {
+        // Still in review, refresh profile data for any local updates
+        const profileRes = await GetProfileApi(() => { });
+        if (profileRes) {
+          dispatch(loginSuccess({ userData: profileRes }));
+        }
       }
     } catch (error) {
       console.log('Refresh error:', error);
     } finally {
-      setRefreshing(false);
+      setTimeout(() => setRefreshing(false), 1000);
     }
   };
 
@@ -97,31 +141,36 @@ const VerificationPending: React.FC = () => {
     navigation.replace(ScreenNameEnum.SPLASH_SCREEN);
   };
 
-  const StepItem = ({ icon, title, subtitle, status, index }: any) => {
-    const isCompleted = status === 'completed';
-    const isCurrent = status === 'current';
+  const TimelineStep = ({ title, desc, icon, isLast, status, delay }: any) => {
+    const isActive = status === 'active';
+    const isDone = status === 'done';
 
     return (
-      <Animated.View 
-        entering={FadeInRight.delay(400 + (index * 150)).springify()}
-        style={[styles.stepItem, isCurrent && styles.activeStepItem]}
-      >
-        <View style={[styles.stepIconContainer, isCompleted && styles.completedIconContainer]}>
-          <Icon 
-            name={isCompleted ? "checkmark-circle" : icon} 
-            size={22} 
-            color={isCompleted ? "#10B981" : (isCurrent ? "#FFCC00" : "#94A3B8")} 
-          />
-        </View>
-        <View style={styles.stepTextContent}>
-          <Text style={[styles.stepTitle, isCurrent && styles.activeStepTitle]}>{title}</Text>
-          <Text style={styles.stepSubtitle}>{subtitle}</Text>
-        </View>
-        {isCurrent && (
-          <View style={styles.activeIndicator}>
-            <Animated.View style={[styles.activeDot, { opacity: pulseOpacity }]} />
+      <Animated.View entering={FadeInRight.delay(delay).springify()} style={styles.stepContainer}>
+        <View style={styles.stepLeft}>
+          <View style={[
+            styles.stepIconBox,
+            isDone && styles.stepIconBoxDone,
+            isActive && styles.stepIconBoxActive
+          ]}>
+            <Icon
+              name={isDone ? "checkmark" : icon}
+              size={18}
+              color={isDone ? "#FFF" : (isActive ? "#FFCC00" : "#94A3B8")}
+            />
           </View>
-        )}
+          {!isLast && <View style={[styles.stepLine, isDone && styles.stepLineDone]} />}
+        </View>
+        <View style={styles.stepRight}>
+          <Text style={[styles.stepTitle, isActive && styles.stepTitleActive]}>{title}</Text>
+          <Text style={styles.stepDesc}>{desc}</Text>
+          {isActive && (
+            <Animated.View entering={FadeInDown.delay(delay + 200)} style={styles.activeLabel}>
+              <View style={styles.blinkingDot} />
+              <Text style={styles.activeLabelText}>In Progress</Text>
+            </Animated.View>
+          )}
+        </View>
       </Animated.View>
     );
   };
@@ -129,112 +178,123 @@ const VerificationPending: React.FC = () => {
   return (
     <SafeAreaView style={styles.safe}>
       <StatusBarComponent backgroundColor="#FFFFFF" barStyle="dark-content" />
-      <View style={styles.header}>
-        <TouchableOpacity onPress={handleLogout} style={styles.headerBtn}>
-           <Icon name="chevron-back" size={24} color="#0F172A" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Account Status</Text>
-        <TouchableOpacity style={styles.headerBtn} onPress={() => navigation.navigate(ScreenNameEnum.HelpSupport)}>
-           <Icon name="help-circle-outline" size={24} color="#0F172A" />
-        </TouchableOpacity>
-      </View>
+
+
 
       <ScrollView
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.container}
+        contentContainerStyle={styles.scrollContent}
+
+        style={{
+          marginBottom: 15
+        }}
         refreshControl={
-          <RefreshControl 
-            refreshing={refreshing} 
-            onRefresh={onRefresh} 
-            tintColor="#FFCC00" 
-            colors={["#FFCC00"]} 
-          />
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={["#FFCC00"]} />
         }
       >
-        <View style={styles.content}>
-          {/* Animated Illustration Section */}
-          <View style={styles.illustrationSection}>
-            <Animated.View style={[styles.pulseCircle, animatedPulseStyle]} />
-            <Animated.View style={[styles.pulseCircle, animatedPulseStyle, { transform: [{ scale: 1.1 }] }]} />
-            <Animated.View entering={ZoomIn.duration(800)} style={styles.mainIconContainer}>
-              <View style={styles.statusBadge}>
-                <Text style={styles.statusBadgeText}>UNDER REVIEW</Text>
-              </View>
-              <Icon name="shield-checkmark" size={70} color="#FFCC00" />
+        {/* Hero Section */}
+        <View style={[styles.heroSection, {
+          marginTop: 18
+        }]}>
+          <Animated.View style={[styles.bgRing, animatedRotationStyle]}>
+            <View style={styles.ringDot} />
+          </Animated.View>
+
+          <View style={styles.illustrationWrap}>
+            <Animated.View style={[styles.pulse1, animatedPulseStyle]} />
+            <Animated.View style={[styles.pulse2, animatedPulseStyle]} />
+            <Animated.View entering={ZoomIn.duration(800)} style={styles.iconCircle}>
+              <Icon name="time" size={50} color="#FFCC00" />
             </Animated.View>
           </View>
 
-          {/* Typography Section */}
-          <Animated.View entering={FadeInDown.delay(300).duration(600)} style={styles.textSection}>
-            <Text style={styles.mainTitle}>{strings.VerificationPending || "Verification Pending"}</Text>
-            <Text style={styles.mainSubtitle}>
-              {strings.VerificationSubtitle || "Your profile is currently being reviewed by our administrative team. We appreciate your patience."}
-            </Text>
+          <Animated.View entering={FadeInUp.delay(300)} style={styles.statusChip}>
+            <Text style={styles.statusChipText}>PENDING APPROVAL</Text>
           </Animated.View>
 
-          {/* Timeline Section */}
-          <View style={styles.timelineContainer}>
-            <StepItem 
-              index={0}
-              icon="document-text-outline" 
-              title="Identity & Documents" 
-              subtitle="All documents received successfully." 
-              status="completed" 
-            />
-            <View style={styles.connector} />
-            <StepItem 
-              index={1}
-              icon="search-outline" 
-              title="Manual Review" 
-              subtitle="Admin is currently verifying your profile." 
-              status="current" 
-            />
-            <View style={styles.connector} />
-            <StepItem 
-              index={2}
-              icon="rocket-outline" 
-              title="Start Earning" 
-              subtitle="Get access to nearby parcel requests." 
-              status="pending" 
-            />
-          </View>
-
-          {/* Detailed Info Card */}
-          <Animated.View entering={FadeInUp.delay(1000)} style={styles.infoCard}>
-             <View style={styles.infoIconBox}>
-                <Icon name="time-outline" size={20} color="#FFCC00" />
-             </View>
-             <View style={styles.infoTextBox}>
-                <Text style={styles.infoTitle}>Why the delay?</Text>
-                <Text style={styles.infoDesc}>
-                  Verification typically takes 24-48 hours. We ensure all partners meet our safety standards.
-                </Text>
-             </View>
+          <Animated.View entering={FadeInDown.delay(400).springify()} style={styles.titleWrap}>
+            <Text style={styles.mainTitle}>{strings.VerificationPending || "Verification Pending"}</Text>
+            <Text style={styles.mainSubtitle}>
+              Your application is in the final stages of review. We will notify you once you're ready to start.
+            </Text>
           </Animated.View>
         </View>
 
-        {/* Action Section */}
-        <Animated.View entering={FadeInDown.delay(1200)} style={styles.footer}>
-          <Animated.View style={animatedButtonStyle}>
-            <TouchableOpacity
-              style={styles.refreshBtn}
-              onPress={onRefresh}
-              activeOpacity={0.8}
-              disabled={refreshing}
-            >
-              <Text style={styles.refreshBtnText}>Refresh Status</Text>
-              <Icon name="sync-outline" size={18} color="#000" style={{ marginLeft: 8 }} />
-            </TouchableOpacity>
-          </Animated.View>
-          
-          <TouchableOpacity 
-            style={styles.supportLink} 
-            onPress={() => navigation.navigate(ScreenNameEnum.HelpSupport)}
-          >
-            <Text style={styles.supportLinkText}>Need help? Contact Support</Text>
-          </TouchableOpacity>
+        {/* Progress Section */}
+        <View style={styles.sectionCard}>
+          <Text style={styles.sectionLabel}>Review Progress</Text>
+          <View style={styles.timelineWrap}>
+            <TimelineStep
+              delay={600}
+              icon="document-attach-outline"
+              title="Documents Uploaded"
+              desc="ID, Driving License & Vehicle papers"
+              status="done"
+            />
+            <TimelineStep
+              delay={800}
+              icon="search-outline"
+              title="Admin Verification"
+              desc="Manual check of submitted documents"
+              status="active"
+            />
+            <TimelineStep
+              delay={1000}
+              icon="shield-checkmark-outline"
+              title="Background Check"
+              desc="Safety and compliance verification"
+              status="pending"
+            />
+            <TimelineStep
+              delay={1200}
+              isLast
+              icon="rocket-outline"
+              title="Ready for Orders"
+              desc="Access to parcel delivery requests"
+              status="pending"
+            />
+          </View>
+        </View>
+
+        {/* Tips Section */}
+        <Animated.View entering={FadeInUp.delay(1400)} style={styles.tipsCard}>
+          <View style={styles.tipsIcon}>
+            <Icon name="bulb-outline" size={24} color="#FFCC00" />
+          </View>
+          <View style={styles.tipsContent}>
+            <Text style={styles.tipsTitle}>Did you know?</Text>
+            <Text style={styles.tipsText}>
+              Complete profiles are 3x faster to verify. Make sure your photos are clear and readable.
+            </Text>
+          </View>
         </Animated.View>
+
+        <View style={{ height: 100 }} />
       </ScrollView>
+
+      {/* Floating Footer */}
+      <Animated.View entering={FadeInUp.delay(1600)} style={styles.footer}>
+        <TouchableOpacity
+          style={styles.mainBtn}
+          onPress={onRefresh}
+          activeOpacity={0.9}
+        >
+          <Text style={styles.mainBtnText}>Refresh Status</Text>
+          {refreshing ? (
+            <View style={{ marginLeft: 10 }}>
+              <Icon name="sync" size={18} color="#000" />
+            </View>
+          ) : (
+            <Icon name="refresh" size={18} color="#000" style={{ marginLeft: 10 }} />
+          )}
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.secondaryBtn}
+          onPress={() => navigation.navigate(ScreenNameEnum.HelpSupport)}
+        >
+          <Text style={styles.secondaryBtnText}>Contact Support</Text>
+        </TouchableOpacity>
+      </Animated.View>
     </SafeAreaView>
   );
 };
@@ -249,11 +309,22 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 20,
-    paddingVertical: 15,
+    height: 60,
+    backgroundColor: '#FFF',
     borderBottomWidth: 1,
-    borderBottomColor: '#F1F5F9',
+    borderBottomColor: '#F8FAFC',
   },
-  headerBtn: {
+  headerCenter: {
+    flex: 1,
+    alignItems: 'center',
+  },
+  headerLabel: {
+    fontSize: 14,
+    fontFamily: font.MonolithRegular,
+    color: '#64748B',
+    letterSpacing: 0.5,
+  },
+  iconBtn: {
     width: 40,
     height: 40,
     borderRadius: 12,
@@ -261,225 +332,273 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  headerTitle: {
-    fontSize: 16,
-    fontFamily: font.MonolithRegular,
-    color: '#0F172A',
-  },
-  container: {
-    flexGrow: 1,
+  scrollContent: {
     paddingHorizontal: 24,
-    paddingBottom: 40,
   },
-  content: {
+  heroSection: {
     alignItems: 'center',
-    paddingTop: 30,
+    paddingTop: 40,
+    paddingBottom: 20,
   },
-  illustrationSection: {
-    width: 220,
-    height: 220,
+  illustrationWrap: {
+    width: 180,
+    height: 180,
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 20,
   },
-  pulseCircle: {
+  bgRing: {
     position: 'absolute',
-    width: 160,
-    height: 160,
-    borderRadius: 80,
+    width: 200,
+    height: 200,
+    borderRadius: 100,
+    borderWidth: 1,
+    borderColor: '#F1F5F9',
+    borderStyle: 'dashed',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  ringDot: {
+    position: 'absolute',
+    top: -4,
+    width: 8,
+    height: 8,
+    borderRadius: 4,
     backgroundColor: '#FFCC00',
   },
-  mainIconContainer: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
+  pulse1: {
+    position: 'absolute',
+    width: 140,
+    height: 140,
+    borderRadius: 70,
+    backgroundColor: '#FFCC00',
+  },
+  pulse2: {
+    position: 'absolute',
+    width: 180,
+    height: 180,
+    borderRadius: 90,
+    backgroundColor: '#FFCC00',
+  },
+  iconCircle: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
     backgroundColor: '#FFFFFF',
     justifyContent: 'center',
     alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#F1F5F9',
     ...Platform.select({
       ios: {
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 10 },
         shadowOpacity: 0.1,
-        shadowRadius: 20,
+        shadowRadius: 15,
       },
     }),
   },
-  statusBadge: {
-    position: 'absolute',
-    top: -10,
+  statusChip: {
     backgroundColor: '#0F172A',
-    paddingHorizontal: 12,
-    paddingVertical: 4,
+    paddingHorizontal: 14,
+    paddingVertical: 6,
     borderRadius: 20,
-    zIndex: 10,
+    marginBottom: 20,
   },
-  statusBadgeText: {
-    fontSize: 10,
+  statusChipText: {
     color: '#FFFFFF',
+    fontSize: 10,
     fontFamily: font.MonolithRegular,
-    letterSpacing: 1,
+    letterSpacing: 1.5,
   },
-  textSection: {
+  titleWrap: {
     alignItems: 'center',
-    marginBottom: 40,
-    paddingHorizontal: 10,
   },
   mainTitle: {
-    fontSize: 28,
+    fontSize: 26,
     color: '#0F172A',
     fontFamily: font.MonolithRegular,
     textAlign: 'center',
     marginBottom: 10,
   },
   mainSubtitle: {
-    fontSize: 15,
+    fontSize: 14,
     color: '#64748B',
     fontFamily: font.MonolithRegular,
     textAlign: 'center',
-    lineHeight: 22,
+    lineHeight: 20,
+    paddingHorizontal: 20,
   },
-  timelineContainer: {
-    width: '100%',
-    marginBottom: 30,
-  },
-  stepItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 16,
-    borderRadius: 20,
+  sectionCard: {
     backgroundColor: '#F8FAFC',
+    borderRadius: 24,
+    padding: 24,
+    marginTop: 20,
     borderWidth: 1,
     borderColor: '#F1F5F9',
   },
-  activeStepItem: {
-    backgroundColor: '#FFFFFF',
-    borderColor: '#FEF3C7',
-    borderWidth: 1.5,
-    ...Platform.select({
-      ios: {
-        shadowColor: '#FFCC00',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.1,
-        shadowRadius: 10,
-      },
-    }),
+  sectionLabel: {
+    fontSize: 12,
+    color: '#94A3B8',
+    fontFamily: font.MonolithRegular,
+    letterSpacing: 1,
+    marginBottom: 20,
   },
-  stepIconContainer: {
-    width: 44,
-    height: 44,
-    borderRadius: 14,
-    backgroundColor: '#FFFFFF',
-    justifyContent: 'center',
+  timelineWrap: {
+    width: '100%',
+  },
+  stepContainer: {
+    flexDirection: 'row',
+    marginBottom: 5,
+  },
+  stepLeft: {
     alignItems: 'center',
+    width: 30,
+  },
+  stepIconBox: {
+    width: 28,
+    height: 28,
+    borderRadius: 8,
+    backgroundColor: '#FFF',
     borderWidth: 1,
     borderColor: '#E2E8F0',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 1,
   },
-  completedIconContainer: {
-    backgroundColor: '#DCFCE7',
-    borderColor: '#BBF7D0',
+  stepIconBoxDone: {
+    backgroundColor: '#10B981',
+    borderColor: '#10B981',
   },
-  stepTextContent: {
+  stepIconBoxActive: {
+    borderColor: '#FFCC00',
+    backgroundColor: '#FFFBEB',
+  },
+  stepLine: {
+    flex: 1,
+    width: 2,
+    backgroundColor: '#E2E8F0',
+    marginVertical: 4,
+  },
+  stepLineDone: {
+    backgroundColor: '#10B981',
+  },
+  stepRight: {
     flex: 1,
     marginLeft: 15,
+    paddingBottom: 25,
   },
   stepTitle: {
     fontSize: 15,
     color: '#334155',
     fontFamily: font.MonolithRegular,
   },
-  activeStepTitle: {
+  stepTitleActive: {
     color: '#0F172A',
   },
-  stepSubtitle: {
+  stepDesc: {
     fontSize: 12,
     color: '#94A3B8',
     fontFamily: font.MonolithRegular,
     marginTop: 2,
   },
-  connector: {
-    width: 2,
-    height: 15,
-    backgroundColor: '#F1F5F9',
-    marginLeft: 37,
-  },
-  activeIndicator: {
-    justifyContent: 'center',
+  activeLabel: {
+    flexDirection: 'row',
     alignItems: 'center',
+    marginTop: 8,
+    backgroundColor: '#FEF3C7',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 12,
+    alignSelf: 'flex-start',
   },
-  activeDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
+  activeLabelText: {
+    fontSize: 10,
+    color: '#B45309',
+    fontFamily: font.MonolithRegular,
+    marginLeft: 6,
+  },
+  blinkingDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
     backgroundColor: '#FFCC00',
   },
-  infoCard: {
+  tipsCard: {
     flexDirection: 'row',
     backgroundColor: '#FFFFFF',
-    padding: 20,
     borderRadius: 20,
+    padding: 20,
+    marginTop: 20,
     borderWidth: 1,
     borderColor: '#F1F5F9',
-    width: '100%',
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.05,
+        shadowRadius: 10,
+      }
+    })
   },
-  infoIconBox: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+  tipsIcon: {
+    width: 44,
+    height: 44,
+    borderRadius: 12,
     backgroundColor: '#FFFBEB',
     justifyContent: 'center',
     alignItems: 'center',
   },
-  infoTextBox: {
+  tipsContent: {
     flex: 1,
     marginLeft: 15,
   },
-  infoTitle: {
-    fontSize: 14,
+  tipsTitle: {
+    fontSize: 15,
     color: '#0F172A',
     fontFamily: font.MonolithRegular,
-    marginBottom: 4,
   },
-  infoDesc: {
-    fontSize: 12,
+  tipsText: {
+    fontSize: 13,
     color: '#64748B',
     fontFamily: font.MonolithRegular,
     lineHeight: 18,
+    marginTop: 4,
   },
   footer: {
-    width: '100%',
-    alignItems: 'center',
-    marginTop: 10,
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    paddingHorizontal: 24,
+    paddingBottom: 30,
+    paddingTop: 20,
+    backgroundColor: 'rgba(255,255,255,0.9)',
   },
-  refreshBtn: {
-    flexDirection: 'row',
+  mainBtn: {
     backgroundColor: '#FFCC00',
-    width: width - 48,
-    height: 60,
-    borderRadius: 20,
+    height: 56,
+    borderRadius: 16,
+    flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
     ...Platform.select({
       ios: {
         shadowColor: '#FFCC00',
-        shadowOffset: { width: 0, height: 4 },
+        shadowOffset: { width: 0, height: 8 },
         shadowOpacity: 0.3,
-        shadowRadius: 10,
+        shadowRadius: 12,
       },
     }),
   },
-  refreshBtnText: {
+  mainBtnText: {
     fontSize: 16,
-    color: '#000000',
+    color: '#000',
     fontFamily: font.MonolithRegular,
   },
-  supportLink: {
-    marginTop: 20,
-    padding: 10,
+  secondaryBtn: {
+    marginTop: 15,
+    alignItems: 'center',
   },
-  supportLinkText: {
+  secondaryBtnText: {
     fontSize: 14,
     color: '#64748B',
     fontFamily: font.MonolithRegular,

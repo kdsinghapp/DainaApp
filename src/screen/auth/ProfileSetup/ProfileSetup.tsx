@@ -69,7 +69,6 @@ const ProfileSetup = () => {
       }
     });
   };
-  console.log("dddd", userData)
   const takePhotoFromCamera = () => {
     openCamera((result) => {
       if ('cancelled' in result) return;

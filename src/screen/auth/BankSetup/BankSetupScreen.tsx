@@ -12,7 +12,7 @@ import CustomHeader from "../../../compoent/CustomHeader";
 import CustomInput from "../../../compoent/CustomInput";
 import CustomButton from "../../../compoent/CustomButton";
 import ScreenNameEnum from "../../../routes/screenName.enum";
-import { DeliveryBankSetup } from "../../../Api/apiRequest";
+import { DeliveryBankSetup, GetVerificationStatusApi } from "../../../Api/apiRequest";
 import { errorToast } from "../../../utils/customToast";
 import strings from "../../../localization/Localization";
 import font from "../../../theme/font";
@@ -47,7 +47,12 @@ const BankSetupScreen = () => {
 
     const response = await DeliveryBankSetup(params, setIsLoading);
     if (response?.status == "1" || response?.status == 1) {
-      navigation.replace(ScreenNameEnum.DeliveryTabNavigator);
+      const statusRes = await GetVerificationStatusApi();
+      if (statusRes?.verificationStatus === "in_review") {
+        navigation.replace(ScreenNameEnum.VerificationPending);
+      } else {
+        navigation.replace(ScreenNameEnum.DeliveryTabNavigator);
+      }
     }
   };
 
