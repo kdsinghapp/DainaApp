@@ -164,7 +164,7 @@ const NewOrderNotificationModal: React.FC = () => {
                   </View>
                 </View>
               )}
-              {data?.distance && (
+              {/* {data?.distance && (
                 <View style={styles.infoBox}>
                   <Icon name="navigate-outline" size={wp(4.5)} color="#64748B" />
                   <View>
@@ -172,7 +172,7 @@ const NewOrderNotificationModal: React.FC = () => {
                     <Text style={styles.infoBoxValue}>{data.distance} km</Text>
                   </View>
                 </View>
-              )}
+              )} */}
             </View>
           )}
 

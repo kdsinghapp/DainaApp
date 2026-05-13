@@ -34,6 +34,7 @@ import StatusBarComponent from '../../../compoent/StatusBarCompoent';
 import { GetProfileApi, GetVerificationStatusApi } from '../../../Api/apiRequest';
 import { loginSuccess } from '../../../redux/feature/authSlice';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { color } from '../../../constant';
 
 const { width, height } = Dimensions.get('window');
 
@@ -167,7 +168,7 @@ const VerificationPending: React.FC = () => {
           {isActive && (
             <Animated.View entering={FadeInDown.delay(delay + 200)} style={styles.activeLabel}>
               <View style={styles.blinkingDot} />
-              <Text style={styles.activeLabelText}>In Progress</Text>
+              <Text style={styles.activeLabelText}>{strings.InProgress}</Text>
             </Animated.View>
           )}
         </View>
@@ -209,48 +210,48 @@ const VerificationPending: React.FC = () => {
           </View>
 
           <Animated.View entering={FadeInUp.delay(300)} style={styles.statusChip}>
-            <Text style={styles.statusChipText}>PENDING APPROVAL</Text>
+            <Text style={styles.statusChipText}>{strings.PendingApproval}</Text>
           </Animated.View>
 
           <Animated.View entering={FadeInDown.delay(400).springify()} style={styles.titleWrap}>
-            <Text style={styles.mainTitle}>{strings.VerificationPending || "Verification Pending"}</Text>
+            <Text style={styles.mainTitle}>{strings.VerificationPending}</Text>
             <Text style={styles.mainSubtitle}>
-              Your application is in the final stages of review. We will notify you once you're ready to start.
+              {strings.VerificationPendingDesc}
             </Text>
           </Animated.View>
         </View>
 
         {/* Progress Section */}
         <View style={styles.sectionCard}>
-          <Text style={styles.sectionLabel}>Review Progress</Text>
+          <Text style={styles.sectionLabel}>{strings.ReviewProgress}</Text>
           <View style={styles.timelineWrap}>
             <TimelineStep
               delay={600}
               icon="document-attach-outline"
-              title="Documents Uploaded"
-              desc="ID, Driving License & Vehicle papers"
+              title={strings.DocumentsUploaded}
+              desc={strings.DocumentsUploadedDesc}
               status="done"
             />
             <TimelineStep
               delay={800}
               icon="search-outline"
-              title="Admin Verification"
-              desc="Manual check of submitted documents"
+              title={strings.AdminVerification}
+              desc={strings.AdminVerificationDesc}
               status="active"
             />
             <TimelineStep
               delay={1000}
               icon="shield-checkmark-outline"
-              title="Background Check"
-              desc="Safety and compliance verification"
+              title={strings.BackgroundCheck}
+              desc={strings.BackgroundCheckDesc}
               status="pending"
             />
             <TimelineStep
               delay={1200}
               isLast
               icon="rocket-outline"
-              title="Ready for Orders"
-              desc="Access to parcel delivery requests"
+              title={strings.ReadyForOrders}
+              desc={strings.ReadyForOrdersDesc}
               status="pending"
             />
           </View>
@@ -262,9 +263,9 @@ const VerificationPending: React.FC = () => {
             <Icon name="bulb-outline" size={24} color="#FFCC00" />
           </View>
           <View style={styles.tipsContent}>
-            <Text style={styles.tipsTitle}>Did you know?</Text>
+            <Text style={styles.tipsTitle}>{strings.DidYouKnow}</Text>
             <Text style={styles.tipsText}>
-              Complete profiles are 3x faster to verify. Make sure your photos are clear and readable.
+              {strings.VerificationTip}
             </Text>
           </View>
         </Animated.View>
@@ -279,7 +280,7 @@ const VerificationPending: React.FC = () => {
           onPress={onRefresh}
           activeOpacity={0.9}
         >
-          <Text style={styles.mainBtnText}>Refresh Status</Text>
+          <Text style={styles.mainBtnText}>{strings.RefreshStatus}</Text>
           {refreshing ? (
             <View style={{ marginLeft: 10 }}>
               <Icon name="sync" size={18} color="#000" />
@@ -288,12 +289,7 @@ const VerificationPending: React.FC = () => {
             <Icon name="refresh" size={18} color="#000" style={{ marginLeft: 10 }} />
           )}
         </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.secondaryBtn}
-          onPress={() => navigation.navigate(ScreenNameEnum.HelpSupport)}
-        >
-          <Text style={styles.secondaryBtnText}>Contact Support</Text>
-        </TouchableOpacity>
+
       </Animated.View>
     </SafeAreaView>
   );
@@ -397,9 +393,9 @@ const styles = StyleSheet.create({
     }),
   },
   statusChip: {
-    backgroundColor: '#0F172A',
+    backgroundColor: color.primary,
     paddingHorizontal: 14,
-    paddingVertical: 6,
+    paddingVertical: 8,
     borderRadius: 20,
     marginBottom: 20,
   },
@@ -408,6 +404,8 @@ const styles = StyleSheet.create({
     fontSize: 10,
     fontFamily: font.MonolithRegular,
     letterSpacing: 1.5,
+    textTransform: "lowercase"
+
   },
   titleWrap: {
     alignItems: 'center',
