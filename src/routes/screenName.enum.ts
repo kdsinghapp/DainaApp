@@ -92,8 +92,8 @@ enum ScreenNameEnum {
   Patient_Driver = "Patient_Driver",
   RaceDetail = "RaceDetail",
   PresubscriberDetail = "presubscriberDetail",
-  CarDetail = "CarDetail"
-
+  CarDetail = "CarDetail",
+  VerificationPending = "VerificationPending"
 }
 
 export default ScreenNameEnum;

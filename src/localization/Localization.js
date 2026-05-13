@@ -429,6 +429,10 @@ const strings = new LocalizedStrings({
     FileTooLarge: "File size is too large for upload. Please select a smaller file.",
     SlideToGoOnline: "Slide to go online",
     SlideToGoOffline: "Slide to go offline",
+    VerificationTitle: "Account Verification",
+    VerificationSubtitle: "Your documents are currently under review by our admin team.",
+    VerificationDescription: "This process usually takes 24-48 hours. We'll notify you as soon as your account is activated. Thank you for your patience!",
+    VerificationPending: "Verification Pending",
   },
 
   mn: {
@@ -870,6 +874,10 @@ const strings = new LocalizedStrings({
     ChooseOption: "Сонголт сонгох",
     SlideToGoOnline: "Онлайн болохын тулд гүйлгэ",
     SlideToGoOffline: "Оффлайн болохын тулд гүйлгэ",
+    VerificationTitle: "Бүртгэл баталгаажуулалт",
+    VerificationSubtitle: "Таны бичиг баримтыг манай админ баг хянаж байна.",
+    VerificationDescription: "Энэхүү үйл явц нь ихэвчлэн 24-48 цаг үргэлжилдэг. Таны бүртгэл идэвхжсэн даруйд бид танд мэдэгдэх болно. Түр хүлээнэ үү!",
+    VerificationPending: "Баталгаажуулалт хүлээгдэж байна",
   },
 });
 

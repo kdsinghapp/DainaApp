@@ -38,7 +38,7 @@ const Splash: React.FC = () => {
         if (storedAuth?.token) {
           dispatch(restoreLogin(storedAuth));
           if (storedAuth.userData?.type == "Delivery") {
-            navigation.replace(ScreenNameEnum.DeliveryTabNavigator);
+            navigation.replace(ScreenNameEnum.VerificationPending);
           } else {
             navigation.replace(ScreenNameEnum.TabNavigator);
             // navigation.replace(ScreenNameEnum.RequestLoading);
