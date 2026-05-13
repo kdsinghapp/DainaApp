@@ -21,11 +21,7 @@ import { styles } from "./style";
 import NewOrderNotificationModal from "../../../../compoent/NewOrderNotificationModal";
 import OfferAcceptedModal from "../../../../compoent/OfferAcceptedModal";
 import strings from "../../../../localization/Localization";
-
-
-
 const TABS = ["Pending", "Complete", "Canceled"] as const;
-
 const AllOrder = () => {
   const {
     isLoading,

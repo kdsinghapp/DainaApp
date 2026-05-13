@@ -240,7 +240,7 @@ const DeliveryHome = () => {
                 marginTop: 5,
               }}
             >
-              {counts?.totalEarnings || "0.00"}€
+              {counts?.totalEarnings || "0.00"} ₮
             </Text>
           </ReAnimated.View>
 

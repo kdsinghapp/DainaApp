@@ -40,7 +40,6 @@ const NotificationItem = ({ item }: any) => {
             <View style={styles.textContainer}>
                 <Text style={styles.title}>{item.title}</Text>
                 <Text style={styles.body}>{item.body}</Text>
-                <Text style={styles.date}>{formatDate(item.createdAt)}</Text>
             </View>
         </View>
     );
