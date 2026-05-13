@@ -178,20 +178,16 @@ const Verifyotp = async (param: any, setLoading: any, dispatch: any, setGeneralA
       }
     } else {
       const errorMessage = strings.InvalidOTP;
-      if (setGeneralAlert) {
-        setGeneralAlert({ visible: true, type: 'error', message: errorMessage });
-      } else {
-        errorToast(errorMessage);
-      }
+
+      errorToast(errorMessage);
+
     }
   } catch (error: any) {
     console.error('Verify OTP error:', error);
     const errorMessage = error?.message || strings.NetworkErrorTryAgain;
-    if (setGeneralAlert) {
-      setGeneralAlert({ visible: true, type: 'error', message: errorMessage });
-    } else {
-      errorToast(errorMessage);
-    }
+
+    errorToast(errorMessage);
+
   } finally {
     setLoading(false);
   }
