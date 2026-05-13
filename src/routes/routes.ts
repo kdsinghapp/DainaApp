@@ -170,6 +170,10 @@ const _routes: any = {
       name: ScreenNameEnum.EditProfileDeliver,
       Component: EditProfileDeliver,
     },
+    {
+      name: ScreenNameEnum.VerificationPending,
+      Component: VerificationPending,
+    },
 
 
     {
@@ -217,10 +221,11 @@ const _routes: any = {
       name: ScreenNameEnum.language,
       Component: LanguageSelection,
     },
-    {
-      name: ScreenNameEnum.VerificationPending,
-      Component: VerificationPending,
-    },
+    //    {
+    //   name: ScreenNameEnum.DocumentShow,
+    //   Component: DocumentShow,
+    // },
+
   ],
 
 
