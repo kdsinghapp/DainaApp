@@ -61,6 +61,7 @@ export const useParcelDetails = () => {
         };
       }
     } catch (error) {
+      errorToast(error?.response?.data?.message || 'Error making offer')
       console.error('Error making offer:', error?.response?.data || error.message);
       return {
         success: false,
