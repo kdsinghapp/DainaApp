@@ -170,7 +170,7 @@ export default function InboxDeliver() {
     return (
       <TouchableOpacity
         style={[styles.row, hasUnread && styles.unreadRow]}
-        activeOpacity={0.8}
+        activeOpacity={0.7}
         onPress={() =>
           navigation.navigate(ScreenNameEnum.ChatScreen, {
             item,
@@ -178,50 +178,48 @@ export default function InboxDeliver() {
           })
         }
       >
-        <View style={styles.rowContent}>
-          <View style={styles.avatarWrap}>
-            {avatarUri ? (
-              <Image source={{ uri: avatarUri }} style={styles.avatar} />
-            ) : (
-              <FallbackAvatar name={displayName} />
-            )}
-            {hasUnread && <View style={styles.unreadIndicator} />}
+        <View style={styles.avatarContainer}>
+          {avatarUri ? (
+            <Image source={{ uri: avatarUri }} style={styles.avatar} />
+          ) : (
+            <FallbackAvatar name={displayName} />
+          )}
+          {hasUnread && <View style={styles.activeDot} />}
+        </View>
+
+        <View style={styles.contentCol}>
+          <View style={styles.topRow}>
+            <Text style={styles.nameText} numberOfLines={1}>
+              {displayName}
+            </Text>
+            <Text style={[styles.timeText, hasUnread && styles.unreadTime]}>
+              {lastMsgTime}
+            </Text>
           </View>
 
-          <View style={styles.textCol}>
-            <View style={styles.nameTimeRow}>
-              <Text style={styles.name} numberOfLines={1}>
-                {displayName}
-              </Text>
-              <Text style={[styles.time, hasUnread && styles.unreadText]}>{lastMsgTime}</Text>
-            </View>
+          <View style={styles.middleRow}>
+            <View style={styles.tagWrapper}>
 
-            <View style={styles.idStatusRow}>
-              <Text style={styles.trackingId} numberOfLines={1}>
-                #{item.trackingId}
-              </Text>
-              <View style={[styles.statusPill, { backgroundColor: statusColor(item.deliveryStatus) + '15' }]}>
-                <Text style={[styles.statusText, { color: statusColor(item.deliveryStatus) }]}>
+              <View style={[styles.statusTag, { backgroundColor: statusColor(item.deliveryStatus) + '12' }]}>
+                <Text style={[styles.statusTagText, { color: statusColor(item.deliveryStatus) }]}>
                   {item.deliveryStatus}
                 </Text>
               </View>
             </View>
+          </View>
 
-            <View style={styles.messageRow}>
-              <Text
-                style={[styles.lastMessage, hasUnread && styles.unreadMessageText]}
-                numberOfLines={1}
-              >
-                {lastMsgText}
-              </Text>
-
-              {hasUnread && (
-                <View style={styles.badge}>
-                  <Text style={styles.badgeText}>{item.unreadCount}</Text>
-                </View>
-              )}
-              <Icon name="chevron-forward" size={16} color="#CBD5E1" />
-            </View>
+          <View style={styles.bottomRow}>
+            <Text
+              style={[styles.messageText, hasUnread && styles.unreadMessageText]}
+              numberOfLines={1}
+            >
+              {lastMsgText}
+            </Text>
+            {hasUnread && (
+              <View style={styles.unreadBadge}>
+                <Text style={styles.unreadBadgeText}>{item.unreadCount}</Text>
+              </View>
+            )}
           </View>
         </View>
       </TouchableOpacity>
@@ -268,7 +266,6 @@ export default function InboxDeliver() {
       <FlatList
         data={filtered}
         style={styles.list}
-
         keyExtractor={(item) => String(item.parcelId)}
         renderItem={renderItem}
         contentContainerStyle={[
@@ -295,169 +292,174 @@ const AVATAR_SIZE = 56;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "white",
-
+    backgroundColor: "#F8FAFC",
   },
   headerRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingTop: 10,
-    paddingBottom: 15,
+    paddingHorizontal: 24,
+    paddingTop: 16,
+    paddingBottom: 20,
+    backgroundColor: '#F8FAFC',
   },
   header: {
-    fontSize: 28,
+    fontSize: 32,
     color: "#0F172A",
     fontFamily: font.MonolithRegular,
+    fontWeight: '700',
+    letterSpacing: -0.5,
   },
   searchContainer: {
-    paddingHorizontal: 20,
-    marginBottom: 10,
+    paddingHorizontal: 24,
+    marginBottom: 20,
   },
   searchBox: {
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: "#FFFFFF",
-    borderRadius: 14,
-    paddingHorizontal: 15,
-    height: 55,
+    borderRadius: 18,
+    paddingHorizontal: 16,
+    height: 52,
     borderWidth: 1,
     borderColor: "#E2E8F0",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
+    shadowColor: "#64748B",
+    shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.05,
-    shadowRadius: 10,
+    shadowRadius: 12,
+    elevation: 2,
   },
   input: {
     flex: 1,
     fontSize: 15,
     color: "#1E293B",
     fontFamily: font.MonolithRegular,
-    marginLeft: 10,
+    marginLeft: 12,
     paddingVertical: 0,
   },
   list: {
     flex: 1,
-    marginBottom: 55
   },
   listContent: {
     paddingHorizontal: 20,
-    paddingBottom: 40,
-    paddingTop: 10,
+    paddingBottom: 100,
   },
   row: {
+    flexDirection: 'row',
     backgroundColor: "#FFFFFF",
-    borderRadius: 13,
+    borderRadius: 20,
     marginBottom: 12,
-    padding: 12,
+    padding: 16,
     borderWidth: 1,
-    borderColor: "#d6e1f9ff",
-
+    borderColor: "#F1F5F9",
     shadowColor: "#0F172A",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.03,
-    shadowRadius: 12,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 8,
+    elevation: 1,
   },
   unreadRow: {
+    backgroundColor: "#FFFFFF",
     borderColor: "#FFCC0030",
-    backgroundColor: "#FFCC0008",
+    shadowOpacity: 0.08,
+    shadowColor: "#FFCC00",
   },
-  rowContent: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  avatarWrap: {
+  avatarContainer: {
     position: 'relative',
+    marginRight: 16,
   },
   avatar: {
     width: AVATAR_SIZE,
     height: AVATAR_SIZE,
-    borderRadius: AVATAR_SIZE / 2.2,
+    borderRadius: AVATAR_SIZE / 2.5,
     backgroundColor: "#F1F5F9",
   },
-  unreadIndicator: {
+  activeDot: {
     position: 'absolute',
-    top: -2,
-    right: -2,
+    bottom: 2,
+    right: 2,
     width: 14,
     height: 14,
     borderRadius: 7,
     backgroundColor: "#FFCC00",
-    borderWidth: 2,
+    borderWidth: 2.5,
     borderColor: "#FFFFFF",
   },
   fallbackAvatar: {
-    backgroundColor: "#FFCC0020",
+    backgroundColor: "#FFCC0015",
     justifyContent: "center",
     alignItems: "center",
     width: AVATAR_SIZE,
     height: AVATAR_SIZE,
-    borderRadius: AVATAR_SIZE / 2.2,
+    borderRadius: AVATAR_SIZE / 2.5,
   },
   fallbackText: {
-    fontSize: 22,
+    fontSize: 24,
     color: "#FFCC00",
-    fontFamily: font.MonolithRegular
-
+    fontFamily: font.MonolithRegular,
+    fontWeight: '700',
   },
-  textCol: {
+  contentCol: {
     flex: 1,
-    marginLeft: 14,
+    justifyContent: 'center',
   },
-  nameTimeRow: {
+  topRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 4,
+    marginBottom: 6,
   },
-  name: {
+  nameText: {
     fontSize: 17,
     color: "#0F172A",
     fontFamily: font.MonolithRegular,
+    fontWeight: '600',
     flex: 1,
   },
-  time: {
+  timeText: {
     fontSize: 12,
     color: "#94A3B8",
     fontFamily: font.MonolithRegular,
   },
-  unreadText: {
+  unreadTime: {
     color: "#FFCC00",
-    fontFamily: font.MonolithRegular
-
+    fontWeight: '600',
   },
-  idStatusRow: {
+  middleRow: {
+    marginBottom: 8,
+  },
+  tagWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    marginBottom: 6,
   },
-  trackingId: {
-    fontSize: 12,
+  trackingTag: {
+    backgroundColor: '#F1F5F9',
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 6,
+  },
+  trackingTagText: {
+    fontSize: 11,
     color: "#64748B",
     fontFamily: font.MonolithRegular,
-    backgroundColor: '#F1F5F9',
-    paddingHorizontal: 6,
-    paddingVertical: 1,
-    borderRadius: 4,
+    fontWeight: '600',
   },
-  statusPill: {
-    borderRadius: 6,
+  statusTag: {
     paddingHorizontal: 8,
-    paddingVertical: 1,
+    paddingVertical: 2,
+    borderRadius: 6,
   },
-  statusText: {
+  statusTagText: {
     fontSize: 10,
     fontFamily: font.MonolithRegular,
+    fontWeight: '700',
     textTransform: "uppercase",
+    letterSpacing: 0.5,
   },
-  messageRow: {
+  bottomRow: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: 'space-between',
   },
-  lastMessage: {
+  messageText: {
     flex: 1,
     fontSize: 14,
     color: "#64748B",
@@ -465,25 +467,23 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
   unreadMessageText: {
-    color: "#1E293B",
-    fontFamily: font.MonolithRegular
-
+    color: "#0F172A",
+    fontWeight: '500',
   },
-  badge: {
+  unreadBadge: {
     backgroundColor: "#FFCC00",
     borderRadius: 10,
     height: 20,
     minWidth: 20,
-    paddingHorizontal: 5,
+    paddingHorizontal: 6,
     justifyContent: "center",
     alignItems: "center",
-    marginRight: 6,
   },
-  badgeText: {
-    color: "#0F172A",
+  unreadBadgeText: {
+    color: "#000000",
     fontSize: 11,
-    fontFamily: font.MonolithRegular
-
+    fontFamily: font.MonolithRegular,
+    fontWeight: '700',
   },
   emptyContainer: {
     flex: 1,
@@ -492,56 +492,57 @@ const styles = StyleSheet.create({
   emptyWrap: {
     alignItems: "center",
     justifyContent: "center",
-    paddingHorizontal: 40,
-    marginTop: -40,
+    paddingHorizontal: 48,
+    marginTop: -60,
   },
   illustrationWrap: {
-    width: 120,
-    height: 120,
+    width: 140,
+    height: 140,
     justifyContent: "center",
     alignItems: "center",
-    marginBottom: 20,
+    marginBottom: 24,
   },
   illustrationBg: {
     position: 'absolute',
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    backgroundColor: "#FFCC0010",
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    backgroundColor: "#FFCC0008",
   },
   emptyLogo: {
-    height: 80,
-    width: 80,
+    height: 100,
+    width: 100,
   },
   emptyTitle: {
-    fontSize: 22,
+    fontSize: 24,
     color: "#0F172A",
-    marginBottom: 8,
+    marginBottom: 10,
     fontFamily: font.MonolithRegular,
+    fontWeight: '700',
   },
   emptySubtitle: {
-    fontSize: 15,
+    fontSize: 16,
     color: "#64748B",
     textAlign: "center",
-    lineHeight: 22,
+    lineHeight: 24,
     fontFamily: font.MonolithRegular,
-
   },
   errorBanner: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: "#fef2f2",
-    borderRadius: 12,
-    padding: 12,
-    marginHorizontal: 20,
-    marginBottom: 15,
+    backgroundColor: "#FEF2F2",
+    borderRadius: 16,
+    padding: 16,
+    marginHorizontal: 24,
+    marginBottom: 20,
     borderWidth: 1,
-    borderColor: "#fecaca",
-    gap: 8,
+    borderColor: "#FECACA",
+    gap: 12,
   },
   errorText: {
-    color: "#dc2626",
-    fontSize: 13,
+    color: "#DC2626",
+    fontSize: 14,
     flex: 1,
+    fontFamily: font.MonolithRegular,
   },
 });
