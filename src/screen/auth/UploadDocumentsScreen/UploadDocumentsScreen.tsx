@@ -32,50 +32,66 @@ const UploadDocumentsScreen = () => {
   const navigation: any = useNavigation();
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [activeType, setActiveType] = useState<string | null>(null);
+  const [pendingAction, setPendingAction] = useState<string | null>(null);
 
   const handlePickDocument = async (type: string) => {
     setActiveType(type);
     setIsModalVisible(true);
   };
 
-  const handleSelectPDF = async () => {
+  const handleCamera = () => {
+    setPendingAction("camera");
     setIsModalVisible(false);
-    const result = await pickDocument();
-    if (result && activeType) {
-      if (activeType === "id") setIdDoc(result);
-      if (activeType === "license") setLicenseDoc(result);
-      if (activeType === "vehicle") setVehicleDoc(result);
-    }
   };
 
-  const handleCamera = async () => {
+  const handleGallery = () => {
+    setPendingAction("gallery");
     setIsModalVisible(false);
-    await openCamera((result) => {
-      if ('asset' in result && result.asset.uri && activeType) {
+  };
+
+  const handleSelectPDF = () => {
+    setPendingAction("pdf");
+    setIsModalVisible(false);
+  };
+
+  const onModalHide = async () => {
+    if (!pendingAction) return;
+
+    const action = pendingAction;
+    setPendingAction(null);
+
+    if (action === "camera") {
+      await openCamera((result) => {
+        if ("asset" in result && result.asset.uri && activeType) {
+          const doc = {
+            uri: result.asset.uri,
+            name: result.asset.fileName || `img_${Date.now()}.jpg`,
+            type: result.asset.type || "image/jpeg",
+          };
+          if (activeType === "id") setIdDoc(doc);
+          if (activeType === "license") setLicenseDoc(doc);
+          if (activeType === "vehicle") setVehicleDoc(doc);
+        }
+      });
+    } else if (action === "gallery") {
+      const result = await openGallery();
+      if ("asset" in result && result.asset.uri && activeType) {
         const doc = {
           uri: result.asset.uri,
           name: result.asset.fileName || `img_${Date.now()}.jpg`,
-          type: result.asset.type || 'image/jpeg',
+          type: result.asset.type || "image/jpeg",
         };
         if (activeType === "id") setIdDoc(doc);
         if (activeType === "license") setLicenseDoc(doc);
         if (activeType === "vehicle") setVehicleDoc(doc);
       }
-    });
-  };
-
-  const handleGallery = async () => {
-    setIsModalVisible(false);
-    const result = await openGallery();
-    if ('asset' in result && result.asset.uri && activeType) {
-      const doc = {
-        uri: result.asset.uri,
-        name: result.asset.fileName || `img_${Date.now()}.jpg`,
-        type: result.asset.type || 'image/jpeg',
-      };
-      if (activeType === "id") setIdDoc(doc);
-      if (activeType === "license") setLicenseDoc(doc);
-      if (activeType === "vehicle") setVehicleDoc(doc);
+    } else if (action === "pdf") {
+      const result = await pickDocument();
+      if (result && activeType) {
+        if (activeType === "id") setIdDoc(result);
+        if (activeType === "license") setLicenseDoc(result);
+        if (activeType === "vehicle") setVehicleDoc(result);
+      }
     }
   };
 
@@ -224,6 +240,7 @@ const UploadDocumentsScreen = () => {
       {/* Selection Modal */}
       <Modal
         isVisible={isModalVisible}
+        onModalHide={onModalHide}
         onBackdropPress={() => setIsModalVisible(false)}
         onBackButtonPress={() => setIsModalVisible(false)}
         style={styles.modal}

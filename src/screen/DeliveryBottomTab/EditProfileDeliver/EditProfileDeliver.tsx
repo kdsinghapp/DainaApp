@@ -61,22 +61,25 @@ const EditProfileDeliver = () => {
 
   const pickImageFromGallery = () => {
     launchImageLibrary({ mediaType: "photo", quality: 0.4 }, (response) => {
-      if (response.assets && response.assets.length > 0) {
+      if (response.didCancel) {
+        console.log("User cancelled image picker");
+      } else if (response.errorCode) {
+        console.log("ImagePicker Error: ", response.errorMessage);
+        errorToast(response.errorMessage || "Something went wrong");
+      } else if (response.assets && response.assets.length > 0) {
         setImage(response.assets[0]);
-        setIsModalVisible(false);
       }
     });
   };
 
   const takePhotoFromCamera = () => {
     openCamera((result) => {
-      if ('cancelled' in result) return;
-      if ('error' in result) {
+      if ("cancelled" in result) return;
+      if ("error" in result) {
         errorToast(result.error);
         return;
       }
       setImage(result.asset);
-      setIsModalVisible(false);
     });
   };
 

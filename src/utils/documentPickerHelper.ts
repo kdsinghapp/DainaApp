@@ -8,7 +8,7 @@ export interface PickedDocument {
   type: string;
   size?: number;
 }
-Bless shipping
+
 /**
  * Opens the document picker to select an image or a PDF.
  * Returns a standardized document object or null if cancelled/error.

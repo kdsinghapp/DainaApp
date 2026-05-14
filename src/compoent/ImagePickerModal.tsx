@@ -26,12 +26,16 @@ const ImagePickerModal: React.FC<ImagePickerModalProps> = ({
 }) => {
   const onSelectGallery = useCallback(() => {
     setModalVisible(false);
-    pickImageFromGallery();
+    setTimeout(() => {
+      pickImageFromGallery();
+    }, 500);
   }, [pickImageFromGallery, setModalVisible]);
 
   const onTakePhoto = useCallback(() => {
     setModalVisible(false);
-    handleTakePhoto();
+    setTimeout(() => {
+      handleTakePhoto();
+    }, 500);
   }, [handleTakePhoto, setModalVisible]);
 
   const handleCancel = useCallback(() => {

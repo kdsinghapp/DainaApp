@@ -43,43 +43,59 @@ const VehicleSetupScreen = () => {
   ];
 
   const [isDocModalVisible, setIsDocModalVisible] = useState(false);
+  const [pendingAction, setPendingAction] = useState<string | null>(null);
 
   const handlePickDocument = async () => {
     setIsDocModalVisible(true);
   };
 
   const handleSelectPDF = async () => {
+    setPendingAction("pdf");
     setIsDocModalVisible(false);
-    const result = await pickDocument();
-    if (result) {
-      setVehicleRegistration(result);
-    }
   };
 
   const handleCamera = async () => {
+    setPendingAction("camera");
     setIsDocModalVisible(false);
-    await openCamera((result) => {
-      if ('asset' in result && result.asset.uri) {
-        const doc = {
-          uri: result.asset.uri,
-          name: result.asset.fileName || `img_${Date.now()}.jpg`,
-          type: result.asset.type || 'image/jpeg',
-        };
-        setVehicleRegistration(doc);
-      }
-    });
   };
 
   const handleGallery = async () => {
+    setPendingAction("gallery");
     setIsDocModalVisible(false);
-    const result = await openGallery();
-    if ('asset' in result && result.asset.uri) {
-      const doc = {
-        uri: result.asset.uri,
-        name: result.asset.fileName || `img_${Date.now()}.jpg`,
-        type: result.asset.type || 'image/jpeg',
-      };
-      setVehicleRegistration(doc);
+  };
+
+  const onModalHide = async () => {
+    if (!pendingAction) return;
+
+    const action = pendingAction;
+    setPendingAction(null);
+
+    if (action === "camera") {
+      await openCamera((result) => {
+        if ("asset" in result && result.asset.uri) {
+          const doc = {
+            uri: result.asset.uri,
+            name: result.asset.fileName || `img_${Date.now()}.jpg`,
+            type: result.asset.type || "image/jpeg",
+          };
+          setVehicleRegistration(doc);
+        }
+      });
+    } else if (action === "gallery") {
+      const result = await openGallery();
+      if ("asset" in result && result.asset.uri) {
+        const doc = {
+          uri: result.asset.uri,
+          name: result.asset.fileName || `img_${Date.now()}.jpg`,
+          type: result.asset.type || "image/jpeg",
+        };
+        setVehicleRegistration(doc);
+      }
+    } else if (action === "pdf") {
+      const result = await pickDocument();
+      if (result) {
+        setVehicleRegistration(result);
+      }
     }
   };
 
@@ -205,6 +221,7 @@ const VehicleSetupScreen = () => {
       {/* Document Selection Modal */}
       <ReactNativeModal
         isVisible={isDocModalVisible}
+        onModalHide={onModalHide}
         onBackdropPress={() => setIsDocModalVisible(false)}
         onBackButtonPress={() => setIsDocModalVisible(false)}
         style={styles.modal}
