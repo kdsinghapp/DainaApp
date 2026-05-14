@@ -42,6 +42,8 @@ const NewOrderNotificationModal: React.FC = () => {
   const rawData = newOrderNotification?.data as any;
   // Robustly merge parcel data if it exists nested
   const data = { ...rawData, ...(rawData?.parcel ?? {}) };
+  const pickupAddress = data?.pickup?.location || data?.sender?.address || data?.pickupLocation;
+  const dropAddress = data?.drop?.location || data?.receiver?.address || data?.dropLocation;
 
   if (!newOrderNotification?.visible) return null;
 
@@ -68,8 +70,7 @@ const NewOrderNotificationModal: React.FC = () => {
       style={styles.modalContainer}
     >
       <View style={styles.modalCard}>
-        {/* Handle bar */}
-        <View style={styles.handleBar} />
+        {/* Header indicator or icon can go here, handleBar removed for centered modal */}
 
         {/* Top Header */}
         <View style={styles.header}>
@@ -78,7 +79,7 @@ const NewOrderNotificationModal: React.FC = () => {
               <Icon
                 name={isCounterOffer ? "cash-outline" : "cube"}
                 size={wp(7)}
-                color={color.primary}
+                color={color.black}
               />
             </View>
           </View>
@@ -111,42 +112,61 @@ const NewOrderNotificationModal: React.FC = () => {
         >
 
           {/* Price/Value Section */}
-          {(data?.price || data?.amount || data?.offer_price) && (
+          {/* {(data?.price || data?.amount || data?.offer_price) && (
             <View style={styles.priceContainer}>
-              <View>
+              <View style={styles.priceIndicator} />
+              <View style={styles.priceInfo}>
                 <Text style={styles.priceLabel}>{isCounterOffer ? strings.OfferPrice : strings.EstimatedEarnings}</Text>
                 <Text style={styles.priceValue}>₮ {data?.price || data?.amount || data?.offer_price}</Text>
               </View>
 
             </View>
-          )}
+          )} */}
 
           {/* Location Path (Timeline) */}
-          {(data?.pickup?.location || data?.sender?.address || data?.pickupLocation || data?.drop?.location || data?.receiver?.address || data?.dropLocation) ? (
+          {(pickupAddress || dropAddress) ? (
             <View style={styles.pathContainer}>
               <View style={styles.pathTimeline}>
                 <View style={styles.pathDotContainer}>
-                  <View style={[styles.pathDot, { backgroundColor: '#10B981' }]} />
-                  <View style={styles.pathLine} />
-                  <View style={[styles.pathDot, { backgroundColor: '#EF4444' }]} />
+                  {pickupAddress && (
+                    <View style={styles.iconCircle}>
+                      <Icon name="ellipse" size={wp(2.5)} color="#10B981" />
+                    </View>
+                  )}
+
+                  {pickupAddress && dropAddress && (
+                    <View style={styles.pathLineContainer}>
+                      <View style={styles.pathLineDashed} />
+                    </View>
+                  )}
+
+                  {dropAddress && (
+                    <View style={styles.iconCircle}>
+                      <Icon name="location" size={wp(3.5)} color="#EF4444" />
+                    </View>
+                  )}
                 </View>
 
                 <View style={styles.pathContent}>
-                  <View style={styles.pathBlock}>
-                    <Text style={styles.pathLabel}>{strings.Pickup || 'Pickup Address'}</Text>
-                    <Text style={styles.pathAddress} numberOfLines={2}>
-                      {data?.pickup?.location || data?.sender?.address || data?.pickupLocation || 'N/A'}
-                    </Text>
-                  </View>
+                  {pickupAddress && (
+                    <View style={styles.pathBlock}>
+                      <Text style={styles.pathLabel}>{strings.Pickup || 'Pickup Address'}</Text>
+                      <Text style={styles.pathAddress} numberOfLines={3}>
+                        {pickupAddress}
+                      </Text>
+                    </View>
+                  )}
 
-                  <View style={styles.pathSpacer} />
+                  {pickupAddress && dropAddress && <View style={styles.pathSpacer} />}
 
-                  <View style={styles.pathBlock}>
-                    <Text style={styles.pathLabel}>{strings.Drop || 'Drop Address'}</Text>
-                    <Text style={styles.pathAddress} numberOfLines={2}>
-                      {data?.drop?.location || data?.receiver?.address || data?.dropLocation || 'N/A'}
-                    </Text>
-                  </View>
+                  {dropAddress && (
+                    <View style={styles.pathBlock}>
+                      <Text style={styles.pathLabel}>{strings.Drop || 'Drop Address'}</Text>
+                      <Text style={styles.pathAddress} numberOfLines={3}>
+                        {dropAddress}
+                      </Text>
+                    </View>
+                  )}
                 </View>
               </View>
             </View>
@@ -164,15 +184,7 @@ const NewOrderNotificationModal: React.FC = () => {
                   </View>
                 </View>
               )}
-              {/* {data?.distance && (
-                <View style={styles.infoBox}>
-                  <Icon name="navigate-outline" size={wp(4.5)} color="#64748B" />
-                  <View>
-                    <Text style={styles.infoBoxLabel}>{strings.Distance}</Text>
-                    <Text style={styles.infoBoxValue}>{data.distance} km</Text>
-                  </View>
-                </View>
-              )} */}
+
             </View>
           )}
 
@@ -228,32 +240,26 @@ const NewOrderNotificationModal: React.FC = () => {
 
 const styles = StyleSheet.create({
   modalContainer: {
-    margin: 0,
-    justifyContent: 'flex-end',
+    margin: wp(5),
+    justifyContent: 'center',
   },
   modalCard: {
     backgroundColor: '#FFFFFF',
-    borderTopLeftRadius: wp(9),
-    borderTopRightRadius: wp(9),
+    borderRadius: wp(8),
     paddingHorizontal: wp(6),
-    paddingBottom: Platform.OS === 'ios' ? hp(5) : hp(3.5),
-    paddingTop: hp(1.5),
-    maxHeight: hp(92),
-
-    width: SCREEN_WIDTH,
-    ...Platform.select({
-      ios: {
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: -10 },
-        shadowOpacity: 0.1,
-        shadowRadius: 20,
-      },
-    }),
+    paddingVertical: hp(3),
+    maxHeight: hp(85),
+    width: '100%',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.1,
+    shadowRadius: 20,
+    elevation: 5,
   },
   handleBar: {
     width: wp(12),
     height: 5,
-    backgroundColor: '#E2E8F0',
+    backgroundColor: '#F1F5F9',
     borderRadius: 10,
     alignSelf: 'center',
     marginBottom: hp(2.5),
@@ -282,9 +288,10 @@ const styles = StyleSheet.create({
     marginLeft: wp(4),
   },
   headerTitle: {
-    fontSize: wp(5.2),
+    fontSize: wp(5.5),
     color: '#0F172A',
     fontFamily: font.MonolithRegular,
+    fontWeight: '700',
   },
   badgeRow: {
     flexDirection: 'row',
@@ -292,15 +299,15 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   trackingBadge: {
-    backgroundColor: '#F1F5F9',
-    paddingHorizontal: 10,
-    paddingVertical: 3,
-    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    borderRadius: 12,
   },
   trackingIdText: {
-    fontSize: wp(3),
-    color: '#64748B',
+    fontSize: wp(3.2),
+    color: '#475569',
     fontFamily: font.MonolithRegular,
+    fontWeight: '600',
   },
   closeIconButton: {
     padding: wp(2.5),
@@ -311,29 +318,43 @@ const styles = StyleSheet.create({
     paddingBottom: hp(2),
   },
   priceContainer: {
-    borderRadius: wp(5),
-    padding: wp(5),
+    backgroundColor: '#FFFFFF',
+    borderRadius: wp(4),
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: hp(3),
+    marginBottom: hp(2.5),
+    padding: wp(4),
+
+  },
+  priceIndicator: {
+    width: 4,
+    height: '70%',
+    backgroundColor: '#FFCC00',
+    borderRadius: 2,
+    marginRight: wp(3),
+  },
+  priceInfo: {
+    flex: 1,
   },
   priceLabel: {
-    color: '#94A3B8',
-    fontSize: wp(3.5),
+    color: '#64748B',
+    fontSize: wp(3.2),
     fontFamily: font.MonolithRegular,
-    marginBottom: 4,
+    marginBottom: 2,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
   },
   priceValue: {
-    color: '#FFCC00',
+    color: '#0F172A',
     fontSize: wp(6.5),
     fontFamily: font.MonolithRegular,
+    fontWeight: '700',
   },
-  priceIconBg: {
-    width: wp(12),
-    height: wp(12),
-    borderRadius: wp(4),
-    backgroundColor: 'rgba(255, 204, 0, 0.1)',
+  priceIconCircle: {
+    width: wp(10),
+    height: wp(10),
+    borderRadius: wp(5),
+    backgroundColor: '#FFFBEB',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -369,64 +390,83 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     borderRadius: wp(5),
     padding: wp(5),
-    borderWidth: 1.5,
+    borderWidth: 1,
     borderColor: '#F1F5F9',
-    marginBottom: hp(3),
+    marginBottom: hp(2.5),
+
   },
   pathTimeline: {
     flexDirection: 'row',
   },
   pathDotContainer: {
     alignItems: 'center',
-    width: wp(4),
-    paddingTop: wp(1.5),
+    width: wp(8),
+    marginRight: wp(3),
   },
-  pathDot: {
-    width: wp(3),
-    height: wp(3),
-    borderRadius: wp(1.5),
+  iconCircle: {
+    width: wp(8),
+    height: wp(8),
+    borderRadius: wp(4),
+    backgroundColor: '#FFFFFF',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1.5,
+    borderColor: '#F1F5F9',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
   },
-  pathLine: {
-    width: 2,
+  pathLineContainer: {
     flex: 1,
-    backgroundColor: '#E2E8F0',
-    marginVertical: 6,
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: wp(8),
+  },
+  pathLineDashed: {
+    width: 0,
+    height: '100%',
+    borderWidth: 1,
+    borderColor: '#CBD5E1',
+    borderStyle: 'dashed',
+    borderRadius: 1,
   },
   pathContent: {
     flex: 1,
-    marginLeft: wp(5),
+    marginLeft: wp(4),
   },
   pathBlock: {
     flex: 1,
+    justifyContent: 'center',
   },
   pathLabel: {
     fontSize: wp(3),
     color: '#94A3B8',
     fontFamily: font.MonolithRegular,
     textTransform: 'uppercase',
-    letterSpacing: 1,
-    marginBottom: 4,
+    letterSpacing: 0.8,
+    marginBottom: 2,
   },
   pathAddress: {
-    fontSize: wp(4),
-    color: '#1E293B',
+    fontSize: wp(3.8),
+    color: '#0F172A',
     fontFamily: font.MonolithRegular,
-    lineHeight: wp(5.5),
+    lineHeight: wp(5),
   },
   pathSpacer: {
-    height: hp(3.5),
+    height: hp(3),
   },
   footer: {
     flexDirection: 'row',
     gap: wp(4),
     paddingTop: hp(2),
-    borderTopWidth: 1,
-    borderTopColor: '#F1F5F9',
+
   },
   btnLater: {
     flex: 1,
-    height: hp(7.5),
-    borderRadius: wp(4.5),
+    height: hp(6.9),
+    borderRadius: wp(2.9),
     backgroundColor: '#F1F5F9',
     justifyContent: 'center',
     alignItems: 'center',
@@ -438,24 +478,18 @@ const styles = StyleSheet.create({
   },
   btnAction: {
     flex: 2,
-    height: hp(7.5),
-    borderRadius: wp(4.5),
+    height: hp(6.9),
+    borderRadius: wp(2.9),
     backgroundColor: '#FFCC00',
     justifyContent: 'center',
     alignItems: 'center',
-    ...Platform.select({
-      ios: {
-        shadowColor: '#FFCC00',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.3,
-        shadowRadius: 8,
-      },
-    }),
+
   },
   btnActionText: {
-    fontSize: wp(4.2),
+    fontSize: wp(4.5),
     color: '#000000',
     fontFamily: font.MonolithRegular,
+
   },
 });
 

@@ -19,9 +19,13 @@ export const useParcelDetails = () => {
   const [message, setMessage] = useState("");
   const { item } = rout?.params || ""
   const navigation = useNavigation()
-  const fullImageUrl = `https://api.daina.tech${item?.imageUrl || item?.data?.imageUrl}`; console.log("fullImageUrl", fullImageUrl)
-  console.log("item", item?.data?.imageUrl)
-  console.log("item", fullImageUrl)
+  const imgPath = item?.imageUrl || item?.data?.imageUrl;
+  const fullImageUrl = imgPath 
+    ? (imgPath.startsWith('http') ? imgPath : `https://api.daina.tech${imgPath.startsWith('/') ? '' : '/'}${imgPath}`)
+    : null;
+  
+  console.log("fullImageUrl", fullImageUrl)
+  console.log("item path", imgPath)
   const makeOffer = async (amount: any, message: any) => {
     try {
       setIsLoading(true);

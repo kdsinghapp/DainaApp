@@ -261,12 +261,10 @@ const ParcelDetails = () => {
           <LoadingModal visible={isLoading} />
 
 
-          {item?.imageUrl || item?.data?.imageUrl ? (
+          {fullImageUrl ? (
             <ImageBackground
               source={{
-                uri: item?.data?.imageUrl
-                  ? `${image_url}${item?.data?.imageUrl}`
-                  : fullImageUrl,
+                uri: fullImageUrl
               }}
               style={styles.backgroundImage}
               resizeMode="cover"
