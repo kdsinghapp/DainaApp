@@ -25,7 +25,7 @@ const TextCompoent = ({
   ellipsizeMode,
   adjustsFontSizeToFit = false,
   lineHeight,
-}) => {
+}: any) => {
   const fs = PixelRatio.getFontScale();
   return (
     <Text
