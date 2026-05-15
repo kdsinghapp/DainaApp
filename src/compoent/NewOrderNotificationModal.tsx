@@ -24,12 +24,28 @@ import { useSelector } from 'react-redux';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
-const NewOrderNotificationModal: React.FC = () => {
+interface NewOrderNotificationModalProps {
+  visible?: boolean;
+  data?: any;
+  onAccept?: () => void;
+  onReject?: () => void;
+}
+
+const NewOrderNotificationModal: React.FC<NewOrderNotificationModalProps> = ({
+  visible: propsVisible,
+  data: propsData,
+  onAccept,
+  onReject,
+}) => {
   const ctx = useDeliveryContext();
   const navigation = useNavigation();
   const userData = useSelector((state: any) => state.auth.userData);
 
-  if (!ctx || userData?.type !== 'Delivery') return null;
+  // If props are provided, we use them. 
+  // Otherwise, we fallback to context (Delivery flow).
+  const isFromProps = propsVisible !== undefined;
+
+  if (!isFromProps && (!ctx || userData?.type !== 'Delivery')) return null;
 
   const {
     newOrderNotification,
@@ -37,30 +53,59 @@ const NewOrderNotificationModal: React.FC = () => {
     acceptCounterOffer,
     acceptCounterOfferLoading,
     RejectcounterOffer,
-  } = ctx;
+  } = ctx || {};
 
-  const rawData = newOrderNotification?.data as any;
+  const visible = isFromProps ? propsVisible : !!newOrderNotification?.visible;
+  const rawData = isFromProps ? propsData : newOrderNotification?.data;
+
   // Robustly merge parcel data if it exists nested
-  const data = { ...rawData, ...(rawData?.parcel ?? {}) };
-  const pickupAddress = data?.pickup?.location || data?.sender?.address || data?.pickupLocation;
-  const dropAddress = data?.drop?.location || data?.receiver?.address || data?.dropLocation;
+  const data = { ...rawData, ...(rawData?.parcel ?? {}), ...(rawData?.data ?? {}) };
+  const pickupAddress = data?.pickup?.location || data?.sender?.address || data?.pickupLocation || data?.pickup_address;
+  const dropAddress = data?.drop?.location || data?.receiver?.address || data?.dropLocation || data?.drop_address;
 
-  if (!newOrderNotification?.visible) return null;
+  if (!visible) return null;
 
   const isCounterOffer = data?.type === 'counter_offer';
 
   const closeNotification = () => {
-    setNewOrderNotification(null);
+    if (isFromProps) {
+      onReject?.();
+    } else {
+      setNewOrderNotification?.(null);
+    }
     stopNotificationSound();
+  };
+
+  const handleAccept = () => {
+    if (isFromProps) {
+      onAccept?.();
+      stopNotificationSound();
+    } else {
+      if (isCounterOffer) {
+        if (data?.offerId != null) {
+          acceptCounterOffer?.(data.offerId);
+          stopNotificationSound();
+        }
+      } else {
+        navigation.navigate(ScreenNameEnum.ParcelDetails as never, {
+          item: {
+            data: data,
+            deliveryStatus: STATUS.PENDING,
+          },
+        } as never);
+        setNewOrderNotification?.(null);
+        stopNotificationSound();
+      }
+    }
   };
 
   return (
     <Modal
-      isVisible={!!newOrderNotification?.visible}
+      isVisible={visible}
       onBackdropPress={closeNotification}
       onBackButtonPress={closeNotification}
-      animationIn="none"
-      animationOut="none"
+      animationIn="fadeInUp"
+      animationOut="fadeOutDown"
       backdropOpacity={0.4}
       deviceHeight={SCREEN_HEIGHT}
       deviceWidth={SCREEN_WIDTH}
@@ -70,8 +115,6 @@ const NewOrderNotificationModal: React.FC = () => {
       style={styles.modalContainer}
     >
       <View style={styles.modalCard}>
-        {/* Header indicator or icon can go here, handleBar removed for centered modal */}
-
         {/* Top Header */}
         <View style={styles.header}>
           <View style={styles.headerIconWrapper}>
@@ -89,9 +132,9 @@ const NewOrderNotificationModal: React.FC = () => {
               {isCounterOffer ? strings.CounterOfferReceived : strings.NewDeliveryRequest}
             </Text>
             <View style={styles.badgeRow}>
-              {data?.trackingId && (
+              {(data?.trackingId || data?.id) && (
                 <View style={styles.trackingBadge}>
-                  <Text style={styles.trackingIdText}>#{data.trackingId}</Text>
+                  <Text style={styles.trackingIdText}>#{data.trackingId || data.id}</Text>
                 </View>
               )}
             </View>
@@ -110,18 +153,16 @@ const NewOrderNotificationModal: React.FC = () => {
           contentContainerStyle={styles.scrollContent}
           bounces={false}
         >
-
-          {/* Price/Value Section */}
-          {/* {(data?.price || data?.amount || data?.offer_price) && (
+          {/* Price/Amount Section */}
+          {(data?.price || data?.amount || data?.total_amount) && (
             <View style={styles.priceContainer}>
               <View style={styles.priceIndicator} />
               <View style={styles.priceInfo}>
                 <Text style={styles.priceLabel}>{isCounterOffer ? strings.OfferPrice : strings.EstimatedEarnings}</Text>
-                <Text style={styles.priceValue}>₮ {data?.price || data?.amount || data?.offer_price}</Text>
+                <Text style={styles.priceValue}>$ {data?.price || data?.amount || data?.total_amount}</Text>
               </View>
-
             </View>
-          )} */}
+          )}
 
           {/* Location Path (Timeline) */}
           {(pickupAddress || dropAddress) ? (
@@ -144,7 +185,7 @@ const NewOrderNotificationModal: React.FC = () => {
                 <View style={styles.pathContent}>
                   <View style={styles.pathBlock}>
                     <Text style={styles.pathLabel}>{strings.Pickup || 'Pickup'}</Text>
-                    <Text style={styles.pathAddress} numberOfLines={2}>
+                    <Text style={styles.pathAddress}  >
                       {pickupAddress || 'N/A'}
                     </Text>
                   </View>
@@ -153,7 +194,7 @@ const NewOrderNotificationModal: React.FC = () => {
 
                   <View style={styles.pathBlock}>
                     <Text style={styles.pathLabel}>{strings.Drop || 'Drop-off'}</Text>
-                    <Text style={styles.pathAddress} numberOfLines={2}>
+                    <Text style={styles.pathAddress}  >
                       {dropAddress || 'N/A'}
                     </Text>
                   </View>
@@ -162,19 +203,31 @@ const NewOrderNotificationModal: React.FC = () => {
             </View>
           ) : null}
 
-          {/* Additional Info Grid */}
-          {(data?.weight || data?.distance) && (
+          {/* Customer / Receiver Info */}
+          {(data?.receiver_name || data?.receiverName) && (
             <View style={styles.infoGrid}>
-              {data?.weight && (
+              <View style={styles.infoBox}>
+                <Icon name="person-outline" size={wp(4.5)} color="#64748B" />
+                <View>
+                  <Text style={styles.infoBoxLabel}>{strings.ReceiverName || 'Receiver'}</Text>
+                  <Text style={styles.infoBoxValue}>{data.receiver_name || data.receiverName}</Text>
+                </View>
+              </View>
+            </View>
+          )}
+
+          {/* Additional Info Grid */}
+          {(data?.weight || data?.package_size || data?.packageSize) && (
+            <View style={styles.infoGrid}>
+              {(data?.weight || data?.package_size || data?.packageSize) && (
                 <View style={styles.infoBox}>
                   <Icon name="scale-outline" size={wp(4.5)} color="#64748B" />
                   <View>
-                    <Text style={styles.infoBoxLabel}>{strings.Weight}</Text>
-                    <Text style={styles.infoBoxValue}>{data.weight} kg</Text>
+                    <Text style={styles.infoBoxLabel}>{strings.Weight || 'Weight'}</Text>
+                    <Text style={styles.infoBoxValue}>{data.weight || data.package_size || data.packageSize}</Text>
                   </View>
                 </View>
               )}
-
             </View>
           )}
 
@@ -184,14 +237,7 @@ const NewOrderNotificationModal: React.FC = () => {
         <View style={styles.footer}>
           <TouchableOpacity
             style={styles.btnLater}
-            onPress={() => {
-              if (isCounterOffer && data?.offerId != null) {
-                RejectcounterOffer(data.offerId);
-              } else {
-                setNewOrderNotification(null);
-              }
-              stopNotificationSound();
-            }}
+            onPress={closeNotification}
           >
             <Text style={styles.btnLaterText}>{strings.Later || strings.Cancel}</Text>
           </TouchableOpacity>
@@ -200,26 +246,10 @@ const NewOrderNotificationModal: React.FC = () => {
             style={[styles.btnAction, acceptCounterOfferLoading && { opacity: 0.7 }]}
             activeOpacity={0.8}
             disabled={acceptCounterOfferLoading}
-            onPress={() => {
-              if (isCounterOffer) {
-                if (data?.offerId != null) {
-                  acceptCounterOffer(data.offerId);
-                  stopNotificationSound();
-                }
-              } else {
-                navigation.navigate(ScreenNameEnum.ParcelDetails as never, {
-                  item: {
-                    data: data,
-                    deliveryStatus: STATUS.PENDING,
-                  },
-                } as never);
-                setNewOrderNotification(null);
-                stopNotificationSound();
-              }
-            }}
+            onPress={handleAccept}
           >
             <Text style={styles.btnActionText}>
-              {isCounterOffer ? strings.Accept : strings.ViewDetails || 'View Details'}
+              {isFromProps ? strings.Accept : (isCounterOffer ? strings.Accept : strings.ViewDetails || 'View Details')}
             </Text>
           </TouchableOpacity>
         </View>
@@ -227,6 +257,7 @@ const NewOrderNotificationModal: React.FC = () => {
     </Modal>
   );
 };
+
 
 const styles = StyleSheet.create({
   modalContainer: {

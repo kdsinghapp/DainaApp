@@ -168,10 +168,13 @@ const ProfileSetup = () => {
 
       <KeyboardAvoidingView
         style={{ flex: 1 }}
-        behavior={Platform.OS === "ios" ? "padding" : undefined}
-        keyboardVerticalOffset={Platform.OS === "ios" ? 100 : 0}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
       >
-        <ScrollView contentContainerStyle={styles.container}>
+        <ScrollView
+          style={{ flex: 1 }}
+          contentContainerStyle={styles.container}
+          showsVerticalScrollIndicator={false}
+        >
           <View style={styles.profileContainer}>
             <Image
               source={image ? { uri: image.uri || image } : imageIndex.prfile}
@@ -223,16 +226,16 @@ const ProfileSetup = () => {
             handleTakePhoto={takePhotoFromCamera}
           />
         </ScrollView>
-      </KeyboardAvoidingView>
 
-      <View style={styles.buttonContainer}>
-        <CustomButton title={strings.Update} onPress={handleSave} loading={isLoading} />
-      </View>
-      {type === "otp" && (
         <View style={styles.buttonContainer}>
-          <CustomButton title={strings.Skip} onPress={onSkip} />
+          <CustomButton title={strings.Update} onPress={handleSave} loading={isLoading} />
         </View>
-      )}
+        {type === "otp" && (
+          <View style={styles.buttonContainer}>
+            <CustomButton title={strings.Skip} onPress={onSkip} />
+          </View>
+        )}
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 };

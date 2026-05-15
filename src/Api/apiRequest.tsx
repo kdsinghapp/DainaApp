@@ -1104,7 +1104,7 @@ const DeleteAccountApi = async (setLoading: any) => {
   try {
     const token = await AsyncStorage.getItem('token');
     const response = await fetch(`${base_url}/delete-account`, {
-      method: 'DELETE',
+      method: 'POST',
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',
