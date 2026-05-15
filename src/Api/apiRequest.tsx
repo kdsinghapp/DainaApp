@@ -686,20 +686,30 @@ const AddParcelApi = async (param: any, setLoading: (loading: boolean) => void) 
     const textResponse = await response.text();
     let parsedResponse;
     try {
+      setLoading(false);
+
       parsedResponse = JSON.parse(textResponse);
     } catch {
+      setLoading(false);
+
       throw new Error("Invalid server response");
     }
-    if (parsedResponse.status == "1") {
-      successToast(parsedResponse.message);
+
+    if (parsedResponse.status == "1" || parsedResponse.status == 1) {
+      setLoading(false);
+
+      successToast(parsedResponse.message || strings.PickupRequestSuccess);
       return parsedResponse;
     } else {
-      errorToast(parsedResponse.message);
+      setLoading(false);
+
+      errorToast(parsedResponse.message || strings.SomethingWentWrong);
       return parsedResponse;
     }
   } catch (error) {
+    setLoading(false);
+
     console.error("AddParcelApi error:", error);
-    // errorToast(strings.SomethingWentWrong);
     return null;
   } finally {
     setLoading(false);

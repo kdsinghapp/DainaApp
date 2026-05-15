@@ -213,18 +213,11 @@ const CreateParcelFrom = () => {
       };
       const response = await AddParcelApi(formDataObj, setIsLoading);
 
-      if (response && response.status == "1") {
-        // navgatoon.replace(ScreenNameEnum.NearbyDriversMap, {
-        //   parcelId: response,
-        //   pickupLocation: pickupLocation?.address
-        // })
+      if (response && (response.status == "1" || response.status == 1)) {
         navgatoon.replace(ScreenNameEnum.NearbyDriversMap, {
           parcelId: response,
-        })
-        // navgatoon.replace(ScreenNameEnum.RequestLoading, {
-        //   parcelId: response,
-        // })
-        successToast(strings.PickupRequestSuccess);
+          pickupLocation: pickupLocation?.address
+        });
       }
     } else {
       console.log("Form has validation errors");

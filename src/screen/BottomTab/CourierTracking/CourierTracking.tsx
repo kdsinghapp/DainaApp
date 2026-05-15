@@ -518,7 +518,7 @@ const CourierTrackingScreen = () => {
           )}
         </MapView>
 
-        {tooClose && (
+        {/* {tooClose && (
           <View style={styles.arrivalBadge}>
             <View style={styles.arrivalBadgeIconWrap}>
               <Icon name="location-sharp" size={20} color="#FFF" />
@@ -527,7 +527,7 @@ const CourierTrackingScreen = () => {
               {isToPickup ? strings.DriverArrivedAtPickup : strings.DriverArrivedAtDropoff}
             </Text>
           </View>
-        )}
+        )} */}
       </View>
 
       <SafeAreaView style={styles.headerOverlay} edges={["top"]}>
@@ -665,6 +665,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     width: 40,
     height: 40,
+
   },
   pulseRing: {
     position: 'absolute',
@@ -763,16 +764,15 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   etaMain: { alignItems: "center", paddingHorizontal: 20 },
-  etaValue: { fontSize: 20, fontWeight: "800", color: "#111827", fontFamily: font.MonolithRegular },
-  etaUnit: { fontSize: 10, color: "#6B7280", fontWeight: "700", marginTop: -2 },
+  etaValue: { fontSize: 20, color: "#111827", fontFamily: font.MonolithRegular },
+  etaUnit: { fontSize: 10, color: "#6B7280", fontFamily: font.MonolithRegular, marginTop: -2 },
   etaDivider: { width: 1, height: 24, backgroundColor: "#E5E7EB" },
   etaSecondary: { alignItems: "center", paddingHorizontal: 20 },
-  etaDistanceValue: { fontSize: 18, fontWeight: "700", color: "#4B5563", fontFamily: font.MonolithRegular },
-  etaDistanceUnit: { fontSize: 10, color: "#9CA3AF", fontWeight: "700", marginTop: -2 },
+  etaDistanceValue: { fontSize: 18, color: "#4B5563", fontFamily: font.MonolithRegular },
+  etaDistanceUnit: { fontSize: 10, color: "#9CA3AF", marginTop: -2 },
 
   timelineContainer: {
-    marginTop: 24,
-    padding: 16,
+    padding: 15,
     backgroundColor: "#F9FAFB",
     borderRadius: 20,
   },
@@ -801,15 +801,14 @@ const styles = StyleSheet.create({
   timelineLabel: {
     fontSize: 11,
     color: "#9CA3AF",
-    fontWeight: "700",
     textTransform: "uppercase",
     marginBottom: 4,
+    fontFamily: font.MonolithRegular
   },
   timelineText: {
     fontSize: 14,
     color: "#1F2937",
     fontFamily: font.MonolithRegular,
-    fontWeight: "500",
     lineHeight: 20,
   },
 
@@ -833,7 +832,7 @@ const styles = StyleSheet.create({
   },
   avatar: { width: "100%", height: "100%", borderRadius: 30 },
   driverMeta: { marginLeft: 16, flex: 1 },
-  driverName: { fontSize: 18, fontFamily: font.MonolithRegular, color: "#111827", fontWeight: "700" },
+  driverName: { fontSize: 18, fontFamily: font.MonolithRegular, color: "#111827", },
   trackingIdText: { fontSize: 13, color: "#6B7280", marginTop: 2, fontFamily: font.MonolithRegular },
   statusBadge: {
     flexDirection: "row",
@@ -845,7 +844,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
   },
   statusDot: { width: 6, height: 6, borderRadius: 3, marginRight: 6 },
-  statusText: { fontSize: 12, fontWeight: "600", textTransform: "uppercase" },
+  statusText: { fontSize: 12, fontFamily: font.MonolithRegular, textTransform: "uppercase" },
 
   driverActionsSide: { alignItems: "flex-end" },
   otpPill: {
@@ -857,8 +856,8 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     minWidth: 80,
   },
-  otpPillLabel: { fontSize: 10, color: "#9CA3AF", fontWeight: "700", textTransform: "uppercase" },
-  otpPillValue: { fontSize: 16, color: "#111827", fontWeight: "800", marginTop: 1 },
+  otpPillLabel: { fontSize: 10, color: "#9CA3AF", fontFamily: font.MonolithRegular, textTransform: "uppercase" },
+  otpPillValue: { fontSize: 16, color: "#111827", fontFamily: font.MonolithRegular, marginTop: 1 },
 
   contactRow: { flexDirection: "row", alignItems: "center" },
   circleActionBtn: {
@@ -882,7 +881,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     marginTop: 16,
   },
-  vehicleStripText: { marginLeft: 8, fontSize: 13, color: "#4B5563", fontWeight: "500" },
+  vehicleStripText: { marginLeft: 8, fontSize: 13, color: "#4B5563", fontFamily: font.MonolithRegular },
 
   parcelGrid: {
     flexDirection: "row",
@@ -894,8 +893,8 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   parcelStat: { flex: 1, alignItems: "center" },
-  statLabel: { fontSize: 11, color: "#9CA3AF", fontWeight: "600", textTransform: "uppercase" },
-  statValue: { fontSize: 14, color: "#111827", fontWeight: "700", marginTop: 4 },
+  statLabel: { fontSize: 11, color: "#9CA3AF", fontFamily: font.MonolithRegular, textTransform: "uppercase" },
+  statValue: { fontSize: 14, color: "#111827", fontFamily: font.MonolithRegular, marginTop: 4 },
   statDivider: { width: 1, height: "100%", backgroundColor: "#F3F4F6" },
 
   rateDeliveryButton: {
@@ -905,7 +904,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     marginBottom: 12,
   },
-  rateDeliveryButtonText: { fontSize: 13, fontWeight: "600", color: "#111827" },
+  rateDeliveryButtonText: { fontSize: 13, fontFamily: font.MonolithRegular, color: "#111827" },
   arrivalBadge: {
     position: 'absolute',
     top: hp(10),
@@ -939,7 +938,6 @@ const styles = StyleSheet.create({
     color: '#FFF',
     fontSize: 15,
     fontFamily: font.MonolithRegular,
-    fontWeight: '700',
     flex: 1,
     lineHeight: 20,
   },
