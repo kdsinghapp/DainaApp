@@ -448,6 +448,10 @@ const strings = new LocalizedStrings({
     DidYouKnow: "Did you know?",
     VerificationTip: "Complete profiles are 3x faster to verify. Make sure your photos are clear and readable.",
     RefreshStatus: "Refresh Status",
+    DeleteAccount: "Delete Account",
+    DeleteAccountConfirmTitle: "Delete Account",
+    DeleteAccountConfirmMessage: "Are you sure you want to delete your account? This action cannot be undone and all your data will be permanently removed.",
+    DeletingAccount: "Deleting account...",
   },
 
   mn: {
@@ -908,6 +912,10 @@ const strings = new LocalizedStrings({
     DidYouKnow: "Та мэдэх үү?",
     VerificationTip: "Бүрэн гүйцэд профайлыг 3 дахин хурдан баталгаажуулдаг. Зурагнууд тань тод, уншигдахуйц байгаа эсэхийг шалгаарай.",
     RefreshStatus: "Төлөв шинэчлэх",
+    DeleteAccount: "Бүртгэл устгах",
+    DeleteAccountConfirmTitle: "Бүртгэл устгах",
+    DeleteAccountConfirmMessage: "Та бүртгэлээ устгахдаа итгэлтэй байна уу? Энэ үйлдлийг буцаах боломжгүй бөгөөд таны бүх мэдээлэл бүрмөсөн устах болно.",
+    DeletingAccount: "Бүртгэл устгаж байна...",
   },
 });
 

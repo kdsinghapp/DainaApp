@@ -81,6 +81,7 @@ enum ScreenNameEnum {
   condition = "Conditions",
   socity = "Socity",
   AddContractWithType = "AddContractWithType",
+  WebViewScreen = "WebViewScreen",
   // Driver
 
   DriverHome = "DriverHome",

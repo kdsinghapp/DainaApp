@@ -28,5 +28,6 @@ export const endpointCustomer = {
   dashboardCounts: "/delivery/dashboard-counts",
   markReadNotifications: "/notifications/mark-read",
   saveDriverLocation: "/driver/location",
-  nearbyDrivers: "/nearby"
+  nearbyDrivers: "/nearby",
+  deleteAccount: "/delete-account"
 };

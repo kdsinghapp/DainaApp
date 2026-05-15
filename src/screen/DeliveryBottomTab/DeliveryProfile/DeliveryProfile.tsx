@@ -18,6 +18,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { GetProfileApi } from "../../../Api/apiRequest";
 import { loginSuccess, logout } from "../../../redux/feature/authSlice";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { DeleteAccountApi } from "../../../Api/apiRequest";
+import DeleteAccountModal from "../../../compoent/DeleteAccountModal";
 import { styles } from "./style";
 import strings from "../../../localization/Localization";
 import NewOrderNotificationModal from "../../../compoent/NewOrderNotificationModal";
@@ -87,6 +89,7 @@ const DeliveryProfile: React.FC<Props> = ({
 }) => {
   const navigation: any = useNavigation()
   const [Modal, setModal] = useState(false)
+  const [deleteModalVisible, setDeleteModalVisible] = useState(false);
   const [isLoading, setLoading] = useState(false);
 
   const dispatch = useDispatch();
@@ -111,6 +114,17 @@ const DeliveryProfile: React.FC<Props> = ({
     dispatch(logout());
     AsyncStorage.removeItem('authData');
     navigation.replace(ScreenNameEnum.SPLASH_SCREEN);
+  };
+
+  const handleDeleteAccount = async () => {
+    setDeleteModalVisible(false);
+    const response = await DeleteAccountApi(setLoading);
+    if (response && (response.status === 1 || response.status === "1")) {
+      dispatch(logout());
+      await AsyncStorage.removeItem('authData');
+      await AsyncStorage.removeItem('token');
+      navigation.replace(ScreenNameEnum.SPLASH_SCREEN);
+    }
   };
   return (
     <SafeAreaView style={styles.safe}>
@@ -198,7 +212,10 @@ const DeliveryProfile: React.FC<Props> = ({
             icon={<Icon name="headset-outline" size={24} color={color.primary} />}
             label={strings.Support}
             onPress={() => {
-              navigation.navigate(ScreenNameEnum.HelpSupport)
+              navigation.navigate(ScreenNameEnum.WebViewScreen, {
+                url: 'https://api.daina.tech/support',
+                title: strings.Support
+              })
             }}
           />
           <ItemDivider />
@@ -206,7 +223,18 @@ const DeliveryProfile: React.FC<Props> = ({
             icon={<Icon name="shield-checkmark-outline" size={24} color={color.primary} />}
             label={strings.PrivacyPolicy}
             onPress={() => {
-              navigation.navigate(ScreenNameEnum.LegalPoliciesScreen)
+              navigation.navigate(ScreenNameEnum.WebViewScreen, {
+                url: 'https://api.daina.tech/privacy-policy',
+                title: strings.PrivacyPolicy
+              })
+            }}
+          />
+          <ItemDivider />
+          <ListItem
+            icon={<Icon name="trash-outline" size={24} color="red" />}
+            label={strings.DeleteAccount}
+            onPress={() => {
+              setDeleteModalVisible(true);
             }}
           />
         </View>
@@ -227,6 +255,14 @@ const DeliveryProfile: React.FC<Props> = ({
           onLogout={() => {
             handleLogout()
           }}
+        />
+
+        <DeleteAccountModal
+          visible={deleteModalVisible}
+          onDelete={async () => {
+            handleDeleteAccount();
+          }}
+          onCancel={() => setDeleteModalVisible(false)}
         />
       </ScrollView>
     </SafeAreaView>

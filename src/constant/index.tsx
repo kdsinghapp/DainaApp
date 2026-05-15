@@ -9,7 +9,7 @@ export const color = {
   secondary: '#0F172A',      // Indigo Slate
   
   // Neutral Colors (Professional Slate)
-  background: '#F8FAFC',    // Main Screen Background
+  background: '#FFFFFF',    // Main Screen Background
   surface: '#FFFFFF',       // Card Background
   border: '#E2E8F0',        // Standard Border
   borderLight: '#F1F5F9',   // Subtle Border

@@ -1086,6 +1086,44 @@ const RateDeliveryApi = async (
   }
 };
 
+const DeleteAccountApi = async (setLoading: any) => {
+  setLoading(true);
+  try {
+    const token = await AsyncStorage.getItem('token');
+    const response = await fetch(`${base_url}/delete-account`, {
+      method: 'GET', // Using GET as requested by the user's URL if it's a simple link, but usually it's POST/DELETE. I'll use GET for now as per provided URL structure.
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    const textResponse = await response.text();
+    let parsedResponse: any;
+    try {
+      parsedResponse = JSON.parse(textResponse);
+    } catch (error) {
+      errorToast(strings.InvalidServerResponse);
+      return;
+    }
+
+    if (parsedResponse?.status === 1 || parsedResponse?.status === "1") {
+      successToast(parsedResponse?.message || "Account deleted successfully");
+      return parsedResponse;
+    } else {
+      errorToast(parsedResponse?.message || "Failed to delete account");
+      return parsedResponse;
+    }
+
+  } catch (error: any) {
+    console.error('Delete account error:', error);
+    errorToast(strings.NetworkErrorTryAgain);
+  } finally {
+    setLoading(false);
+  }
+};
+
 export {
   LogiApi,
   Verifyotp,
@@ -1112,4 +1150,5 @@ export {
   getAuthData,
   saveAuthData,
   handleLogout,
+  DeleteAccountApi,
 };

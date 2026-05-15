@@ -38,6 +38,7 @@ import LanguageSelection from "../screen/Profile/LanguageSelection/LanguageSelec
 import BankSetupScreen from "../screen/auth/BankSetup/BankSetupScreen";
 import EditProfileDeliver from "../screen/DeliveryBottomTab/EditProfileDeliver/EditProfileDeliver";
 import VerificationPending from "../screen/DeliveryBottomTab/VerificationPending/VerificationPending";
+import WebViewScreen from "../screen/Profile/WebViewScreen";
 const _routes: any = {
   REGISTRATION_ROUTE: [
     {
@@ -220,6 +221,10 @@ const _routes: any = {
     {
       name: ScreenNameEnum.language,
       Component: LanguageSelection,
+    },
+    {
+      name: ScreenNameEnum.WebViewScreen,
+      Component: WebViewScreen,
     },
     //    {
     //   name: ScreenNameEnum.DocumentShow,

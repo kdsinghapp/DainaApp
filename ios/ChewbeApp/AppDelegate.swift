@@ -5,6 +5,7 @@ import Firebase
 import FirebaseMessaging
 import UserNotifications
 import GoogleMaps
+import AVFoundation
 
 @main
 class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate, MessagingDelegate {
@@ -15,6 +16,15 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate, MessagingDe
   ) -> Bool {
 
     NSLog("🚀 AppDelegate: application didFinishLaunchingWithOptions started")
+    
+    // ✅ Setup AVAudioSession for notification sounds
+    do {
+      try AVAudioSession.sharedInstance().setCategory(.playback, mode: .default, options: [.mixWithOthers, .duckOthers])
+      try AVAudioSession.sharedInstance().setActive(true)
+    } catch {
+      NSLog("❌ AppDelegate: Failed to set AVAudioSession category: \(error)")
+    }
+
 
     // ✅ Initialize Google Maps
     GMSServices.provideAPIKey("AIzaSyDgFGS91BvviXh_f-nmvtEggUHJcaGyUwA")

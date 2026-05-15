@@ -38,6 +38,8 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import strings from "../../../localization/Localization";
 import { color } from "../../../constant";
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from "react-native-responsive-screen";
+import { DeleteAccountApi } from "../../../Api/apiRequest";
+import DeleteAccountModal from "../../../compoent/DeleteAccountModal";
 
 const { width } = Dimensions.get("window");
 
@@ -113,6 +115,7 @@ const MenuItem = ({ icon, label, onPress, index, isLast }: any) => {
 const ProfileScreen: React.FC = () => {
   const navigation: any = useNavigation();
   const [modalVisible, setModalVisible] = useState(false);
+  const [deleteModalVisible, setDeleteModalVisible] = useState(false);
   const [isLoading, setLoading] = useState(false);
 
   const dispatch = useDispatch();
@@ -137,6 +140,17 @@ const ProfileScreen: React.FC = () => {
     dispatch(logout());
     AsyncStorage.removeItem('authData');
     navigation.replace(ScreenNameEnum.SPLASH_SCREEN);
+  };
+
+  const handleDeleteAccount = async () => {
+    ReactNativeHapticFeedback.trigger("notificationSuccess", hapticOptions);
+    const response = await DeleteAccountApi(setLoading);
+    if (response && (response.status === 1 || response.status === "1")) {
+      dispatch(logout());
+      await AsyncStorage.removeItem('authData');
+      await AsyncStorage.removeItem('token');
+      navigation.replace(ScreenNameEnum.SPLASH_SCREEN);
+    }
   };
 
   return (
@@ -206,14 +220,39 @@ const ProfileScreen: React.FC = () => {
                 index={3}
                 icon={<Icon name="shield-checkmark-outline" size={22} color={color.primary} />}
                 label={strings.PrivacyPolicy}
-                onPress={() => navigation.navigate(ScreenNameEnum.PrivacyPolicy)}
+                onPress={() => navigation.navigate(ScreenNameEnum.WebViewScreen, {
+                  url: 'https://api.daina.tech/privacy-policy',
+                  title: strings.PrivacyPolicy
+                })}
               />
               <MenuItem
                 index={4}
-                isLast
                 icon={<Icon name="document-text-outline" size={22} color={color.primary} />}
                 label={strings.TermsConditions}
-                onPress={() => navigation.navigate(ScreenNameEnum.LegalPoliciesScreen)}
+                onPress={() => navigation.navigate(ScreenNameEnum.WebViewScreen, {
+                  url: 'https://api.daina.tech/privacy-policy', // Reusing same link as per user request or common practice if Terms is not separate
+                  title: strings.TermsConditions
+                })}
+              />
+              <MenuItem
+                index={5}
+                isLast
+                icon={<Icon name="headset-outline" size={22} color={color.primary} />}
+                label={strings.Support}
+                onPress={() => navigation.navigate(ScreenNameEnum.WebViewScreen, {
+                  url: 'https://api.daina.tech/support',
+                  title: strings.Support
+                })}
+              />
+              <MenuItem
+                index={6}
+                isLast
+                icon={<Icon name="trash-outline" size={22} color="red" />}
+                label={strings.DeleteAccount}
+                onPress={() => {
+                  ReactNativeHapticFeedback.trigger("impactMedium", hapticOptions);
+                  setDeleteModalVisible(true);
+                }}
               />
             </View>
           </Animated.View>
@@ -242,6 +281,15 @@ const ProfileScreen: React.FC = () => {
           handleLogoutPress();
         }}
         onCancel={() => setModalVisible(false)}
+      />
+
+      <DeleteAccountModal
+        visible={deleteModalVisible}
+        onDelete={async () => {
+          setDeleteModalVisible(false);
+          handleDeleteAccount();
+        }}
+        onCancel={() => setDeleteModalVisible(false)}
       />
     </View>
   );
