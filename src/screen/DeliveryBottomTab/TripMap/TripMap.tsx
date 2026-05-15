@@ -475,6 +475,17 @@ const TripMap = () => {
               </View>
             </Marker>
           </MapView>
+
+          {tooClose && (
+            <View style={styles.arrivalBadge}>
+              <View style={styles.arrivalBadgeIconWrap}>
+                <Icon name="location-sharp" size={20} color="#FFF" />
+              </View>
+              <Text style={styles.arrivalBadgeText}>
+                {isToPickup ? strings.ArrivedAtPickup : strings.ArrivedAtDropoff}
+              </Text>
+            </View>
+          )}
         </View>
       </TouchableWithoutFeedback>
 
@@ -859,5 +870,42 @@ const styles = StyleSheet.create({
     backgroundColor: '#4CAF50',
     borderWidth: 2,
     borderColor: '#FFF',
+  },
+  arrivalBadge: {
+    position: 'absolute',
+    top: hp(10),
+    left: wp(5),
+    right: wp(5),
+    backgroundColor: '#059669',
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    borderRadius: 16,
+    gap: 12,
+    shadowColor: '#059669',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.3,
+    shadowRadius: 20,
+    elevation: 10,
+    zIndex: 1000,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.2)',
+  },
+  arrivalBadgeIconWrap: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  arrivalBadgeText: {
+    color: '#FFF',
+    fontSize: 15,
+    fontFamily: font.MonolithRegular,
+    fontWeight: '700',
+    flex: 1,
+    lineHeight: 20,
   },
 });
