@@ -29,8 +29,31 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { successToast } from "../../../utils/customToast";
 import RatingModal from "../../../compoent/RatingModal";
 import strings from "../../../localization/Localization";
+import Icon from "../../../compoent/Icon";
+import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 
 const { width, height } = Dimensions.get("window");
+const MAP_STYLE = [
+  { "elementType": "geometry", "stylers": [{ "color": "#f5f5f5" }] },
+  { "elementType": "labels.icon", "stylers": [{ "visibility": "off" }] },
+  { "elementType": "labels.text.fill", "stylers": [{ "color": "#616161" }] },
+  { "elementType": "labels.text.stroke", "stylers": [{ "color": "#f5f5f5" }] },
+  { "featureType": "administrative.land_parcel", "elementType": "labels.text.fill", "stylers": [{ "color": "#bdbdbd" }] },
+  { "featureType": "poi", "elementType": "geometry", "stylers": [{ "color": "#eeeeee" }] },
+  { "featureType": "poi", "elementType": "labels.text.fill", "stylers": [{ "color": "#757575" }] },
+  { "featureType": "poi.park", "elementType": "geometry", "stylers": [{ "color": "#e5e5e5" }] },
+  { "featureType": "poi.park", "elementType": "labels.text.fill", "stylers": [{ "color": "#9e9e9e" }] },
+  { "featureType": "road", "elementType": "geometry", "stylers": [{ "color": "#ffffff" }] },
+  { "featureType": "road.arterial", "elementType": "labels.text.fill", "stylers": [{ "color": "#757575" }] },
+  { "featureType": "road.highway", "elementType": "geometry", "stylers": [{ "color": "#dadada" }] },
+  { "featureType": "road.highway", "elementType": "labels.text.fill", "stylers": [{ "color": "#616161" }] },
+  { "featureType": "road.local", "elementType": "labels.text.fill", "stylers": [{ "color": "#9e9e9e" }] },
+  { "featureType": "transit.line", "elementType": "geometry", "stylers": [{ "color": "#e5e5e5" }] },
+  { "featureType": "transit.station", "elementType": "geometry", "stylers": [{ "color": "#eeeeee" }] },
+  { "featureType": "water", "elementType": "geometry", "stylers": [{ "color": "#c9c9c9" }] },
+  { "featureType": "water", "elementType": "labels.text.fill", "stylers": [{ "color": "#9e9e9e" }] }
+];
+
 const PANEL_PEEK_HEIGHT = 280;
 const PANEL_OPEN_Y = height * 0.3;
 const PANEL_CLOSED_Y = height - PANEL_PEEK_HEIGHT;
@@ -108,7 +131,13 @@ const CourierTrackingScreen = () => {
                 const lat = parseFloat(data?.lat);
                 const lon = parseFloat(data?.lon);
                 if (match && Number.isFinite(lat) && Number.isFinite(lon)) {
-                  const newPoint = { latitude: lat, longitude: lon };
+                  let finalLat = lat;
+                  let finalLon = lon;
+                  if (lat > 60 && lon < 40) {
+                    finalLat = lon;
+                    finalLon = lat;
+                  }
+                  const newPoint = { latitude: finalLat, longitude: finalLon };
                   setCurrentCoordsRef.current?.(newPoint);
                   const region = driverLocationRef.current;
                   if (region) {
@@ -167,21 +196,23 @@ const CourierTrackingScreen = () => {
     return Number.isFinite(n) ? n : fallback;
   };
   const source = parcel ?? item;
-  // API sometimes has Lat/Lon swapped (Lat holds longitude, Lon holds latitude). Match TripMap logic.
-  const pickup = {
-    latitude: safeNum(
-      source?.pickupLocationLon ?? source?.pickupLon ?? source?.pickup_location_lon ?? source?.pickupLocationLat ?? source?.pickupLat,
-      DEFAULT_LAT,
-    ),
-    longitude: safeNum(
-      source?.pickupLocationLat ?? source?.pickupLat ?? source?.pickup_location_lat ?? source?.pickupLocationLon ?? source?.pickupLon,
-      DEFAULT_LNG,
-    ),
+  const getCoords = (latField: any, lonField: any) => {
+    const v1 = safeNum(latField, null);
+    const v2 = safeNum(lonField, null);
+    if (v1 === null || v2 === null) return null;
+    if (v1 > 60 && v2 < 40) return { latitude: v2, longitude: v1 };
+    return { latitude: v1, longitude: v2 };
   };
-  const dropoff = {
-    latitude: safeNum(source?.dropLocationLat ?? source?.dropLat ?? source?.drop_location_lat, DEFAULT_LAT),
-    longitude: safeNum(source?.dropLocationLon ?? source?.dropLon ?? source?.drop_location_lon, DEFAULT_LNG),
-  };
+
+  const pickup = getCoords(
+    source?.pickupLat ?? source?.pickupLocationLat ?? source?.pickup_location_lat,
+    source?.pickupLon ?? source?.pickupLocationLon ?? source?.pickup_location_lon
+  ) ?? { latitude: DEFAULT_LAT, longitude: DEFAULT_LNG };
+
+  const dropoff = getCoords(
+    source?.dropLat ?? source?.dropLocationLat ?? source?.drop_location_lat,
+    source?.dropLon ?? source?.dropLocationLon ?? source?.drop_location_lon
+  ) ?? { latitude: DEFAULT_LAT, longitude: DEFAULT_LNG };
   const distanceBetween = (
     a: { latitude: number; longitude: number },
     b: { latitude: number; longitude: number },
@@ -192,15 +223,11 @@ const CourierTrackingScreen = () => {
   };
   const MIN_ROUTE_DISTANCE_DEG = 0.0003;
   const [distance, setDistance] = useState(0);
-  const [currentCoords, setCurrentCoords] = useState(() => ({
-    latitude: safeNum(item?.pickupLocationLon ?? item?.pickupLon ?? item?.pickupLocationLat ?? item?.pickupLat, DEFAULT_LAT),
-    longitude: safeNum(item?.pickupLocationLat ?? item?.pickupLat ?? item?.pickupLocationLon ?? item?.pickupLon, DEFAULT_LNG),
-  }));
+  const [currentCoords, setCurrentCoords] = useState(() => pickup);
   const [driverLocation] = useState(
     () =>
       new AnimatedRegion({
-        latitude: safeNum(item?.pickupLocationLon ?? item?.pickupLon ?? item?.pickupLocationLat ?? item?.pickupLat, DEFAULT_LAT),
-        longitude: safeNum(item?.pickupLocationLat ?? item?.pickupLat ?? item?.pickupLocationLon ?? item?.pickupLon, DEFAULT_LNG),
+        ...pickup,
         latitudeDelta: 0.01,
         longitudeDelta: 0.01,
       }),
@@ -233,7 +260,12 @@ const CourierTrackingScreen = () => {
     );
     if (points.length < 2) return;
     mapRef.current?.fitToCoordinates(points, {
-      edgePadding: EDGE_PADDING,
+      edgePadding: {
+        top: hp(12),
+        right: wp(10),
+        bottom: PANEL_PEEK_HEIGHT + hp(8),
+        left: wp(10),
+      },
       animated: true,
     });
   }, [
@@ -326,6 +358,7 @@ const CourierTrackingScreen = () => {
   const routeOriginRaw = currentCoords ?? pickup;
   const tooClose =
     distanceBetween(routeOriginRaw, routeDestination) < MIN_ROUTE_DISTANCE_DEG;
+  const isToPickup = status === STATUS.ASSIGNED || status === STATUS.GOING_TO_PICKUP;
   const routeOrigin = tooClose ? pickup : routeOriginRaw;
   const routeDestForPolyline = tooClose ? dropoff : routeDestination;
   const isRouteToPickup =
@@ -411,61 +444,90 @@ const CourierTrackingScreen = () => {
           provider={PROVIDER_GOOGLE}
           style={styles.map}
           initialRegion={initialRegion}
-          mapPadding={{ top: 60, right: 20, bottom: PANEL_PEEK_HEIGHT + 40, left: 20 }}
+          customMapStyle={MAP_STYLE}
+          mapPadding={{ top: 80, right: 20, bottom: PANEL_PEEK_HEIGHT + 20, left: 20 }}
         >
-          <Marker coordinate={pickup} title="Pickup">
-            <View style={[styles.dotMarker, { backgroundColor: "#4CAF50" }]} />
-          </Marker>
-          <Marker coordinate={dropoff} title="Drop-off"
-
+          {/* Pickup Marker */}
+          <Marker
+            coordinate={pickup}
+            anchor={{ x: 0.5, y: 0.5 }}
           >
-
-            <View style={[styles.dotMarker, { backgroundColor: "#f55448ff" }]} />
+            <View style={styles.pickupMarkerContainer}>
+              <View style={styles.pulseRing} />
+              <View style={styles.pickupPointInner} />
+            </View>
           </Marker>
 
+          {/* Drop-off Marker */}
+          <Marker
+            coordinate={dropoff}
+            anchor={{ x: 0.5, y: 1 }}
+          >
+            <View style={styles.dropoffMarkerContainer}>
+              <View style={styles.dropoffPin}>
+                <View style={styles.dropoffPinInner} />
+              </View>
+              <View style={styles.dropoffPinPointer} />
+            </View>
+          </Marker>
+
+          {/* Driver Marker */}
           <Marker.Animated
             key="driver-marker"
             coordinate={driverLocation as any}
             anchor={{ x: 0.5, y: 0.5 }}
           >
-            <Image source={imageIndex.caricon} style={styles.courierImage} />
+            <View style={styles.courierMarker}>
+              <Image source={imageIndex.caricon} style={styles.courierImage} />
+            </View>
           </Marker.Animated>
 
-          {/* Polyline fallback: shows immediately so route is always visible */}
-          {routePointsValid && (
-            <Polyline
-              coordinates={[routeOrigin, routeDestForPolyline]}
-              strokeColor={polylineStrokeColor}
-              strokeWidth={5}
-              lineCap="round"
-              lineJoin="round"
+          {/* 1. BACKGROUND ROUTE: Total trip path (Pickup → Dropoff) - Subtle but visible */}
+          {pickup && dropoff && (
+            <MapViewDirections
+              origin={pickup}
+              destination={dropoff}
+              apikey={GOOGLE_MAPS_APIKEY}
+              mode="DRIVING"
+              strokeWidth={4}
+              strokeColor="rgba(0, 0, 0, 0.15)"
+              precision="low"
             />
           )}
 
-          {/* MapViewDirections: road-following route (overlays polyline when loaded) */}
+          {/* 2. ACTIVE PROGRESS: Driver's real-time journey - High contrast */}
           {routePointsValid && (
             <MapViewDirections
-              key={`route-${status}-${routeOrigin.latitude.toFixed(5)}-${routeOrigin.longitude.toFixed(5)}-${routeDestForPolyline.latitude.toFixed(5)}-${routeDestForPolyline.longitude.toFixed(5)}`}
+              key={`active-progress-${statusNormKey}-${currentCoords.latitude.toFixed(4)}`}
               origin={routeOrigin}
               destination={routeDestForPolyline}
               apikey={GOOGLE_MAPS_APIKEY}
+              mode="DRIVING"
               strokeWidth={8}
               strokeColor={polylineStrokeColor}
-              lineCap="round"
-              lineJoin="round"
+              optimizeWaypoints={true}
               precision="high"
               onReady={(res) => {
                 setDistance(res?.distance ?? 0);
                 setEta(`${Math.ceil(res?.duration ?? 0)} mins`);
+                // Auto-fit when route is first loaded to ensure proper zoom
                 fitMapToRoute();
               }}
-              onError={(err) => {
-                console.warn("MapViewDirections error:", err);
-                setEta("—");
-              }}
+              onError={(err) => console.warn("Active route error:", err)}
             />
           )}
         </MapView>
+
+        {tooClose && (
+          <View style={styles.arrivalBadge}>
+            <View style={styles.arrivalBadgeIconWrap}>
+              <Icon name="location-sharp" size={20} color="#FFF" />
+            </View>
+            <Text style={styles.arrivalBadgeText}>
+              {isToPickup ? strings.DriverArrivedAtPickup : strings.DriverArrivedAtDropoff}
+            </Text>
+          </View>
+        )}
       </View>
 
       <SafeAreaView style={styles.headerOverlay} edges={["top"]}>
@@ -483,230 +545,103 @@ const CourierTrackingScreen = () => {
           contentContainerStyle={styles.scrollContentContainer}
           showsVerticalScrollIndicator={false}
         >
-          {/* Rapido-style ETA strip: X mins • Y km */}
-          {/* {routePointsValid && (
-            <View style={styles.etaStrip}>
-              <Text style={styles.etaStripText}>{eta}</Text>
-              <Text style={styles.etaStripDot}>•</Text>
-              <Text style={styles.etaStripDistance}>{(distance != null ? distance.toFixed(1) : "—")} km</Text>
+          {/* Premium ETA Strip: X mins • Y km */}
+          {/* {routePointsValid && eta && (
+            <View style={styles.etaHeaderStrip}>
+              <View style={styles.etaMain}>
+                <Text style={styles.etaValue}>{eta.replace(' mins', '')}</Text>
+                <Text style={styles.etaUnit}>MINS</Text>
+              </View>
+              <View style={styles.etaDivider} />
+              <View style={styles.etaSecondary}>
+                <Text style={styles.etaDistanceValue}>{(distance != null ? distance.toFixed(1) : "—")}</Text>
+                <Text style={styles.etaDistanceUnit}>KM</Text>
+              </View>
             </View>
           )} */}
-          {/* <View style={styles.driverSection}>
-            {driver?.image ? (
-              <Image source={{ uri: driver?.image }} style={styles.avatar} />
-            ) : (
-              <Image source={imageIndex.dpuser} style={styles.avatar} />
-            )}
-
-            <View style={[styles.driverInfo,]}>
-              <Text style={[styles.driverName, {
-                flex: 1
-              }]} numberOfLines={1}>
-                {driver?.name || "Assigning driver..."}
-              </Text>
-              <Text style={[styles.driverName, {
-                flex: 1
-              }]}
-                numberOfLines={1}
-              >
-                {item?.trackingId || ""}
-              </Text>
-
-              <Text
-                style={[
-
-                  {
-                    textTransform: "capitalize",
-                    fontSize: 15,
-                    fontFamily: font.TrialMedium,
-                    color: statusColor
-
-                  },
-                ]}
-              >
-                {statusLabel}
-              </Text>
-              {driver?.vehicle?.vehicleType || driver?.vehicle?.vehicleNumber &&
-
-                <Text style={styles.vehicleInfo} numberOfLines={1}>
-                  {driver?.vehicle?.vehicleType}   {driver?.vehicle?.vehicleNumber || ""}
+          <View style={styles.driverSection}>
+            <View style={styles.driverCore}>
+              <View style={styles.avatarWrap}>
+                <Image
+                  source={driver?.image ? { uri: driver.image } : imageIndex.dpuser}
+                  style={styles.avatar}
+                />
+              </View>
+              <View style={styles.driverMeta}>
+                <Text style={styles.driverName} numberOfLines={1}>
+                  {driver?.name || "Assigning driver..."}
                 </Text>
-              }
-
-              <View style={styles.actionButtons}>
-                <TouchableOpacity
-                  style={styles.btnCall}
-                  onPress={() => Linking.openURL(`tel:${driver?.phone}`)}
-                >
-                  <Image source={imageIndex.Calls} style={styles.iconBtn} />
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={styles.btnChat}
-                  onPress={() => {
-                    nav.navigate(ScreenNameEnum.ChatScreen, {
-                      item: parcel,
-                    })
-                  }}
-                >
-                  <Image source={imageIndex.messtrcker} style={styles.iconBtn} />
-                </TouchableOpacity>
+                <Text style={styles.trackingIdText}>{item?.trackingId || ""}</Text>
+                <View style={[styles.statusBadge, { backgroundColor: statusColor + '15' }]}>
+                  <View style={[styles.statusDot, { backgroundColor: statusColor }]} />
+                  <Text style={[styles.statusText, { color: statusColor }]}>{statusLabel}</Text>
+                </View>
               </View>
             </View>
-            {isDelivered ? (
-              <TouchableOpacity
-                style={styles.rateDeliveryButton}
-                onPress={() => setShowRatingModal(true)}
-              >
-                <Text style={styles.rateDeliveryButtonText}>Rate delivery</Text>
-              </TouchableOpacity>
-            ) : (
-              <View style={styles.otpContainer}>
-                <Text style={styles.otpLabel}>OTP</Text>
-                <Text style={styles.otpValue}>
-                  {(parcel?.deliveryStatus ?? item?.deliveryStatus) === STATUS.ASSIGNED ||
-                    (parcel?.deliveryStatus ?? item?.deliveryStatus) === STATUS.GOING_TO_PICKUP
-                    ? (parcel?.pickupOtp ?? item?.pickupOtp ?? "—")
-                    : (parcel?.deliveryOtp ?? item?.deliveryOtp ?? "—")}
-                </Text>
-              </View>
-            )}
 
-          </View> */}
-          <View style={styles.driverSection}>
-            {/* Driver Image */}
-            <Image
-              source={
-                driver?.image
-                  ? { uri: driver.image }
-                  : imageIndex.dpuser
-              }
-              style={styles.avatar}
-            />
-
-            <View style={styles.driverInfo}>
-
-              {/* Driver Name */}
-              <Text style={styles.driverName} numberOfLines={1}>
-                {driver?.name || "Assigning driver..."}
-              </Text>
-
-              {/* Tracking ID */}
-              <Text style={styles.driverName} numberOfLines={1}>
-                {item?.trackingId || ""}
-              </Text>
-
-              {/* Status */}
-              <Text
-                style={{
-                  textTransform: "capitalize",
-                  fontSize: 15,
-                  fontFamily: font.TrialMedium,
-                  color: statusColor,
-                }}
-              >
-                {statusLabel}
-              </Text>
-
-              {/* Vehicle Info (FIXED CONDITION) */}
-              {(driver?.vehicle?.vehicleType || driver?.vehicle?.vehicleNumber) && (
-                <Text style={styles.vehicleInfo} numberOfLines={1}>
-                  {driver?.vehicle?.vehicleType || ""}
-                  {" "}
-                  {driver?.vehicle?.vehicleNumber || ""}
-                </Text>
+            <View style={styles.driverActionsSide}>
+              {isDelivered ? (
+                <TouchableOpacity
+                  style={styles.rateDeliveryButton}
+                  onPress={() => setShowRatingModal(true)}
+                >
+                  <Text style={styles.rateDeliveryButtonText}>{strings.RateDelivery}</Text>
+                </TouchableOpacity>
+              ) : (
+                <View style={styles.otpPill}>
+                  <Text style={styles.otpPillLabel}>{strings?.OTP}</Text>
+                  <Text style={styles.otpPillValue}>
+                    {(() => {
+                      const s = parcel?.deliveryStatus ?? item?.deliveryStatus;
+                      if (s === STATUS.ASSIGNED || s === STATUS.GOING_TO_PICKUP) {
+                        return parcel?.pickupOtp ?? item?.pickupOtp ?? "—";
+                      }
+                      return parcel?.deliveryOtp ?? item?.deliveryOtp ?? "—";
+                    })()}
+                  </Text>
+                </View>
               )}
 
-              {/* Action Buttons */}
-              <View style={styles.actionButtons}>
-
-                {/* Call Button */}
+              <View style={styles.contactRow}>
                 <TouchableOpacity
-                  style={styles.btnCall}
-                  onPress={() => {
-                    if (driver?.phone) {
-                      Linking.openURL(`tel:${driver.phone}`);
-                    }
-                  }}
+                  style={styles.circleActionBtn}
+                  onPress={() => driver?.phone && Linking.openURL(`tel:${driver.phone}`)}
                 >
-                  <Image source={imageIndex.Calls} style={styles.iconBtn} />
+                  <Image source={imageIndex.Calls} style={styles.actionIcon} />
                 </TouchableOpacity>
-
-                {/* Chat Button */}
                 <TouchableOpacity
-                  style={styles.btnChat}
-                  onPress={() => {
-                    if (parcel) {
-                      nav.navigate(ScreenNameEnum.ChatScreen, {
-                        item: parcel,
-                      });
-                    }
-                  }}
+                  style={[styles.circleActionBtn, { marginLeft: 12 }]}
+                  onPress={() => parcel && nav.navigate(ScreenNameEnum.ChatScreen, { item: parcel })}
                 >
-                  <Image source={imageIndex.messtrcker} style={styles.iconBtn} />
+                  <Image source={imageIndex.messtrcker} style={styles.actionIcon} />
                 </TouchableOpacity>
-
               </View>
-            </View>
-
-            {/* Right Side Section */}
-            {isDelivered ? (
-              <TouchableOpacity
-                style={styles.rateDeliveryButton}
-                onPress={() => setShowRatingModal(true)}
-              >
-                <Text style={styles.rateDeliveryButtonText}>
-                  {strings.RateDelivery}
-                </Text>
-              </TouchableOpacity>
-            ) : (
-              <View style={styles.otpContainer}>
-                <Text style={styles.otpLabel}>{strings?.OTP}</Text>
-
-                <Text style={styles.otpValue}>
-                  {(() => {
-                    const status =
-                      parcel?.deliveryStatus ?? item?.deliveryStatus;
-
-                    if (
-                      status === STATUS.ASSIGNED ||
-                      status === STATUS.GOING_TO_PICKUP
-                    ) {
-                      return parcel?.pickupOtp ?? item?.pickupOtp ?? "—";
-                    }
-
-                    return parcel?.deliveryOtp ?? item?.deliveryOtp ?? "—";
-                  })()}
-                </Text>
-              </View>
-            )}
-          </View>
-          <View style={styles.parcelCard}>
-            <Text style={styles.sectionTitle}>{strings?.ParcelDetails}</Text>
-            <View style={styles.grid}>
-              <StatBox label={strings?.Size} value={item?.packageSize ?? ""} />
-              <StatBox label={strings?.Type} value={item?.consignmentType ?? ""} />
-              <StatBox label={strings?.Service} value={item?.deliveryType ?? ""} />
             </View>
           </View>
 
-          {/* From / To - Rapido style */}
-          <View style={styles.addressBox}>
-            <View style={styles.addressRow}>
-              <View style={styles.addressIconWrap}>
-                <View style={[styles.addressDot, { backgroundColor: "#22C55E" }]} />
+
+
+
+          {/* Address Timeline */}
+          <View style={styles.timelineContainer}>
+            <View style={styles.timelineItem}>
+              <View style={styles.timelineGraphic}>
+                <View style={[styles.timelineDot, { backgroundColor: "#10B981" }]} />
+                <View style={styles.timelineConnector} />
               </View>
-              <View style={styles.addressTextContainer}>
-                <Text style={styles.addressLabel}>{strings?.Pickup}</Text>
-                <Text style={styles.addressText} numberOfLines={2}>{item?.pickupLocation ?? ""}</Text>
+              <View style={styles.timelineContent}>
+                <Text style={styles.timelineLabel}>{strings?.Pickup}</Text>
+                <Text style={styles.timelineText} numberOfLines={2}>{item?.pickupLocation || "—"}</Text>
               </View>
             </View>
-            <View style={styles.addressRow}>
-              <View style={styles.addressIconWrap}>
-                <View style={[styles.addressDot, { backgroundColor: "#EF4444" }]} />
+
+            <View style={[styles.timelineItem, { marginTop: 4 }]}>
+              <View style={styles.timelineGraphic}>
+                <View style={[styles.timelineDot, { backgroundColor: "#EF4444" }]} />
               </View>
-              <View style={styles.addressTextContainer}>
-                <Text style={styles.addressLabel}>{strings?.Drop}</Text>
-                <Text style={styles.addressText} numberOfLines={2}>{item?.dropLocation ?? ""}</Text>
+              <View style={styles.timelineContent}>
+                <Text style={styles.timelineLabel}>{strings?.Drop}</Text>
+                <Text style={styles.timelineText} numberOfLines={2}>{item?.dropLocation || "—"}</Text>
               </View>
             </View>
           </View>
@@ -716,12 +651,7 @@ const CourierTrackingScreen = () => {
   );
 };
 
-const StatBox = ({ label, value }: any) => (
-  <View style={styles.gridItem}>
-    <Text style={styles.gridLabel}>{label}</Text>
-    <Text style={styles.gridValue}>{value}</Text>
-  </View>
-);
+
 
 export default CourierTrackingScreen;
 
@@ -730,13 +660,63 @@ const styles = StyleSheet.create({
   mapWrap: { flex: 1, width: "100%", minHeight: height * 0.5 },
   map: { ...StyleSheet.absoluteFillObject },
   headerOverlay: { position: "absolute", top: 0, left: 0, right: 0, zIndex: 5 },
-  dotMarker: {
-    width: 14,
-    height: 14,
-    borderRadius: 7,
-    borderWidth: 3,
-    borderColor: "#FFF",
-    ...Platform.select({ ios: { shadowColor: "#000", shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.2, shadowRadius: 2 } }),
+  pickupMarkerContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: 40,
+    height: 40,
+  },
+  pulseRing: {
+    position: 'absolute',
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    backgroundColor: 'rgba(16, 185, 129, 0.2)',
+    borderWidth: 1,
+    borderColor: 'rgba(16, 185, 129, 0.4)',
+  },
+  pickupPointInner: {
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+    backgroundColor: '#10B981',
+    borderWidth: 2,
+    borderColor: '#FFF',
+    elevation: 3,
+  },
+  dropoffMarkerContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingBottom: 2,
+  },
+  dropoffPin: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: '#EF4444',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 2,
+    borderColor: '#FFF',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 5,
+    zIndex: 2,
+  },
+  dropoffPinInner: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: '#FFF',
+  },
+  dropoffPinPointer: {
+    width: 4,
+    height: 6,
+    backgroundColor: '#EF4444',
+    marginTop: -2,
+    zIndex: 1,
   },
   courierMarker: {
     width: 46,
@@ -773,134 +753,194 @@ const styles = StyleSheet.create({
   },
   scrollContent: { flex: 1 },
   scrollContentContainer: { paddingHorizontal: 20, paddingBottom: 32 },
-  etaStrip: {
+  etaHeaderStrip: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    marginBottom: 16,
-    paddingVertical: 10,
-    backgroundColor: "#FFFBEB",
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: "#FDE68A",
+    backgroundColor: "#F3F4F6",
+    borderRadius: 16,
+    paddingVertical: 12,
+    marginBottom: 20,
   },
-  etaStripText: { fontSize: 16, fontFamily: font.MonolithRegular, color: "#B45309" },
-  etaStripDot: { fontSize: 14, fontFamily: font.MonolithRegular, color: "#D1D5DB", marginHorizontal: 8 },
-  etaStripDistance: { fontSize: 14, fontFamily: font.MonolithRegular, color: "#6B7280" },
+  etaMain: { alignItems: "center", paddingHorizontal: 20 },
+  etaValue: { fontSize: 20, fontWeight: "800", color: "#111827", fontFamily: font.MonolithRegular },
+  etaUnit: { fontSize: 10, color: "#6B7280", fontWeight: "700", marginTop: -2 },
+  etaDivider: { width: 1, height: 24, backgroundColor: "#E5E7EB" },
+  etaSecondary: { alignItems: "center", paddingHorizontal: 20 },
+  etaDistanceValue: { fontSize: 18, fontWeight: "700", color: "#4B5563", fontFamily: font.MonolithRegular },
+  etaDistanceUnit: { fontSize: 10, color: "#9CA3AF", fontWeight: "700", marginTop: -2 },
+
+  timelineContainer: {
+    marginTop: 24,
+    padding: 16,
+    backgroundColor: "#F9FAFB",
+    borderRadius: 20,
+  },
+  timelineItem: { flexDirection: "row" },
+  timelineGraphic: { alignItems: "center", width: 24, marginRight: 12 },
+  timelineDot: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    marginTop: 4,
+    borderWidth: 2,
+    borderColor: "#FFF",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  timelineConnector: {
+    width: 2,
+    flex: 1,
+    backgroundColor: "#E5E7EB",
+    marginVertical: 4,
+  },
+  timelineContent: { flex: 1, paddingBottom: 16 },
+  timelineLabel: {
+    fontSize: 11,
+    color: "#9CA3AF",
+    fontWeight: "700",
+    textTransform: "uppercase",
+    marginBottom: 4,
+  },
+  timelineText: {
+    fontSize: 14,
+    color: "#1F2937",
+    fontFamily: font.MonolithRegular,
+    fontWeight: "500",
+    lineHeight: 20,
+  },
+
   driverSection: {
     flexDirection: "row",
     alignItems: "center",
-    paddingBottom: 16,
+    justifyContent: "space-between",
+    paddingBottom: 20,
     borderBottomWidth: 1,
-    borderBottomColor: "#E5E7EB",
+    borderBottomColor: "#F3F4F6",
   },
-  avatar: {
-    width: 52,
-    height: 52,
-    borderRadius: 26,
-    marginRight: 14,
-    backgroundColor: "#E5E7EB",
-  },
-  driverInfo: { flex: 1, minWidth: 0 },
-  driverName: { fontSize: 17, fontFamily: font.MonolithRegular, color: "#111827" },
-  vehicleInfo: { fontSize: 13, color: "#6B7280", fontFamily: font.MonolithRegular, marginTop: 2 },
-  actionButtons: { flexDirection: "row", gap: 10, marginTop: 10 },
-  btnCall: {
-
-  },
-  btnChat: {
-
-  },
-  iconBtn: { width: 45, height: 45, resizeMode: "contain" },
-  otpContainer: {
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    borderRadius: 10,
-    borderWidth: 2,
-    borderColor: "#FFCC00",
-    borderStyle: "dashed",
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "#FFFBEB",
-    minWidth: 72,
-  },
-  otpLabel: { fontSize: 9, color: "#92400E", fontFamily: font.MonolithRegular, textTransform: "uppercase", marginBottom: 2 },
-  otpValue: { fontSize: 16, fontFamily: font.MonolithRegular, color: "#111827", letterSpacing: 2 },
-  rateDeliveryButton: {
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    borderRadius: 10,
-    borderWidth: 2,
-    borderColor: "#FFCC00",
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "#FFFBEB",
-    minWidth: 72,
-  },
-  rateDeliveryButtonText: { fontSize: 12, fontFamily: font.MonolithRegular, color: "#92400E" },
-  sectionTitle: {
-    fontSize: 14,
-    color: "#374151",
-    marginBottom: 10,
-    fontFamily: font.MonolithRegular,
-
-  },
-  grid: { flexDirection: "row", gap: 10 },
-  gridItem: {
-    flex: 1,
-    alignItems: "center",
-    backgroundColor: "#F3F4F6",
-    paddingVertical: 12,
-    paddingHorizontal: 6,
-    borderRadius: 10,
-  },
-  gridLabel: { fontSize: 10, color: "#6B7280", fontFamily: font.MonolithRegular, marginBottom: 4 },
-  gridValue: { fontSize: 12, fontFamily: font.MonolithRegular, color: "#111827" },
-  parcelCard: { marginTop: 18 },
-  addressBox: {
-    marginTop: 18,
-    padding: 16,
+  driverCore: { flexDirection: "row", alignItems: "center", flex: 1 },
+  avatarWrap: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
     backgroundColor: "#F9FAFB",
-    borderRadius: 14,
+    padding: 2,
     borderWidth: 1,
     borderColor: "#E5E7EB",
   },
-  addressRow: {
+  avatar: { width: "100%", height: "100%", borderRadius: 30 },
+  driverMeta: { marginLeft: 16, flex: 1 },
+  driverName: { fontSize: 18, fontFamily: font.MonolithRegular, color: "#111827", fontWeight: "700" },
+  trackingIdText: { fontSize: 13, color: "#6B7280", marginTop: 2, fontFamily: font.MonolithRegular },
+  statusBadge: {
     flexDirection: "row",
-    alignItems: "flex-start",
-  },
-  addressIconWrap: {
-    width: 24,
     alignItems: "center",
-    marginRight: 12,
-    paddingTop: 2,
+    alignSelf: "flex-start",
+    marginTop: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 20,
   },
-  addressDot: {
-    width: 12,
-    height: 12,
-    borderRadius: 6,
-  },
-  addressTextContainer: { flex: 1 },
-  addressLabel: {
-    fontSize: 10,
-    color: "#6B7280",
-    letterSpacing: 0.5,
-    marginBottom: 4,
-    fontFamily: font.MonolithRegular
+  statusDot: { width: 6, height: 6, borderRadius: 3, marginRight: 6 },
+  statusText: { fontSize: 12, fontWeight: "600", textTransform: "uppercase" },
 
+  driverActionsSide: { alignItems: "flex-end" },
+  otpPill: {
+    backgroundColor: "#F3F4F6",
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 12,
+    alignItems: "center",
+    marginBottom: 12,
+    minWidth: 80,
   },
-  addressText: {
-    fontSize: 14,
-    color: "#111827",
-    lineHeight: 20,
+  otpPillLabel: { fontSize: 10, color: "#9CA3AF", fontWeight: "700", textTransform: "uppercase" },
+  otpPillValue: { fontSize: 16, color: "#111827", fontWeight: "800", marginTop: 1 },
+
+  contactRow: { flexDirection: "row", alignItems: "center" },
+  circleActionBtn: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: "#F9FAFB",
+    justifyContent: "center",
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: "#E5E7EB",
+  },
+  actionIcon: { width: 22, height: 22, resizeMode: "contain" },
+
+  vehicleStrip: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#F9FAFB",
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 12,
+    marginTop: 16,
+  },
+  vehicleStripText: { marginLeft: 8, fontSize: 13, color: "#4B5563", fontWeight: "500" },
+
+  parcelGrid: {
+    flexDirection: "row",
+    backgroundColor: "#FFF",
+    borderWidth: 1,
+    borderColor: "#F3F4F6",
+    borderRadius: 16,
+    marginTop: 20,
+    padding: 16,
+  },
+  parcelStat: { flex: 1, alignItems: "center" },
+  statLabel: { fontSize: 11, color: "#9CA3AF", fontWeight: "600", textTransform: "uppercase" },
+  statValue: { fontSize: 14, color: "#111827", fontWeight: "700", marginTop: 4 },
+  statDivider: { width: 1, height: "100%", backgroundColor: "#F3F4F6" },
+
+  rateDeliveryButton: {
+    backgroundColor: "#F3F4F6",
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 12,
+    marginBottom: 12,
+  },
+  rateDeliveryButtonText: { fontSize: 13, fontWeight: "600", color: "#111827" },
+  arrivalBadge: {
+    position: 'absolute',
+    top: hp(10),
+    left: wp(5),
+    right: wp(5),
+    backgroundColor: '#059669',
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    borderRadius: 16,
+    gap: 12,
+    shadowColor: '#059669',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.3,
+    shadowRadius: 20,
+    elevation: 10,
+    zIndex: 1000,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.2)',
+  },
+  arrivalBadgeIconWrap: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  arrivalBadgeText: {
+    color: '#FFF',
+    fontSize: 15,
     fontFamily: font.MonolithRegular,
-  },
-  vLineContainer: {
-    marginLeft: 5,
-    height: 16,
-    width: 2,
-    borderLeftWidth: 2,
-    borderLeftColor: "#D1D5DB",
-    borderStyle: "dashed",
+    fontWeight: '700',
+    flex: 1,
+    lineHeight: 20,
   },
 });

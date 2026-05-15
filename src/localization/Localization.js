@@ -455,6 +455,10 @@ const strings = new LocalizedStrings({
     OfferSent: "Offer Sent",
     WaitingForUserResponse: "The user hasn't responded to your offer yet.",
     OfferPending: "Offer Pending",
+    ArrivedAtPickup: "📍 You've arrived! The user is nearby for pickup.",
+    ArrivedAtDropoff: "📍 You've reached the drop-off location!",
+    DriverArrivedAtPickup: "📍 Driver has arrived at pickup location.",
+    DriverArrivedAtDropoff: "📍 Driver is at the drop-off location.",
   },
 
   mn: {
@@ -922,6 +926,10 @@ const strings = new LocalizedStrings({
     OfferSent: "Санал илгээсэн",
     WaitingForUserResponse: "Хэрэглэгч таны саналд хараахан хариу өгөөгүй байна.",
     OfferPending: "Санал хүлээгдэж байна",
+    ArrivedAtPickup: "📍 Та ирлээ! Хэрэглэгч авах цэгт ойрхон байна.",
+    ArrivedAtDropoff: "📍 Та хүргэх цэгт ирлээ!",
+    DriverArrivedAtPickup: "📍 Жолооч авах цэг дээр ирлээ.",
+    DriverArrivedAtDropoff: "📍 Жолооч хүргэх цэг дээр ирлээ.",
   },
 });
 
