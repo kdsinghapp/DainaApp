@@ -81,6 +81,7 @@ const styles = StyleSheet.create({
     lineHeight: 20,
     fontFamily: font.MonolithRegular,
 
+
   },
   textSuccess: { color: '#065F46' },
   textError: { color: '#B91C1C' },
@@ -132,7 +133,6 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.12,
     shadowRadius: 12,
-    elevation: 6,
   },
 
   errorContainer: {
@@ -152,7 +152,6 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.12,
     shadowRadius: 12,
-    elevation: 6,
   },
 
   normalContainer: {
@@ -172,7 +171,6 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
     shadowRadius: 12,
-    elevation: 6,
   },
 });
 

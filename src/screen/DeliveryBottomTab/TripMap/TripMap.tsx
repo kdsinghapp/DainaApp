@@ -30,7 +30,41 @@ import MapViewDirections from 'react-native-maps-directions';
 import { errorToast, successToast } from '../../../utils/customToast';
 import ScreenNameEnum from '../../../routes/screenName.enum';
 import strings from '../../../localization/Localization';
+import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 
+const MAP_STYLE = [
+  {
+    "elementType": "geometry",
+    "stylers": [{ "color": "#f5f5f5" }]
+  },
+  {
+    "elementType": "labels.icon",
+    "stylers": [{ "visibility": "off" }]
+  },
+  {
+    "elementType": "labels.text.fill",
+    "stylers": [{ "color": "#616161" }]
+  },
+  {
+    "elementType": "labels.text.stroke",
+    "stylers": [{ "color": "#f5f5f5" }]
+  },
+  {
+    "featureType": "road",
+    "elementType": "geometry",
+    "stylers": [{ "color": "#ffffff" }]
+  },
+  {
+    "featureType": "road.highway",
+    "elementType": "geometry",
+    "stylers": [{ "color": "#dadada" }]
+  },
+  {
+    "featureType": "water",
+    "elementType": "geometry",
+    "stylers": [{ "color": "#c9c9c9" }]
+  }
+];
 
 const TripMap = () => {
   const [loading, setLoading] = useState(false)
@@ -56,9 +90,9 @@ const TripMap = () => {
   const canCancel = item?.deliveryStatus &&
     [STATUS.PENDING, STATUS.ASSIGNED, STATUS.GOING_TO_PICKUP, STATUS.PICKED_UP, STATUS.ON_THE_WAY].includes(item.deliveryStatus);
 
-  // Fetch current location on component mount
+  // Fetch current location and watch for updates
   useEffect(() => {
-    Geolocation.getCurrentPosition(
+    const watchId = Geolocation.watchPosition(
       (position) => {
         setDriverCoords({
           latitude: position.coords.latitude,
@@ -68,8 +102,19 @@ const TripMap = () => {
       (error) => {
         console.log('Location error:', error);
       },
-      { enableHighAccuracy: false, timeout: 30000, maximumAge: 10000 }
+      {
+        enableHighAccuracy: true,
+        distanceFilter: 10, // Update every 10 meters
+        interval: 5000,
+        fastestInterval: 2000
+      }
     );
+
+    return () => {
+      if (watchId !== undefined) {
+        Geolocation.clearWatch(watchId);
+      }
+    };
   }, []);
   useEffect(() => {
     // setActionLoading(true)
@@ -211,22 +256,30 @@ const TripMap = () => {
 
   const source = parcel || item?.parcel || item;
   const mapRef = useRef<MapView>(null);
-  // Pickup: API sends swapped - Lat field has longitude (75.x), Lon field has latitude (22.x). So use Lon→latitude, Lat→longitude.
-  const pickup = {
-    latitude: safeNum(
-      source?.pickupLon ?? source?.pickupLocationLon ?? source?.pickup_location_lon ?? source?.pickupLocationLat ?? source?.pickupLat,
-      DEFAULT_LAT,
-    ),
-    longitude: safeNum(
-      source?.pickupLat ?? source?.pickupLocationLat ?? source?.pickup_location_lat ?? source?.pickupLocationLon ?? source?.pickupLon,
-      DEFAULT_LNG,
-    ),
+  // Intelligent coordinate extraction to handle potential API swaps
+  const getCoords = (latField: any, lonField: any) => {
+    const v1 = safeNum(latField, null);
+    const v2 = safeNum(lonField, null);
+
+    if (v1 === null || v2 === null) return null;
+
+    // Common heuristic for Indore/India: Lat ~22, Lon ~75
+    // If v1 is > 60 and v2 is < 40, they are swapped (v1 is Lon, v2 is Lat)
+    if (v1 > 60 && v2 < 40) {
+      return { latitude: v2, longitude: v1 };
+    }
+    return { latitude: v1, longitude: v2 };
   };
 
-  const dropoff = {
-    latitude: safeNum(source?.dropLat ?? source?.dropLocationLat ?? source?.drop_location_lat, DEFAULT_LAT),
-    longitude: safeNum(source?.dropLon ?? source?.dropLocationLon ?? source?.drop_location_lon, DEFAULT_LNG),
-  };
+  const pickup = getCoords(
+    source?.pickupLat ?? source?.pickupLocationLat ?? source?.pickup_location_lat ?? source?.pickupLat,
+    source?.pickupLon ?? source?.pickupLocationLon ?? source?.pickup_location_lon ?? source?.pickupLon
+  ) || { latitude: DEFAULT_LAT, longitude: DEFAULT_LNG };
+
+  const dropoff = getCoords(
+    source?.dropLat ?? source?.dropLocationLat ?? source?.drop_location_lat ?? source?.dropLat,
+    source?.dropLon ?? source?.dropLocationLon ?? source?.drop_location_lon ?? source?.dropLon
+  ) || { latitude: DEFAULT_LAT, longitude: DEFAULT_LNG };
   const [currentCoords, setCurrentCoords] = useState(driverCoords);
 
   const deliveryStatus = item?.deliveryStatus ?? parcel?.deliveryStatus ?? item?.parcel?.deliveryStatus ?? '';
@@ -244,6 +297,14 @@ const TripMap = () => {
   const routePointsValid = distanceBetween(routeOrigin, routeDest) >= MIN_DIST;
   // Full path green→red: show polyline between pickup and dropoff so driver sees where to go
   const pickupToDropoffValid =
+    pickup?.latitude &&
+    pickup?.longitude &&
+    dropoff?.latitude &&
+    dropoff?.longitude &&
+    Math.abs(pickup.latitude) <= 90 &&
+    Math.abs(pickup.longitude) <= 180 &&
+    Math.abs(dropoff.latitude) <= 90 &&
+    Math.abs(dropoff.longitude) <= 180 &&
     Number.isFinite(pickup?.latitude) &&
     Number.isFinite(pickup?.longitude) &&
     Number.isFinite(dropoff?.latitude) &&
@@ -337,7 +398,6 @@ const TripMap = () => {
     }
   };
 
-  console.log("item trip", item)
   const statusKey = item?.deliveryStatus;
   const statusLabel = STATUS_LABELS[statusKey] || strings.Unknown;
   const statusColor = STATUS_COLORS[statusKey] || 'black';
@@ -351,6 +411,7 @@ const TripMap = () => {
             mapType='standard'
             ref={mapRef}
             provider={PROVIDER_GOOGLE}
+            customMapStyle={MAP_STYLE}
             style={[styles.mapView, Platform.OS === 'ios' && { height: Dimensions.get('window').height }]}
             initialRegion={{
               latitude: (pickup?.latitude + dropoff?.latitude) / 2,
@@ -360,44 +421,46 @@ const TripMap = () => {
             }}
           >
             {pickupToDropoffValid && (
-              <>
-                <Polyline
-                  coordinates={[pickup, dropoff]}
-                  strokeColor="#FFD700"
-                  strokeWidth={5}
-                  lineCap="round"
-                  lineJoin="round"
-                />
-                <MapViewDirections
-                  key={`polyline-pickup-dropoff-${pickup?.latitude.toFixed(5)}-${pickup?.longitude.toFixed(5)}-${dropoff?.latitude.toFixed(5)}-${dropoff?.longitude.toFixed(5)}`}
-                  origin={pickup}
-                  destination={dropoff}
-                  apikey={GOOGLE_MAPS_APIKEY}
-                  strokeWidth={8}
-                  strokeColor="#FFD700"
-                  lineCap="round"
-                  lineJoin="round"
-                  precision="high"
-                  onError={(err) => console.warn('MapViewDirections error:', err)}
-                />
-              </>
-            )}
-            <Marker coordinate={pickup} title={strings.Pickup} tracksViewChanges={false}>
-              <Image source={imageIndex.caricon}
-                style={{
-                  height: 35,
-                  width: 35
+              <MapViewDirections
+                key={`polyline-pickup-dropoff-${pickup?.latitude.toFixed(5)}-${pickup?.longitude.toFixed(5)}-${dropoff?.latitude.toFixed(5)}-${dropoff?.longitude.toFixed(5)}`}
+                origin={pickup}
+                destination={dropoff}
+                apikey={GOOGLE_MAPS_APIKEY}
+                strokeWidth={5}
+                strokeColor={color.primary}
+                lineCap="round"
+                lineJoin="round"
+                precision="high"
+                mode="DRIVING"
+                optimizeWaypoints={true}
+                onReady={result => {
+                  console.log('Route duration:', result.duration);
+                  console.log('Route distance:', result.distance);
+                  mapRef.current?.fitToCoordinates(result.coordinates, {
+                    edgePadding: {
+                      right: wp(15),
+                      bottom: hp(40),
+                      left: wp(15),
+                      top: hp(15),
+                    },
+                    animated: true,
+                  });
                 }}
-                resizeMode='contain'
+                onError={(err) => console.warn('MapViewDirections error:', err)}
               />
-              {/* <View style={[styles.dotMarkerLarge, { backgroundColor: "#4CAF50" }]} /> */}
+            )}
+            <Marker coordinate={pickup} title={strings.Pickup} tracksViewChanges={false} anchor={{ x: 0.5, y: 0.5 }}>
+              <View style={styles.pickupPoint}>
+                <View style={styles.pickupPointInner} />
+              </View>
             </Marker>
-            <Marker coordinate={dropoff} title={strings.DropOff} tracksViewChanges={false}>
+            <Marker coordinate={dropoff} title={strings.DropOff} tracksViewChanges={false} anchor={{ x: 0.5, y: 0.9 }}>
               <Image source={imageIndex.locationpin}
-                resizeMode='center'
+                resizeMode='contain'
                 style={{
-                  height: 55,
-                  width: 55
+                  height: 40,
+                  width: 40,
+                  tintColor: "#FF3B30"
                 }}
               />
             </Marker>
@@ -415,44 +478,35 @@ const TripMap = () => {
         </View>
       </TouchableWithoutFeedback>
 
-      <View style={styles.infoCard} >
+      <View style={styles.infoCard}>
         <TouchableOpacity
-          onPress={() => {
-            navigation.goBack()
-          }}
+          style={styles.backButtonWrap}
+          onPress={() => navigation.goBack()}
         >
-          <Image source={imageIndex.back}
-            style={{
-              height: 42,
-              width: 42,
-              bottom: 5
-            }}
+          <Image
+            source={imageIndex.back}
+            style={{ height: 22, width: 22 }}
             resizeMode='contain'
           />
         </TouchableOpacity>
-        <TouchableOpacity style={styles.locationRow}
-        // onPress={()=>setLocationModal(true)}
-        >
-          <Image source={imageIndex.trck} style={{
-            height: 22,
-            width: 22
-          }} />
-          <Text style={styles.locationText} numberOfLines={1}>
-            {item?.pickupLocation || "35 Oak Ave. Antioch, TN 37013"}
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.locationRow}
-        //  onPress={()=>setLocationModal(true)}
-        >
 
-          <Image source={imageIndex.trck} style={{
-            height: 22,
-            width: 22
-          }} />
-          <Text style={styles.locationText} numberOfLines={1}>
-            {item?.dropLocation || "New Palasia, Indore, Madhya...."}
-          </Text>
-        </TouchableOpacity>
+        <View style={styles.locationContent}>
+          <View style={styles.locationRow}>
+            <View style={[styles.locationDot, { backgroundColor: '#10B981' }]} />
+            <Text style={styles.locationText} numberOfLines={2}>
+              {item?.pickupLocation || item?.pickup?.location || "Pickup Location"}
+            </Text>
+          </View>
+
+          <View style={styles.connectorLine} />
+
+          <View style={styles.locationRow}>
+            <View style={[styles.locationDot, { backgroundColor: '#EF4444' }]} />
+            <Text style={styles.locationText} numberOfLines={2}>
+              {item?.dropLocation || item?.drop?.location || "Drop-off Location"}
+            </Text>
+          </View>
+        </View>
       </View>
       <TouchableWithoutFeedback onPress={dismissKeyboard} accessible={false}>
         {/* Bottom Driver Card - sits above keyboard when open */}
@@ -621,30 +675,55 @@ const styles = StyleSheet.create({
   },
   infoCard: {
     position: 'absolute',
-    top: 40,
+    top: Platform.OS === 'ios' ? 60 : 40,
     alignSelf: 'center',
-    width: '90%',
+    width: '92%',
     backgroundColor: '#fff',
     borderRadius: 20,
-    padding: 15,
+    padding: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.12,
+    shadowRadius: 16,
+    zIndex: 100,
+  },
+  backButtonWrap: {
+    width: 44,
+    height: 44,
+    borderRadius: 12,
+    backgroundColor: '#F8FAFC',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+  },
+  locationContent: {
+    flex: 1,
+    gap: 4,
   },
   locationRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 10,
-    backgroundColor: "#F7F8F8",
-    height: 60,
-    borderRadius: 30,
-    paddingHorizontal: 10
-
+    paddingVertical: 2,
+  },
+  locationDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    marginRight: 10,
+  },
+  connectorLine: {
+    width: 1,
+    height: 12,
+    backgroundColor: '#E2E8F0',
+    marginLeft: 3.5, // Center with dot (8/2 - 1/2)
   },
   locationText: {
-    marginLeft: 10,
-    color: '#333',
-    fontSize: 14,
-    fontFamily: font.MonolithRegular
-    ,    // marginRight:5
-    flex: 1
+    flex: 1,
+    fontSize: 13,
+    color: '#334155',
+    fontFamily: font.MonolithRegular,
   },
   driverCard: {
     position: 'absolute',
@@ -657,7 +736,6 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 25,
     borderTopRightRadius: 25,
     backgroundColor: '#fff',
-    elevation: 10,
   },
   arrivingText: {
     fontSize: 16,
@@ -669,6 +747,7 @@ const styles = StyleSheet.create({
     right: 20,
     top: 20,
     color: '#888',
+
   },
   driverRow: {
     flexDirection: 'row',
@@ -751,7 +830,6 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
     justifyContent: "center",
     alignItems: "center",
-    elevation: 10,
     borderWidth: 2,
     borderColor: "#FFCC00",
   },
@@ -764,5 +842,22 @@ const styles = StyleSheet.create({
     flex: 1,
     width: '100%',
   },
-
+  pickupPoint: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    backgroundColor: 'rgba(76, 175, 80, 0.2)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(76, 175, 80, 0.4)',
+  },
+  pickupPointInner: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: '#4CAF50',
+    borderWidth: 2,
+    borderColor: '#FFF',
+  },
 });

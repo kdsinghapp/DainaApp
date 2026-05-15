@@ -445,26 +445,36 @@ const ParcelDetails = () => {
 
             {/* Action Buttons */}
             <View style={styles.actionContainer}>
-              {/* Main Action Button */}
-              <CustomButton
-                title={actionLoading ? strings.Processing : buttonConfig.title}
-                onPress={buttonConfig.onPress}
-                disabled={actionLoading || buttonConfig.disabled}
-                style={{
-                  backgroundColor: buttonConfig.color,
-                  opacity: (actionLoading || buttonConfig.disabled) ? 0.6 : 1,
-
-                }}
-                txtcolor={'white'}
-                icon={
-                  <Icon
-                    name={buttonConfig.icon}
-                    size={20}
-                    color="#fff"
-                    style={{ marginRight: 8 }}
-                  />
-                }
-              />
+              {item?.parcel?.isOffered && item?.deliveryStatus === STATUS.PENDING ? (
+                <View style={styles.waitingContainer}>
+                  <View style={styles.waitingBadge}>
+                    <Text style={styles.waitingBadgeText}>{strings.Pending || "PENDING"}</Text>
+                  </View>
+                  <Icon name="time-outline" size={36} color="#D97706" />
+                  <Text style={styles.waitingText}>
+                    {strings.WaitingForUserResponse}
+                  </Text>
+                </View>
+              ) : (
+                <CustomButton
+                  title={actionLoading ? strings.Processing : buttonConfig.title}
+                  onPress={buttonConfig.onPress}
+                  disabled={actionLoading || buttonConfig.disabled}
+                  style={{
+                    backgroundColor: buttonConfig.color,
+                    opacity: (actionLoading || buttonConfig.disabled) ? 0.6 : 1,
+                  }}
+                  txtcolor={'white'}
+                  icon={
+                    <Icon
+                      name={buttonConfig.icon}
+                      size={20}
+                      color="#fff"
+                      style={{ marginRight: 8 }}
+                    />
+                  }
+                />
+              )}
 
               {/* Cancel Button (for certain statuses) */}
               {canCancel && !buttonConfig?.disabled && (
@@ -542,6 +552,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#fff",
+
   },
   keyboardView: {
     flex: 1,
@@ -738,5 +749,44 @@ const styles = StyleSheet.create({
   progressFill: {
     height: '100%',
     borderRadius: 3,
+  },
+  waitingContainer: {
+    backgroundColor: '#FFCC00',
+    borderRadius: 24,
+    padding: 30,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: '#FEF3C7',
+    shadowColor: '#D97706',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.05,
+    shadowRadius: 15,
+    marginBottom: 20,
+  },
+  waitingBadge: {
+    backgroundColor: '#FEF3C7',
+    paddingHorizontal: 14,
+    paddingVertical: 6,
+    borderRadius: 12,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: '#FDE68A',
+  },
+  waitingBadgeText: {
+    fontSize: 10,
+    color: '#B45309',
+    fontFamily: font.MonolithRegular,
+    textTransform: 'uppercase',
+    letterSpacing: 1.5,
+  },
+  waitingText: {
+    marginTop: 16,
+    fontSize: 15,
+    color: 'white',
+    textAlign: 'center',
+    fontFamily: font.MonolithRegular,
+    lineHeight: 22,
+    paddingHorizontal: 10,
   },
 });

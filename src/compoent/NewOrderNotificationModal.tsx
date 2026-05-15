@@ -128,45 +128,35 @@ const NewOrderNotificationModal: React.FC = () => {
             <View style={styles.pathContainer}>
               <View style={styles.pathTimeline}>
                 <View style={styles.pathDotContainer}>
-                  {pickupAddress && (
-                    <View style={styles.iconCircle}>
-                      <Icon name="ellipse" size={wp(2.5)} color="#10B981" />
-                    </View>
-                  )}
+                  <View style={[styles.iconCircle, { borderColor: '#10B981', backgroundColor: '#ECFDF5' }]}>
+                    <Icon name="ellipse" size={wp(2)} color="#10B981" />
+                  </View>
 
-                  {pickupAddress && dropAddress && (
-                    <View style={styles.pathLineContainer}>
-                      <View style={styles.pathLineDashed} />
-                    </View>
-                  )}
+                  <View style={styles.pathLineContainer}>
+                    <View style={styles.pathLine} />
+                  </View>
 
-                  {dropAddress && (
-                    <View style={styles.iconCircle}>
-                      <Icon name="location" size={wp(3.5)} color="#EF4444" />
-                    </View>
-                  )}
+                  <View style={[styles.iconCircle, { borderColor: '#EF4444', backgroundColor: '#FEF2F2' }]}>
+                    <Icon name="location" size={wp(3.5)} color="#EF4444" />
+                  </View>
                 </View>
 
                 <View style={styles.pathContent}>
-                  {pickupAddress && (
-                    <View style={styles.pathBlock}>
-                      <Text style={styles.pathLabel}>{strings.Pickup || 'Pickup Address'}</Text>
-                      <Text style={styles.pathAddress} numberOfLines={3}>
-                        {pickupAddress}
-                      </Text>
-                    </View>
-                  )}
+                  <View style={styles.pathBlock}>
+                    <Text style={styles.pathLabel}>{strings.Pickup || 'Pickup'}</Text>
+                    <Text style={styles.pathAddress} numberOfLines={2}>
+                      {pickupAddress || 'N/A'}
+                    </Text>
+                  </View>
 
-                  {pickupAddress && dropAddress && <View style={styles.pathSpacer} />}
+                  <View style={styles.pathSpacer} />
 
-                  {dropAddress && (
-                    <View style={styles.pathBlock}>
-                      <Text style={styles.pathLabel}>{strings.Drop || 'Drop Address'}</Text>
-                      <Text style={styles.pathAddress} numberOfLines={3}>
-                        {dropAddress}
-                      </Text>
-                    </View>
-                  )}
+                  <View style={styles.pathBlock}>
+                    <Text style={styles.pathLabel}>{strings.Drop || 'Drop-off'}</Text>
+                    <Text style={styles.pathAddress} numberOfLines={2}>
+                      {dropAddress || 'N/A'}
+                    </Text>
+                  </View>
                 </View>
               </View>
             </View>
@@ -262,6 +252,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     alignSelf: 'center',
     marginBottom: hp(2.5),
+
   },
   header: {
     flexDirection: 'row',
@@ -291,7 +282,6 @@ const styles = StyleSheet.create({
     fontSize: wp(5.5),
     color: '#0F172A',
     fontFamily: font.MonolithRegular,
-    fontWeight: '700',
   },
   badgeRow: {
     flexDirection: 'row',
@@ -307,7 +297,6 @@ const styles = StyleSheet.create({
     fontSize: wp(3.2),
     color: '#475569',
     fontFamily: font.MonolithRegular,
-    fontWeight: '600',
   },
   closeIconButton: {
     padding: wp(2.5),
@@ -348,7 +337,6 @@ const styles = StyleSheet.create({
     color: '#0F172A',
     fontSize: wp(6.5),
     fontFamily: font.MonolithRegular,
-    fontWeight: '700',
   },
   priceIconCircle: {
     width: wp(10),
@@ -401,35 +389,29 @@ const styles = StyleSheet.create({
   pathDotContainer: {
     alignItems: 'center',
     width: wp(8),
-    marginRight: wp(3),
+    justifyContent: 'space-between',
+    paddingVertical: 2,
   },
   iconCircle: {
-    width: wp(8),
-    height: wp(8),
-    borderRadius: wp(4),
+    width: wp(7),
+    height: wp(7),
+    borderRadius: wp(3.5),
     backgroundColor: '#FFFFFF',
     justifyContent: 'center',
     alignItems: 'center',
-    borderWidth: 1.5,
-    borderColor: '#F1F5F9',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
   },
   pathLineContainer: {
+    width: 2,
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    width: wp(8),
+    backgroundColor: '#E2E8F0',
+    marginVertical: 4,
   },
-  pathLineDashed: {
-    width: 0,
-    height: '100%',
-    borderWidth: 1,
-    borderColor: '#CBD5E1',
-    borderStyle: 'dashed',
-    borderRadius: 1,
+  pathLine: {
+    flex: 1,
+    width: 2,
+    backgroundColor: '#E2E8F0',
   },
   pathContent: {
     flex: 1,
@@ -448,13 +430,13 @@ const styles = StyleSheet.create({
     marginBottom: 2,
   },
   pathAddress: {
-    fontSize: wp(3.8),
-    color: '#0F172A',
+    fontSize: wp(3.5),
+    color: '#334155',
     fontFamily: font.MonolithRegular,
-    lineHeight: wp(5),
+    lineHeight: wp(4.8),
   },
   pathSpacer: {
-    height: hp(3),
+    height: hp(1.5),
   },
   footer: {
     flexDirection: 'row',
