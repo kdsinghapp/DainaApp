@@ -304,7 +304,6 @@ const styles = StyleSheet.create({
     fontSize: 32,
     color: "#0F172A",
     fontFamily: font.MonolithRegular,
-    fontWeight: '700',
     letterSpacing: -0.5,
   },
   searchContainer: {
@@ -317,14 +316,13 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFFFFF",
     borderRadius: 18,
     paddingHorizontal: 16,
-    height: 52,
+    height: 58,
     borderWidth: 1,
     borderColor: "#E2E8F0",
     shadowColor: "#64748B",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.05,
     shadowRadius: 12,
-    elevation: 2,
   },
   input: {
     flex: 1,
@@ -353,7 +351,6 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.04,
     shadowRadius: 8,
-    elevation: 1,
   },
   unreadRow: {
     backgroundColor: "#FFFFFF",
@@ -394,7 +391,6 @@ const styles = StyleSheet.create({
     fontSize: 24,
     color: "#FFCC00",
     fontFamily: font.MonolithRegular,
-    fontWeight: '700',
   },
   contentCol: {
     flex: 1,
@@ -410,7 +406,6 @@ const styles = StyleSheet.create({
     fontSize: 17,
     color: "#0F172A",
     fontFamily: font.MonolithRegular,
-    fontWeight: '600',
     flex: 1,
   },
   timeText: {
@@ -420,7 +415,6 @@ const styles = StyleSheet.create({
   },
   unreadTime: {
     color: "#FFCC00",
-    fontWeight: '600',
   },
   middleRow: {
     marginBottom: 8,
@@ -440,7 +434,6 @@ const styles = StyleSheet.create({
     fontSize: 11,
     color: "#64748B",
     fontFamily: font.MonolithRegular,
-    fontWeight: '600',
   },
   statusTag: {
     paddingHorizontal: 8,
@@ -450,7 +443,6 @@ const styles = StyleSheet.create({
   statusTagText: {
     fontSize: 10,
     fontFamily: font.MonolithRegular,
-    fontWeight: '700',
     textTransform: "uppercase",
     letterSpacing: 0.5,
   },
@@ -468,7 +460,7 @@ const styles = StyleSheet.create({
   },
   unreadMessageText: {
     color: "#0F172A",
-    fontWeight: '500',
+    fontFamily: font.MonolithRegular,
   },
   unreadBadge: {
     backgroundColor: "#FFCC00",
@@ -483,7 +475,6 @@ const styles = StyleSheet.create({
     color: "#000000",
     fontSize: 11,
     fontFamily: font.MonolithRegular,
-    fontWeight: '700',
   },
   emptyContainer: {
     flex: 1,
@@ -518,7 +509,6 @@ const styles = StyleSheet.create({
     color: "#0F172A",
     marginBottom: 10,
     fontFamily: font.MonolithRegular,
-    fontWeight: '700',
   },
   emptySubtitle: {
     fontSize: 16,
@@ -544,5 +534,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     flex: 1,
     fontFamily: font.MonolithRegular,
+
   },
 });

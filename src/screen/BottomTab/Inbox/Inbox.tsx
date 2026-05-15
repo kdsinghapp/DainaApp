@@ -397,10 +397,14 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.05,
     shadowRadius: 10,
+
   },
   searchIcon: {
     fontSize: 16,
     marginRight: 8,
+    fontFamily: font.MonolithRegular,
+
+
   },
   input: {
     flex: 1,
@@ -495,6 +499,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 6,
+
   },
   lastMessage: {
     flex: 1,

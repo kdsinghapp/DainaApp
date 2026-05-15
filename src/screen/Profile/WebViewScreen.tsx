@@ -6,7 +6,7 @@ import CustomHeader from '../../compoent/CustomHeader';
 import { color } from '../../constant';
 
 const WebViewScreen = ({ route }: any) => {
-  const { url, title } = route.params;
+  const { url, title } = route?.params;
 
   return (
     <SafeAreaView style={styles.container}>
