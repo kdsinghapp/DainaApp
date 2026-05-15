@@ -642,10 +642,10 @@ const AddParcelApi = async (param: any, setLoading: (loading: boolean) => void) 
     if (param?.pickupLocation) formdata.append("pickupLocation", param.pickupLocation?.address);
     if (param?.dropLocation) formdata.append("dropLocation", param.dropLocation);
     // image
-    if (param?.pickupLat?.latitude) formdata.append("pickupLocationLat", param.pickupLocation?.longitude);
-    if (param?.pickupLat?.longitude) formdata.append("pickupLocationLon", param.pickupLocation?.latitude);
-    if (param?.droplat?.latitude) formdata.append("dropLocationLat", param.droplat.latitude);
-    if (param?.droplat.longitude) formdata.append("dropLocationLon", param.droplat.longitude);
+    if (param?.pickupLat?.latitude) formdata.append("pickupLocationLat", param.pickupLat.latitude.toString());
+    if (param?.pickupLat?.longitude) formdata.append("pickupLocationLon", param.pickupLat.longitude.toString());
+    if (param?.droplat?.latitude) formdata.append("dropLocationLat", param.droplat.latitude.toString());
+    if (param?.droplat?.longitude) formdata.append("dropLocationLon", param.droplat.longitude.toString());
     if (param.shipmentType) formdata.append("shipmentType", param.shipmentType);
     if (param.senderName) formdata.append("senderName", param.senderName);
     if (param.senderMobile) formdata.append("senderMobileNumber", param.senderMobile);
@@ -666,9 +666,17 @@ const AddParcelApi = async (param: any, setLoading: (loading: boolean) => void) 
     if (param.receiverAddress) formdata.append("receiverAddress", param.receiverAddress);
     if (param.extraMessage) formdata.append("message", param.extraMessage);
 
-    if (param.pickupLat) formdata.append("pickupLat", param.pickupLat.toString());
-    if (param.droplat) formdata.append("droplat", param.droplat.toString());
-    console.log("FormData ---- :", formdata);
+    if (param.pickupLat?.latitude) formdata.append("pickupLat", param.pickupLat.latitude.toString());
+    if (param.pickupLat?.longitude) formdata.append("pickupLon", param.pickupLat.longitude.toString());
+    if (param.droplat?.latitude) formdata.append("droplat", param.droplat.latitude.toString());
+    if (param.droplat?.longitude) formdata.append("dropLon", param.droplat.longitude.toString());
+    
+    console.log("FormData Lat/Lon:", {
+      pickupLat: param.pickupLat?.latitude,
+      pickupLon: param.pickupLat?.longitude,
+      dropLat: param.droplat?.latitude,
+      dropLon: param.droplat?.longitude
+    });
     const headers: any = {
       Accept: "application/json",
       Authorization: `Bearer ${token}`,
