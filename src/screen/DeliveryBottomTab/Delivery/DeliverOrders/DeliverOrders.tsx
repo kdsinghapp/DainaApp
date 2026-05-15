@@ -124,6 +124,7 @@ const DeliveryHome = () => {
         },
       });
       if (response?.data?.status == 1) {
+        console.log(response?.data?.offers, "data in order page");
         setisLoading(false);
         // console.log(response?.data, "data in order page");
         setordersSeed(response?.data?.offers);

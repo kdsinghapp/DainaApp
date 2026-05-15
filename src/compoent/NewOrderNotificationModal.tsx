@@ -254,7 +254,6 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 10 },
     shadowOpacity: 0.1,
     shadowRadius: 20,
-    elevation: 5,
   },
   handleBar: {
     width: wp(12),
@@ -268,6 +267,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: hp(3),
+
   },
   headerIconWrapper: {
     width: wp(15),
@@ -416,7 +416,6 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.05,
     shadowRadius: 4,
-    elevation: 2,
   },
   pathLineContainer: {
     flex: 1,

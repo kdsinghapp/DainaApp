@@ -90,6 +90,16 @@ const ParcelDetails = () => {
 
     switch (currentStatus) {
       case STATUS.PENDING:
+        if (item?.parcel?.isOffered) {
+          return {
+            title: strings.OfferSent,
+            onPress: null,
+            color: "#64748B",
+            icon: "checkmark-circle-outline",
+            showInputs: false,
+            disabled: true
+          };
+        }
         return {
           title: strings.SendOffer,
           onPress: handleSendOffer,
@@ -383,8 +393,8 @@ const ParcelDetails = () => {
               </View>
             )}
 
-            {/* Offer Inputs (Only for pending status) */}
-            {buttonConfig.showInputs && item?.deliveryStatus === STATUS.PENDING && (
+            {/* Offer Inputs (Only for pending status and if not already offered) */}
+            {buttonConfig.showInputs && item?.deliveryStatus === STATUS.PENDING && !item?.parcel?.isOffered && (
               <View style={styles.sectionContainer}>
                 <Text style={styles.sectionTitle}>{strings.MakeOffer}</Text>
 

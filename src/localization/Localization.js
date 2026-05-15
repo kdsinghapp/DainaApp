@@ -452,6 +452,7 @@ const strings = new LocalizedStrings({
     DeleteAccountConfirmTitle: "Delete Account",
     DeleteAccountConfirmMessage: "Are you sure you want to delete your account? This action cannot be undone and all your data will be permanently removed.",
     DeletingAccount: "Deleting account...",
+    OfferSent: "Offer Sent",
   },
 
   mn: {
@@ -916,6 +917,7 @@ const strings = new LocalizedStrings({
     DeleteAccountConfirmTitle: "Бүртгэл устгах",
     DeleteAccountConfirmMessage: "Та бүртгэлээ устгахдаа итгэлтэй байна уу? Энэ үйлдлийг буцаах боломжгүй бөгөөд таны бүх мэдээлэл бүрмөсөн устах болно.",
     DeletingAccount: "Бүртгэл устгаж байна...",
+    OfferSent: "Санал илгээсэн",
   },
 });
 
