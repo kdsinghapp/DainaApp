@@ -69,7 +69,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowOffset: { width: 0, height: 4 },
     shadowRadius: 10,
-    elevation: 5,
   },
   statusIcon: {
     width: 60,

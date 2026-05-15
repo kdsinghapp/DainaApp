@@ -46,7 +46,6 @@ const styles = StyleSheet.create({
     shadowRadius: 6,
 
     // ✅ Android Shadow
-    elevation: 6,
 
   },
   icon: {

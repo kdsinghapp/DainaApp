@@ -34,7 +34,6 @@ export const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
-    elevation: 8,
   },
   locationIcon: { height: 60, width: 60, tintColor: '#FFCC00' },
   pulseCircle: {

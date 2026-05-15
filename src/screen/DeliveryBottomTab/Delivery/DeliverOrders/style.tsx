@@ -37,7 +37,6 @@ export const styles = StyleSheet.create({
     padding: 16,
     marginHorizontal: 6,
     alignItems: "center",
-    elevation: 4,
     shadowColor: "#000",
     shadowOpacity: 0.2,
     shadowOffset: { width: 0, height: 2 },

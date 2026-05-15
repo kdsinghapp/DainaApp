@@ -736,7 +736,7 @@ const styles = StyleSheet.create({
     borderRadius: 7,
     borderWidth: 3,
     borderColor: "#FFF",
-    ...Platform.select({ android: { elevation: 4 }, ios: { shadowColor: "#000", shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.2, shadowRadius: 2 } }),
+    ...Platform.select({ ios: { shadowColor: "#000", shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.2, shadowRadius: 2 } }),
   },
   courierMarker: {
     width: 46,
@@ -747,7 +747,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     borderWidth: 2,
     borderColor: "#F59E0B",
-    ...Platform.select({ android: { elevation: 6 }, ios: { shadowColor: "#000", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.2, shadowRadius: 4 } }),
+    ...Platform.select({ ios: { shadowColor: "#000", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.2, shadowRadius: 4 } }),
   },
   courierImage: { width: 26, height: 26, resizeMode: "contain" },
   draggablePanel: {
@@ -761,7 +761,6 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 24,
     paddingBottom: Platform.OS === "ios" ? 0 : 0,
     ...Platform.select({
-      android: { elevation: 24 },
       ios: { shadowColor: "#000", shadowOffset: { width: 0, height: -4 }, shadowOpacity: 0.15, shadowRadius: 16 },
     }),
   },

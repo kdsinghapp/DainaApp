@@ -43,7 +43,7 @@ const CourierTrackingScreen = () => {
   // Route coordinates - Delhi locations
   const pickup = { latitude: 28.6139, longitude: 77.209 }; // Delhi pickup
   const delivery = { latitude: 28.62, longitude: 77.22 };   // Delhi delivery
-  
+
   const [courierPosition, setCourierPosition] = useState(pickup);
   const [dynamicRoute, setDynamicRoute] = useState([pickup]);
   const [isMapReady, setIsMapReady] = useState(false);
@@ -54,7 +54,7 @@ const CourierTrackingScreen = () => {
   // Simulate courier movement for testing
   useEffect(() => {
     let intervalId: NodeJS.Timeout;
-    
+
     // For testing - simulate movement if real GPS not available
     if (Platform.OS === 'ios' || Platform.OS === 'android') {
       intervalId = setInterval(() => {
@@ -62,9 +62,9 @@ const CourierTrackingScreen = () => {
           // Move slightly towards destination
           const latDiff = delivery.latitude - prev.latitude;
           const lngDiff = delivery.longitude - prev.longitude;
-          
+
           const step = 0.0001; // Small step for movement
-          
+
           return {
             latitude: prev.latitude + (latDiff > 0 ? step : -step) * 0.1,
             longitude: prev.longitude + (lngDiff > 0 ? step : -step) * 0.1,
@@ -91,11 +91,11 @@ const CourierTrackingScreen = () => {
         console.error("Geolocation error:", error);
         // Use simulated movement if GPS fails
       },
-      { 
-        enableHighAccuracy: true, 
+      {
+        enableHighAccuracy: true,
         distanceFilter: 10,
         timeout: 15000,
-        maximumAge: 10000 
+        maximumAge: 10000
       }
     );
 
@@ -108,7 +108,7 @@ const CourierTrackingScreen = () => {
   // Update dynamic route when courier moves
   useEffect(() => {
     if (dynamicRoute.length === 0) return;
-    
+
     setDynamicRoute(prev => {
       const lastPoint = prev[prev.length - 1];
       // Only add new point if distance is significant
@@ -118,7 +118,7 @@ const CourierTrackingScreen = () => {
         courierPosition.latitude,
         courierPosition.longitude
       );
-      
+
       if (dist > 0.001) { // 1 meter threshold
         return [...prev, courierPosition];
       }
@@ -142,14 +142,14 @@ const CourierTrackingScreen = () => {
   const handleMapReady = () => {
     console.log("Map is ready");
     setIsMapReady(true);
-    
+
     // Fit bounds to show both pickup and delivery
     if (mapRef.current && cameraRef.current) {
       const coordinates = [
         [pickup.longitude, pickup.latitude],
         [delivery.longitude, delivery.latitude]
       ];
-      
+
       cameraRef.current.fitBounds(
         coordinates[0],
         coordinates[1],
@@ -164,11 +164,11 @@ const CourierTrackingScreen = () => {
     const R = 6371; // Earth's radius in km
     const dLat = (lat2 - lat1) * Math.PI / 180;
     const dLon = (lon2 - lon1) * Math.PI / 180;
-    const a = 
-      Math.sin(dLat/2) * Math.sin(dLat/2) +
-      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
-      Math.sin(dLon/2) * Math.sin(dLon/2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+      Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     return R * c;
   };
 
@@ -178,13 +178,13 @@ const CourierTrackingScreen = () => {
       cameraRef.current.zoomTo(16, 500);
     }
   };
-  
+
   const zoomOut = () => {
     if (cameraRef.current) {
       cameraRef.current.zoomTo(12, 500);
     }
   };
-  
+
   const centerOnCourier = () => updateCamera();
 
   // Create GeoJSON features for lines
@@ -239,7 +239,7 @@ const CourierTrackingScreen = () => {
           onDidFinishLoadingMap={handleMapReady}
           logoEnabled={false}
           attributionEnabled={true}
-           mapType="standard"
+          mapType="standard"
         >
           <Camera
             ref={cameraRef}
@@ -272,11 +272,11 @@ const CourierTrackingScreen = () => {
             id="pickup"
             coordinate={[pickup.longitude, pickup.latitude]}
             anchor={{ x: 0.5, y: 0.5 }}
-            
+
           >
             <View style={styles.markerContainer}>
               <View style={[styles.markerPin, { backgroundColor: '#FF6B35' }]}>
-               </View>
+              </View>
               <View style={[styles.markerLabel, { backgroundColor: '#FF6B35' }]}>
                 <Text style={styles.markerText}>Pickup</Text>
               </View>
@@ -291,7 +291,7 @@ const CourierTrackingScreen = () => {
           >
             <View style={styles.markerContainer}>
               <View style={[styles.markerPin, { backgroundColor: '#4CAF50' }]}>
-               
+
               </View>
               <View style={[styles.markerLabel, { backgroundColor: '#4CAF50' }]}>
                 <Text style={styles.markerText}>Delivery</Text>
@@ -308,7 +308,7 @@ const CourierTrackingScreen = () => {
             <View style={styles.courierMarker}>
               <View style={styles.livePulse} />
               <View style={styles.courierInner}>
-               
+
               </View>
             </View>
           </PointAnnotation>
@@ -351,7 +351,7 @@ const CourierTrackingScreen = () => {
         <ScrollView style={styles.panelContent} showsVerticalScrollIndicator={false}>
           <View style={styles.panelInner}>
             <Text style={styles.sectionTitle}>Tracking Details</Text>
-            
+
             <View style={styles.infoCard}>
               <View style={styles.infoRow}>
                 <Text style={styles.infoLabel}>Courier Status:</Text>
@@ -360,17 +360,17 @@ const CourierTrackingScreen = () => {
                   <Text style={styles.statusText}>In Transit</Text>
                 </View>
               </View>
-              
+
               <View style={styles.infoRow}>
                 <Text style={styles.infoLabel}>Estimated Time:</Text>
                 <Text style={styles.infoValue}>15-20 minutes</Text>
               </View>
-              
+
               <View style={styles.infoRow}>
                 <Text style={styles.infoLabel}>Current Speed:</Text>
                 <Text style={styles.infoValue}>25-30 km/h</Text>
               </View>
-              
+
               <View style={styles.routeInfo}>
                 <View style={styles.routePoint}>
                   <View style={[styles.routeDot, { backgroundColor: '#FF6B35' }]} />
@@ -379,9 +379,9 @@ const CourierTrackingScreen = () => {
                     <Text style={styles.routeAddress}>Connaught Place, Delhi</Text>
                   </View>
                 </View>
-                
+
                 <View style={styles.routeLine} />
-                
+
                 <View style={styles.routePoint}>
                   <View style={[styles.routeDot, { backgroundColor: '#4CAF50' }]} />
                   <View>
@@ -401,18 +401,18 @@ const CourierTrackingScreen = () => {
 export default CourierTrackingScreen;
 
 const styles = StyleSheet.create({
-  container: { 
-    flex: 1, 
-    backgroundColor: "#f8f9fa" 
+  container: {
+    flex: 1,
+    backgroundColor: "#f8f9fa"
   },
-  mapContainer: { 
+  mapContainer: {
     flex: 1,
     position: 'relative',
   },
-  map: { 
+  map: {
     flex: 1,
   },
-  
+
   // Line Styles
   straightLine: {
     lineColor: '#FF0000',
@@ -422,7 +422,7 @@ const styles = StyleSheet.create({
     lineJoin: 'round',
     lineCap: 'round',
   },
-  
+
   traveledRoute: {
     lineColor: '#1E90FF',
     lineWidth: 4,
@@ -430,7 +430,7 @@ const styles = StyleSheet.create({
     lineJoin: 'round',
     lineCap: 'round',
   },
-  
+
   // Marker Styles
   markerContainer: {
     alignItems: 'center',
@@ -448,7 +448,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
     shadowRadius: 4,
-    elevation: 5,
+
   },
   markerIcon: {
     width: 24,
@@ -471,7 +471,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: 'bold',
   },
-  
+
   // Courier Marker
   courierMarker: {
     position: 'relative',
@@ -508,7 +508,7 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(255, 107, 53, 0.5)',
     animation: 'pulse 2s infinite',
   },
-  
+
   // Distance Overlay
   distanceOverlay: {
     position: 'absolute',
@@ -546,7 +546,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#4CAF50',
     borderRadius: 3,
   },
-  
+
   // Map Controls
   mapControls: {
     position: 'absolute',
@@ -574,7 +574,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#333',
   },
-  
+
   // Slide-up Panel
   slideUpPanel: {
     position: 'absolute',
@@ -618,7 +618,7 @@ const styles = StyleSheet.create({
     color: '#333',
     marginBottom: 20,
   },
-  
+
   // Info Card
   infoCard: {
     backgroundColor: '#f8f9fa',
@@ -669,7 +669,7 @@ const styles = StyleSheet.create({
     color: '#2196F3',
     fontWeight: '600',
   },
-  
+
   // Route Info
   routeInfo: {
     marginTop: 20,

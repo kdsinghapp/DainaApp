@@ -240,7 +240,6 @@ const styles = StyleSheet.create({
     shadowColor: "#000",
     shadowOpacity: 0.25,
     shadowRadius: 8,
-    elevation: 8,
   },
   modalTitle: {
     fontSize: 20,

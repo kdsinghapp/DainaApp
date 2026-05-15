@@ -431,7 +431,6 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.1,
         shadowRadius: 4,
       },
-      android: { elevation: 3 },
     }),
   },
   currentLocationText: {
@@ -476,7 +475,6 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.08,
         shadowRadius: 12,
       },
-      android: { elevation: 6 },
     }),
     borderWidth: 3,
     borderColor: '#F59E0B',
@@ -512,7 +510,6 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.1,
         shadowRadius: 16,
       },
-      android: { elevation: 16 },
     }),
   },
   indicator: {

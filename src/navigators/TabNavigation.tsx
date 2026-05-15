@@ -105,7 +105,6 @@ export default function TabNavigator() {
             shadowRadius: 4,
 
             // Optional elevation for Android
-            elevation: 4,
 
 
           },

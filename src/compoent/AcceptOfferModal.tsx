@@ -115,7 +115,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 18,
     shadowOffset: { width: 0, height: 12 },
-    elevation: 12,
   },
   title: {
     textAlign: 'center',

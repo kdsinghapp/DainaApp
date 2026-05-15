@@ -89,7 +89,6 @@ const Blip: React.FC<{ cx: number; cy: number; delay: number }> = ({ cx, cy, del
         shadowOpacity: 0.95,
         shadowRadius: 8,
         shadowOffset: { width: 0, height: 0 },
-        elevation: 6,
       }}
     />
   );
@@ -360,7 +359,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 1,
     shadowRadius: 6,
     shadowOffset: { width: 0, height: 0 },
-    elevation: 4,
   },
   statusText: {
     color: THEME.primary,
@@ -395,7 +393,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 24,
     shadowOffset: { width: 0, height: 0 },
-    elevation: 10,
   },
   sweepWrap: {
     position: "absolute",
@@ -428,7 +425,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 1,
     shadowRadius: 10,
     shadowOffset: { width: 0, height: 0 },
-    elevation: 6,
   },
 
   // Stats
@@ -507,7 +503,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.9,
     shadowRadius: 6,
     shadowOffset: { width: 0, height: 0 },
-    elevation: 3,
   },
 
   // Cancel

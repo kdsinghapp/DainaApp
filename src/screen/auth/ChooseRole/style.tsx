@@ -147,7 +147,6 @@ export const styles = StyleSheet.create({
     opacity: 0.6,
     backgroundColor: '#E2E8F0',
     shadowOpacity: 0,
-    elevation: 0,
   },
   nextButtonTextDisabled: {
     color: '#94A3B8',

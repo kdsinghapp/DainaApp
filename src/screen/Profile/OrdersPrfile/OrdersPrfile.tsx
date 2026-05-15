@@ -376,9 +376,7 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.3,
         shadowRadius: 8,
       },
-      android: {
-        elevation: 4,
-      },
+
     }),
   },
   tabText: {

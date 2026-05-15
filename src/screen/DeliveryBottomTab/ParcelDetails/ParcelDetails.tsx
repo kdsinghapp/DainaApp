@@ -447,11 +447,11 @@ const ParcelDetails = () => {
             <View style={styles.actionContainer}>
               {item?.parcel?.isOffered && item?.deliveryStatus === STATUS.PENDING ? (
                 <View style={styles.waitingContainer}>
-                  <View style={styles.waitingBadge}>
-                    <Text style={styles.waitingBadgeText}>{strings.Pending || "PENDING"}</Text>
+                  <View style={styles.statusCircle}>
+                    <Icon name="hourglass-outline" size={28} color="#FFCC00" />
                   </View>
-                  <Icon name="time-outline" size={36} color="#D97706" />
-                  <Text style={styles.waitingText}>
+                  <Text style={styles.waitingTitle}>{strings.OfferPending}</Text>
+                  <Text style={styles.waitingDescription}>
                     {strings.WaitingForUserResponse}
                   </Text>
                 </View>
@@ -587,7 +587,6 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
-    elevation: 3,
   },
   statusText: {
     color: '#fff',
@@ -618,7 +617,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.08,
     shadowRadius: 6,
     borderWidth: 1,
-    // elevation: 5, // 2 se increase karo
 
     flexDirection: "row",
   },
@@ -751,42 +749,43 @@ const styles = StyleSheet.create({
     borderRadius: 3,
   },
   waitingContainer: {
-    backgroundColor: '#FFCC00',
+    backgroundColor: '#FFFFFF',
     borderRadius: 24,
-    padding: 30,
+    padding: 24,
     alignItems: 'center',
-    justifyContent: 'center',
     borderWidth: 1,
-    borderColor: '#FEF3C7',
-    shadowColor: '#D97706',
-    shadowOffset: { width: 0, height: 8 },
+    borderColor: '#F1F5F9',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 10 },
     shadowOpacity: 0.05,
-    shadowRadius: 15,
+    shadowRadius: 20,
     marginBottom: 20,
+
   },
-  waitingBadge: {
-    backgroundColor: '#FEF3C7',
-    paddingHorizontal: 14,
-    paddingVertical: 6,
-    borderRadius: 12,
+  statusCircle: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: '#FFFBEB',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: '#FEF3C7',
     marginBottom: 16,
-    borderWidth: 1,
-    borderColor: '#FDE68A',
   },
-  waitingBadgeText: {
-    fontSize: 10,
-    color: '#B45309',
+  waitingTitle: {
+    fontSize: 18,
+    color: '#1F2937',
     fontFamily: font.MonolithRegular,
-    textTransform: 'uppercase',
-    letterSpacing: 1.5,
+    marginBottom: 8,
+    textAlign: 'center',
   },
-  waitingText: {
-    marginTop: 16,
-    fontSize: 15,
-    color: 'white',
+  waitingDescription: {
+    fontSize: 14,
+    color: '#64748B',
     textAlign: 'center',
     fontFamily: font.MonolithRegular,
-    lineHeight: 22,
+    lineHeight: 20,
     paddingHorizontal: 10,
   },
 });

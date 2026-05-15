@@ -78,7 +78,6 @@ export const styles = StyleSheet.create({
     borderRadius: 10,
     width: "80%",
     paddingVertical: 10,
-    elevation: 6,
   },
   dropdownItem: {
     padding: 15,
@@ -108,7 +107,6 @@ export const styles = StyleSheet.create({
     backgroundColor: "#FFB800",
     borderRadius: 15,
     padding: 6,
-    elevation: 3,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,

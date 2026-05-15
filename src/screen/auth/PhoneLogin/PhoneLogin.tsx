@@ -214,7 +214,7 @@ const styles = StyleSheet.create({
 
   /* Modal Styles */
   modalOverlay: { flex: 1, backgroundColor: "rgba(0,0,0,0.5)", justifyContent: "center", alignItems: "center" },
-  modalContent: { backgroundColor: "#fff", width: "85%", borderRadius: 15, maxHeight: "45%", padding: 20, shadowColor: "#000", shadowOffset: { width: 0, height: 3 }, shadowOpacity: 0.2, shadowRadius: 5, elevation: 5 },
+  modalContent: { backgroundColor: "#fff", width: "85%", borderRadius: 15, maxHeight: "45%", padding: 20, shadowColor: "#000", shadowOffset: { width: 0, height: 3 }, shadowOpacity: 0.2, shadowRadius: 5, },
   modalHeader: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 15 },
   modalTitle: { fontFamily: font.MonolithRegular, fontSize: 18, color: "#000" },
   modalCancel: { fontFamily: font.MonolithRegular, fontSize: 15, color: "#FFCC00" },

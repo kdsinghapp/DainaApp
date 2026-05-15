@@ -964,7 +964,6 @@ const Blip: React.FC<BlipProps> = ({ cx, cy, delay }) => {
           shadowOpacity: 0.8,
           shadowRadius: 6,
           shadowOffset: { width: 0, height: 0 },
-          elevation: 5,
         }}
       />
     </>
@@ -1539,7 +1538,6 @@ const s = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 10,
     shadowOffset: { width: 0, height: 4 },
-    elevation: 8,
   },
   sweepWrap: {
     position: "absolute",

@@ -454,6 +454,7 @@ const strings = new LocalizedStrings({
     DeletingAccount: "Deleting account...",
     OfferSent: "Offer Sent",
     WaitingForUserResponse: "The user hasn't responded to your offer yet.",
+    OfferPending: "Offer Pending",
   },
 
   mn: {
@@ -920,6 +921,7 @@ const strings = new LocalizedStrings({
     DeletingAccount: "Бүртгэл устгаж байна...",
     OfferSent: "Санал илгээсэн",
     WaitingForUserResponse: "Хэрэглэгч таны саналд хараахан хариу өгөөгүй байна.",
+    OfferPending: "Санал хүлээгдэж байна",
   },
 });
 
