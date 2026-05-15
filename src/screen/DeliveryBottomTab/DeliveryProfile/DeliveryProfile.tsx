@@ -133,6 +133,10 @@ const DeliveryProfile: React.FC<Props> = ({
       <OfferAcceptedModal />
       <ScrollView
         showsVerticalScrollIndicator={false}
+        style={{
+          marginBottom: 80
+        }}
+
         contentContainerStyle={styles.container}>
         {/* Header */}
         <Text style={styles.title}>{strings.Profile}</Text>

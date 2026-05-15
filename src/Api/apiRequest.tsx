@@ -1094,7 +1094,7 @@ const DeleteAccountApi = async (setLoading: any) => {
   try {
     const token = await AsyncStorage.getItem('token');
     const response = await fetch(`${base_url}/delete-account`, {
-      method: 'GET', // Using GET as requested by the user's URL if it's a simple link, but usually it's POST/DELETE. I'll use GET for now as per provided URL structure.
+      method: 'DELETE',
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',
