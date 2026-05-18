@@ -137,23 +137,14 @@ const Verifyotp = async (param: any, setLoading: any, dispatch: any, setGeneralA
       console.log("parsedResponse OTP Response:", parsedResponse);
 
       if (parsedResponse?.type === "Delivery") {
-        const completion = parsedResponse?.completionStatus;
-
-        if (!completion?.isDocumentsUploaded) {
-          param.navigation.reset({
-            index: 0,
-            routes: [{ name: ScreenNameEnum.UploadDocumentsScreen }],
-          });
-        } else {
-          param.navigation.reset({
-            index: 0,
-            routes: [{ name: ScreenNameEnum.DeliveryTabNavigator }],
-          });
-        }
+        param.navigation.reset({
+          index: 0,
+          routes: [{ name: ScreenNameEnum.ProfileSetup, params: { type: "otp" } }],
+        });
       } else {
         param.navigation.reset({
           index: 0,
-          routes: [{ name: ScreenNameEnum.ProfileSetup, type: "otp" }],
+          routes: [{ name: ScreenNameEnum.ProfileSetup, params: { type: "otp" } }],
         });
       }
     } else {

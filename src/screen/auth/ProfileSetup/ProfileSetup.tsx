@@ -139,7 +139,7 @@ const ProfileSetup = () => {
 
   const onSkip = () => {
     if (userData?.type === "Delivery") {
-      navigation.navigate(ScreenNameEnum.DeliveryTabNavigator);
+      navigation.navigate(ScreenNameEnum.UploadDocumentsScreen);
     } else {
       navigation.navigate(ScreenNameEnum.TabNavigator);
     }
@@ -230,11 +230,11 @@ const ProfileSetup = () => {
         <View style={styles.buttonContainer}>
           <CustomButton title={strings.Update} onPress={handleSave} loading={isLoading} />
         </View>
-        {type === "otp" && (
+        {/* {type === "otp" && (
           <View style={styles.buttonContainer}>
             <CustomButton title={strings.Skip} onPress={onSkip} />
           </View>
-        )}
+        )} */}
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
