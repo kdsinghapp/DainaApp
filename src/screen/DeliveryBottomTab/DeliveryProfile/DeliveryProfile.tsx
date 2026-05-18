@@ -20,6 +20,7 @@ import { loginSuccess, logout } from "../../../redux/feature/authSlice";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { DeleteAccountApi } from "../../../Api/apiRequest";
 import DeleteAccountModal from "../../../compoent/DeleteAccountModal";
+import LoadingModal from "../../../utils/Loader";
 import { styles } from "./style";
 import strings from "../../../localization/Localization";
 import NewOrderNotificationModal from "../../../compoent/NewOrderNotificationModal";
@@ -119,18 +120,20 @@ const DeliveryProfile: React.FC<Props> = ({
   const handleDeleteAccount = async () => {
     setDeleteModalVisible(false);
     const response = await DeleteAccountApi(setLoading);
+    setLoading(false);
     if (response && (response.status === 1 || response.status === "1")) {
       dispatch(logout());
-      handleLogout()
-
-      await AsyncStorage.removeItem('authData');
-      await AsyncStorage.removeItem('token');
-      navigation.replace(ScreenNameEnum.SPLASH_SCREEN);
+      setTimeout(async () => {
+        await AsyncStorage.removeItem('authData');
+        await AsyncStorage.removeItem('token');
+        navigation.replace(ScreenNameEnum.SPLASH_SCREEN);
+      }, 500);
     }
   };
   return (
     <SafeAreaView style={styles.safe}>
       <StatusBarComponent />
+      <LoadingModal visible={isLoading} />
       <NewOrderNotificationModal />
       <OfferAcceptedModal />
       <ScrollView

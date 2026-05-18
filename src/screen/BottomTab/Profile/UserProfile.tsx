@@ -138,20 +138,17 @@ const ProfileScreen: React.FC = () => {
   const handleLogoutPress = () => {
     ReactNativeHapticFeedback.trigger("notificationSuccess", hapticOptions);
     dispatch(logout());
-    AsyncStorage.removeItem('authData');
     navigation.replace(ScreenNameEnum.SPLASH_SCREEN);
   };
 
   const handleDeleteAccount = async () => {
     ReactNativeHapticFeedback.trigger("notificationSuccess", hapticOptions);
     const response = await DeleteAccountApi(setLoading);
+    setLoading(false);
     if (response && (response.status === 1 || response.status === "1")) {
-      dispatch(logout());
-      handleLogoutPress()
-
-      await AsyncStorage.removeItem('authData');
-      await AsyncStorage.removeItem('token');
-      navigation.replace(ScreenNameEnum.SPLASH_SCREEN);
+      setTimeout(() => {
+        handleLogoutPress();
+      }, 500);
     }
   };
 

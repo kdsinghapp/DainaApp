@@ -126,34 +126,44 @@ const Verifyotp = async (param: any, setLoading: any, dispatch: any, setGeneralA
 
     console.log("Verify OTP Response:", parsedResponse);
 
+    setLoading(false)
     if (parsedResponse?.status == 1) {
       successToast(strings.VerificationSuccess);
       await AsyncStorage.setItem('token', parsedResponse?.token);
       dispatch(loginSuccess({ userData: parsedResponse, token: parsedResponse?.token }));
       await saveAuthData(parsedResponse, parsedResponse?.token);
+      setLoading(false)
 
       const languageId = strings.getLanguage() === 'en' ? 1 : 2;
       await SetLanguageApi({ languageId }, setLoading);
       console.log("parsedResponse OTP Response:", parsedResponse);
 
       if (parsedResponse?.type === "Delivery") {
+        setLoading(false)
+
         param.navigation.reset({
           index: 0,
           routes: [{ name: ScreenNameEnum.ProfileSetup, params: { type: "otp" } }],
         });
       } else {
+        setLoading(false)
+
         param.navigation.reset({
           index: 0,
           routes: [{ name: ScreenNameEnum.ProfileSetup, params: { type: "otp" } }],
         });
       }
     } else {
+      setLoading(false)
+
       const errorMessage = strings.InvalidOTP;
 
       errorToast(errorMessage);
 
     }
   } catch (error: any) {
+    setLoading(false)
+
     console.error('Verify OTP error:', error);
     const errorMessage = error?.message || strings.NetworkErrorTryAgain;
 
@@ -1086,21 +1096,30 @@ const DeleteAccountApi = async (setLoading: any) => {
     const textResponse = await response.text();
     let parsedResponse: any;
     try {
+      setLoading(false)
       parsedResponse = JSON.parse(textResponse);
     } catch (error) {
+      setLoading(false)
+
       errorToast(strings.InvalidServerResponse);
       return;
     }
 
     if (parsedResponse?.status === 1 || parsedResponse?.status === "1") {
+      setLoading(false)
+
       successToast(parsedResponse?.message || "Account deleted successfully");
       return parsedResponse;
     } else {
+      setLoading(false)
+
       errorToast(parsedResponse?.message || "Failed to delete account");
       return parsedResponse;
     }
 
   } catch (error: any) {
+    setLoading(false)
+
     console.error('Delete account error:', error);
     errorToast(strings.NetworkErrorTryAgain);
   } finally {
