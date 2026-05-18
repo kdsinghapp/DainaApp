@@ -21,8 +21,12 @@ import { styles } from './style';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import strings from '../../../localization/Localization';
 import { successToast } from '../../../utils/customToast';
+import { useNavigation } from '@react-navigation/native';
+import ScreenNameEnum from '../../../routes/screenName.enum';
+import font from '../../../theme/font';
 
 export default function DocumentShow() {
+  const navigation = useNavigation<any>();
   const [loading, setLoading] = useState(true);
   const [documents, setDocuments] = useState<any>({});
   const [error, setError] = useState<string | null>(null);
@@ -156,7 +160,7 @@ export default function DocumentShow() {
   };
 
   const VehicleCard = ({ data }: any) => {
-    if (!data) return <EmptyState />;
+    if (!data) return <EmptyState buttonText="Set Up Vehicle Details" onPress={() => navigation.navigate(ScreenNameEnum.VehicleSetupScreen)} />;
     const statusInfo = getStatusInfo(data.verificationStatus || 'pending');
 
     return (
@@ -215,7 +219,7 @@ export default function DocumentShow() {
   };
 
   const BankCard = ({ data }: any) => {
-    if (!data) return <EmptyState />;
+    if (!data) return <EmptyState buttonText="Set Up Bank Details" onPress={() => navigation.navigate(ScreenNameEnum.BankSetupScreen)} />;
 
     console.log("data", data)
     return (
@@ -243,11 +247,34 @@ export default function DocumentShow() {
     );
   };
 
-  const EmptyState = () => (
+  const EmptyState = ({ buttonText, onPress }: { buttonText?: string; onPress?: () => void }) => (
     <View style={styles.emptyContainer}>
       <Icon name="cloud-off" size={64} color="#E0E0E0" />
       <Text style={styles.emptyTitle}>{strings.NoDataFound}</Text>
       <Text style={styles.emptySubtitle}>{strings.InfoWillAppearHere}</Text>
+      {buttonText && onPress && (
+        <TouchableOpacity
+          style={{
+            backgroundColor: '#FFCC00',
+            paddingVertical: 12,
+            paddingHorizontal: 24,
+            borderRadius: 12,
+            marginTop: 20,
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+          onPress={onPress}
+          activeOpacity={0.8}
+        >
+          <Text style={{
+            color: '#000',
+            fontSize: 14,
+            fontFamily: font.MonolithRegular
+          }}>
+            {buttonText}
+          </Text>
+        </TouchableOpacity>
+      )}
     </View>
   );
 
@@ -321,7 +348,7 @@ export default function DocumentShow() {
                   />
                 )}
               </>
-            ) : <EmptyState />}
+            ) : <EmptyState buttonText="Upload Identity Documents" onPress={() => navigation.navigate(ScreenNameEnum.UploadDocumentsScreen)} />}
           </>
         )}
 
