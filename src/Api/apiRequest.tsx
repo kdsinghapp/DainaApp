@@ -1080,8 +1080,7 @@ const RateDeliveryApi = async (
   }
 };
 
-const DeleteAccountApi = async (setLoading: any) => {
-  setLoading(true);
+const DeleteAccountApi = async () => {
   try {
     const token = await AsyncStorage.getItem('token');
     const response = await fetch(`${base_url}/delete-account`, {
@@ -1096,34 +1095,24 @@ const DeleteAccountApi = async (setLoading: any) => {
     const textResponse = await response.text();
     let parsedResponse: any;
     try {
-      setLoading(false)
       parsedResponse = JSON.parse(textResponse);
     } catch (error) {
-      setLoading(false)
-
       errorToast(strings.InvalidServerResponse);
       return;
     }
 
     if (parsedResponse?.status === 1 || parsedResponse?.status === "1") {
-      setLoading(false)
-
       successToast(parsedResponse?.message || "Account deleted successfully");
       return parsedResponse;
     } else {
-      setLoading(false)
-
       errorToast(parsedResponse?.message || "Failed to delete account");
       return parsedResponse;
     }
 
   } catch (error: any) {
-    setLoading(false)
-
     console.error('Delete account error:', error);
     errorToast(strings.NetworkErrorTryAgain);
   } finally {
-    setLoading(false);
   }
 };
 

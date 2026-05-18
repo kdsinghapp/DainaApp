@@ -143,8 +143,7 @@ const ProfileScreen: React.FC = () => {
 
   const handleDeleteAccount = async () => {
     ReactNativeHapticFeedback.trigger("notificationSuccess", hapticOptions);
-    const response = await DeleteAccountApi(setLoading);
-    setLoading(false);
+    const response = await DeleteAccountApi();
     if (response && (response.status === 1 || response.status === "1")) {
       setTimeout(() => {
         handleLogoutPress();

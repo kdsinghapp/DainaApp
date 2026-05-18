@@ -119,8 +119,7 @@ const DeliveryProfile: React.FC<Props> = ({
 
   const handleDeleteAccount = async () => {
     setDeleteModalVisible(false);
-    const response = await DeleteAccountApi(setLoading);
-    setLoading(false);
+    const response = await DeleteAccountApi();
     if (response && (response.status === 1 || response.status === "1")) {
       dispatch(logout());
       setTimeout(async () => {
