@@ -66,6 +66,7 @@
 		@"RNSVGText": NSClassFromString(@"RNSVGText"), // react-native-svg
 		@"RNSVGTextPath": NSClassFromString(@"RNSVGTextPath"), // react-native-svg
 		@"RNSVGUse": NSClassFromString(@"RNSVGUse"), // react-native-svg
+		@"RNCWebView": NSClassFromString(@"RNCWebView"), // react-native-webview
   };
 }
 

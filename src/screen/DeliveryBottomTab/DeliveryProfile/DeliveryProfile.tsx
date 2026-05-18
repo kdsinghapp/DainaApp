@@ -121,6 +121,8 @@ const DeliveryProfile: React.FC<Props> = ({
     const response = await DeleteAccountApi(setLoading);
     if (response && (response.status === 1 || response.status === "1")) {
       dispatch(logout());
+      handleLogout()
+
       await AsyncStorage.removeItem('authData');
       await AsyncStorage.removeItem('token');
       navigation.replace(ScreenNameEnum.SPLASH_SCREEN);
@@ -265,6 +267,7 @@ const DeliveryProfile: React.FC<Props> = ({
           visible={deleteModalVisible}
           onDelete={async () => {
             handleDeleteAccount();
+
           }}
           onCancel={() => setDeleteModalVisible(false)}
         />

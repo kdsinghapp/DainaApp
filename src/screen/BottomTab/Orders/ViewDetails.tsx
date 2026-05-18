@@ -6,7 +6,9 @@ import {
   StyleSheet,
   Image,
   TouchableOpacity,
-  Linking
+  Linking,
+  Modal,
+  Dimensions
 } from "react-native";
 import StatusBarComponent from "../../../compoent/StatusBarCompoent";
 import CustomHeader from "../../../compoent/CustomHeader";
@@ -53,6 +55,8 @@ export default function ViewDetails() {
   const [showRatingModal, setShowRatingModal] = useState(false);
   const [ratingSubmitting, setRatingSubmitting] = useState(false);
   const ratingSubmittedRef = useRef(false);
+  const [isDetailsExpanded, setIsDetailsExpanded] = useState(false);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const closeRatingModal = useCallback(() => {
     setShowRatingModal(false);
   }, [nav]);
@@ -484,83 +488,179 @@ export default function ViewDetails() {
         </TouchableOpacity>
 
 
-        <View style={{
-          justifyContent: "space-between",
-          marginHorizontal: 20,
-          marginTop: 10,
-          marginBottom: 10,
-          flexDirection: "row",
-          alignItems: "center"
-
-        }}>
-          <View style={{
-            flexDirection: "row",
-            alignItems: "center",
-
-          }}>
-            {parcel?.assignedDriver?.image ? <Image source={{ uri: parcel?.assignedDriver?.image }}
-              style={{
-                height: 60,
-                width: 60,
-                borderRadius: 50
-              }}
-            /> :
-
-
-
-              <Image source={imageIndex.dpuser}
-                style={{
-                  height: 55,
-                  width: 55,
-                }}
-              />}
-
-
+        {driver && (
+          <View style={{ marginHorizontal: 20, marginTop: 10, marginBottom: 10 }}>
             <View style={{
-              marginLeft: 11
-
+              justifyContent: "space-between",
+              flexDirection: "row",
+              alignItems: "center"
             }}>
-              {parcel?.assignedDriver?.name && <Text style={{
-                fontSize: 13,
-                color: "gray",
-                fontFamily: font.MonolithRegular
-              }}>{parcel?.assignedDriver?.name}</Text>}
-              {parcel?.assignedDriver?.email &&
-                <Text style={{
-                  fontSize: 13,
-                  color: "gray",
-                  fontFamily: font.MonolithRegular
-                }}>{parcel?.assignedDriver?.email}</Text>
-              }
-              {
-                parcel?.assignedDriver?.address &&
-                <Text style={{
-                  fontSize: 13,
-                  color: "gray",
-                  fontFamily: font.MonolithRegular
-                }}>{parcel?.assignedDriver?.address}</Text>
-              }
+              <View style={{
+                flexDirection: "row",
+                alignItems: "center",
+              }}>
+                {driver?.image ? <Image source={{ uri: driver?.image }}
+                  style={{
+                    height: 60,
+                    width: 60,
+                    borderRadius: 50
+                  }}
+                /> :
+                  <Image source={imageIndex.dpuser}
+                    style={{
+                      height: 55,
+                      width: 55,
+                    }}
+                  />}
 
+                <View style={{ marginLeft: 11 }}>
+                  {driver?.name && <Text style={{
+                    fontSize: 14,
+                    color: "black",
+                    fontFamily: font.MonolithRegular,
+                    fontWeight: "600"
+                  }}>{driver?.name}</Text>}
+                  {driver?.email &&
+                    <Text style={{
+                      fontSize: 13,
+                      color: "gray",
+                      fontFamily: font.MonolithRegular
+                    }}>{driver?.email}</Text>
+                  }
+                  {driver?.address &&
+                    <Text style={{
+                      fontSize: 13,
+                      color: "gray",
+                      fontFamily: font.MonolithRegular
+                    }}>{driver?.address}</Text>
+                  }
+                </View>
+              </View>
+
+              <TouchableOpacity
+                onPress={() => {
+                  const phone = driver?.phone;
+                  if (phone) {
+                    Linking.openURL(`tel:${phone}`);
+                  }
+                }}
+              >
+                <Image
+                  source={imageIndex.Calls}
+                  style={{
+                    height: 33,
+                    width: 33,
+                  }}
+                />
+              </TouchableOpacity>
             </View>
 
+            {/* Collapsible Security & Verification Details Section */}
+            <View style={styles.verificationCard}>
+              <TouchableOpacity 
+                style={styles.verificationHeader}
+                onPress={() => setIsDetailsExpanded(!isDetailsExpanded)}
+                activeOpacity={0.7}
+              >
+                <View style={{ flexDirection: "row", alignItems: "center" }}>
+                  <Icon name="shield-checkmark-outline" size={18} color="#FFCC00" style={{ marginRight: 6 }} />
+                  <Text style={styles.verificationTitle}>{strings.DriverVerificationDetails || "Driver Security & Verification Details"}</Text>
+                </View>
+                <Icon 
+                  name={isDetailsExpanded ? "chevron-up" : "chevron-down"} 
+                  size={18} 
+                  color="gray" 
+                />
+              </TouchableOpacity>
+
+              {isDetailsExpanded && (
+                <View style={styles.verificationContent}>
+                  <View style={styles.infoRow}>
+                    <Text style={styles.infoLabel}>App Registered Name:</Text>
+                    <Text style={styles.infoValue}>{driver?.name || "—"}</Text>
+                  </View>
+
+                  <View style={styles.dividerLine} />
+
+                  {/* Vehicle Setup Section */}
+                  <Text style={styles.sectionHeader}>Vehicle Setup & Registration</Text>
+                  <View style={styles.infoRow}>
+                    <Text style={styles.infoLabel}>Vehicle Type:</Text>
+                    <Text style={styles.infoValue}>{driver?.vehicleType || driver?.vehicle_setup?.vehicleType || "—"}</Text>
+                  </View>
+                  <View style={styles.infoRow}>
+                    <Text style={styles.infoLabel}>Car / Plate Number:</Text>
+                    <Text style={styles.infoValue}>{driver?.vehicleNumber || driver?.vehicle_setup?.vehicleNumber || "—"}</Text>
+                  </View>
+
+                  <View style={styles.dividerLine} />
+
+                  {/* Bank Details Section */}
+                  <Text style={styles.sectionHeader}>Bank Details (Check Holder Name)</Text>
+                  <View style={styles.infoRow}>
+                    <Text style={styles.infoLabel}>Bank Name:</Text>
+                    <Text style={styles.infoValue}>{driver?.bankName || driver?.bank_setup?.bankName || "—"}</Text>
+                  </View>
+                  <View style={styles.infoRow}>
+                    <Text style={styles.infoLabel}>Account Holder:</Text>
+                    <Text style={styles.infoValue}>{driver?.bankAccountName || driver?.bank_setup?.bankAccountName || driver?.name || "—"}</Text>
+                  </View>
+                  <View style={styles.infoRow}>
+                    <Text style={styles.infoLabel}>Account Number:</Text>
+                    <Text style={styles.infoValue}>{driver?.bankAccountNumber || driver?.bank_setup?.bankAccountNumber || "—"}</Text>
+                  </View>
+                  <View style={styles.infoRow}>
+                    <Text style={styles.infoLabel}>IFSC Code:</Text>
+                    <Text style={styles.infoValue}>{driver?.bankIfscCode || driver?.bank_setup?.bankIfscCode || "—"}</Text>
+                  </View>
+
+                  <View style={styles.dividerLine} />
+
+                  {/* ID & Licenses Section */}
+                  <Text style={styles.sectionHeader}>Verification Documents</Text>
+                  <View style={styles.documentsContainer}>
+                    {(driver?.idDocument || driver?.upload_document?.idDocument) && (
+                      <TouchableOpacity 
+                        style={styles.docItem} 
+                        onPress={() => setSelectedImage(driver?.idDocument || driver?.upload_document?.idDocument)}
+                      >
+                        <Image 
+                          source={{ uri: driver?.idDocument || driver?.upload_document?.idDocument }} 
+                          style={styles.docThumb} 
+                        />
+                        <Text style={styles.docText}>ID Document</Text>
+                      </TouchableOpacity>
+                    )}
+                    {(driver?.drivingLicense || driver?.upload_document?.drivingLicense) && (
+                      <TouchableOpacity 
+                        style={styles.docItem}
+                        onPress={() => setSelectedImage(driver?.drivingLicense || driver?.upload_document?.drivingLicense)}
+                      >
+                        <Image 
+                          source={{ uri: driver?.drivingLicense || driver?.upload_document?.drivingLicense }} 
+                          style={styles.docThumb} 
+                        />
+                        <Text style={styles.docText}>License Photo</Text>
+                      </TouchableOpacity>
+                    )}
+                    {(driver?.vehicleRegistration || driver?.vehicle_setup?.vehicleRegistration) && (
+                      <TouchableOpacity 
+                        style={styles.docItem}
+                        onPress={() => setSelectedImage(driver?.vehicleRegistration || driver?.vehicle_setup?.vehicleRegistration)}
+                      >
+                        <Image 
+                          source={{ uri: driver?.vehicleRegistration || driver?.vehicle_setup?.vehicleRegistration }} 
+                          style={styles.docThumb} 
+                        />
+                        <Text style={styles.docText}>Registration</Text>
+                      </TouchableOpacity>
+                    )}
+                  </View>
+                </View>
+              )}
+            </View>
           </View>
-          <TouchableOpacity
-            onPress={() => {
-              const phone = parcel?.assignedDriver?.phone;
-              if (phone) {
-                Linking.openURL(`tel:${phone}`);
-              }
-            }}
-          >
-            <Image
-              source={imageIndex.Calls}
-              style={{
-                height: 33,
-                width: 33,
-              }}
-            />
-          </TouchableOpacity>
-        </View>
+        )}
 
         {/* Tracking Package – steps with icon + label */}
         <View style={styles.sectionTitleRow}>
@@ -605,6 +705,29 @@ export default function ViewDetails() {
           })}
         </View>
       </ScrollView>
+
+      <Modal
+        visible={!!selectedImage}
+        transparent
+        animationType="fade"
+        statusBarTranslucent
+      >
+        <View style={styles.modalContainer}>
+          <View style={styles.modalHeader}>
+            <TouchableOpacity
+              style={styles.closeButton}
+              onPress={() => setSelectedImage(null)}
+            >
+              <Icon name="close" size={24} color="#FFF" />
+            </TouchableOpacity>
+          </View>
+          <Image
+            source={{ uri: selectedImage || '' }}
+            style={styles.fullImage}
+            resizeMode="contain"
+          />
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -754,6 +877,111 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontFamily: font.MonolithRegular,
     fontWeight: "600",
+  },
+  verificationCard: {
+    backgroundColor: "#F8FAFC",
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: "#E2E8F0",
+    marginTop: 15,
+    overflow: "hidden",
+  },
+  verificationHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    padding: 14,
+    backgroundColor: "#F1F5F9",
+  },
+  verificationTitle: {
+    fontSize: 13,
+    fontFamily: font.MonolithRegular,
+    color: "#1E293B",
+    fontWeight: "600",
+  },
+  verificationContent: {
+    padding: 14,
+  },
+  sectionHeader: {
+    fontSize: 12,
+    fontFamily: font.MonolithRegular,
+    color: "#64748B",
+    fontWeight: "700",
+    textTransform: "uppercase",
+    marginBottom: 8,
+    marginTop: 10,
+    letterSpacing: 0.5,
+  },
+  infoRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginVertical: 4,
+  },
+  infoLabel: {
+    fontSize: 13,
+    fontFamily: font.MonolithRegular,
+    color: "#64748B",
+  },
+  infoValue: {
+    fontSize: 13,
+    fontFamily: font.MonolithRegular,
+    color: "#0F172A",
+    fontWeight: "600",
+  },
+  dividerLine: {
+    height: 1,
+    backgroundColor: "#E2E8F0",
+    marginVertical: 8,
+  },
+  documentsContainer: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 12,
+    marginTop: 8,
+  },
+  docItem: {
+    width: "30%",
+    alignItems: "center",
+  },
+  docThumb: {
+    width: "100%",
+    height: 60,
+    borderRadius: 8,
+    backgroundColor: "#E2E8F0",
+    borderWidth: 1,
+    borderColor: "#CBD5E1",
+  },
+  docText: {
+    fontSize: 10,
+    fontFamily: font.MonolithRegular,
+    color: "#64748B",
+    textAlign: "center",
+    marginTop: 4,
+  },
+  modalContainer: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.9)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  modalHeader: {
+    position: "absolute",
+    top: 40,
+    right: 20,
+    zIndex: 10,
+  },
+  closeButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: "rgba(255,255,255,0.2)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  fullImage: {
+    width: Dimensions.get("window").width,
+    height: Dimensions.get("window").height * 0.8,
   },
 });
 

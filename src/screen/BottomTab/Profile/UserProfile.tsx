@@ -147,6 +147,8 @@ const ProfileScreen: React.FC = () => {
     const response = await DeleteAccountApi(setLoading);
     if (response && (response.status === 1 || response.status === "1")) {
       dispatch(logout());
+      handleLogoutPress()
+
       await AsyncStorage.removeItem('authData');
       await AsyncStorage.removeItem('token');
       navigation.replace(ScreenNameEnum.SPLASH_SCREEN);

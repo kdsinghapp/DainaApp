@@ -38,22 +38,8 @@ const Splash: React.FC = () => {
         if (storedAuth?.token) {
           dispatch(restoreLogin(storedAuth));
           if (storedAuth.userData?.type == "Delivery") {
-            const statusRes = await GetVerificationStatusApi();
-            console.log("statusRes", statusRes);
-            const completion = statusRes?.completionStatus;
-            if (!completion?.isProfileComplete) {
-              navigation.replace(ScreenNameEnum.ProfileSetup);
-            } else if (!completion?.isDocumentsUploaded) {
-              navigation.replace(ScreenNameEnum.UploadDocumentsScreen);
-            } else if (!completion?.isVehicleSetupComplete) {
-              navigation.replace(ScreenNameEnum.VehicleSetupScreen);
-            } else if (!completion?.isBankDetailsComplete) {
-              navigation.replace(ScreenNameEnum.BankSetupScreen);
-            } else if (statusRes?.verificationStatus === "in_review") {
-              navigation.replace(ScreenNameEnum.VerificationPending);
-            } else {
-              navigation.replace(ScreenNameEnum.DeliveryTabNavigator);
-            }
+            navigation.replace(ScreenNameEnum.DeliveryTabNavigator);
+
           } else {
             navigation.replace(ScreenNameEnum.TabNavigator);
           }

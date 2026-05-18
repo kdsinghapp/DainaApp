@@ -47,12 +47,7 @@ const BankSetupScreen = () => {
 
     const response = await DeliveryBankSetup(params, setIsLoading);
     if (response?.status == "1" || response?.status == 1) {
-      const statusRes = await GetVerificationStatusApi();
-      if (statusRes?.verificationStatus === "in_review") {
-        navigation.replace(ScreenNameEnum.VerificationPending);
-      } else {
-        navigation.replace(ScreenNameEnum.DeliveryTabNavigator);
-      }
+      navigation.replace(ScreenNameEnum.DeliveryTabNavigator);
     }
   };
 

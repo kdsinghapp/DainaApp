@@ -139,30 +139,10 @@ const Verifyotp = async (param: any, setLoading: any, dispatch: any, setGeneralA
       if (parsedResponse?.type === "Delivery") {
         const completion = parsedResponse?.completionStatus;
 
-        if (!completion?.isProfileComplete) {
-          param.navigation.reset({
-            index: 0,
-            routes: [{ name: ScreenNameEnum.ProfileSetup }],
-          });
-        } else if (!completion?.isDocumentsUploaded) {
+        if (!completion?.isDocumentsUploaded) {
           param.navigation.reset({
             index: 0,
             routes: [{ name: ScreenNameEnum.UploadDocumentsScreen }],
-          });
-        } else if (!completion?.isVehicleSetupComplete) {
-          param.navigation.reset({
-            index: 0,
-            routes: [{ name: ScreenNameEnum.VehicleSetupScreen }],
-          });
-        } else if (!completion?.isBankDetailsComplete) {
-          param.navigation.reset({
-            index: 0,
-            routes: [{ name: ScreenNameEnum.BankSetupScreen }],
-          });
-        } else if (parsedResponse?.verificationStatus === "in_review") {
-          param.navigation.reset({
-            index: 0,
-            routes: [{ name: ScreenNameEnum.VerificationPending }],
           });
         } else {
           param.navigation.reset({
