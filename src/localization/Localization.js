@@ -459,6 +459,10 @@ const strings = new LocalizedStrings({
     ArrivedAtDropoff: "📍 You've reached the drop-off location!",
     DriverArrivedAtPickup: "📍 Driver has arrived at pickup location.",
     DriverArrivedAtDropoff: "📍 Driver is at the drop-off location.",
+    PendingOfferMessage: "Driver has submitted an offer. Please check the details and send your response.",
+    CheckOffer: "Check Offer",
+    ViewDriverOffer: "View Driver Offer",
+    AcceptRejectReply: "Accept / Reject Reply",
   },
 
   mn: {
@@ -930,6 +934,10 @@ const strings = new LocalizedStrings({
     ArrivedAtDropoff: "📍 Та хүргэх цэгт ирлээ!",
     DriverArrivedAtPickup: "📍 Жолооч авах цэг дээр ирлээ.",
     DriverArrivedAtDropoff: "📍 Жолооч хүргэх цэг дээр ирлээ.",
+    PendingOfferMessage: "Жолооч санал ирүүлсэн байна. Дэлгэрэнгүйг шалгаад хариугаа илгээнэ үү.",
+    CheckOffer: "Санал шалгах",
+    ViewDriverOffer: "Жолоочийн санал үзэх",
+    AcceptRejectReply: "Зөвшөөрөх / Татгалзах хариу",
   },
 });
 

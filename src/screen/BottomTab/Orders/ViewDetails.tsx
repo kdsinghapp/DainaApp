@@ -239,6 +239,7 @@ export default function ViewDetails() {
 
   console.log("ss", parcel)
   const navigation = useNavigation()
+  const driver = parcel?.assignedDriver ?? item?.assignedDriver ?? parcel?.driver ?? item?.driver;
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "white" }}>
       <StatusBarComponent />
@@ -248,6 +249,34 @@ export default function ViewDetails() {
         contentContainerStyle={{ paddingBottom: 32, marginTop: 11 }}
         showsVerticalScrollIndicator={false}
       >
+
+
+        {statusNorm === STATUS.PENDING && (
+          <View style={styles.pendingActionCard}>
+            <View style={styles.pendingHeader}>
+              <Icon name="time" size={22} color={YELLOW} />
+              <Text style={styles.pendingTitle}>{strings.StatusPending}</Text>
+            </View>
+            <Text style={styles.pendingMessage}>
+              {strings.PendingOfferMessage}
+            </Text>
+            <View style={styles.actionButtonGroup}>
+              <TouchableOpacity
+                style={[styles.actionButton, { backgroundColor: YELLOW }]}
+                onPress={() => {
+                  navigation.navigate(ScreenNameEnum.OfferOR, {
+                    id: { parcel: parcel }
+                  })
+                }}
+              >
+                <Text style={[styles.actionButtonText, { color: "white" }]}>{strings.CheckOffer}</Text>
+              </TouchableOpacity>
+
+
+            </View>
+          </View>
+        )}
+
         {/* Order Card */}
         <TouchableOpacity style={styles.card} activeOpacity={1}
           onPress={() => {
@@ -453,6 +482,8 @@ export default function ViewDetails() {
             </TouchableOpacity>
           )} */}
         </TouchableOpacity>
+
+
         <View style={{
           justifyContent: "space-between",
           marginHorizontal: 20,
@@ -483,6 +514,7 @@ export default function ViewDetails() {
                   width: 55,
                 }}
               />}
+
 
             <View style={{
               marginLeft: 11
@@ -677,4 +709,51 @@ const styles = StyleSheet.create({
   stepTitle: { fontFamily: font.MonolithRegular, fontSize: 15, color: "#6B7280" },
   stepTitleDone: { color: TEXT, fontFamily: font.MonolithRegular, },
   stepBadge: { fontFamily: font.MonolithRegular, fontSize: 11, color: YELLOW, backgroundColor: "#FEF9E7", paddingHorizontal: 8, paddingVertical: 4, borderRadius: 8 },
+
+  /* Pending Action Card Styles */
+  pendingActionCard: {
+    backgroundColor: CARD,
+    marginHorizontal: 16,
+    marginTop: 16,
+    borderRadius: 20,
+    padding: 20,
+    borderWidth: 1,
+    borderColor: "#F0F0F0",
+
+  },
+  pendingHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 12,
+  },
+  pendingTitle: {
+    fontSize: 18,
+    fontFamily: font.MonolithRegular,
+    color: TEXT,
+    marginLeft: 10,
+    fontWeight: "600",
+  },
+  pendingMessage: {
+    fontSize: 14,
+    fontFamily: font.MonolithRegular,
+    color: "#4B5563",
+    lineHeight: 22,
+    marginBottom: 20,
+  },
+  actionButtonGroup: {
+    gap: 12,
+  },
+  actionButton: {
+    height: 48,
+    borderRadius: 12,
+    alignItems: "center",
+    justifyContent: "center",
+
+  },
+  actionButtonText: {
+    fontSize: 14,
+    fontFamily: font.MonolithRegular,
+    fontWeight: "600",
+  },
 });
+
