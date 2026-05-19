@@ -168,9 +168,8 @@ export const styles = StyleSheet.create({
     letterSpacing: 0.4,
   },
   splitter: {
-    borderWidth: 0.5,
-    borderColor: "#F1F5F9",
-    marginTop: 12,
+
+    marginTop: 8,
     marginBottom: 12,
   },
   stopsRow: {

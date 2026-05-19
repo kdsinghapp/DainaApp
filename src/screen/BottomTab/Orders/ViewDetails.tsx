@@ -519,7 +519,6 @@ export default function ViewDetails() {
                     fontSize: 14,
                     color: "black",
                     fontFamily: font.MonolithRegular,
-                    fontWeight: "600"
                   }}>{driver?.name}</Text>}
                   {driver?.email &&
                     <Text style={{
@@ -855,7 +854,6 @@ const styles = StyleSheet.create({
     fontFamily: font.MonolithRegular,
     color: TEXT,
     marginLeft: 10,
-    fontWeight: "600",
   },
   pendingMessage: {
     fontSize: 14,
@@ -877,7 +875,6 @@ const styles = StyleSheet.create({
   actionButtonText: {
     fontSize: 14,
     fontFamily: font.MonolithRegular,
-    fontWeight: "600",
   },
   verificationCard: {
     backgroundColor: "#F8FAFC",
@@ -898,7 +895,6 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontFamily: font.MonolithRegular,
     color: "#1E293B",
-    fontWeight: "600",
   },
   verificationContent: {
     padding: 14,
@@ -907,7 +903,6 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontFamily: font.MonolithRegular,
     color: "#64748B",
-    fontWeight: "700",
     textTransform: "uppercase",
     marginBottom: 8,
     marginTop: 10,
@@ -928,7 +923,6 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontFamily: font.MonolithRegular,
     color: "#0F172A",
-    fontWeight: "600",
   },
   dividerLine: {
     height: 1,

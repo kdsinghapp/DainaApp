@@ -180,7 +180,6 @@ const styles = StyleSheet.create({
     color: "#2F4858",
     marginBottom: 15,
     fontFamily: font.MonolithRegular,
-    fontWeight: "bold",
   },
   buttonRow: { flexDirection: "row", gap: 10 },
   withdrawBtn: {
@@ -243,7 +242,6 @@ const styles = StyleSheet.create({
   },
   modalTitle: {
     fontSize: 20,
-    fontWeight: "600",
     marginBottom: 15,
     fontFamily: font.MonolithRegular,
     color: "#333",

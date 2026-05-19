@@ -109,7 +109,6 @@ const styles = StyleSheet.create({
     color: '#1F2937',
     fontFamily: font.MonolithRegular,
     marginBottom: 12,
-    fontWeight: 'bold',
   },
   description: {
     fontSize: 16,
@@ -141,13 +140,11 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#4B5563',
     fontFamily: font.MonolithRegular,
-    fontWeight: '600',
   },
   confirmButtonText: {
     fontSize: 16,
     color: '#000000',
     fontFamily: font.MonolithRegular,
-    fontWeight: '600',
   },
 });
 

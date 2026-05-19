@@ -458,7 +458,6 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontFamily: font.MonolithRegular,
     color: "#0F172A",
-    fontWeight: "bold",
   },
   onlineDot: {
     position: "absolute",
@@ -485,12 +484,10 @@ const styles = StyleSheet.create({
     fontFamily: font.MonolithRegular,
     color: "#0F172A",
     flex: 1,
-    fontWeight: "500",
   },
   driverNameUnread: {
     fontFamily: font.MonolithRegular,
     color: "#0F172A",
-    fontWeight: "bold",
   },
   timeText: {
     fontSize: 12,
@@ -501,7 +498,6 @@ const styles = StyleSheet.create({
   timeTextUnread: {
     fontFamily: font.MonolithRegular,
     color: "#FFCC00",
-    fontWeight: "600",
   },
   subHeaderRow: {
     flexDirection: "row",
@@ -545,7 +541,6 @@ const styles = StyleSheet.create({
   lastMessageTextUnread: {
     fontFamily: font.MonolithRegular,
     color: "#0F172A",
-    fontWeight: "600",
   },
   unreadBadge: {
     backgroundColor: "#FFCC00",
@@ -561,7 +556,6 @@ const styles = StyleSheet.create({
     color: "#0F172A",
     fontSize: 10,
     fontFamily: font.MonolithRegular,
-    fontWeight: "bold",
   },
   loaderWrap: {
     flex: 1,
