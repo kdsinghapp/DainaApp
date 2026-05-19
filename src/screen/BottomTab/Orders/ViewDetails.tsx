@@ -559,6 +559,9 @@ export default function ViewDetails() {
             >
               <View style={styles.modalOverlay}>
                 <View style={styles.modalCard}>
+                  {/* Pull Indicator Handle */}
+                  <View style={styles.modalDragHandle} />
+
                   {/* Modal Header */}
                   <View style={styles.modalHeaderRow}>
                     <View style={{ flexDirection: "row", alignItems: "center" }}>
@@ -585,85 +588,118 @@ export default function ViewDetails() {
                       </Text>
                     </View>
 
-                    {/* App Registered Name */}
-                    <View style={styles.infoRow}>
-                      <Text style={styles.infoLabel}>{strings.AppRegisteredName || "App Registered Name"}:</Text>
-                      <Text style={styles.infoValue}>{driver?.name || "—"}</Text>
+                    {/* Executive Header Card */}
+                    <View style={styles.profileHeaderSection}>
+                      <View style={styles.avatarWrapper}>
+                        {driver?.image ? (
+                          <Image source={{ uri: driver?.image }} style={styles.profileAvatar} />
+                        ) : (
+                          <Image source={imageIndex.dpuser} style={styles.profileAvatar} />
+                        )}
+                        <View style={styles.verifiedBadgeIconContainer}>
+                          <Icon name="checkmark-circle" size={16} color="#10B981" />
+                        </View>
+                      </View>
+                      <View style={styles.profileHeaderDetails}>
+                        <Text style={styles.profileHeaderName}>{driver?.name || "Test"}</Text>
+                        <View style={styles.verifiedPartnerBadge}>
+                          <Icon name="shield-checkmark" size={12} color="#065F46" style={{ marginRight: 4 }} />
+                          <Text style={styles.verifiedPartnerBadgeText}>VERIFIED PARTNER</Text>
+                        </View>
+                      </View>
                     </View>
 
-                    <View style={styles.dividerLine} />
+                    {/* App Registered Address Card */}
+                    {driver?.address && (
+                      <View style={styles.detailCard}>
+                        <View style={styles.infoRow}>
+                          <Text style={styles.infoLabel}>{strings.Address || "Address"}:</Text>
+                          <Text style={[styles.infoValue, { flex: 1, textAlign: "right", marginLeft: 15 }]} numberOfLines={2}>
+                            {driver?.address}
+                          </Text>
+                        </View>
+                      </View>
+                    )}
 
                     {/* Vehicle Setup Section */}
-                    <Text style={styles.sectionHeader}>{strings.VehicleSetupRegistration || "Vehicle Setup & Registration"}</Text>
-                    <View style={styles.infoRow}>
-                      <Text style={styles.infoLabel}>{strings.VehicleType || "Vehicle Type"}:</Text>
-                      <Text style={styles.infoValue}>{driver?.vehicleType || driver?.vehicle_setup?.vehicleType || "—"}</Text>
+                    <View style={styles.sectionHeaderContainer}>
+                      <Icon name="car-outline" size={18} color="#0F172A" style={{ marginRight: 6 }} />
+                      <Text style={styles.sectionHeader}>{strings.VehicleSetupRegistration || "Vehicle Setup & Registration"}</Text>
                     </View>
-                    <View style={styles.infoRow}>
-                      <Text style={styles.infoLabel}>{strings.VehicleNumber || "Vehicle Number"}:</Text>
-                      <Text style={styles.infoValue}>{driver?.vehicleNumber || driver?.vehicle_setup?.vehicleNumber || "—"}</Text>
+                    <View style={styles.detailCard}>
+                      <View style={styles.infoRow}>
+                        <Text style={styles.infoLabel}>{strings.VehicleType || "Vehicle Type"}:</Text>
+                        <View style={styles.badgeContainer}>
+                          <Text style={styles.badgeText}>
+                            {driver?.vehicle?.vehicleType || driver?.vehicleType || driver?.vehicle_setup?.vehicleType || "—"}
+                          </Text>
+                        </View>
+                      </View>
+                      <View style={styles.dividerLine} />
+                      <View style={[styles.infoRow, { alignItems: "center" }]}>
+                        <Text style={styles.infoLabel}>{strings.VehicleNumber || "Vehicle Number"}:</Text>
+                        {/* Real-looking License Plate Box! */}
+                        <View style={styles.licensePlateBox}>
+                          <View style={styles.licensePlateLeftStrip} />
+                          <Text style={styles.licensePlateText}>
+                            {(driver?.vehicle?.vehicleNumber || driver?.vehicleNumber || driver?.vehicle_setup?.vehicleNumber || "—").toUpperCase()}
+                          </Text>
+                        </View>
+                      </View>
                     </View>
-
-                    <View style={styles.dividerLine} />
 
                     {/* Bank Details Section */}
-                    <Text style={styles.sectionHeader}>{strings.BankDetailsHolderName || "Bank Details (Check Holder Name)"}</Text>
-                    <View style={styles.infoRow}>
-                      <Text style={styles.infoLabel}>{strings.BankName || "Bank Name"}:</Text>
-                      <Text style={styles.infoValue}>{driver?.bankName || driver?.bank_setup?.bankName || "—"}</Text>
-                    </View>
-                    <View style={styles.infoRow}>
-                      <Text style={styles.infoLabel}>{strings.AccountHolder || "Account Holder"}:</Text>
-                      <Text style={styles.infoValue}>{driver?.bankAccountName || driver?.bank_setup?.bankAccountName || driver?.name || "—"}</Text>
-                    </View>
-                    <View style={styles.infoRow}>
-                      <Text style={styles.infoLabel}>{strings.AccountNumber || "Account Number"}:</Text>
-                      <Text style={styles.infoValue}>{driver?.bankAccountNumber || driver?.bank_setup?.bankAccountNumber || "—"}</Text>
-                    </View>
-                    <View style={styles.infoRow}>
-                      <Text style={styles.infoLabel}>{strings.IFSCCode || "IFSC Code"}:</Text>
-                      <Text style={styles.infoValue}>{driver?.bankIfscCode || driver?.bank_setup?.bankIfscCode || "—"}</Text>
-                    </View>
 
-                    <View style={styles.dividerLine} />
 
                     {/* ID & Licenses Section */}
-                    <Text style={styles.sectionHeader}>{strings.VerificationDocuments || "Verification Documents"}</Text>
+                    <View style={styles.sectionHeaderContainer}>
+                      <Icon name="document-text-outline" size={18} color="#0F172A" style={{ marginRight: 6 }} />
+                      <Text style={styles.sectionHeader}>{strings.VerificationDocuments || "Verification Documents"}</Text>
+                    </View>
                     <View style={styles.documentsContainer}>
-                      {(driver?.idDocument || driver?.upload_document?.idDocument) && (
+                      {(driver?.documents?.idDocumentUrl || driver?.idDocument || driver?.upload_document?.idDocument) && (
                         <TouchableOpacity
                           style={styles.docItem}
-                          onPress={() => setSelectedImage(driver?.idDocument || driver?.upload_document?.idDocument)}
+                          onPress={() => setSelectedImage(driver?.documents?.idDocumentUrl || driver?.idDocument || driver?.upload_document?.idDocument)}
                         >
                           <Image
-                            source={{ uri: driver?.idDocument || driver?.upload_document?.idDocument }}
+                            source={{ uri: driver?.documents?.idDocumentUrl || driver?.idDocument || driver?.upload_document?.idDocument }}
                             style={styles.docThumb}
                           />
-                          <Text style={styles.docText}>{strings.IDDocumentLabel || "ID Document"}</Text>
+                          <View style={styles.docLabelOverlay}>
+                            <Icon name="eye-outline" size={12} color="#FFFFFF" style={{ marginBottom: 2 }} />
+                            <Text style={styles.docText}>{strings.IDDocumentLabel || "ID Document"}</Text>
+                          </View>
                         </TouchableOpacity>
                       )}
-                      {(driver?.drivingLicense || driver?.upload_document?.drivingLicense) && (
+                      {(driver?.documents?.drivingLicenseUrl || driver?.drivingLicense || driver?.upload_document?.drivingLicense) && (
                         <TouchableOpacity
                           style={styles.docItem}
-                          onPress={() => setSelectedImage(driver?.drivingLicense || driver?.upload_document?.drivingLicense)}
+                          onPress={() => setSelectedImage(driver?.documents?.drivingLicenseUrl || driver?.drivingLicense || driver?.upload_document?.drivingLicense)}
                         >
                           <Image
-                            source={{ uri: driver?.drivingLicense || driver?.upload_document?.drivingLicense }}
+                            source={{ uri: driver?.documents?.drivingLicenseUrl || driver?.drivingLicense || driver?.upload_document?.drivingLicense }}
                             style={styles.docThumb}
                           />
-                          <Text style={styles.docText}>{strings.LicensePhotoLabel || "License Photo"}</Text>
+                          <View style={styles.docLabelOverlay}>
+                            <Icon name="eye-outline" size={12} color="#FFFFFF" style={{ marginBottom: 2 }} />
+                            <Text style={styles.docText}>{strings.LicensePhotoLabel || "License Photo"}</Text>
+                          </View>
                         </TouchableOpacity>
                       )}
-                      {(driver?.vehicleRegistration || driver?.vehicle_setup?.vehicleRegistration) && (
+                      {(driver?.vehicle?.vehicleRegistrationUrl || driver?.documents?.vehiclePapersUrl || driver?.vehicleRegistration || driver?.vehicle_setup?.vehicleRegistration) && (
                         <TouchableOpacity
                           style={styles.docItem}
-                          onPress={() => setSelectedImage(driver?.vehicleRegistration || driver?.vehicle_setup?.vehicleRegistration)}
+                          onPress={() => setSelectedImage(driver?.vehicle?.vehicleRegistrationUrl || driver?.documents?.vehiclePapersUrl || driver?.vehicleRegistration || driver?.vehicle_setup?.vehicleRegistration)}
                         >
                           <Image
-                            source={{ uri: driver?.vehicleRegistration || driver?.vehicle_setup?.vehicleRegistration }}
+                            source={{ uri: driver?.vehicle?.vehicleRegistrationUrl || driver?.documents?.vehiclePapersUrl || driver?.vehicleRegistration || driver?.vehicle_setup?.vehicleRegistration }}
                             style={styles.docThumb}
                           />
-                          <Text style={styles.docText}>{strings.RegistrationLabel || "Registration"}</Text>
+                          <View style={styles.docLabelOverlay}>
+                            <Icon name="eye-outline" size={12} color="#FFFFFF" style={{ marginBottom: 2 }} />
+                            <Text style={styles.docText}>{strings.RegistrationLabel || "Registration"}</Text>
+                          </View>
                         </TouchableOpacity>
                       )}
                     </View>
@@ -933,22 +969,36 @@ const styles = StyleSheet.create({
   },
   modalOverlay: {
     flex: 1,
-    backgroundColor: "rgba(15, 23, 42, 0.5)",
+    backgroundColor: "rgba(15, 23, 42, 0.6)",
     justifyContent: "flex-end",
   },
   modalCard: {
     backgroundColor: "#FFFFFF",
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
+    borderTopLeftRadius: 28,
+    borderTopRightRadius: 28,
     maxHeight: "85%",
     paddingBottom: 40,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: -10 },
+    shadowOpacity: 0.12,
+    shadowRadius: 20,
+    elevation: 24,
+  },
+  modalDragHandle: {
+    width: 38,
+    height: 5,
+    backgroundColor: "#CBD5E1",
+    borderRadius: 3,
+    alignSelf: "center",
+    marginTop: 10,
   },
   modalHeaderRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
     paddingHorizontal: 20,
-    paddingVertical: 18,
+    paddingTop: 12,
+    paddingBottom: 18,
     borderBottomWidth: 1,
     borderBottomColor: "#F1F5F9",
   },
@@ -956,6 +1006,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontFamily: font.MonolithRegular,
     color: "#0F172A",
+    fontWeight: "600",
   },
   modalCloseButton: {
     padding: 6,
@@ -964,15 +1015,17 @@ const styles = StyleSheet.create({
   },
   modalScrollContent: {
     paddingHorizontal: 20,
-    paddingTop: 16,
+    paddingTop: 20,
   },
   securityBanner: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#D1FAE5",
-    borderRadius: 12,
+    backgroundColor: "#ECFDF5",
+    borderWidth: 1,
+    borderColor: "#A7F3D0",
+    borderRadius: 14,
     padding: 12,
-    marginBottom: 16,
+    marginBottom: 20,
   },
   securityBannerText: {
     flex: 1,
@@ -984,20 +1037,118 @@ const styles = StyleSheet.create({
   verificationContent: {
     padding: 14,
   },
-  sectionHeader: {
-    fontSize: 12,
+  profileHeaderSection: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#F8FAFC",
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: "#F1F5F9",
+    padding: 16,
+    marginBottom: 20,
+  },
+  avatarWrapper: {
+    position: "relative",
+  },
+  profileAvatar: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    borderWidth: 2,
+    borderColor: "#FFCC00",
+  },
+  verifiedBadgeIconContainer: {
+    position: "absolute",
+    bottom: -2,
+    right: -2,
+    backgroundColor: "#FFFFFF",
+    borderRadius: 10,
+    padding: 1,
+  },
+  profileHeaderDetails: {
+    marginLeft: 16,
+    flex: 1,
+  },
+  profileHeaderName: {
+    fontSize: 18,
     fontFamily: font.MonolithRegular,
-    color: "#64748B",
-    textTransform: "uppercase",
-    marginBottom: 8,
-    marginTop: 10,
-    letterSpacing: 0.5,
+    color: "#0F172A",
+    fontWeight: "700",
+    marginBottom: 4,
+  },
+  verifiedPartnerBadge: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#ECFDF5",
+    borderWidth: 1,
+    borderColor: "#A7F3D0",
+    borderRadius: 8,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    alignSelf: "flex-start",
+  },
+  verifiedPartnerBadgeText: {
+    fontSize: 10,
+    fontFamily: font.MonolithRegular,
+    color: "#065F46",
+    fontWeight: "700",
+    letterSpacing: 0.3,
+  },
+  licensePlateBox: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#F8FAFC",
+    borderWidth: 1.5,
+    borderColor: "#0F172A",
+    borderRadius: 6,
+    paddingLeft: 4,
+    paddingRight: 10,
+    paddingVertical: 4,
+    minWidth: 100,
+    justifyContent: "center",
+  },
+  licensePlateLeftStrip: {
+    width: 3.5,
+    height: 16,
+    backgroundColor: "#3B82F6",
+    borderRadius: 1.5,
+    marginRight: 8,
+  },
+  licensePlateText: {
+    fontSize: 13,
+    fontFamily: font.MonolithRegular,
+    color: "#0F172A",
+    fontWeight: "800",
+    letterSpacing: 1.5,
+  },
+  sectionHeaderContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginTop: 22,
+    marginBottom: 10,
+  },
+  sectionHeader: {
+    fontSize: 13,
+    fontFamily: font.MonolithRegular,
+    color: "#0F172A",
+    fontWeight: "600",
+  },
+  detailCard: {
+    backgroundColor: "#FFFFFF",
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: "#F1F5F9",
+    padding: 16,
+    shadowColor: "#0F172A",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.03,
+    shadowRadius: 8,
+    elevation: 2,
   },
   infoRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginVertical: 4,
   },
   infoLabel: {
     fontSize: 13,
@@ -1009,35 +1160,67 @@ const styles = StyleSheet.create({
     fontFamily: font.MonolithRegular,
     color: "#0F172A",
   },
+  infoValueBold: {
+    fontSize: 14,
+    fontFamily: font.MonolithRegular,
+    color: "#0F172A",
+    fontWeight: "700",
+    letterSpacing: 0.5,
+  },
+  badgeContainer: {
+    backgroundColor: "#F1F5F9",
+    borderRadius: 8,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+  },
+  badgeText: {
+    fontSize: 12,
+    fontFamily: font.MonolithRegular,
+    color: "#475569",
+    fontWeight: "600",
+  },
   dividerLine: {
     height: 1,
-    backgroundColor: "#E2E8F0",
-    marginVertical: 8,
+    backgroundColor: "#F1F5F9",
+    marginVertical: 12,
   },
   documentsContainer: {
     flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 12,
-    marginTop: 8,
+    justifyContent: "space-between",
+    marginTop: 4,
+    marginBottom: 20,
   },
   docItem: {
-    width: "30%",
-    alignItems: "center",
+    width: "31%",
+    aspectRatio: 1,
+    borderRadius: 14,
+    overflow: "hidden",
+    backgroundColor: "#F8FAFC",
+    borderWidth: 1,
+    borderColor: "#F1F5F9",
+    elevation: 1,
   },
   docThumb: {
     width: "100%",
-    height: 60,
-    borderRadius: 8,
-    backgroundColor: "#E2E8F0",
-    borderWidth: 1,
-    borderColor: "#CBD5E1",
+    height: "100%",
+    resizeMode: "cover",
+  },
+  docLabelOverlay: {
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: "rgba(15, 23, 42, 0.75)",
+    paddingVertical: 5,
+    alignItems: "center",
+    justifyContent: "center",
   },
   docText: {
-    fontSize: 10,
+    fontSize: 9,
     fontFamily: font.MonolithRegular,
-    color: "#64748B",
+    color: "#FFFFFF",
     textAlign: "center",
-    marginTop: 4,
+    fontWeight: "500",
   },
   modalContainer: {
     flex: 1,

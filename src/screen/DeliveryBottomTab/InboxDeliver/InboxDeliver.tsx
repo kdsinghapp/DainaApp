@@ -266,11 +266,7 @@ export default function InboxDeliver() {
       {/* Screen Title & Subheader */}
       <View style={styles.headerContainer}>
         <Text style={styles.headerTitle}>{strings.Inbox || "Messages"}</Text>
-        <Text style={styles.headerSubtitle}>
-          {chats.length > 0
-            ? strings.formatString(strings.ActiveDeliveryConversations, chats.length)
-            : strings.NoActiveDeliveryChats}
-        </Text>
+
       </View>
 
       {/* Error banner */}
