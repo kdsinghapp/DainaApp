@@ -9,8 +9,7 @@ import strings from "../localization/Localization";
 // Define the colors based on your design
 const YELLOW = "#FFCC00";
 const TEXT = "#0F0F0F";
-const MUTED = "#7C7C7C";
-const CARD_BG = "#FFFFFF";
+const MUTED = "#BABFC5";
 const BORDER = "#EFEFEF";
 
 const OrderCard = ({ order, onPress }: { order: any; onPress: () => void }) => {
@@ -64,7 +63,9 @@ const OrderCard = ({ order, onPress }: { order: any; onPress: () => void }) => {
           {/* Pickup */}
           <View style={styles.locationBlock}>
             <Text style={styles.label}>{strings?.From || "From"}</Text>
-            <Text style={styles.value} numberOfLines={2}>
+            <Text style={[styles.value, {
+
+            }]} numberOfLines={2}>
               {order?.pickupLocation}
             </Text>
           </View>
@@ -90,13 +91,12 @@ const OrderCard = ({ order, onPress }: { order: any; onPress: () => void }) => {
       </View>
       <View style={{
         backgroundColor: color.primary,
-        width: "40%",
         padding: 6,
         height: 40,
         borderRadius: 10,
-        marginTop: 10,
+        marginTop: 15,
         alignItems: "center",
-        justifyContent: "center"
+        justifyContent: "center",
       }}>
         <Text style={[styles.viewDetailsText, { color: "black" }]}>
           {strings?.ViewDetails}
@@ -116,16 +116,8 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     borderWidth: 1,
     borderColor: "#d6e1f9ff",
-    ...Platform.select({
-      ios: {
-        shadowColor: "#0F172A",
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.08,
-        shadowRadius: 12,
-      },
-      android: {
-      },
-    }),
+
+
   },
   cardTop: {
     flexDirection: "row",
@@ -185,15 +177,17 @@ const styles = StyleSheet.create({
     flexDirection: "column",
   },
   label: {
-    fontSize: 12,
+    fontSize: 14,
     color: MUTED,
     fontFamily: font.MonolithRegular,
+    marginBottom: 2
   },
   value: {
     fontSize: 14,
-    color: TEXT,
+    color: "#76889A",
     fontFamily: font.MonolithRegular,
     marginTop: 2,
+
   },
   footer: {
     flexDirection: "row",

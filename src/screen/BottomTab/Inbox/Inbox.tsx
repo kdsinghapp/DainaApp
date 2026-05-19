@@ -10,7 +10,6 @@ import {
   ActivityIndicator,
   RefreshControl,
   ScrollView,
-  Platform,
 } from "react-native";
 import StatusBarComponent from "../../../compoent/StatusBarCompoent";
 import { SafeAreaView, } from "react-native-safe-area-context";
@@ -425,16 +424,10 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     paddingVertical: 12,
-    borderWidth: 2,
+    borderWidth: 1,
 
     // iOS shadow
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
+
     borderRadius: 20,
     marginVertical: 10,
     borderColor: "#F5F5F5",

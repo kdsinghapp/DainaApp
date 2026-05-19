@@ -38,7 +38,7 @@ export default {
     sp3: require('./images/sp3.png'),
     Next: require('./images/Next.png'),
     Calblack: require('./images/Calblack.png'),
-    icons: require('./images/icons.png'),
+    icons: require('./images/icons1.png'),
     Vector: require('./images/Vector.png'),
     Notification: require('./images/Notification.png'),
     document: require('./images/document.png'),

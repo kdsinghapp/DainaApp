@@ -47,16 +47,6 @@ const ShippingScreen = () => {
     setCounterOfferAcceptedModal({ visible: false, data: null });
   };
 
-  const handleViewOrder = () => {
-    const data = counterOfferAcceptedModal?.data;
-    if (data?.parcelId != null) {
-      (navigation as any).navigate(ScreenNameEnum.ViewDetails, {
-        item: { id: data.parcelId },
-      });
-      getParceldetailsApi();
-    }
-    closeOfferAcceptedModal();
-  };
 
   return (
     <SafeAreaView style={styles.container}>

@@ -343,11 +343,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     marginBottom: 20,
     marginTop: 10,
-    // Shadow (iOS)
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.1,
-    shadowRadius: 6,
+
     height: 55,
 
     justifyContent: "center",
@@ -368,17 +364,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     height: 55,
 
-    ...Platform.select({
-      ios: {
-        shadowColor: "#FFCC00",
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.3,
-        shadowRadius: 8,
-      },
-      android: {
-        elevation: 0,
-      },
-    }),
   },
   tabText: {
     fontSize: 14,
