@@ -147,11 +147,25 @@ const DeliveryHome = () => {
     const st = item?.parcel?.deliveryStatus;
     const statusKey = item?.parcel?.deliveryStatus;
     const statusLabel = STATUS_LABELS[statusKey] || strings?.Unknown;
-    const statusColor = STATUS_COLORS[statusKey] || 'black';
+    const statusColor = STATUS_COLORS[statusKey] || "black";
+
+    // Dynamic Translucent Status Chip helper
+    const getTranslucentColor = (hex: string) => {
+      if (!hex || hex === "black") return "rgba(255, 149, 0, 0.08)";
+      if (hex.startsWith("#")) {
+        const r = parseInt(hex.slice(1, 3), 16);
+        const g = parseInt(hex.slice(3, 5), 16);
+        const b = parseInt(hex.slice(5, 7), 16);
+        return `rgba(${r}, ${g}, ${b}, 0.08)`;
+      }
+      return hex;
+    };
+    const statusBg = getTranslucentColor(statusColor);
+
     return (
       <TouchableOpacity
         style={styles.card}
-        activeOpacity={0.9}
+        activeOpacity={0.85}
         onPress={() => {
           if (st === STATUS.PENDING) {
             navigation.navigate(ScreenNameEnum.ParcelDetails, {
@@ -190,53 +204,37 @@ const DeliveryHome = () => {
             </Text>
           </View>
 
-          <Text
-            style={[
-              styles.code,
-              {
-                textTransform: "capitalize",
-                fontSize: 15,
-                fontFamily: font.TrialMedium,
-                color: statusColor
-                // item.parcel?.deliveryStatus === "pending"
-                //   ? "orange"
-                //   : item.parcel?.deliveryStatus === "assigned"
-                //   ? "green"
-                //   : item.parcel?.deliveryStatus === "complete"
-                //   ? "blue"
-                //   : "black",
-              },
-            ]}
-          >
-            {statusLabel}
-          </Text>
+          <View style={[styles.statusChip, { backgroundColor: statusBg, borderColor: statusBg }]}>
+            <Text style={[styles.statusText, { color: statusColor }]}>
+              {statusLabel}
+            </Text>
+          </View>
         </View>
 
-        <Text style={styles.code} numberOfLines={1}>
-          {item?.trackingId}
+        <Text style={styles.trackingText} numberOfLines={1}>
+          #{item?.trackingId}
         </Text>
 
         {/* Pickup / Drop block */}
         <View style={styles.splitter} />
 
         <View style={styles.stopsRow}>
-          {/* timeline dots/line image (replace with your own if needed) */}
-          <Image
-            source={imageIndex?.Dots || { uri: "" }}
-            style={{ width: 12, height: 88, marginRight: 10 }}
-            resizeMode="contain"
-          />
+          <View style={styles.timelineContainer}>
+            <View style={styles.timelineDotStart} />
+            <View style={styles.timelineLine} />
+            <View style={styles.timelineDotEnd} />
+          </View>
 
-          <View style={{ flex: 1 }}>
+          <View style={{ flex: 1, marginLeft: 12 }}>
             <Text style={styles.stopLabel}>{strings.PickupLocation}</Text>
-            <Text style={styles.stopValue} numberOfLines={2}>
+            <Text style={styles.stopValue}  >
               {item?.parcel?.pickupLocation}
             </Text>
 
-            <Text style={[styles.stopLabel, { marginTop: 10 }]}>
+            <Text style={[styles.stopLabel, { marginTop: 12 }]}>
               {strings.DropLocation}
             </Text>
-            <Text style={styles.stopValue} numberOfLines={2}>
+            <Text style={styles.stopValue} >
               {item?.parcel?.dropLocation}
             </Text>
           </View>

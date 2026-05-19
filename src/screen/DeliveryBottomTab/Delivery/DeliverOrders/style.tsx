@@ -91,45 +91,43 @@ export const styles = StyleSheet.create({
   /* cards */
   card: {
     backgroundColor: "#FFF",
-    borderRadius: 12,
-    padding: 20,
+    borderRadius: 18,
+    padding: 16,
     borderWidth: 1,
-    borderColor: "#d6e1f9ff",
-
-    marginBottom: 16,
+    borderColor: "#E2E8F0",
+    marginBottom: 14,
     ...Platform.select({
       ios: {
         shadowColor: "#0F172A",
-        shadowOffset: { width: 0, height: 10 },
-        shadowOpacity: 0.05,
-        shadowRadius: 15,
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.02,
+        shadowRadius: 8,
       },
-      android: {
-        elevation: 0,
-      },
+
     }),
   },
   cardTop: {
     flexDirection: "row",
     alignItems: "center",
+    marginBottom: 8,
   },
   avatar: {
     height: 40,
     width: 40,
     borderRadius: 20,
     marginRight: 12,
+    backgroundColor: "#F1F5F9",
   },
   name: {
     fontSize: 15,
-    color: "black",
+    color: "#0F172A",
     fontFamily: font.MonolithRegular,
-
-
+    fontWeight: "700",
   },
   phone: {
     marginTop: 2,
     fontSize: 13,
-    color: "#9DB2BF",
+    color: "#64748B",
     fontFamily: font.MonolithRegular,
   },
   statusPill: {
@@ -150,30 +148,75 @@ export const styles = StyleSheet.create({
     color: "#9AA4AF",
     fontFamily: font.MonolithRegular,
   },
-
+  trackingText: {
+    marginLeft: 52,
+    fontSize: 12,
+    color: "#64748B",
+    fontFamily: font.MonolithRegular,
+  },
+  statusChip: {
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 99,
+    borderWidth: 1,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  statusText: {
+    fontFamily: font.MonolithRegular,
+    fontSize: 11,
+    fontWeight: "700",
+    textTransform: "uppercase",
+    letterSpacing: 0.4,
+  },
   splitter: {
     borderWidth: 0.5,
-    borderColor: "#D9D9D9",
-    marginTop: 10,
-    marginBottom: 5
+    borderColor: "#F1F5F9",
+    marginTop: 12,
+    marginBottom: 12,
   },
-
   stopsRow: {
     flexDirection: "row",
     alignItems: "flex-start",
-    marginTop: 20,
-    marginLeft: 8,
+    marginLeft: 34,
+  },
+  timelineContainer: {
+    width: 12,
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingVertical: 4,
+    height: 86,
+  },
+  timelineDotStart: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: "#FFCC00",
+  },
+  timelineLine: {
+    flex: 1,
+    width: 1.5,
+    backgroundColor: "#CBD5E1",
+    marginVertical: 4,
+  },
+  timelineDotEnd: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: "#10B981",
   },
   stopLabel: {
-    fontSize: 13,
-    color: "#3B4051",
+    fontSize: 11,
+    color: "#64748B",
     fontFamily: font.MonolithRegular,
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
   },
   stopValue: {
-    fontSize: 13,
-    color: "#808080",
-    marginTop: 4,
-    lineHeight: 20,
+    fontSize: 14,
+    color: "#0F172A",
+    marginTop: 2,
+    lineHeight: 18,
     fontFamily: font.MonolithRegular,
   },
 

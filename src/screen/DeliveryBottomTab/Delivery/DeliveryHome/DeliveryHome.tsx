@@ -304,6 +304,7 @@ const DeliveryHome = () => {
                 <ReAnimated.View entering={FadeInDown.delay(index * 100)}>
                   <TouchableOpacity
                     style={styles.card}
+                    activeOpacity={0.85}
                     onPress={() => {
                       navigation.navigate(ScreenNameEnum.ParcelDetails, {
                         item: item,
@@ -311,55 +312,40 @@ const DeliveryHome = () => {
                     }}
                   >
                     <View style={styles.cardTop}>
-                      <View style={[styles.iconBox]}>
+                      <View style={styles.iconBox}>
                         <Image
                           source={imageIndex?.icons || { uri: "" }}
-                          style={{ height: 24, width: 24 }}
+                          style={{ height: 20, width: 20 }}
                           resizeMode="contain"
                         />
                       </View>
 
                       <Text style={[styles.cardId, styles.bold]}>
-                        {item?.trackingId}
+                        #{item?.trackingId}
                       </Text>
-                      <View
-                        style={{
-                          borderWidth: 3,
-                          borderColor: "#D2D6DB",
-                          borderRadius: 20,
-                        }}
-                      />
-                      <Text
-                        style={[
-                          styles.cardDate,
-                          {
-                            marginLeft: 5,
-                          },
-                        ]}
-                      >
+                      <Text style={styles.bulletSeparator}>•</Text>
+                      <Text style={styles.cardDate}>
                         {item?.date}
                       </Text>
 
                       <View style={{ flex: 1 }} />
-
                     </View>
 
                     <View style={styles.routeRow}>
-                      <Image
-                        source={imageIndex?.Vector || { uri: "" }}
-                        style={{ height: 88, width: 10 }}
-                        resizeMode="contain"
-                      />
-                      <View style={{ flex: 1, marginLeft: 10 }}>
+                      <View style={styles.timelineContainer}>
+                        <View style={styles.timelineDotStart} />
+                        <View style={styles.timelineLine} />
+                        <View style={styles.timelineDotEnd} />
+                      </View>
+                      <View style={{ flex: 1, marginLeft: 12 }}>
                         <Text style={styles.label}>{strings?.From}</Text>
-                        <Text style={[styles.value, { marginTop: 6 }]}>
+                        <Text style={styles.value}  >
                           {item?.pickupLocation || item?.pickup?.location}
                         </Text>
-                        <Text style={[styles.label, { marginTop: 10 }]}>{strings?.To}</Text>
-                        <Text style={[styles.value, { marginTop: 6 }]}>
+                        <Text style={[styles.label, { marginTop: 12 }]}>{strings?.To}</Text>
+                        <Text style={styles.value} >
                           {item?.dropLocation || item?.drop?.location}
                         </Text>
-
                       </View>
                     </View>
                   </TouchableOpacity>

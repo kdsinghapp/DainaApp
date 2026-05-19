@@ -143,69 +143,97 @@ export const styles = StyleSheet.create({
   },
   card: {
     backgroundColor: "#fff",
-    borderRadius: 12,
-    padding: 20,
-
-    marginBottom: 16,
+    borderRadius: 18,
+    padding: 16,
+    marginBottom: 14,
     borderWidth: 1,
-    borderColor: "#d6e1f9ff",
+    borderColor: "#E2E8F0",
     ...Platform.select({
       ios: {
         shadowColor: "#0F172A",
-        shadowOffset: { width: 0, height: 10 },
-        shadowOpacity: 0.05,
-        shadowRadius: 15,
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.02,
+        shadowRadius: 8,
       },
-      android: {
-        elevation: 0,
-      },
+
     }),
   },
   cardTop: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 12,
+    marginBottom: 14,
   },
   iconBox: {
-    width: 32,
-    height: 32,
-    borderRadius: 8,
+    width: 34,
+    height: 34,
+    borderRadius: 10,
     alignItems: "center",
     justifyContent: "center",
-    marginRight: 8,
+    marginRight: 10,
+    backgroundColor: "#FFF9E6",
   },
   cardId: {
     fontSize: 15,
-    marginRight: 8,
-    color: "black",
+    color: "#0F172A",
   },
   bold: {
-    fontFamily: font.MonolithRegular
-    , fontSize: 16, color: "black"
+    fontFamily: font.MonolithRegular,
+    fontWeight: "700",
   },
-  cardDate: {
-    marginLeft: "auto",
-    fontSize: 13,
-    color: "#9AA4AF",
+  bulletSeparator: {
+    marginHorizontal: 8,
+    color: "#94A3B8",
+    fontSize: 14,
     fontFamily: font.MonolithRegular,
   },
-
+  cardDate: {
+    fontSize: 12,
+    color: "#64748B",
+    fontFamily: font.MonolithRegular,
+  },
+  timelineContainer: {
+    width: 12,
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingVertical: 4,
+    height: 86,
+  },
+  timelineDotStart: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: "#FFCC00",
+  },
+  timelineLine: {
+    flex: 1,
+    width: 1.5,
+    backgroundColor: "#E2E8F0",
+    marginVertical: 4,
+  },
+  timelineDotEnd: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: "#10B981",
+  },
   routeRow: {
     flexDirection: "row",
     alignItems: "flex-start",
-    marginLeft: 35
+    marginLeft: 11,
   },
   label: {
-    fontSize: 14,
-    color: "#BABFC5",
+    fontSize: 11,
+    color: "#64748B",
     fontFamily: font.MonolithRegular,
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
   },
   value: {
     fontSize: 14,
-    color: "#76889A",
+    color: "#0F172A",
     fontFamily: font.MonolithRegular,
-    marginTop: 10,
-
+    marginTop: 2,
+    lineHeight: 18,
   },
   statusRow: {
     flexDirection: "row",

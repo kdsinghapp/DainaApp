@@ -1,5 +1,6 @@
 import React from "react";
 import { View, Image, Text, TouchableOpacity, StyleSheet } from "react-native";
+import Icon from "react-native-vector-icons/Ionicons";
 import imageIndex from "../assets/imageIndex";
 import font from "../theme/font";
 
@@ -28,15 +29,15 @@ const HomeHeaderBar = ({
           >
             {location}
           </Text>
-          {/* <Image source={imageIndex.arrowqdown} style={styles.iconSmall} /> */}
         </TouchableOpacity>
 
         <TouchableOpacity
           style={styles.notificationContainer}
           onPress={onNotificationPress}
+          activeOpacity={0.7}
         >
-          <Image source={imageIndex.Notification} style={styles.iconLarge} />
-          {/* {hasNotification && <View style={styles.badge} />} */}
+          <Icon name="notifications-outline" size={24} color="#000" />
+          {hasNotification && <View style={styles.badge} />}
         </TouchableOpacity>
       </View>
     </View>
@@ -70,9 +71,23 @@ const styles = StyleSheet.create({
   },
   notificationContainer: {
     position: "relative",
+    width: 40,
+    height: 40,
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: 20,
+    backgroundColor: "#F8FAFC",
   },
   badge: {
-
+    position: "absolute",
+    top: 8,
+    right: 8,
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: "#FF3B30",
+    borderWidth: 1.5,
+    borderColor: "#FFFFFF",
   },
   iconSmall: {
     width: 22,
