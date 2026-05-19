@@ -1,63 +1,64 @@
 import React from "react";
-import { View, TextInput, Image, StyleSheet } from "react-native";
-import imageIndex from "../assets/imageIndex";
+import { View, TextInput, StyleSheet, Platform, StyleProp, ViewStyle, TextInputProps } from "react-native";
+import Icon from "react-native-vector-icons/Ionicons";
 import font from "../theme/font";
 
-interface SearchBarProps {
+interface SearchBarProps extends Omit<TextInputProps, "onChangeText"> {
   placeholder?: string;
-  onSearchChange?: (text: string) => void;
-  value?: string
+  value?: string;
+  onChangeText?: (text: string) => void;
+  containerStyle?: StyleProp<ViewStyle>;
 }
 
-const SearchBar: React.FC<SearchBarProps> = ({ placeholder = "Search", onSearchChange, value }) => {
+const SearchBar: React.FC<SearchBarProps> = ({
+  placeholder = "Search...",
+  value,
+  onChangeText,
+  containerStyle,
+  ...rest
+}) => {
   return (
-    <View style={styles.searchBar}>
-      <Image source={imageIndex.search1} style={styles.icon} resizeMode="cover" />
+    <View style={[styles.container, containerStyle]}>
+      <Icon name="search-outline" size={20} color="#94A3B8" style={styles.icon} />
       <TextInput
         allowFontScaling={false}
         style={styles.input}
         placeholder={placeholder}
-        placeholderTextColor="rgba(48, 45, 45, 1)"
-        onChangeText={onSearchChange}
+        placeholderTextColor="black"
+        onChangeText={onChangeText}
         value={value}
+        returnKeyType="search"
+        clearButtonMode="while-editing"
+        {...rest}
       />
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  searchBar: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 15,
+  container: {
     flexDirection: "row",
     alignItems: "center",
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    marginVertical: 10,
-    marginBottom: 20,
-    marginTop: 30,
-    borderWidth: 0,
-    height: 58,
-
-    // ✅ iOS Shadow
-    shadowColor: "#000",
+    backgroundColor: "#FFFFFF",
+    borderRadius: 14,
+    paddingHorizontal: 16,
+    height: 55,
+    borderWidth: 1,
+    borderColor: "#E2E8F0",
+    shadowColor: "#0F172A",
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 6,
-
-    // ✅ Android Shadow
-
+    shadowOpacity: 0.02,
+    shadowRadius: 8,
   },
   icon: {
-    height: 20,
-    width: 20,
+    marginRight: 10,
   },
   input: {
     flex: 1,
-    fontSize: 16,
-    color: "black",
-    marginLeft: 15,
+    fontSize: 15,
+    color: "#0F172A",
     fontFamily: font.MonolithRegular,
+    paddingVertical: 0,
   },
 });
 

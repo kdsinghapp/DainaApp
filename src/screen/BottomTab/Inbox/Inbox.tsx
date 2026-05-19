@@ -5,14 +5,13 @@ import {
   StyleSheet,
   FlatList,
   Image,
-  TextInput,
   TouchableOpacity,
   ActivityIndicator,
   RefreshControl,
-  ScrollView,
+  Platform,
 } from "react-native";
 import StatusBarComponent from "../../../compoent/StatusBarCompoent";
-import { SafeAreaView, } from "react-native-safe-area-context";
+import { SafeAreaView } from "react-native-safe-area-context";
 import font from "../../../theme/font";
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import ScreenNameEnum from "../../../routes/screenName.enum";
@@ -20,9 +19,7 @@ import { base_url } from "../../../Api";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import strings from "../../../localization/Localization";
 import imageIndex from "../../../assets/imageIndex";
-import { hp } from "../../../utils/Constant";
-import Icon from 'react-native-vector-icons/Ionicons';
-import { color } from "../../../constant";
+import SearchBar from "../../../compoent/SearchBar";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -64,9 +61,6 @@ type ChatItem = {
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-/**
- * Format ISO timestamp → "HH:MM" or "Mon DD" if older than today
- */
 function formatTime(isoString: string | null | undefined): string {
   if (!isoString) return "";
   const date = new Date(isoString);
@@ -82,7 +76,6 @@ function formatTime(isoString: string | null | undefined): string {
   return date.toLocaleDateString([], { month: "short", day: "numeric" });
 }
 
-/** Capitalize first letter of a string */
 function capitalize(str: string) {
   if (!str) return "";
   return str.charAt(0).toUpperCase() + str.slice(1);
@@ -91,14 +84,14 @@ function capitalize(str: string) {
 // ─── Status Badge ─────────────────────────────────────────────────────────────
 
 const STATUS_COLORS: Record<string, { bg: string; text: string }> = {
-  pending: { bg: "#fff7ed", text: "#ea580c" },
-  assigned: { bg: "#f0fdf4", text: "#16a34a" },
-  accepted: { bg: "#eff6ff", text: "#2563eb" },
-  default: { bg: "#f8fafc", text: "#64748b" },
+  pending: { bg: "#FFF7ED", text: "#EA580C" },
+  assigned: { bg: "#F0FDF4", text: "#16A34A" },
+  accepted: { bg: "#EFF6FF", text: "#2563EB" },
+  default: { bg: "#F8FAFC", text: "#64748B" },
 };
 
 const StatusBadge = ({ status }: { status: string }) => {
-  const colors = STATUS_COLORS[status] ?? STATUS_COLORS.default;
+  const colors = STATUS_COLORS[status?.toLowerCase()] ?? STATUS_COLORS.default;
   return (
     <View style={[styles.badge, { backgroundColor: colors.bg }]}>
       <Text style={[styles.badgeText, { color: colors.text }]}>
@@ -119,22 +112,9 @@ const UnreadBadge = ({ count }: { count: number }) => {
   );
 };
 
-// ─── Empty State ──────────────────────────────────────────────────────────────
+// ─── Avatar Component ─────────────────────────────────────────────────────────
 
-const EmptyState = () => (
-  <View style={styles.emptyWrap}>
-    <View style={styles.illustrationWrap}>
-      <View style={styles.illustrationBg} />
-      <Image source={imageIndex.bubleYeelow} style={styles.emptyIcon} />
-    </View>
-    <Text style={styles.emptyTitle}>{strings.NoChatsYet}</Text>
-    <Text style={styles.emptySubtitle}>{strings.NoConversationsSubtitle}</Text>
-  </View>
-);
-
-// ─── Avatar with fallback ─────────────────────────────────────────────────────
-
-const Avatar = ({ uri, name }: { uri?: string; name?: string }) => {
+const Avatar = ({ uri, name, isOnline = true }: { uri?: string; name?: string; isOnline?: boolean }) => {
   const [hasError, setHasError] = useState(false);
   const initials = (name ?? "?")
     .split(" ")
@@ -143,20 +123,21 @@ const Avatar = ({ uri, name }: { uri?: string; name?: string }) => {
     .join("")
     .toUpperCase();
 
-  if (!uri || hasError) {
-    return (
-      <View style={[styles.avatar, styles.avatarFallback]}>
-        <Text style={styles.avatarInitials}>{initials}</Text>
-      </View>
-    );
-  }
-
   return (
-    <Image
-      source={{ uri }}
-      style={styles.avatar}
-      onError={() => setHasError(true)}
-    />
+    <View style={styles.avatarContainer}>
+      {(!uri || hasError) ? (
+        <View style={[styles.avatar, styles.avatarFallback]}>
+          <Text style={styles.avatarInitials}>{initials}</Text>
+        </View>
+      ) : (
+        <Image
+          source={{ uri }}
+          style={styles.avatar}
+          onError={() => setHasError(true)}
+        />
+      )}
+      {isOnline && <View style={styles.onlineDot} />}
+    </View>
   );
 };
 
@@ -171,7 +152,7 @@ export default function ChatInboxScreen() {
   const [query, setQuery] = useState("");
   const [error, setError] = useState<string | null>(null);
 
-  // ── Fetch ───────────────────────────────────────────────────────────────────
+  // ── Fetch Chats ─────────────────────────────────────────────────────────────
 
   const fetchChats = useCallback(async (isRefresh = false) => {
     try {
@@ -206,6 +187,7 @@ export default function ChatInboxScreen() {
       setRefreshing(false);
     }
   }, []);
+
   useFocusEffect(
     useCallback(() => {
       fetchChats();
@@ -216,7 +198,7 @@ export default function ChatInboxScreen() {
     fetchChats();
   }, [fetchChats]);
 
-  // ── Search filter ───────────────────────────────────────────────────────────
+  // ── Filter Chats ────────────────────────────────────────────────────────────
 
   const filteredChats = query.trim()
     ? chats.filter(
@@ -227,17 +209,10 @@ export default function ChatInboxScreen() {
     )
     : chats;
 
-  // ── Render row ──────────────────────────────────────────────────────────────
+  // ── Render Item ─────────────────────────────────────────────────────────────
 
   const renderItem = ({ item }: { item: ChatItem }) => {
-    // Show parcelOwner image when last message came from delivery side,
-    // otherwise show driver image. Since parcelOwner isn't in the API response,
-    // we always fall back to driver image safely.
-    const avatarUri =
-      item.lastMessage?.senderRole === "delivery"
-        ? item.driver?.image   // fallback – parcelOwner not in current API shape
-        : item.driver?.image;
-
+    const avatarUri = item.driver?.image;
     const driverName = item.driver?.name ?? strings.Unknown;
     const lastMsgText = item.lastMessage?.text ?? strings.NoMessagesYet;
     const msgTime = formatTime(item.lastMessage?.time);
@@ -245,8 +220,8 @@ export default function ChatInboxScreen() {
 
     return (
       <TouchableOpacity
-        style={styles.row}
-        activeOpacity={0.7}
+        style={[styles.chatRow, hasUnread && styles.chatRowUnread]}
+        activeOpacity={0.75}
         onPress={() =>
           navigation.navigate(ScreenNameEnum.ChatScreen, {
             item,
@@ -254,42 +229,47 @@ export default function ChatInboxScreen() {
           })
         }
       >
-        {/* Avatar */}
-        <View style={styles.avatarWrap}>
-          <Avatar uri={avatarUri} name={driverName} />
+        {/* Left Side: Avatar */}
+        <View style={styles.avatarContainer}>
+          {avatarUri ? (
+            <Image source={{ uri: avatarUri }} style={styles.avatar} />
+          ) : (
+            <Image source={imageIndex.prfile} style={styles.avatar} />
+          )}
+          {item.deliveryStatus?.toLowerCase() === "assigned" && (
+            <View style={styles.onlineDot} />
+          )}
         </View>
 
-        {/* Text column */}
-        <View style={styles.textCol}>
-          {/* Row 1 – name + time */}
-          <View style={styles.nameTimeRow}>
+        {/* Right Side: Info Column */}
+        <View style={styles.infoCol}>
+          {/* Header Row: Name & Time */}
+          <View style={styles.cardHeaderRow}>
             <Text
-              style={[styles.name, hasUnread && styles.nameUnread]}
+              style={[styles.driverName, hasUnread && styles.driverNameUnread]}
               numberOfLines={1}
             >
               {driverName}
             </Text>
             {msgTime ? (
-              <Text style={styles.time}>{msgTime}</Text>
+              <Text style={[styles.timeText, hasUnread && styles.timeTextUnread]}>{msgTime}</Text>
             ) : null}
           </View>
 
-          {/* Row 2 – tracking ID */}
-          <Text style={styles.trackingId} numberOfLines={1}>
-            #{item.trackingId}
-          </Text>
+          {/* Subheader: Tracking ID & Status */}
+          {/* <View style={styles.subHeaderRow}>
 
-          {/* Row 3 – last message + status + unread */}
-          <View style={styles.messageRow}>
+            <StatusBadge status={item.deliveryStatus} />
+          </View> */}
+
+          {/* Footer Row: Last Message & Unread Badge */}
+          <View style={styles.messageFooterRow}>
             <Text
-              style={[styles.lastMessage, hasUnread && styles.lastMessageUnread]}
+              style={[styles.lastMessageText, hasUnread && styles.lastMessageTextUnread]}
               numberOfLines={1}
             >
               {lastMsgText}
             </Text>
-
-            <StatusBadge status={item.deliveryStatus} />
-
             <UnreadBadge count={item.unreadCount} />
           </View>
         </View>
@@ -297,154 +277,177 @@ export default function ChatInboxScreen() {
     );
   };
 
-  // ── UI ──────────────────────────────────────────────────────────────────────
+  // ── Render Empty State ──────────────────────────────────────────────────────
+
+  const renderEmptyState = () => (
+    <View style={styles.emptyWrap}>
+      <View style={styles.illustrationWrap}>
+        <View style={styles.illustrationBg} />
+        <Image source={imageIndex.bubleYeelow} style={styles.emptyIcon} />
+      </View>
+      <Text style={styles.emptyTitle}>{strings.NoChatsYet || "No Chats Yet"}</Text>
+      <Text style={styles.emptySubtitle}>
+        {strings.NoConversationsSubtitle || "Your active conversations and delivery updates will show up here."}
+      </Text>
+    </View>
+  );
+
+  // ── Render Main Layout ──────────────────────────────────────────────────────
+
   return (
     <SafeAreaView style={styles.container}>
       <StatusBarComponent />
 
-      <Text style={styles.header}>{strings.Inbox}</Text>
-      <ScrollView
+      {/* Screen Title & Subheader */}
+      <View style={styles.headerContainer}>
+        <Text style={styles.headerTitle}>{strings.Inbox || "Messages"}</Text>
+        <Text style={styles.headerSubtitle}>
+          {chats.length > 0
+            ? strings.formatString(strings.ActiveDeliveryConversations, chats.length)
+            : strings.NoActiveDeliveryChats}
+        </Text>
+      </View>
 
-
-        showsVerticalScrollIndicator={false}>
-        {/* Search */}
-        <View style={styles.searchBox}>
-          <Icon name="search" size={20} color="#64748B"
-            style={{ marginLeft: 5 }}
-          />
-
-          <TextInput
-            placeholder={strings.SearchInboxPlaceholder}
-            placeholderTextColor="#94A3B8"
-
-            value={query}
-            onChangeText={setQuery}
-            style={styles.input}
-            returnKeyType="search"
-            clearButtonMode="while-editing"
-          />
+      {/* Error banner */}
+      {error && (
+        <View style={styles.errorBanner}>
+          <Text style={styles.errorText}>{error}</Text>
         </View>
+      )}
 
-        {/* Error banner */}
-        {error && (
-          <View style={styles.errorBanner}>
-            <Text style={styles.errorText}>{error}</Text>
-          </View>
-        )}
-
-        {/* Loading spinner (first load) */}
-        {loading && !refreshing ? (
-          <View style={styles.loaderWrap}>
-            <ActivityIndicator size="large" color="#FFCC00" />
-          </View>
-        ) : (
-          <FlatList
-            data={filteredChats}                          // ✅ filtered list
-            style={styles.list}
-            showsVerticalScrollIndicator={false}
-
-            keyExtractor={(item) => String(item.parcelId)} // ✅ correct key
-            renderItem={renderItem}
-            ItemSeparatorComponent={() => <View style={styles.separator} />}
-            contentContainerStyle={[
-              { paddingBottom: 24, marginBottom: 120 },
-              filteredChats.length === 0 && styles.emptyContainer,
-            ]}
-            ListEmptyComponent={<EmptyState />}
-            refreshControl={
-              <RefreshControl
-                refreshing={refreshing}
-                onRefresh={() => fetchChats(true)}
-                colors={["#FFCC00"]}
-                tintColor="#FFCC00"
-              />
-            }
-          />
-        )}
-      </ScrollView>
+      {/* Main List */}
+      {loading && !refreshing ? (
+        <View style={styles.loaderWrap}>
+          <ActivityIndicator size="large" color="#FFCC00" />
+        </View>
+      ) : (
+        <FlatList
+          data={filteredChats}
+          keyExtractor={(item) => String(item.parcelId)}
+          renderItem={renderItem}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={[
+            styles.listContent,
+            filteredChats.length === 0 && styles.emptyListContent,
+          ]}
+          ListHeaderComponent={
+            <SearchBar
+              placeholder={strings.SearchInboxPlaceholder || "Search"}
+              value={query}
+              onChangeText={setQuery}
+              containerStyle={styles.searchBox}
+            />
+          }
+          ListEmptyComponent={renderEmptyState()}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={() => fetchChats(true)}
+              colors={["#FFCC00"]}
+              tintColor="#FFCC00"
+            />
+          }
+        />
+      )}
     </SafeAreaView>
   );
 }
 
 // ─── Styles ───────────────────────────────────────────────────────────────────
 
-const AVATAR_SIZE = 50;
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#FFFFFF",
-    paddingHorizontal: 16,
-    paddingTop: 12,
+    backgroundColor: "#F8FAFC", // Premium light-slate background to let white cards pop
   },
-  header: {
+  headerContainer: {
+    paddingHorizontal: 20,
+    paddingTop: 16,
+    paddingBottom: 8,
+    backgroundColor: "#F8FAFC",
+  },
+  headerTitle: {
     fontSize: 28,
-    marginBottom: 12,
-    color: "#0f172a",
     fontFamily: font.MonolithRegular,
+    color: "#0F172A",
+    letterSpacing: -0.5,
+  },
+  headerSubtitle: {
+    fontSize: 14,
+    fontFamily: font.MonolithRegular,
+    color: "#64748B",
+    marginTop: 2,
   },
   searchBox: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#FFFFFF", // Clear white search box
     borderRadius: 14,
-    paddingHorizontal: 15,
-    height: 56,
+    paddingHorizontal: 16,
+    height: 60,
     borderWidth: 1,
     borderColor: "#E2E8F0",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 10,
+    marginBottom: 16,
+    marginTop: 8,
 
-  },
-  searchIcon: {
-    fontSize: 16,
-    marginRight: 8,
-    fontFamily: font.MonolithRegular,
 
 
   },
-  input: {
+  searchInput: {
     flex: 1,
-    fontSize: 16,
+    fontSize: 15,
     fontFamily: font.MonolithRegular,
     color: "#0F172A",
+    marginLeft: 10,
     paddingVertical: 0,
   },
-  list: {
-    marginTop: 8,
+  listContent: {
+    paddingHorizontal: 20,
+    paddingBottom: 100, // Safe padding for bottom navigation
+  },
+  emptyListContent: {
+    flexGrow: 1,
+  },
+  chatRow: {
+    flexDirection: "row",
+    backgroundColor: "#FFFFFF", // Premium solid white card
+    borderRadius: 11,
+    padding: 14,
+    marginBottom: 12,
+    alignItems: "center",
+
+    ...Platform.select({
+      ios: {
+        shadowColor: "#0F172A",
+        shadowOffset: { width: 0, height: 6 },
+
+
+      },
+      android: {
+        // borderWidth: 1,
+        // borderColor: "#03241E1A",
+      },
+    }),
+  },
+  chatRowUnread: {
+    borderColor: "#FEF08A", // soft gold/yellow border
+    backgroundColor: "#FFFDF5", // soft warm tint
   },
   separator: {
     height: 1,
-    backgroundColor: "#eef2f7",
-    marginLeft: AVATAR_SIZE + 16,
+    backgroundColor: "#F1F5F9",
+    marginLeft: 72,
   },
-  row: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingVertical: 12,
-    borderWidth: 1,
-
-    // iOS shadow
-
-    borderRadius: 20,
-    marginVertical: 10,
-    borderColor: "#F5F5F5",
-    backgroundColor: "white",
-    paddingHorizontal: 11,
-
-  },
-  avatarWrap: {
-    width: AVATAR_SIZE,
-    height: AVATAR_SIZE,
-    marginRight: 14,
+  avatarContainer: {
+    position: "relative",
   },
   avatar: {
-    width: AVATAR_SIZE,
-    height: AVATAR_SIZE,
-    borderRadius: AVATAR_SIZE / 2,
-    backgroundColor: "#f0f0f0",
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: "#F8FAFC",
+    borderWidth: 1,
+    borderColor: "#E2E8F0",
   },
   avatarFallback: {
     backgroundColor: "#FFCC00",
@@ -452,143 +455,172 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   avatarInitials: {
-    fontSize: 16,
+    fontSize: 18,
     fontFamily: font.MonolithRegular,
-    color: "#0f172a",
-
+    color: "#0F172A",
+    fontWeight: "bold",
   },
-  textCol: {
+  onlineDot: {
+    position: "absolute",
+    bottom: 0,
+    right: 2,
+    width: 14,
+    height: 14,
+    borderRadius: 7,
+    backgroundColor: "#22C55E",
+    borderWidth: 2,
+    borderColor: "#FFFFFF",
+  },
+  infoCol: {
     flex: 1,
+    marginLeft: 16,
   },
-  nameTimeRow: {
+  cardHeaderRow: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
   },
-  name: {
+  driverName: {
+    fontSize: 16,
+    fontFamily: font.MonolithRegular,
+    color: "#0F172A",
     flex: 1,
-    fontSize: 15,
+    fontWeight: "500",
+  },
+  driverNameUnread: {
     fontFamily: font.MonolithRegular,
-    color: "#0f172a",
+    color: "#0F172A",
+    fontWeight: "bold",
   },
-  nameUnread: {
-    fontFamily: font.MonolithRegular
-
-  },
-  time: {
-    fontSize: 11,
-    color: "#94a3b8",
-    marginLeft: 8,
+  timeText: {
+    fontSize: 12,
     fontFamily: font.MonolithRegular,
+    color: "#94A3B8",
+    marginLeft: 10,
   },
-  trackingId: {
-    fontSize: 11,
-    color: "#94a3b8",
+  timeTextUnread: {
     fontFamily: font.MonolithRegular,
-    marginTop: 2,
-    marginBottom: 4,
+    color: "#FFCC00",
+    fontWeight: "600",
   },
-  messageRow: {
+  subHeaderRow: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 6,
-
+    marginTop: 4,
+    gap: 8,
   },
-  lastMessage: {
-    flex: 1,
-    fontSize: 13,
-    color: "#64748b",
+  trackingIdPill: {
+    backgroundColor: "#F1F5F9",
+    borderRadius: 6,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+  },
+  trackingIdText: {
+    fontSize: 11,
     fontFamily: font.MonolithRegular,
-  },
-  lastMessageUnread: {
-    color: "#0f172a",
-    fontFamily: font.MonolithRegular
-
+    color: "#64748B",
   },
   badge: {
     borderRadius: 6,
-    paddingHorizontal: 6,
+    paddingHorizontal: 8,
     paddingVertical: 2,
   },
   badgeText: {
-    fontSize: 10,
+    fontSize: 11,
     fontFamily: font.MonolithRegular,
-
+  },
+  messageFooterRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginTop: 8,
+    gap: 12,
+  },
+  lastMessageText: {
+    fontSize: 13,
+    fontFamily: font.MonolithRegular,
+    color: "#FFCC00",
+    flex: 1,
+  },
+  lastMessageTextUnread: {
+    fontFamily: font.MonolithRegular,
+    color: "#0F172A",
+    fontWeight: "600",
   },
   unreadBadge: {
     backgroundColor: "#FFCC00",
-    borderRadius: 10,
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    minWidth: 20,
+    borderRadius: 12,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    minWidth: 22,
+    height: 22,
     alignItems: "center",
+    justifyContent: "center",
   },
   unreadBadgeText: {
-    color: "#0f172a",
+    color: "#0F172A",
     fontSize: 10,
     fontFamily: font.MonolithRegular,
-
+    fontWeight: "bold",
   },
   loaderWrap: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-  },
-  emptyContainer: {
-    flex: 1,
+    backgroundColor: "#F8FAFC",
   },
   emptyWrap: {
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
-    paddingTop: hp(15),
+    paddingTop: 80,
     paddingHorizontal: 40,
   },
   illustrationWrap: {
-    width: 160,
-    height: 160,
-    justifyContent: "center",
-    alignItems: "center",
-    marginBottom: 24,
-    position: 'relative',
-  },
-  illustrationBg: {
-    position: 'absolute',
     width: 140,
     height: 140,
-    borderRadius: 70,
-    backgroundColor: '#FFCC00',
-    opacity: 0.1,
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 20,
+  },
+  illustrationBg: {
+    position: "absolute",
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    backgroundColor: "#FFCC00",
+    opacity: 0.08,
   },
   emptyIcon: {
-    height: 100,
-    width: 100,
-    resizeMode: 'contain',
+    height: 80,
+    width: 80,
+    resizeMode: "contain",
   },
   emptyTitle: {
-    fontSize: 22,
+    fontSize: 20,
     color: "#0F172A",
     fontFamily: font.MonolithRegular,
-    marginBottom: 10,
-    textAlign: 'center',
+    marginBottom: 8,
+    textAlign: "center",
   },
   emptySubtitle: {
-    fontSize: 15,
+    fontSize: 14,
     color: "#64748B",
     fontFamily: font.MonolithRegular,
-    textAlign: 'center',
-    lineHeight: 22,
+    textAlign: "center",
+    lineHeight: 20,
   },
   errorBanner: {
-    backgroundColor: "#fef2f2",
-    borderRadius: 8,
-    padding: 10,
-    marginBottom: 8,
+    backgroundColor: "#FEF2F2",
+    borderRadius: 12,
+    padding: 12,
+    marginHorizontal: 20,
+    marginBottom: 16,
     borderWidth: 1,
-    borderColor: "#fecaca",
+    borderColor: "#FECACA",
   },
   errorText: {
-    color: "#dc2626",
+    color: "#DC2626",
     fontSize: 13,
     fontFamily: font.MonolithRegular,
     textAlign: "center",
