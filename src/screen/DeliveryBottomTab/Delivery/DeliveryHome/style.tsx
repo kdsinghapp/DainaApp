@@ -178,7 +178,7 @@ export const styles = StyleSheet.create({
   },
   bold: {
     fontFamily: font.MonolithRegular,
-    fontWeight: "700",
+
   },
   bulletSeparator: {
     marginHorizontal: 8,

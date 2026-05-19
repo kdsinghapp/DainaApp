@@ -13,7 +13,6 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import StatusBarComponent from "../../../../compoent/StatusBarCompoent";
 import imageIndex from "../../../../assets/imageIndex";
-import font from "../../../../theme/font";
 import ScreenNameEnum from "../../../../routes/screenName.enum";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
@@ -211,9 +210,6 @@ const DeliveryHome = () => {
           </View>
         </View>
 
-        <Text style={styles.trackingText} numberOfLines={1}>
-          #{item?.trackingId}
-        </Text>
 
         {/* Pickup / Drop block */}
         <View style={styles.splitter} />

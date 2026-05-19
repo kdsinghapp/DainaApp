@@ -5,11 +5,11 @@ import {
   StyleSheet,
   FlatList,
   Image,
-  TextInput,
   TouchableOpacity,
+  ActivityIndicator,
   RefreshControl,
+  Platform,
 } from "react-native";
-import Icon from 'react-native-vector-icons/Ionicons';
 import StatusBarComponent from "../../../compoent/StatusBarCompoent";
 import { SafeAreaView } from "react-native-safe-area-context";
 import font from "../../../theme/font";
@@ -17,17 +17,17 @@ import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import ScreenNameEnum from "../../../routes/screenName.enum";
 import { base_url } from "../../../Api";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import NewOrderNotificationModal from "../../../compoent/NewOrderNotificationModal";
 import strings from "../../../localization/Localization";
 import imageIndex from "../../../assets/imageIndex";
+import SearchBar from "../../../compoent/SearchBar";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 type LastMessage = {
   text: string;
-  senderRole: "delivery" | "user";
+  senderRole: "user" | "delivery";
   time: string;
-};
+} | null;
 
 type ParcelOwner = {
   id: number;
@@ -42,63 +42,75 @@ type Parcel = {
   dropLocation: string;
   pickupDate: string | null;
   pickupTime: string | null;
-  deliveryPrice: number | null;
+  deliveryPrice: string | null;
 };
 
 type ChatItem = {
   parcelId: number;
   trackingId: string;
   deliveryStatus: string;
+  offerId: number;
+  offerStatus: string;
+  offerAmount: string;
   totalMessages: number;
   unreadCount: number;
   lastMessage: LastMessage;
   parcelOwner: ParcelOwner;
   parcel: Parcel;
-  driver?: {
-    id: number;
-    name: string;
-    image: string;
-  };
 };
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-const toTimeString = (raw: string | undefined): string => {
-  if (!raw) return "";
-  const date = new Date(raw);
-  if (isNaN(date.getTime())) return raw;
-  return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-};
+function formatTime(isoString: string | null | undefined): string {
+  if (!isoString) return "";
+  const date = new Date(isoString);
+  const now = new Date();
+  const isToday =
+    date.getDate() === now.getDate() &&
+    date.getMonth() === now.getMonth() &&
+    date.getFullYear() === now.getFullYear();
 
-const statusColor = (status: string): string => {
-  switch (status?.toLowerCase()) {
-    case "pending": return "#f59e0b";
-    case "delivered": return "#22c55e";
-    case "cancelled": return "#ef4444";
-    default: return "#64748b";
+  if (isToday) {
+    return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
   }
+  return date.toLocaleDateString([], { month: "short", day: "numeric" });
+}
+
+function capitalize(str: string) {
+  if (!str) return "";
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
+// ─── Status Badge ─────────────────────────────────────────────────────────────
+
+const STATUS_COLORS: Record<string, { bg: string; text: string }> = {
+  pending: { bg: "#FFF7ED", text: "#EA580C" },
+  assigned: { bg: "#F0FDF4", text: "#16A34A" },
+  accepted: { bg: "#EFF6FF", text: "#2563EB" },
+  default: { bg: "#F8FAFC", text: "#64748B" },
 };
 
-// ─── Placeholder ──────────────────────────────────────────────────────────────
-
-const EmptyState = () => (
-  <View style={styles.emptyWrap}>
-    <View style={styles.illustrationWrap}>
-      <View style={styles.illustrationBg} />
-      <Image source={imageIndex.bubleYeelow} style={styles.emptyLogo} />
+const StatusBadge = ({ status }: { status: string }) => {
+  const colors = STATUS_COLORS[status?.toLowerCase()] ?? STATUS_COLORS.default;
+  return (
+    <View style={[styles.badge, { backgroundColor: colors.bg }]}>
+      <Text style={[styles.badgeText, { color: colors.text }]}>
+        {capitalize(status)}
+      </Text>
     </View>
-    <Text style={styles.emptyTitle}>{strings.NoChatsYet}</Text>
-    <Text style={styles.emptySubtitle}>{strings.NoConversationsSubtitle}</Text>
-  </View>
-);
+  );
+};
 
-const FallbackAvatar = ({ name }: { name: string }) => (
-  <View style={styles.fallbackAvatar}>
-    <Text style={styles.fallbackText}>
-      {name ? name.charAt(0).toUpperCase() : "?"}
-    </Text>
-  </View>
-);
+// ─── Unread Count Badge ───────────────────────────────────────────────────────
+
+const UnreadBadge = ({ count }: { count: number }) => {
+  if (!count || count === 0) return null;
+  return (
+    <View style={styles.unreadBadge}>
+      <Text style={styles.unreadBadgeText}>{count > 99 ? "99+" : count}</Text>
+    </View>
+  );
+};
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 
@@ -110,6 +122,8 @@ export default function InboxDeliver() {
   const [refreshing, setRefreshing] = useState(false);
   const [query, setQuery] = useState("");
   const [error, setError] = useState<string | null>(null);
+
+  // ── Fetch Chats ─────────────────────────────────────────────────────────────
 
   const fetchChats = useCallback(async (isRefresh = false) => {
     try {
@@ -151,26 +165,34 @@ export default function InboxDeliver() {
     }, [fetchChats])
   );
 
-  useEffect(() => { fetchChats(); }, [fetchChats]);
+  useEffect(() => {
+    fetchChats();
+  }, [fetchChats]);
 
-  const filtered = query.trim()
-    ? chats.filter((c) =>
-      c.parcelOwner?.name?.toLowerCase().includes(query.toLowerCase()) ||
-      c.trackingId?.toLowerCase().includes(query.toLowerCase())
+  // ── Filter Chats ────────────────────────────────────────────────────────────
+
+  const filteredChats = query.trim()
+    ? chats.filter(
+      (c) =>
+        c.parcelOwner?.name?.toLowerCase().includes(query.toLowerCase()) ||
+        c.trackingId?.toLowerCase().includes(query.toLowerCase()) ||
+        c.lastMessage?.text?.toLowerCase().includes(query.toLowerCase())
     )
     : chats;
 
+  // ── Render Item ─────────────────────────────────────────────────────────────
+
   const renderItem = ({ item }: { item: ChatItem }) => {
-    const avatarUri = item?.parcelOwner?.image;
-    const displayName = item?.parcelOwner?.name ?? "User";
-    const lastMsgText = item?.lastMessage?.text ?? strings.NoMessagesYet;
-    const lastMsgTime = toTimeString(item?.lastMessage?.time);
-    const hasUnread = (item?.unreadCount ?? 0) > 0;
+    const avatarUri = item.parcelOwner?.image;
+    const displayName = item.parcelOwner?.name ?? strings.Unknown;
+    const lastMsgText = item.lastMessage?.text ?? strings.NoMessagesYet;
+    const msgTime = formatTime(item.lastMessage?.time);
+    const hasUnread = (item.unreadCount ?? 0) > 0;
 
     return (
       <TouchableOpacity
-        style={[styles.row, hasUnread && styles.unreadRow]}
-        activeOpacity={0.7}
+        style={[styles.chatRow]}
+        activeOpacity={0.75}
         onPress={() =>
           navigation.navigate(ScreenNameEnum.ChatScreen, {
             item,
@@ -178,362 +200,374 @@ export default function InboxDeliver() {
           })
         }
       >
+        {/* Left Side: Avatar */}
         <View style={styles.avatarContainer}>
           {avatarUri ? (
             <Image source={{ uri: avatarUri }} style={styles.avatar} />
           ) : (
-            <FallbackAvatar name={displayName} />
+            <Image source={imageIndex.prfile} style={styles.avatar} />
           )}
-          {hasUnread && <View style={styles.activeDot} />}
+          {item.deliveryStatus?.toLowerCase() === "assigned" && (
+            <View style={styles.onlineDot} />
+          )}
         </View>
 
-        <View style={styles.contentCol}>
-          <View style={styles.topRow}>
-            <Text style={styles.nameText} numberOfLines={1}>
+        {/* Right Side: Info Column */}
+        <View style={styles.infoCol}>
+          {/* Header Row: Name & Time */}
+          <View style={styles.cardHeaderRow}>
+            <Text
+              style={[styles.driverName, hasUnread && styles.driverNameUnread]}
+              numberOfLines={1}
+            >
               {displayName}
             </Text>
-            <Text style={[styles.timeText, hasUnread && styles.unreadTime]}>
-              {lastMsgTime}
-            </Text>
+            {msgTime ? (
+              <Text style={[styles.timeText, hasUnread && styles.timeTextUnread]}>{msgTime}</Text>
+            ) : null}
           </View>
 
-          <View style={styles.middleRow}>
-            <View style={styles.tagWrapper}>
-
-              <View style={[styles.statusTag, { backgroundColor: statusColor(item.deliveryStatus) + '12' }]}>
-                <Text style={[styles.statusTagText, { color: statusColor(item.deliveryStatus) }]}>
-                  {item.deliveryStatus}
-                </Text>
-              </View>
-            </View>
-          </View>
-
-          <View style={styles.bottomRow}>
+          {/* Footer Row: Last Message & Unread Badge */}
+          <View style={styles.messageFooterRow}>
             <Text
-              style={[styles.messageText, hasUnread && styles.unreadMessageText]}
+              style={[styles.lastMessageText, hasUnread && styles.lastMessageTextUnread]}
               numberOfLines={1}
             >
               {lastMsgText}
             </Text>
-            {hasUnread && (
-              <View style={styles.unreadBadge}>
-                <Text style={styles.unreadBadgeText}>{item.unreadCount}</Text>
-              </View>
-            )}
+            <UnreadBadge count={item.unreadCount} />
           </View>
         </View>
       </TouchableOpacity>
     );
   };
 
+  // ── Render Empty State ──────────────────────────────────────────────────────
+
+  const renderEmptyState = () => (
+    <View style={styles.emptyWrap}>
+      <View style={styles.illustrationWrap}>
+        <View style={styles.illustrationBg} />
+        <Image source={imageIndex.bubleYeelow} style={styles.emptyIcon} />
+      </View>
+      <Text style={styles.emptyTitle}>{strings.NoChatsYet || "No Chats Yet"}</Text>
+      <Text style={styles.emptySubtitle}>
+        {strings.NoConversationsSubtitle || "Your active conversations and delivery updates will show up here."}
+      </Text>
+    </View>
+  );
+
+  // ── Render Main Layout ──────────────────────────────────────────────────────
+
   return (
     <SafeAreaView style={styles.container}>
       <StatusBarComponent />
 
-      <View style={styles.headerRow}>
-        <Text style={styles.header}>{strings.Inbox}</Text>
+      {/* Screen Title & Subheader */}
+      <View style={styles.headerContainer}>
+        <Text style={styles.headerTitle}>{strings.Inbox || "Messages"}</Text>
+        <Text style={styles.headerSubtitle}>
+          {chats.length > 0
+            ? strings.formatString(strings.ActiveDeliveryConversations, chats.length)
+            : strings.NoActiveDeliveryChats}
+        </Text>
       </View>
 
-      <NewOrderNotificationModal />
-
-      <View style={styles.searchContainer}>
-        <View style={styles.searchBox}>
-          <Image source={imageIndex.search1} style={{ height: 16, width: 16 }} />
-
-          <TextInput
-            placeholder={strings.SearchInboxPlaceholder}
-            placeholderTextColor="#94A3B8"
-            value={query}
-            onChangeText={setQuery}
-            style={styles.input}
-            returnKeyType="search"
-          />
-          {query.length > 0 && (
-            <TouchableOpacity onPress={() => setQuery("")}>
-              <Icon name="close-circle" size={18} color="#94A3B8" />
-            </TouchableOpacity>
-          )}
-        </View>
-      </View>
-
+      {/* Error banner */}
       {error && (
         <View style={styles.errorBanner}>
-          <Icon name="alert-circle" size={16} color="#dc2626" />
           <Text style={styles.errorText}>{error}</Text>
         </View>
       )}
 
-      <FlatList
-        data={filtered}
-        style={styles.list}
-        keyExtractor={(item) => String(item.parcelId)}
-        renderItem={renderItem}
-        contentContainerStyle={[
-          styles.listContent,
-          filtered.length === 0 && styles.emptyContainer,
-        ]}
-        showsVerticalScrollIndicator={false}
-        ListEmptyComponent={!loading ? <EmptyState /> : null}
-        refreshControl={
-          <RefreshControl
-            refreshing={refreshing}
-            onRefresh={() => fetchChats(true)}
-            colors={["#FFCC00"]}
-            tintColor="#FFCC00"
-          />
-        }
-      />
+      {/* Main List */}
+      {loading && !refreshing ? (
+        <View style={styles.loaderWrap}>
+          <ActivityIndicator size="large" color="#FFCC00" />
+        </View>
+      ) : (
+        <FlatList
+          data={filteredChats}
+          keyExtractor={(item) => String(item.parcelId)}
+          renderItem={renderItem}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={[
+            styles.listContent,
+            filteredChats.length === 0 && styles.emptyListContent,
+          ]}
+          ListHeaderComponent={
+            <SearchBar
+              placeholder={strings.SearchInboxPlaceholder || "Search"}
+              value={query}
+              onChangeText={setQuery}
+              containerStyle={styles.searchBox}
+            />
+          }
+          ListEmptyComponent={renderEmptyState()}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={() => fetchChats(true)}
+              colors={["#FFCC00"]}
+              tintColor="#FFCC00"
+            />
+          }
+        />
+      )}
     </SafeAreaView>
   );
 }
 
-const AVATAR_SIZE = 56;
+// ─── Styles ───────────────────────────────────────────────────────────────────
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: "#F8FAFC", // Premium light-slate background to let white cards pop
+  },
+  headerContainer: {
+    paddingHorizontal: 20,
+    paddingTop: 16,
+    paddingBottom: 8,
     backgroundColor: "#F8FAFC",
   },
-  headerRow: {
-    paddingHorizontal: 24,
-    paddingTop: 16,
-    paddingBottom: 20,
-    backgroundColor: '#F8FAFC',
-  },
-  header: {
-    fontSize: 32,
-    color: "#0F172A",
+  headerTitle: {
+    fontSize: 28,
     fontFamily: font.MonolithRegular,
+    color: "#0F172A",
     letterSpacing: -0.5,
   },
-  searchContainer: {
-    paddingHorizontal: 24,
-    marginBottom: 20,
+  headerSubtitle: {
+    fontSize: 14,
+    fontFamily: font.MonolithRegular,
+    color: "#64748B",
+    marginTop: 2,
   },
   searchBox: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#FFFFFF",
-    borderRadius: 18,
+    backgroundColor: "#FFFFFF", // Clear white search box
+    borderRadius: 14,
     paddingHorizontal: 16,
-    height: 58,
+    height: 60,
     borderWidth: 1,
     borderColor: "#E2E8F0",
-    shadowColor: "#64748B",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.05,
-    shadowRadius: 12,
+    marginBottom: 16,
+    marginTop: 8,
   },
-  input: {
+  searchInput: {
     flex: 1,
     fontSize: 15,
-    color: "#1E293B",
     fontFamily: font.MonolithRegular,
-    marginLeft: 12,
+    color: "#0F172A",
+    marginLeft: 10,
     paddingVertical: 0,
-  },
-  list: {
-    flex: 1,
   },
   listContent: {
     paddingHorizontal: 20,
-    paddingBottom: 100,
+    paddingBottom: 100, // Safe padding for bottom navigation
   },
-  row: {
-    flexDirection: 'row',
-    backgroundColor: "#FFFFFF",
-    borderRadius: 20,
+  emptyListContent: {
+    flexGrow: 1,
+  },
+  chatRow: {
+    flexDirection: "row",
+    backgroundColor: "#FFFFFF", // Premium solid white card
+    borderRadius: 11,
+    padding: 14,
     marginBottom: 12,
-    padding: 16,
-    borderWidth: 1,
-    borderColor: "#F1F5F9",
-    shadowColor: "#0F172A",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.04,
-    shadowRadius: 8,
+    alignItems: "center",
+
   },
-  unreadRow: {
-    backgroundColor: "#FFFFFF",
-    borderColor: "#FFCC0030",
-    shadowOpacity: 0.08,
-    shadowColor: "#FFCC00",
+  chatRowUnread: {
+    borderColor: "#FEF08A", // soft gold/yellow border
+    backgroundColor: "#FFFDF5", // soft warm tint
+  },
+  separator: {
+    height: 1,
+    backgroundColor: "#F1F5F9",
+    marginLeft: 72,
   },
   avatarContainer: {
-    position: 'relative',
-    marginRight: 16,
+    position: "relative",
   },
   avatar: {
-    width: AVATAR_SIZE,
-    height: AVATAR_SIZE,
-    borderRadius: AVATAR_SIZE / 2.5,
-    backgroundColor: "#F1F5F9",
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: "#F8FAFC",
+    borderWidth: 1,
+    borderColor: "#E2E8F0",
   },
-  activeDot: {
-    position: 'absolute',
-    bottom: 2,
+  avatarFallback: {
+    backgroundColor: "#FFCC00",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  avatarInitials: {
+    fontSize: 18,
+    fontFamily: font.MonolithRegular,
+    color: "#0F172A",
+  },
+  onlineDot: {
+    position: "absolute",
+    bottom: 0,
     right: 2,
     width: 14,
     height: 14,
     borderRadius: 7,
-    backgroundColor: "#FFCC00",
-    borderWidth: 2.5,
+    backgroundColor: "#22C55E",
+    borderWidth: 2,
     borderColor: "#FFFFFF",
   },
-  fallbackAvatar: {
-    backgroundColor: "#FFCC0015",
-    justifyContent: "center",
-    alignItems: "center",
-    width: AVATAR_SIZE,
-    height: AVATAR_SIZE,
-    borderRadius: AVATAR_SIZE / 2.5,
-  },
-  fallbackText: {
-    fontSize: 24,
-    color: "#FFCC00",
-    fontFamily: font.MonolithRegular,
-  },
-  contentCol: {
+  infoCol: {
     flex: 1,
-    justifyContent: 'center',
+    marginLeft: 16,
   },
-  topRow: {
+  cardHeaderRow: {
     flexDirection: "row",
-    justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 6,
+    justifyContent: "space-between",
   },
-  nameText: {
-    fontSize: 17,
-    color: "#0F172A",
+  driverName: {
+    fontSize: 16,
     fontFamily: font.MonolithRegular,
+    color: "#0F172A",
     flex: 1,
+  },
+  driverNameUnread: {
+    fontFamily: font.MonolithRegular,
+    color: "#0F172A",
   },
   timeText: {
     fontSize: 12,
-    color: "#94A3B8",
     fontFamily: font.MonolithRegular,
+    color: "#94A3B8",
+    marginLeft: 10,
   },
-  unreadTime: {
+  timeTextUnread: {
+    fontFamily: font.MonolithRegular,
     color: "#FFCC00",
   },
-  middleRow: {
-    marginBottom: 8,
-  },
-  tagWrapper: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  trackingTag: {
-    backgroundColor: '#F1F5F9',
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 6,
-  },
-  trackingTagText: {
-    fontSize: 11,
-    color: "#64748B",
-    fontFamily: font.MonolithRegular,
-  },
-  statusTag: {
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 6,
-  },
-  statusTagText: {
-    fontSize: 10,
-    fontFamily: font.MonolithRegular,
-    textTransform: "uppercase",
-    letterSpacing: 0.5,
-  },
-  bottomRow: {
+  subHeaderRow: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: 'space-between',
+    marginTop: 4,
+    gap: 8,
   },
-  messageText: {
-    flex: 1,
-    fontSize: 14,
+  trackingIdPill: {
+    backgroundColor: "#F1F5F9",
+    borderRadius: 6,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+  },
+  trackingIdText: {
+    fontSize: 11,
+    fontFamily: font.MonolithRegular,
     color: "#64748B",
-    fontFamily: font.MonolithRegular,
-    marginRight: 10,
   },
-  unreadMessageText: {
-    color: "#0F172A",
+  badge: {
+    borderRadius: 6,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+  },
+  badgeText: {
+    fontSize: 11,
     fontFamily: font.MonolithRegular,
+  },
+  messageFooterRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginTop: 8,
+    gap: 12,
+  },
+  lastMessageText: {
+    fontSize: 13,
+    fontFamily: font.MonolithRegular,
+    color: "#FFCC00",
+    flex: 1,
+  },
+  lastMessageTextUnread: {
+    fontFamily: font.MonolithRegular,
+    color: "#0F172A",
   },
   unreadBadge: {
     backgroundColor: "#FFCC00",
-    borderRadius: 10,
-    height: 20,
-    minWidth: 20,
-    paddingHorizontal: 6,
-    justifyContent: "center",
+    borderRadius: 12,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    minWidth: 22,
+    height: 22,
     alignItems: "center",
+    justifyContent: "center",
   },
   unreadBadgeText: {
-    color: "#000000",
-    fontSize: 11,
+    color: "#0F172A",
+    fontSize: 10,
     fontFamily: font.MonolithRegular,
   },
-  emptyContainer: {
+  loaderWrap: {
     flex: 1,
-    justifyContent: 'center',
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#F8FAFC",
   },
   emptyWrap: {
+    flex: 1,
     alignItems: "center",
     justifyContent: "center",
-    paddingHorizontal: 48,
-    marginTop: -60,
+    paddingTop: 80,
+    paddingHorizontal: 40,
   },
   illustrationWrap: {
     width: 140,
     height: 140,
     justifyContent: "center",
     alignItems: "center",
-    marginBottom: 24,
+    marginBottom: 20,
   },
   illustrationBg: {
-    position: 'absolute',
+    position: "absolute",
     width: 120,
     height: 120,
     borderRadius: 60,
-    backgroundColor: "#FFCC0008",
+    backgroundColor: "#FFCC00",
+    opacity: 0.08,
   },
-  emptyLogo: {
-    height: 100,
-    width: 100,
+  emptyIcon: {
+    height: 80,
+    width: 80,
+    resizeMode: "contain",
   },
   emptyTitle: {
-    fontSize: 24,
+    fontSize: 20,
     color: "#0F172A",
-    marginBottom: 10,
     fontFamily: font.MonolithRegular,
+    marginBottom: 8,
+    textAlign: "center",
+
   },
   emptySubtitle: {
-    fontSize: 16,
+    fontSize: 14,
     color: "#64748B",
-    textAlign: "center",
-    lineHeight: 24,
     fontFamily: font.MonolithRegular,
+    textAlign: "center",
+    lineHeight: 20,
   },
   errorBanner: {
-    flexDirection: 'row',
-    alignItems: 'center',
     backgroundColor: "#FEF2F2",
-    borderRadius: 16,
-    padding: 16,
-    marginHorizontal: 24,
-    marginBottom: 20,
+    borderRadius: 12,
+    padding: 12,
+    marginHorizontal: 20,
+    marginBottom: 16,
     borderWidth: 1,
     borderColor: "#FECACA",
-    gap: 12,
   },
   errorText: {
     color: "#DC2626",
-    fontSize: 14,
-    flex: 1,
+    fontSize: 13,
     fontFamily: font.MonolithRegular,
-
+    textAlign: "center",
   },
 });

@@ -90,12 +90,12 @@ export const styles = StyleSheet.create({
 
   /* cards */
   card: {
-    backgroundColor: "#FFF",
+    backgroundColor: "#fff",
     borderRadius: 18,
     padding: 16,
+    marginBottom: 14,
     borderWidth: 1,
     borderColor: "#E2E8F0",
-    marginBottom: 14,
     ...Platform.select({
       ios: {
         shadowColor: "#0F172A",
@@ -122,7 +122,6 @@ export const styles = StyleSheet.create({
     fontSize: 15,
     color: "#0F172A",
     fontFamily: font.MonolithRegular,
-    fontWeight: "700",
   },
   phone: {
     marginTop: 2,
@@ -165,7 +164,6 @@ export const styles = StyleSheet.create({
   statusText: {
     fontFamily: font.MonolithRegular,
     fontSize: 11,
-    fontWeight: "700",
     textTransform: "uppercase",
     letterSpacing: 0.4,
   },
