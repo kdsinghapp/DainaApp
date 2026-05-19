@@ -448,7 +448,8 @@ export default function ViewDetails() {
                 }}
               >
                 <Text style={[styles.viewDetails, {
-                  color: "white"
+                  color: "white",
+                  fontFamily: font.MonolithRegular
                 }]}
 
                 >
@@ -557,7 +558,7 @@ export default function ViewDetails() {
 
             {/* Collapsible Security & Verification Details Section */}
             <View style={styles.verificationCard}>
-              <TouchableOpacity 
+              <TouchableOpacity
                 style={styles.verificationHeader}
                 onPress={() => setIsDetailsExpanded(!isDetailsExpanded)}
                 activeOpacity={0.7}
@@ -566,10 +567,10 @@ export default function ViewDetails() {
                   <Icon name="shield-checkmark-outline" size={18} color="#FFCC00" style={{ marginRight: 6 }} />
                   <Text style={styles.verificationTitle}>{strings.DriverVerificationDetails || "Driver Security & Verification Details"}</Text>
                 </View>
-                <Icon 
-                  name={isDetailsExpanded ? "chevron-up" : "chevron-down"} 
-                  size={18} 
-                  color="gray" 
+                <Icon
+                  name={isDetailsExpanded ? "chevron-up" : "chevron-down"}
+                  size={18}
+                  color="gray"
                 />
               </TouchableOpacity>
 
@@ -620,37 +621,37 @@ export default function ViewDetails() {
                   <Text style={styles.sectionHeader}>Verification Documents</Text>
                   <View style={styles.documentsContainer}>
                     {(driver?.idDocument || driver?.upload_document?.idDocument) && (
-                      <TouchableOpacity 
-                        style={styles.docItem} 
+                      <TouchableOpacity
+                        style={styles.docItem}
                         onPress={() => setSelectedImage(driver?.idDocument || driver?.upload_document?.idDocument)}
                       >
-                        <Image 
-                          source={{ uri: driver?.idDocument || driver?.upload_document?.idDocument }} 
-                          style={styles.docThumb} 
+                        <Image
+                          source={{ uri: driver?.idDocument || driver?.upload_document?.idDocument }}
+                          style={styles.docThumb}
                         />
                         <Text style={styles.docText}>ID Document</Text>
                       </TouchableOpacity>
                     )}
                     {(driver?.drivingLicense || driver?.upload_document?.drivingLicense) && (
-                      <TouchableOpacity 
+                      <TouchableOpacity
                         style={styles.docItem}
                         onPress={() => setSelectedImage(driver?.drivingLicense || driver?.upload_document?.drivingLicense)}
                       >
-                        <Image 
-                          source={{ uri: driver?.drivingLicense || driver?.upload_document?.drivingLicense }} 
-                          style={styles.docThumb} 
+                        <Image
+                          source={{ uri: driver?.drivingLicense || driver?.upload_document?.drivingLicense }}
+                          style={styles.docThumb}
                         />
                         <Text style={styles.docText}>License Photo</Text>
                       </TouchableOpacity>
                     )}
                     {(driver?.vehicleRegistration || driver?.vehicle_setup?.vehicleRegistration) && (
-                      <TouchableOpacity 
+                      <TouchableOpacity
                         style={styles.docItem}
                         onPress={() => setSelectedImage(driver?.vehicleRegistration || driver?.vehicle_setup?.vehicleRegistration)}
                       >
-                        <Image 
-                          source={{ uri: driver?.vehicleRegistration || driver?.vehicle_setup?.vehicleRegistration }} 
-                          style={styles.docThumb} 
+                        <Image
+                          source={{ uri: driver?.vehicleRegistration || driver?.vehicle_setup?.vehicleRegistration }}
+                          style={styles.docThumb}
                         />
                         <Text style={styles.docText}>Registration</Text>
                       </TouchableOpacity>
