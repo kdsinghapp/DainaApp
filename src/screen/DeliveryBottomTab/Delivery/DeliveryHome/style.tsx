@@ -227,5 +227,45 @@ export const styles = StyleSheet.create({
     color: "#9AA4AF",
     fontFamily: font.MonolithRegular,
   },
-
+  emptyWrap: {
+    paddingVertical: 60,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: 40,
+  },
+  illustrationWrap: {
+    width: 160,
+    height: 160,
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 24,
+    position: "relative",
+  },
+  illustrationBg: {
+    position: "absolute",
+    width: 140,
+    height: 140,
+    borderRadius: 70,
+    backgroundColor: "#FFCC00",
+    opacity: 0.1,
+  },
+  emptyIcon: {
+    height: 120,
+    width: 120,
+    resizeMode: "contain",
+  },
+  emptyTitle: {
+    fontSize: 22,
+    color: "#0F172A",
+    fontFamily: font.MonolithRegular,
+    marginBottom: 10,
+    textAlign: "center",
+  },
+  emptySubtitle: {
+    fontSize: 15,
+    color: "#64748B",
+    fontFamily: font.MonolithRegular,
+    textAlign: "center",
+    lineHeight: 22,
+  },
 });

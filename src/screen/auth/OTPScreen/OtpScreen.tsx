@@ -92,6 +92,7 @@ export default function OtpScreen() {
               <TouchableOpacity onPress={handleResendOTP} activeOpacity={0.7}>
                 <Text style={{
                   color: color.primary, fontFamily: font.MonolithRegular,
+                  textTransform: "uppercase",
                   textDecorationLine: 'underline'
                 }}>
                   {strings?.ResendOTPButton}

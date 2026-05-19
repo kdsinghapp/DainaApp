@@ -367,9 +367,13 @@ const DeliveryHome = () => {
               );
             }}
             ListEmptyComponent={
-              <ReAnimated.View entering={FadeIn.delay(300)}>
-                <Text style={styles.emptyText}>{strings.NoOrdersHereYet}</Text>
-              </ReAnimated.View>
+              <View style={styles.emptyWrap}>
+                <View style={styles.illustrationWrap}>
+                  <View style={styles.illustrationBg} />
+                  <Image source={imageIndex.ordePracle} style={styles.emptyIcon} />
+                </View>
+                <Text style={styles.emptyTitle}>{strings.NoOrder}</Text>
+              </View>
             }
           />
         </Animated.View>

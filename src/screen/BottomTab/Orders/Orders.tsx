@@ -302,8 +302,12 @@ const ProgressTrack = ({ status }: { status: string }) => {
     <View style={styles.trackContainer}>
 
       <View style={styles.trackBase}>
+        {/* Background Grey Line */}
         <View style={styles.trackLine} />
+
+        {/* Active Yellow Line */}
         <View style={[styles.trackFill, { width: `${progressPercent}%` }]} />
+
         {/* Milestone dots */}
         {STATUS_STEPS.map((step, i) => {
           const isActive = i <= activeIdx;
@@ -366,7 +370,9 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.08,
         shadowRadius: 4,
       },
-
+      android: {
+        elevation: 2,
+      },
     }),
   },
   tabText: {
