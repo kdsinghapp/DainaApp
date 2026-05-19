@@ -167,37 +167,36 @@ const NewOrderNotificationModal: React.FC<NewOrderNotificationModalProps> = ({
           {/* Location Path (Timeline) */}
           {(pickupAddress || dropAddress) ? (
             <View style={styles.pathContainer}>
-              <View style={styles.pathTimeline}>
-                <View style={styles.pathDotContainer}>
+              {/* Row 1: Pickup */}
+              <View style={styles.timelineRow}>
+                {/* Left Col: Dot & Line */}
+                <View style={styles.leftCol}>
                   <View style={[styles.iconCircle, { borderColor: '#10B981', backgroundColor: '#ECFDF5' }]}>
-                    <Icon name="ellipse" size={wp(2)} color="#10B981" />
+                    <Icon name="ellipse" size={wp(2.2)} color="#10B981" />
                   </View>
+                  <View style={styles.verticalLine} />
+                </View>
 
-                  <View style={styles.pathLineContainer}>
-                    <View style={styles.pathLine} />
-                  </View>
+                {/* Right Col: Label & Address */}
+                <View style={styles.rightCol}>
+                  <Text style={styles.pathLabel}>{strings.Pickup || 'Pickup'}</Text>
+                  <Text style={styles.pathAddress}>{pickupAddress || 'N/A'}</Text>
+                </View>
+              </View>
 
+              {/* Row 2: Drop-off */}
+              <View style={[styles.timelineRow, { marginBottom: 0 }]}>
+                {/* Left Col: Dot */}
+                <View style={styles.leftCol}>
                   <View style={[styles.iconCircle, { borderColor: '#EF4444', backgroundColor: '#FEF2F2' }]}>
-                    <Icon name="location" size={wp(3.5)} color="#EF4444" />
+                    <Icon name="location" size={wp(3.8)} color="#EF4444" />
                   </View>
                 </View>
 
-                <View style={styles.pathContent}>
-                  <View style={styles.pathBlock}>
-                    <Text style={styles.pathLabel}>{strings.Pickup || 'Pickup'}</Text>
-                    <Text style={styles.pathAddress}  >
-                      {pickupAddress || 'N/A'}
-                    </Text>
-                  </View>
-
-                  <View style={styles.pathSpacer} />
-
-                  <View style={styles.pathBlock}>
-                    <Text style={styles.pathLabel}>{strings.Drop || 'Drop-off'}</Text>
-                    <Text style={styles.pathAddress}  >
-                      {dropAddress || 'N/A'}
-                    </Text>
-                  </View>
+                {/* Right Col: Label & Address */}
+                <View style={[styles.rightCol, { paddingBottom: 0 }]}>
+                  <Text style={styles.pathLabel}>{strings.Drop || 'Drop-off'}</Text>
+                  <Text style={styles.pathAddress}>{dropAddress || 'N/A'}</Text>
                 </View>
               </View>
             </View>
@@ -412,16 +411,13 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#F1F5F9',
     marginBottom: hp(2.5),
-
   },
-  pathTimeline: {
+  timelineRow: {
     flexDirection: 'row',
   },
-  pathDotContainer: {
+  leftCol: {
     alignItems: 'center',
     width: wp(8),
-    justifyContent: 'space-between',
-    paddingVertical: 2,
   },
   iconCircle: {
     width: wp(7),
@@ -433,24 +429,17 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#E2E8F0',
   },
-  pathLineContainer: {
+  verticalLine: {
     width: 2,
     flex: 1,
+    minHeight: hp(4),
     backgroundColor: '#E2E8F0',
     marginVertical: 4,
   },
-  pathLine: {
+  rightCol: {
     flex: 1,
-    width: 2,
-    backgroundColor: '#E2E8F0',
-  },
-  pathContent: {
-    flex: 1,
-    marginLeft: wp(4),
-  },
-  pathBlock: {
-    flex: 1,
-    justifyContent: 'center',
+    marginLeft: wp(3),
+    paddingBottom: hp(2.5),
   },
   pathLabel: {
     fontSize: wp(3),
@@ -465,9 +454,6 @@ const styles = StyleSheet.create({
     color: '#334155',
     fontFamily: font.MonolithRegular,
     lineHeight: wp(4.8),
-  },
-  pathSpacer: {
-    height: hp(1.5),
   },
   footer: {
     flexDirection: 'row',

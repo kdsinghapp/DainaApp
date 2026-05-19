@@ -133,6 +133,17 @@ class NotificationService {
 
       const isNearbyParcel = type === 'nearby_parcel';
 
+      // Check if logged-in user has the 'Delivery' role.
+      // If it is a regular user (Customer), suppress nearby parcel requests.
+      const authData = await AsyncStorage.getItem('authData');
+      const parsedAuth = authData ? JSON.parse(authData) : null;
+      const userType = parsedAuth?.userData?.type;
+
+      if (isNearbyParcel && userType !== 'Delivery') {
+        console.log('Suppressing foreground nearby_parcel notification for non-delivery user type:', userType);
+        return;
+      }
+
       console.log('--- NOTIFICATION RECEIVED ---', JSON.stringify(remoteMessage, null, 2));
       console.log('Is Nearby Parcel Detected:', isNearbyParcel, { type, title, body });
 
@@ -161,9 +172,6 @@ class NotificationService {
       });
 
       // Start the long ringtone for foreground attention if online
-      const authData = await AsyncStorage.getItem('authData');
-      const parsedAuth = authData ? JSON.parse(authData) : null;
-
       // Default to online if we can't determine status, to be safe
       const status = parsedAuth?.userData?.onlineStatus?.toLowerCase() || 'online';
       const isUserOnline = status === 'online';
@@ -227,6 +235,16 @@ class NotificationService {
 
       const isNearbyParcel = type === 'nearby_parcel';
 
+      // Check if logged-in user has the 'Delivery' role in background.
+      const authData = await AsyncStorage.getItem('authData');
+      const parsedAuth = authData ? JSON.parse(authData) : null;
+      const userType = parsedAuth?.userData?.type;
+
+      if (isNearbyParcel && userType !== 'Delivery') {
+        console.log('Suppressing background nearby_parcel notification for non-delivery user type:', userType);
+        return;
+      }
+
       const channelId = await notifee.createChannel({
         id: isNearbyParcel ? 'delivery_orders_v4' : 'default_channel',
         name: isNearbyParcel ? 'Delivery Orders' : 'General Notifications',
@@ -250,8 +268,6 @@ class NotificationService {
       });
 
       // Background sound play if online
-      const authData = await AsyncStorage.getItem('authData');
-      const parsedAuth = authData ? JSON.parse(authData) : null;
       const isUserOnline = (parsedAuth?.userData?.onlineStatus?.toLowerCase() || 'online') === 'online';
 
       if (isNearbyParcel && isUserOnline) {

@@ -527,13 +527,7 @@ export default function ViewDetails() {
                       fontFamily: font.MonolithRegular
                     }}>{driver?.email}</Text>
                   }
-                  {driver?.address &&
-                    <Text style={{
-                      fontSize: 13,
-                      color: "gray",
-                      fontFamily: font.MonolithRegular
-                    }}>{driver?.address}</Text>
-                  }
+
                 </View>
               </View>
 
@@ -555,124 +549,134 @@ export default function ViewDetails() {
               </TouchableOpacity>
             </View>
 
-            {/* Collapsible Security & Verification Details Section */}
-            <View style={styles.verificationCard}>
-              <TouchableOpacity
-                style={styles.verificationHeader}
-                onPress={() => setIsDetailsExpanded(!isDetailsExpanded)}
-                activeOpacity={0.7}
-              >
-                <View style={{ flexDirection: "row", alignItems: "center" }}>
-                  <Icon name="shield-checkmark-outline" size={18} color="#FFCC00" style={{ marginRight: 6 }} />
-                  <Text style={styles.verificationTitle}>{strings.DriverVerificationDetails || "Driver Security & Verification Details"}</Text>
+
+
+            <Modal
+              visible={isDetailsExpanded}
+              animationType="slide"
+              transparent={true}
+              onRequestClose={() => setIsDetailsExpanded(false)}
+            >
+              <View style={styles.modalOverlay}>
+                <View style={styles.modalCard}>
+                  {/* Modal Header */}
+                  <View style={styles.modalHeaderRow}>
+                    <View style={{ flexDirection: "row", alignItems: "center" }}>
+                      <Icon name="shield-checkmark" size={22} color="#FFCC00" style={{ marginRight: 8 }} />
+                      <Text style={styles.modalTitleText}>{strings.SecurityAndVerification || "Security & Verification"}</Text>
+                    </View>
+                    <TouchableOpacity
+                      onPress={() => setIsDetailsExpanded(false)}
+                      style={styles.modalCloseButton}
+                    >
+                      <Icon name="close" size={20} color="#64748B" />
+                    </TouchableOpacity>
+                  </View>
+
+                  <ScrollView
+                    showsVerticalScrollIndicator={false}
+                    contentContainerStyle={styles.modalScrollContent}
+                  >
+                    {/* Security Disclaimer Banner */}
+                    <View style={styles.securityBanner}>
+                      <Icon name="lock-closed" size={16} color="#065F46" style={{ marginRight: 8 }} />
+                      <Text style={styles.securityBannerText}>
+                        {strings.VerifiedProfileVehicleDocsDesc || "This driver profile is fully verified for security and parcel safety."}
+                      </Text>
+                    </View>
+
+                    {/* App Registered Name */}
+                    <View style={styles.infoRow}>
+                      <Text style={styles.infoLabel}>{strings.AppRegisteredName || "App Registered Name"}:</Text>
+                      <Text style={styles.infoValue}>{driver?.name || "—"}</Text>
+                    </View>
+
+                    <View style={styles.dividerLine} />
+
+                    {/* Vehicle Setup Section */}
+                    <Text style={styles.sectionHeader}>{strings.VehicleSetupRegistration || "Vehicle Setup & Registration"}</Text>
+                    <View style={styles.infoRow}>
+                      <Text style={styles.infoLabel}>{strings.VehicleType || "Vehicle Type"}:</Text>
+                      <Text style={styles.infoValue}>{driver?.vehicleType || driver?.vehicle_setup?.vehicleType || "—"}</Text>
+                    </View>
+                    <View style={styles.infoRow}>
+                      <Text style={styles.infoLabel}>{strings.VehicleNumber || "Vehicle Number"}:</Text>
+                      <Text style={styles.infoValue}>{driver?.vehicleNumber || driver?.vehicle_setup?.vehicleNumber || "—"}</Text>
+                    </View>
+
+                    <View style={styles.dividerLine} />
+
+                    {/* Bank Details Section */}
+                    <Text style={styles.sectionHeader}>{strings.BankDetailsHolderName || "Bank Details (Check Holder Name)"}</Text>
+                    <View style={styles.infoRow}>
+                      <Text style={styles.infoLabel}>{strings.BankName || "Bank Name"}:</Text>
+                      <Text style={styles.infoValue}>{driver?.bankName || driver?.bank_setup?.bankName || "—"}</Text>
+                    </View>
+                    <View style={styles.infoRow}>
+                      <Text style={styles.infoLabel}>{strings.AccountHolder || "Account Holder"}:</Text>
+                      <Text style={styles.infoValue}>{driver?.bankAccountName || driver?.bank_setup?.bankAccountName || driver?.name || "—"}</Text>
+                    </View>
+                    <View style={styles.infoRow}>
+                      <Text style={styles.infoLabel}>{strings.AccountNumber || "Account Number"}:</Text>
+                      <Text style={styles.infoValue}>{driver?.bankAccountNumber || driver?.bank_setup?.bankAccountNumber || "—"}</Text>
+                    </View>
+                    <View style={styles.infoRow}>
+                      <Text style={styles.infoLabel}>{strings.IFSCCode || "IFSC Code"}:</Text>
+                      <Text style={styles.infoValue}>{driver?.bankIfscCode || driver?.bank_setup?.bankIfscCode || "—"}</Text>
+                    </View>
+
+                    <View style={styles.dividerLine} />
+
+                    {/* ID & Licenses Section */}
+                    <Text style={styles.sectionHeader}>{strings.VerificationDocuments || "Verification Documents"}</Text>
+                    <View style={styles.documentsContainer}>
+                      {(driver?.idDocument || driver?.upload_document?.idDocument) && (
+                        <TouchableOpacity
+                          style={styles.docItem}
+                          onPress={() => setSelectedImage(driver?.idDocument || driver?.upload_document?.idDocument)}
+                        >
+                          <Image
+                            source={{ uri: driver?.idDocument || driver?.upload_document?.idDocument }}
+                            style={styles.docThumb}
+                          />
+                          <Text style={styles.docText}>{strings.IDDocumentLabel || "ID Document"}</Text>
+                        </TouchableOpacity>
+                      )}
+                      {(driver?.drivingLicense || driver?.upload_document?.drivingLicense) && (
+                        <TouchableOpacity
+                          style={styles.docItem}
+                          onPress={() => setSelectedImage(driver?.drivingLicense || driver?.upload_document?.drivingLicense)}
+                        >
+                          <Image
+                            source={{ uri: driver?.drivingLicense || driver?.upload_document?.drivingLicense }}
+                            style={styles.docThumb}
+                          />
+                          <Text style={styles.docText}>{strings.LicensePhotoLabel || "License Photo"}</Text>
+                        </TouchableOpacity>
+                      )}
+                      {(driver?.vehicleRegistration || driver?.vehicle_setup?.vehicleRegistration) && (
+                        <TouchableOpacity
+                          style={styles.docItem}
+                          onPress={() => setSelectedImage(driver?.vehicleRegistration || driver?.vehicle_setup?.vehicleRegistration)}
+                        >
+                          <Image
+                            source={{ uri: driver?.vehicleRegistration || driver?.vehicle_setup?.vehicleRegistration }}
+                            style={styles.docThumb}
+                          />
+                          <Text style={styles.docText}>{strings.RegistrationLabel || "Registration"}</Text>
+                        </TouchableOpacity>
+                      )}
+                    </View>
+                  </ScrollView>
                 </View>
-                <Icon
-                  name={isDetailsExpanded ? "chevron-up" : "chevron-down"}
-                  size={18}
-                  color="gray"
-                />
-              </TouchableOpacity>
-
-              {isDetailsExpanded && (
-                <View style={styles.verificationContent}>
-                  <View style={styles.infoRow}>
-                    <Text style={styles.infoLabel}>App Registered Name:</Text>
-                    <Text style={styles.infoValue}>{driver?.name || "—"}</Text>
-                  </View>
-
-                  <View style={styles.dividerLine} />
-
-                  {/* Vehicle Setup Section */}
-                  <Text style={styles.sectionHeader}>Vehicle Setup & Registration</Text>
-                  <View style={styles.infoRow}>
-                    <Text style={styles.infoLabel}>Vehicle Type:</Text>
-                    <Text style={styles.infoValue}>{driver?.vehicleType || driver?.vehicle_setup?.vehicleType || "—"}</Text>
-                  </View>
-                  <View style={styles.infoRow}>
-                    <Text style={styles.infoLabel}>Car / Plate Number:</Text>
-                    <Text style={styles.infoValue}>{driver?.vehicleNumber || driver?.vehicle_setup?.vehicleNumber || "—"}</Text>
-                  </View>
-
-                  <View style={styles.dividerLine} />
-
-                  {/* Bank Details Section */}
-                  <Text style={styles.sectionHeader}>Bank Details (Check Holder Name)</Text>
-                  <View style={styles.infoRow}>
-                    <Text style={styles.infoLabel}>Bank Name:</Text>
-                    <Text style={styles.infoValue}>{driver?.bankName || driver?.bank_setup?.bankName || "—"}</Text>
-                  </View>
-                  <View style={styles.infoRow}>
-                    <Text style={styles.infoLabel}>Account Holder:</Text>
-                    <Text style={styles.infoValue}>{driver?.bankAccountName || driver?.bank_setup?.bankAccountName || driver?.name || "—"}</Text>
-                  </View>
-                  <View style={styles.infoRow}>
-                    <Text style={styles.infoLabel}>Account Number:</Text>
-                    <Text style={styles.infoValue}>{driver?.bankAccountNumber || driver?.bank_setup?.bankAccountNumber || "—"}</Text>
-                  </View>
-                  <View style={styles.infoRow}>
-                    <Text style={styles.infoLabel}>IFSC Code:</Text>
-                    <Text style={styles.infoValue}>{driver?.bankIfscCode || driver?.bank_setup?.bankIfscCode || "—"}</Text>
-                  </View>
-
-                  <View style={styles.dividerLine} />
-
-                  {/* ID & Licenses Section */}
-                  <Text style={styles.sectionHeader}>Verification Documents</Text>
-                  <View style={styles.documentsContainer}>
-                    {(driver?.idDocument || driver?.upload_document?.idDocument) && (
-                      <TouchableOpacity
-                        style={styles.docItem}
-                        onPress={() => setSelectedImage(driver?.idDocument || driver?.upload_document?.idDocument)}
-                      >
-                        <Image
-                          source={{ uri: driver?.idDocument || driver?.upload_document?.idDocument }}
-                          style={styles.docThumb}
-                        />
-                        <Text style={styles.docText}>ID Document</Text>
-                      </TouchableOpacity>
-                    )}
-                    {(driver?.drivingLicense || driver?.upload_document?.drivingLicense) && (
-                      <TouchableOpacity
-                        style={styles.docItem}
-                        onPress={() => setSelectedImage(driver?.drivingLicense || driver?.upload_document?.drivingLicense)}
-                      >
-                        <Image
-                          source={{ uri: driver?.drivingLicense || driver?.upload_document?.drivingLicense }}
-                          style={styles.docThumb}
-                        />
-                        <Text style={styles.docText}>License Photo</Text>
-                      </TouchableOpacity>
-                    )}
-                    {(driver?.vehicleRegistration || driver?.vehicle_setup?.vehicleRegistration) && (
-                      <TouchableOpacity
-                        style={styles.docItem}
-                        onPress={() => setSelectedImage(driver?.vehicleRegistration || driver?.vehicle_setup?.vehicleRegistration)}
-                      >
-                        <Image
-                          source={{ uri: driver?.vehicleRegistration || driver?.vehicle_setup?.vehicleRegistration }}
-                          style={styles.docThumb}
-                        />
-                        <Text style={styles.docText}>Registration</Text>
-                      </TouchableOpacity>
-                    )}
-                  </View>
-                </View>
-              )}
-            </View>
+              </View>
+            </Modal>
           </View>
         )}
 
         {/* Tracking Package – steps with icon + label */}
         <View style={styles.sectionTitleRow}>
-          {/* {source?.imageUrl ? (
-            <Image
-              source={{ uri: source.imageUrl }}
-              style={styles.trackingSectionIcon}
-              resizeMode="contain"
-            />
-          ) : (
-            <Image source={imageIndex.Rectangle} style={styles.trackingSectionIcon} resizeMode="contain" />
-          )} */}
+
           <Text style={styles.sectionTitle}>{strings.TrackingPackage}</Text>
         </View>
         <View style={styles.timelineWrap}>
@@ -704,6 +708,27 @@ export default function ViewDetails() {
             );
           })}
         </View>
+
+
+        {/* Security & Verification Details Modal Trigger */}
+        <TouchableOpacity
+          style={styles.verificationTriggerButton}
+          onPress={() => setIsDetailsExpanded(true)}
+          activeOpacity={0.8}
+        >
+          <View style={{ flexDirection: "row", alignItems: "center", flex: 1 }}>
+            <Icon name="shield-checkmark" size={20} color="#FFCC00" style={{ marginRight: 10 }} />
+            <View style={{ flex: 1 }}>
+              <Text style={styles.verificationButtonTitle}>
+                {strings.DriverVerificationDetails || "Security & Verification Details"}
+              </Text>
+              <Text style={styles.verificationButtonSubtitle} numberOfLines={1}>
+                {strings.VerifiedProfileVehicleDocs || "View verified profile, vehicle & documents"}
+              </Text>
+            </View>
+          </View>
+          <Icon name="chevron-forward" size={18} color="#94A3B8" />
+        </TouchableOpacity>
       </ScrollView>
 
       <Modal
@@ -876,25 +901,85 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontFamily: font.MonolithRegular,
   },
-  verificationCard: {
-    backgroundColor: "#F8FAFC",
+  verificationTriggerButton: {
+    backgroundColor: "#FFFFFF",
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: "#E2E8F0",
-    marginTop: 15,
-    overflow: "hidden",
+    borderColor: "#F1F5F9",
+    marginTop: 20,
+    marginBottom: 30,
+    marginHorizontal: 20,
+    paddingHorizontal: 16,
+    paddingVertical: 15,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    shadowColor: "#0F172A",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.06,
+    shadowRadius: 12,
+    elevation: 3,
   },
-  verificationHeader: {
+  verificationButtonTitle: {
+    fontSize: 14,
+    fontFamily: font.MonolithRegular,
+    color: "#0F172A",
+  },
+  verificationButtonSubtitle: {
+    fontSize: 12,
+    fontFamily: font.MonolithRegular,
+    color: "#64748B",
+    marginTop: 2,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(15, 23, 42, 0.5)",
+    justifyContent: "flex-end",
+  },
+  modalCard: {
+    backgroundColor: "#FFFFFF",
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    maxHeight: "85%",
+    paddingBottom: 40,
+  },
+  modalHeaderRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    padding: 14,
-    backgroundColor: "#F1F5F9",
+    paddingHorizontal: 20,
+    paddingVertical: 18,
+    borderBottomWidth: 1,
+    borderBottomColor: "#F1F5F9",
   },
-  verificationTitle: {
-    fontSize: 13,
+  modalTitleText: {
+    fontSize: 16,
     fontFamily: font.MonolithRegular,
-    color: "#1E293B",
+    color: "#0F172A",
+  },
+  modalCloseButton: {
+    padding: 6,
+    backgroundColor: "#F1F5F9",
+    borderRadius: 999,
+  },
+  modalScrollContent: {
+    paddingHorizontal: 20,
+    paddingTop: 16,
+  },
+  securityBanner: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#D1FAE5",
+    borderRadius: 12,
+    padding: 12,
+    marginBottom: 16,
+  },
+  securityBannerText: {
+    flex: 1,
+    fontSize: 12,
+    fontFamily: font.MonolithRegular,
+    color: "#065F46",
+    lineHeight: 16,
   },
   verificationContent: {
     padding: 14,
