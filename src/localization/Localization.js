@@ -10,6 +10,10 @@ const strings = new LocalizedStrings({
     PaymentHistory: "Payment History",
     Camera: "Camera",
     Gallery: "Gallery",
+    Account:"Account Settings",
+            Support:"Support & Legal"
+,
+Locationu:"Location unavailable",
     Help: "Help",
     ContactInfo: "Contact Info",
     PushNotifications: "Push Notifications",
@@ -962,6 +966,12 @@ const strings = new LocalizedStrings({
     IDDocumentLabel: "Иргэний үнэмлэх",
     LicensePhotoLabel: "Жолооны үнэмлэхний зураг",
     RegistrationLabel: "Тээврийн хэрэгслийн гэрчилгээ",
+        Account:"Бүртгэлийн тохиргоо",
+        Support:"Дэмжлэг ба хууль эрх зүй" ,
+        Locationu:"Байршил боломжгүй",
+    CurrentLocation: "Одоогийн байршил",
+
+
   },
 });
 

@@ -3,6 +3,7 @@ import { View, Image, Text, TouchableOpacity, StyleSheet } from "react-native";
 import Icon from "react-native-vector-icons/Ionicons";
 import imageIndex from "../assets/imageIndex";
 import font from "../theme/font";
+import strings from "../localization/Localization";
 
 const HomeHeaderBar = ({
   location = "Wallace, Australia",
@@ -13,7 +14,7 @@ const HomeHeaderBar = ({
 }: any) => {
   return (
     <View>
-      <Text style={styles.tex}>Current location</Text>
+      <Text style={styles.tex}>{strings?.CurrentLocation}</Text>
 
       <View style={styles.container}>
         <TouchableOpacity

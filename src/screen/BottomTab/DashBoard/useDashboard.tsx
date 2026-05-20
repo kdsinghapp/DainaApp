@@ -5,6 +5,7 @@ import { GetProfileApi } from '../../../Api/apiRequest';
 import { loginSuccess } from '../../../redux/feature/authSlice';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useDashboardContext } from '../../../context/DashboardContext';
+import strings from '../../../localization/Localization';
 export type { CounterOfferAcceptedPayload } from '../../../context/DashboardContext';
 
 const useDashboard = () => {
@@ -80,12 +81,10 @@ const useDashboard = () => {
 
       const data = await locationRef?.current?.fetchLocation();
       if (data?.error) {
-        console.log('Location fetch error:', data.error);
-        if (retryCount < 2) {
-          console.log(`Retrying location fetch... (${retryCount + 1})`);
-          setTimeout(() => handleGetLocation(retryCount + 1), 2000);
+         if (retryCount < 2) {
+           setTimeout(() => handleGetLocation(retryCount + 1), 2000);
         } else {
-          setcurrentlocation("Location unavailable");
+          setcurrentlocation(strings?.Locationu);
         }
       } else if (data && data.address) {
         // Store in AsyncStorage
@@ -95,8 +94,7 @@ const useDashboard = () => {
         setCurrentLocation(data.address);
         setPickupLocation(data);
 
-        console.log('Stored and set location:', data);
-      }
+       }
 
     } catch (error) {
       console.error('Error getting location:', error);

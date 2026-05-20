@@ -14,13 +14,11 @@ import Animated, {
   FadeInDown,
   FadeInUp,
   FadeInRight,
-  Layout,
-  useAnimatedStyle,
+   useAnimatedStyle,
   useSharedValue,
   withSpring,
   withTiming,
-  interpolate,
-} from "react-native-reanimated";
+ } from "react-native-reanimated";
 import ReactNativeHapticFeedback from "react-native-haptic-feedback";
 import font from "../../../theme/font";
 import Icon from 'react-native-vector-icons/Ionicons';
@@ -187,7 +185,7 @@ const ProfileScreen: React.FC = () => {
         {/* Menu Sections */}
         <View style={styles.menuContainer}>
           <Animated.View entering={FadeInDown.delay(700)} style={styles.sectionWrap}>
-            <Text style={styles.sectionTitle}>Account Settings. {userData?.type}</Text>
+            <Text style={styles.sectionTitle}>{strings?.Account}. {userData?.type}</Text>
             <View style={styles.card}>
               <MenuItem
                 index={0}
@@ -212,7 +210,7 @@ const ProfileScreen: React.FC = () => {
           </Animated.View>
 
           <Animated.View entering={FadeInDown.delay(850)} style={styles.sectionWrap}>
-            <Text style={styles.sectionTitle}>Support & Legal</Text>
+            <Text style={styles.sectionTitle}>{strings?.Support}</Text>
             <View style={styles.card}>
               <MenuItem
                 index={3}
@@ -223,15 +221,7 @@ const ProfileScreen: React.FC = () => {
                   title: strings.PrivacyPolicy
                 })}
               />
-              <MenuItem
-                index={4}
-                icon={<Icon name="document-text-outline" size={22} color={color.primary} />}
-                label={strings.TermsConditions}
-                onPress={() => navigation.navigate(ScreenNameEnum.WebViewScreen, {
-                  url: 'https://api.daina.tech/privacy-policy', // Reusing same link as per user request or common practice if Terms is not separate
-                  title: strings.TermsConditions
-                })}
-              />
+       
               <MenuItem
                 index={5}
                 isLast
