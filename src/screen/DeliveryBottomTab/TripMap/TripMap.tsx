@@ -13,7 +13,7 @@ import {
   Platform,
   Keyboard,
 } from 'react-native';
-import MapView, { Marker, Polyline, PROVIDER_GOOGLE } from 'react-native-maps';
+import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import Geolocation from '@react-native-community/geolocation';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import LoadingModal from '../../../utils/Loader';
@@ -22,7 +22,7 @@ import CustomButton from '../../../compoent/CustomButton';
 import { GetApi, PostApi } from '../../../Api/apiRequest';
 import { GOOGLE_MAPS_APIKEY, } from '../../../Api';
 import { STATUS, STATUS_COLORS, STATUS_LABELS } from '../../../utils/Constant';
-import Icon from '../../../compoent/Icon';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 import { color } from '../../../constant';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import font from '../../../theme/font';
@@ -135,24 +135,11 @@ const TripMap = () => {
   }
 
 
-  const origin = {
-    latitude: parseFloat(item?.departure_lat) || 0,
-    longitude: parseFloat(item?.departure_lon) || 0,
-  };
-
   const navigation = useNavigation()
   const getButtonConfig = () => {
     const currentStatus = item?.deliveryStatus;
     switch (currentStatus) {
-      // case STATUS.PENDING:
-      //   return {
-      //     title: "Send Offer",
-      //     onPress: handleSendOffer,
-      //     color: "#FFD700", // Golden color for offer
-      //     icon: "send-outline",
-      //     showInputs: true
-      //   };
-
+      
       case STATUS.ASSIGNED:
         return {
           title: strings.StartPickup,
@@ -247,8 +234,10 @@ const TripMap = () => {
   const DEFAULT_LAT = 22.7176;
   const DEFAULT_LNG = 75.8577;
 
+  type LatLng = { latitude: number; longitude: number };
+
   /** Ensures native map gets a number; API often returns string or null. */
-  const safeNum = (v: unknown, fallback: number): number => {
+  const safeNum = (v: unknown, fallback: number | null): number | null => {
     if (v == null) return fallback;
     const n = typeof v === 'number' ? v : parseFloat(String(v));
     return Number.isFinite(n) ? n : fallback;
@@ -257,7 +246,7 @@ const TripMap = () => {
   const source = parcel || item?.parcel || item;
   const mapRef = useRef<MapView>(null);
   // Intelligent coordinate extraction to handle potential API swaps
-  const getCoords = (latField: any, lonField: any) => {
+  const getCoords = (latField: any, lonField: any): LatLng | null => {
     const v1 = safeNum(latField, null);
     const v2 = safeNum(lonField, null);
 
@@ -281,22 +270,50 @@ const TripMap = () => {
     source?.dropLon ?? source?.dropLocationLon ?? source?.drop_location_lon ?? source?.dropLon
   ) || { latitude: DEFAULT_LAT, longitude: DEFAULT_LNG };
   const [currentCoords, setCurrentCoords] = useState(driverCoords);
+  const [routeDistanceKm, setRouteDistanceKm] = useState<number | null>(null);
+
+  const pickupAddress = source?.pickupLocation || item?.pickup?.location || strings.PickupLocation;
+  const dropoffAddress = source?.dropLocation || item?.drop?.location || strings.DropLocation;
+  const normalizedPickupAddress = String(pickupAddress).trim().toLowerCase();
+  const normalizedDropoffAddress = String(dropoffAddress).trim().toLowerCase();
+  const sameLocation =
+    normalizedPickupAddress.length > 0 &&
+    normalizedPickupAddress === normalizedDropoffAddress;
 
   const deliveryStatus = item?.deliveryStatus ?? parcel?.deliveryStatus ?? item?.parcel?.deliveryStatus ?? '';
   const isToPickup = deliveryStatus === STATUS.ASSIGNED || deliveryStatus === STATUS.GOING_TO_PICKUP;
   const routeDestination = isToPickup ? pickup : dropoff;
-  const distanceBetween = (a: { latitude: number; longitude: number }, b: { latitude: number; longitude: number }) => {
+  const distanceBetween = (a: LatLng, b: LatLng) => {
     const dLat = a.latitude - b.latitude;
     const dLng = a.longitude - b.longitude;
     return Math.sqrt(dLat * dLat + dLng * dLng);
   };
+
+  const toRadians = (value: number) => (value * Math.PI) / 180;
+
+  const getDistanceKm = (a: LatLng, b: LatLng) => {
+    const earthRadiusKm = 6371;
+    const dLat = toRadians(b.latitude - a.latitude);
+    const dLng = toRadians(b.longitude - a.longitude);
+    const lat1 = toRadians(a.latitude);
+    const lat2 = toRadians(b.latitude);
+    const h =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(lat1) * Math.cos(lat2) *
+      Math.sin(dLng / 2) * Math.sin(dLng / 2);
+    return earthRadiusKm * 2 * Math.atan2(Math.sqrt(h), Math.sqrt(1 - h));
+  };
+
+  const formatKm = (value: number) => {
+    if (value < 0.1) return `${Math.round(value * 1000)} m`;
+    return `${value.toFixed(value < 10 ? 1 : 0)} km`;
+  };
+
+  const orderDistanceKm = routeDistanceKm ?? getDistanceKm(pickup, dropoff);
   const MIN_DIST = 0.0003;
   const tooClose = distanceBetween(currentCoords, routeDestination) < MIN_DIST;
-  const routeOrigin = tooClose ? pickup : currentCoords;
-  const routeDest = tooClose ? dropoff : routeDestination;
-  const routePointsValid = distanceBetween(routeOrigin, routeDest) >= MIN_DIST;
   // Full path green→red: show polyline between pickup and dropoff so driver sees where to go
-  const pickupToDropoffValid =
+  const pickupToDropoffValid = Boolean(
     pickup?.latitude &&
     pickup?.longitude &&
     dropoff?.latitude &&
@@ -309,7 +326,8 @@ const TripMap = () => {
     Number.isFinite(pickup?.longitude) &&
     Number.isFinite(dropoff?.latitude) &&
     Number.isFinite(dropoff?.longitude) &&
-    (pickup?.latitude !== dropoff?.latitude || pickup?.longitude !== dropoff?.longitude);
+    (pickup?.latitude !== dropoff?.latitude || pickup?.longitude !== dropoff?.longitude)
+  );
 
   useEffect(() => {
     setCurrentCoords(driverCoords);
@@ -341,13 +359,13 @@ const TripMap = () => {
     setKeyboardHeight(0);
   };
 
-  const driverCoordinate = {
-    latitude: safeNum(driverCoords?.latitude, DEFAULT_LAT),
-    longitude: safeNum(driverCoords?.longitude, DEFAULT_LNG),
+  const driverCoordinate: LatLng = {
+    latitude: safeNum(driverCoords?.latitude, DEFAULT_LAT) ?? DEFAULT_LAT,
+    longitude: safeNum(driverCoords?.longitude, DEFAULT_LNG) ?? DEFAULT_LNG,
   };
 
   const buttonConfig = getButtonConfig();
-  const updateParcelStatus = async (orderId, newStatus, otp) => {
+  const updateParcelStatus = async (orderId: string | number, newStatus: string, otp?: string) => {
     // Implement your API call here
     const token = await AsyncStorage.getItem('token');
     const body = {
@@ -383,7 +401,7 @@ const TripMap = () => {
       const result = await updateParcelStatus(item?.parcelId || item?.id, newStatus, newStatus == STATUS.DELIVERED ? deliveryOtp : pickupOtp);
       console.log(result)
       if (result.status == 1) {
-        successToast(strings.formatString(strings.StatusUpdatedTo, STATUS_LABELS[newStatus]))
+        successToast(String(strings.formatString(strings.StatusUpdatedTo, STATUS_LABELS[newStatus])))
         navigation.goBack();
         // You might want to refresh the data here
       } else {
@@ -436,6 +454,7 @@ const TripMap = () => {
                 onReady={result => {
                   console.log('Route duration:', result.duration);
                   console.log('Route distance:', result.distance);
+                  setRouteDistanceKm(result.distance);
                   mapRef.current?.fitToCoordinates(result.coordinates, {
                     edgePadding: {
                       right: wp(15),
@@ -454,7 +473,7 @@ const TripMap = () => {
                 <View style={styles.pickupPointInner} />
               </View>
             </Marker>
-            <Marker coordinate={dropoff} title={strings.DropOff} tracksViewChanges={false} anchor={{ x: 0.5, y: 0.9 }}>
+            <Marker coordinate={dropoff} title={strings.Drop} tracksViewChanges={false} anchor={{ x: 0.5, y: 0.9 }}>
               <Image source={imageIndex.locationpin}
                 resizeMode='contain'
                 style={{
@@ -475,11 +494,16 @@ const TripMap = () => {
               </View>
             </Marker>
           </MapView>
-
+          {sameLocation && (
+            <View style={styles.sameLocationBanner}>
+              <Ionicons name="alert-circle" size={20} color="#FFF" />
+              <Text style={styles.sameLocationText}>Same Location Delivery</Text>
+            </View>
+          )}
           {tooClose && (
             <View style={styles.arrivalBadge}>
               <View style={styles.arrivalBadgeIconWrap}>
-                <Icon name="location-sharp" size={20} color="#FFF" />
+                <Ionicons name="location-sharp" size={20} color="#FFF" />
               </View>
               <Text style={styles.arrivalBadgeText}>
                 {isToPickup ? strings.ArrivedAtPickup : strings.ArrivedAtDropoff}
@@ -502,33 +526,43 @@ const TripMap = () => {
         </TouchableOpacity>
 
         <View style={styles.locationContent}>
-          <View style={styles.locationRow}>
-            <View style={[styles.locationDot, { backgroundColor: '#10B981' }]} />
-            <Text style={styles.locationText} >
-              {item?.pickupLocation || item?.pickup?.location || "Pickup Location"}
-            </Text>
+          <View style={styles.routeHeaderRow}>
+            <Text style={styles.routeTitle}>Order Route</Text>
+            <View style={styles.distancePill}>
+              <Ionicons name="navigate" size={13} color="#0F172A" />
+              <Text style={styles.distanceText}>{formatKm(orderDistanceKm)}</Text>
+            </View>
           </View>
 
-          <View style={styles.connectorLine} />
+          <View style={styles.locationRow}>
+            <View style={styles.locationIconWrap}>
+              <View style={[styles.locationDot, { backgroundColor: '#10B981' }]} />
+              <View style={styles.connectorLine} />
+            </View>
+            <View style={styles.locationCopy}>
+              <Text style={styles.locationLabel}>{strings.Pickup}</Text>
+              <Text style={styles.locationText} numberOfLines={2}>
+                {pickupAddress}
+              </Text>
+            </View>
+          </View>
 
           <View style={styles.locationRow}>
-            <View style={[styles.locationDot, { backgroundColor: '#EF4444' }]} />
-            <Text style={styles.locationText}  >
-              {item?.dropLocation || item?.drop?.location || "Drop-off Location"}
-            </Text>
+            <View style={styles.locationIconWrap}>
+              <View style={[styles.locationDot, { backgroundColor: '#EF4444' }]} />
+            </View>
+            <View style={styles.locationCopy}>
+              <Text style={styles.locationLabel}>{strings.Drop}</Text>
+              <Text style={styles.locationText} numberOfLines={2}>
+                {dropoffAddress}
+              </Text>
+            </View>
           </View>
         </View>
       </View>
       <TouchableWithoutFeedback onPress={dismissKeyboard} accessible={false}>
-        {/* Bottom Driver Card - sits above keyboard when open */}
-        <View style={[styles.driverCard, { bottom: keyboardHeight }]}>
-          {/* {!end &&
-          <>
-            <Text style={styles.arrivingText}>Driver is Arriving...</Text>
-            <Text style={styles.timeText}>2 ss</Text>
-            <View style={styles.seprator} />
-          </>
-        } */}
+         <View style={[styles.driverCard, { bottom: keyboardHeight }]}>
+      
 
           <View style={styles.driverRow}>
             {item?.user?.image ? (
@@ -593,17 +627,14 @@ const TripMap = () => {
               <Image source={imageIndex.Calblack} style={styles.iconBtn} />
             </TouchableOpacity>
             <TouchableOpacity onPress={() => {
-              navgation.navigate(ScreenNameEnum.ChatScreen, {
+              (navgation as any).navigate(ScreenNameEnum.ChatScreen, {
                 item: item,
               })
             }}>
               <Image source={imageIndex.MessageBlack} style={styles.iconBtn} />
             </TouchableOpacity>
           </View>
-          {/* {end && */}
-          {/* <CustomButton onPress={Submit} title={"Finish"} /> */}
-          {/* } */}
-
+        
           {item?.deliveryStatus === STATUS?.GOING_TO_PICKUP && (
             <OtpSection
               label={strings.EnterPickupOTPShared}
@@ -622,8 +653,8 @@ const TripMap = () => {
 
           <CustomButton
             title={actionLoading ? strings.Processing : buttonConfig.title}
-            onPress={buttonConfig.onPress}
-            disabled={actionLoading || buttonConfig?.disabled}
+            onPress={buttonConfig.onPress ?? undefined}
+            disable={actionLoading || buttonConfig?.disabled}
             style={{
               // backgroundColor: buttonConfig.color,
               backgroundColor: color.primary,
@@ -631,31 +662,18 @@ const TripMap = () => {
 
             }}
             // txtcolor={'white'}
-            icon={
-              <Icon
-                name={buttonConfig.icon}
-                size={20}
-                color="#fff"
-                style={{ marginRight: 8 }}
-              />
+            leftIcon={
+               <Ionicons
+                 name={buttonConfig.icon}
+                 size={20}
+                 color="#fff"
+                 style={{ marginRight: 8 }}
+               />
             }
           />
         </View>
       </TouchableWithoutFeedback>
-      {/* <LocationPicker
-      visible={locationModal}
-      apiKey={MapApiKey}// replace with actual key
-      onClose={() => setLocationModal(false)}
-      onSumit={handleModalSubmit}
-      onLocationSelected={handleLocationSelected}
-    />
-    <LocationPicker
-      visible={locationModal2}
-      apiKey={MapApiKey}// replace with actual key
-      onClose={() => setLocationModal(false)}
-      onSumit={handleModalSubmit2}
-      onLocationSelected={handleLocationSelected2}
-    /> */}
+     
     </View>
   );
 };
@@ -690,10 +708,10 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     width: '92%',
     backgroundColor: '#fff',
-    borderRadius: 20,
+    borderRadius: 18,
     padding: 12,
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'flex-start',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.12,
@@ -701,39 +719,78 @@ const styles = StyleSheet.create({
     zIndex: 100,
   },
   backButtonWrap: {
- 
     justifyContent: 'center',
     alignItems: 'center',
- 
+    paddingTop: 2,
   },
   locationContent: {
     flex: 1,
-    gap: 4,
     paddingLeft: 12,
+  },
+  routeHeaderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 8,
+  },
+  routeTitle: {
+    fontSize: 12,
+    color: '#64748B',
+    fontFamily: font.MonolithRegular,
+  },
+  distancePill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFF7CC',
+    borderRadius: 14,
+    paddingHorizontal: 9,
+    paddingVertical: 5,
+    gap: 4,
+  },
+  distanceText: {
+    fontSize: 12,
+    color: '#0F172A',
+    fontFamily: font.MonolithRegular,
+    fontWeight: '700',
   },
   locationRow: {
     flexDirection: 'row',
+    alignItems: 'flex-start',
+    marginBottom: 8,
+  },
+  locationIconWrap: {
+    width: 16,
     alignItems: 'center',
-    paddingVertical: 2, 
-    marginBottom:4
   },
   locationDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    marginRight: 10,
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    marginTop: 5,
   },
   connectorLine: {
     width: 1,
-    height: 12,
+    height: 30,
     backgroundColor: '#E2E8F0',
-    marginLeft: 3.5, // Center with dot (8/2 - 1/2)
+    marginTop: 4,
+  },
+  locationCopy: {
+    flex: 1,
+    paddingLeft: 8,
+  },
+  locationLabel: {
+    fontSize: 11,
+    color: '#94A3B8',
+    marginBottom: 2,
+    fontFamily: font.MonolithRegular,
+    fontWeight: '700',
   },
   locationText: {
     flex: 1,
     fontSize: 13,
-    color: '#334155',
+    color: '#0F172A',
     fontFamily: font.MonolithRegular,
+    lineHeight: 18,
   },
   driverCard: {
     position: 'absolute',
@@ -906,5 +963,30 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     flex: 1,
     lineHeight: 20,
+  },
+  sameLocationBanner: {
+    position: 'absolute',
+    top: Platform.OS === 'ios' ? 168 : 148,
+    alignSelf: 'center',
+    maxWidth: '90%',
+    backgroundColor: '#F59E0B',
+    borderRadius: 16,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    shadowColor: '#F59E0B',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.25,
+    shadowRadius: 16,
+    elevation: 8,
+    zIndex: 1000,
+  },
+  sameLocationText: {
+    color: '#FFF',
+    fontSize: 13,
+    fontFamily: font.MonolithRegular,
+    fontWeight: '700',
   },
 });
