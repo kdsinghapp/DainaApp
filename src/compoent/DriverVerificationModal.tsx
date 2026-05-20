@@ -1,6 +1,7 @@
 import React from "react";
 import {
   Image,
+  Linking,
   Modal,
   ScrollView,
   StyleSheet,
@@ -60,6 +61,16 @@ const DriverVerificationModal = ({
     { label: strings.LicensePhotoLabel || "License Photo", url: drivingLicense },
     { label: strings.RegistrationLabel || "Registration", url: vehicleRegistration },
   ].filter((doc) => doc.url);
+  const verificationStatus = getFirstValue(driver?.verificationStatus, driver?.status);
+  const isVerified = verificationStatus.toLowerCase() === "verified";
+  const phone = getFirstValue(driver?.phone, driver?.mobile, driver?.phoneNumber);
+  const email = getFirstValue(driver?.email);
+
+  const handleCall = () => {
+    if (phone) {
+      Linking.openURL(`tel:${phone}`);
+    }
+  };
 
   return (
     <Modal
@@ -76,7 +87,7 @@ const DriverVerificationModal = ({
           <View style={styles.headerRow}>
             <View style={styles.headerTitleWrap}>
               <View style={styles.headerIcon}>
-                <Icon name="shield-checkmark" size={22} color="#0F172A" />
+                <Icon name="shield-checkmark" size={22} color="#FFCC00" />
               </View>
               <View style={styles.headerCopy}>
                 <Text style={styles.title}>{strings.SecurityAndVerification || "Security & Verification"}</Text>
@@ -108,26 +119,62 @@ const DriverVerificationModal = ({
                   source={driver?.image ? { uri: driver.image } : imageIndex.dpuser}
                   style={styles.avatar}
                 />
-                <View style={styles.verifiedBadgeIcon}>
-                  <Icon name="checkmark-circle" size={17} color="#10B981" />
-                </View>
+                
               </View>
               <View style={styles.profileDetails}>
                 <Text style={styles.profileName} numberOfLines={1}>
                   {driver?.name || "Driver"}
                 </Text>
+                {email ? (
+                  <Text style={styles.profileMetaText} numberOfLines={1}>
+                    {email}
+                  </Text>
+                ) : null}
                
               </View>
             </View>
 
-            {driver?.address && (
+            {(phone || driver?.address) && (
               <View style={styles.detailCard}>
-                <View style={styles.infoRow}>
-                  <Text style={styles.infoLabel}>{strings.Address || "Address"}</Text>
-                  <Text style={styles.infoValue} numberOfLines={2}>
-                    {driver.address}
-                  </Text>
-                </View>
+                {phone ? (
+                  <View style={styles.infoRow}>
+                    <View style={styles.infoLabelWithIcon}>
+                      <Icon name="call-outline" size={16} color="#64748B" style={styles.inlineIcon} />
+                      <View>
+                                              <Text style={styles.infoLabel}>Phone</Text>
+
+                      <Text style={styles.callButtonText}>{phone}</Text>
+
+                        </View>
+                      
+                    </View>
+                    <TouchableOpacity
+                      activeOpacity={0.8}
+                      style={styles.callButton}
+                      onPress={handleCall}
+                    >
+                       <Image source={imageIndex.Calls} 
+                       
+                       style={{
+                        height:42,
+                        width:42
+                       }}
+                       />
+                    </TouchableOpacity>
+                  </View>
+                ) : null}
+                {phone && driver?.address ? <View style={styles.divider} /> : null}
+                {driver?.address ? (
+                  <View style={styles.infoRow}>
+                    <View style={styles.infoLabelWithIcon}>
+                      <Icon name="location-outline" size={16} color="#64748B" style={styles.inlineIcon} />
+                      <Text style={styles.infoLabel}>{strings.Address || "Address"}</Text>
+                    </View>
+                    <Text style={styles.infoValue}  >
+                      {driver.address}
+                    </Text>
+                  </View>
+                ) : null}
               </View>
             )}
 
@@ -142,7 +189,7 @@ const DriverVerificationModal = ({
               <View style={styles.infoRow}>
                 <Text style={styles.infoLabel}>{strings.VehicleType || "Vehicle Type"}</Text>
                 <View style={styles.badge}>
-                  <Text style={styles.badgeText}>{vehicleType || "-"}</Text>
+                  <Text style={styles.badgeText}>{vehicleType || ""}</Text>
                 </View>
               </View>
               <View style={styles.divider} />
@@ -235,8 +282,7 @@ const styles = StyleSheet.create({
     width: 42,
     height: 42,
     borderRadius: 21,
-    backgroundColor: "#FFF7CC",
-    alignItems: "center",
+     alignItems: "center",
     justifyContent: "center",
     marginRight: 10,
   },
@@ -251,6 +297,7 @@ const styles = StyleSheet.create({
     fontFamily: font.MonolithRegular,
     color: "#64748B",
     marginTop: 2,
+    
   },
   closeButton: {
     width: 34,
@@ -318,7 +365,13 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontFamily: font.MonolithRegular,
     color: "#0F172A",
-    marginBottom: 7,
+    marginBottom: 3,
+  },
+  profileMetaText: {
+    fontSize: 12,
+    fontFamily: font.MonolithRegular,
+    color: "#64748B",
+    marginBottom: 8,
   },
   verifiedPartnerBadge: {
     flexDirection: "row",
@@ -336,12 +389,19 @@ const styles = StyleSheet.create({
     fontFamily: font.MonolithRegular,
     color: "#065F46",
   },
+  pendingPartnerBadge: {
+    backgroundColor: "#FFFBEB",
+    borderColor: "#FDE68A",
+  },
+  pendingPartnerBadgeText: {
+    color: "#92400E",
+  },
   detailCard: {
     backgroundColor: "#FFFFFF",
     borderRadius: 16,
     borderWidth: 1,
     borderColor: "#F1F5F9",
-    padding: 16,
+    padding: 15,
   },
   infoRow: {
     flexDirection: "row",
@@ -349,18 +409,37 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     gap: 12,
   },
+  infoLabelWithIcon: {
+    flexDirection: "row",
+    alignItems: "center",
+    flexShrink: 0,
+  },
   infoLabel: {
     fontSize: 13,
     fontFamily: font.MonolithRegular,
     color: "#64748B",
   },
   infoValue: {
+     fontSize: 13,
+    fontFamily: font.MonolithRegular,
+    color: "#0F172A",
+    lineHeight: 18,flex:1
+  },
+  callButton: {
     flex: 1,
-    textAlign: "right",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "flex-end",
+     borderRadius: 12,
+    paddingHorizontal: 10,
+    paddingVertical: 8,
+    gap: 7,
+  },
+  callButtonText: {
+    flexShrink: 1,
     fontSize: 13,
     fontFamily: font.MonolithRegular,
     color: "#0F172A",
-    lineHeight: 18,
   },
   sectionHeader: {
     flexDirection: "row",
@@ -375,8 +454,7 @@ const styles = StyleSheet.create({
     color: "#0F172A",
   },
   badge: {
-    backgroundColor: "#FFF7CC",
-    borderRadius: 10,
+     borderRadius: 10,
     paddingHorizontal: 10,
     paddingVertical: 5,
   },
