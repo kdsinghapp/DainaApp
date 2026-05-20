@@ -29,7 +29,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { successToast } from "../../../utils/customToast";
 import RatingModal from "../../../compoent/RatingModal";
 import strings from "../../../localization/Localization";
-import Icon from "../../../compoent/Icon";
+import Ionicons from "react-native-vector-icons/Ionicons";
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 
 const { width, height } = Dimensions.get("window");
@@ -191,12 +191,14 @@ const CourierTrackingScreen = () => {
   };
   const DEFAULT_LAT = 28.6139;
   const DEFAULT_LNG = 77.209;
-  const safeNum = (v: any, fallback: number) => {
+  type LatLng = { latitude: number; longitude: number };
+  const safeNum = (v: any, fallback: number | null): number | null => {
+    if (v == null) return fallback;
     const n = parseFloat(v);
     return Number.isFinite(n) ? n : fallback;
   };
   const source = parcel ?? item;
-  const getCoords = (latField: any, lonField: any) => {
+  const getCoords = (latField: any, lonField: any): LatLng | null => {
     const v1 = safeNum(latField, null);
     const v2 = safeNum(lonField, null);
     if (v1 === null || v2 === null) return null;
@@ -213,16 +215,35 @@ const CourierTrackingScreen = () => {
     source?.dropLat ?? source?.dropLocationLat ?? source?.drop_location_lat,
     source?.dropLon ?? source?.dropLocationLon ?? source?.drop_location_lon
   ) ?? { latitude: DEFAULT_LAT, longitude: DEFAULT_LNG };
-  const distanceBetween = (
-    a: { latitude: number; longitude: number },
-    b: { latitude: number; longitude: number },
-  ) => {
+  const distanceBetween = (a: LatLng, b: LatLng) => {
     const dLat = a?.latitude - b.latitude;
     const dLng = a.longitude - b.longitude;
     return Math.sqrt(dLat * dLat + dLng * dLng);
   };
+
+  const toRadians = (value: number) => (value * Math.PI) / 180;
+  const getDistanceKm = (a: LatLng, b: LatLng) => {
+    const earthRadiusKm = 6371;
+    const dLat = toRadians(b.latitude - a.latitude);
+    const dLng = toRadians(b.longitude - a.longitude);
+    const lat1 = toRadians(a.latitude);
+    const lat2 = toRadians(b.latitude);
+    const h =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(lat1) * Math.cos(lat2) *
+      Math.sin(dLng / 2) * Math.sin(dLng / 2);
+    return earthRadiusKm * 2 * Math.atan2(Math.sqrt(h), Math.sqrt(1 - h));
+  };
+  const formatKm = (value: number) => {
+    if (!Number.isFinite(value)) return "—";
+    if (value < 0.1) return `${Math.round(value * 1000)} m`;
+    return `${value.toFixed(value < 10 ? 1 : 0)} km`;
+  };
+
   const MIN_ROUTE_DISTANCE_DEG = 0.0003;
   const [distance, setDistance] = useState(0);
+  const [totalRouteDistance, setTotalRouteDistance] = useState<number | null>(null);
+  const [routeDuration, setRouteDuration] = useState<number | null>(null);
   const [currentCoords, setCurrentCoords] = useState(() => pickup);
   const [driverLocation] = useState(
     () =>
@@ -235,6 +256,8 @@ const CourierTrackingScreen = () => {
   driverLocationRef.current = driverLocation;
   setCurrentCoordsRef.current = setCurrentCoords;
   const [eta, setEta] = useState("Calculating...");
+  const pickupAddress = source?.pickupLocation || item?.pickupLocation || strings.PickupLocation;
+  const dropoffAddress = source?.dropLocation || item?.dropLocation || strings.DropLocation;
   // Route bounds for initial region and auto-zoom
   const centerLat = (pickup.latitude + dropoff.latitude) / 2;
   const centerLng = (pickup.longitude + dropoff.longitude) / 2;
@@ -247,10 +270,10 @@ const CourierTrackingScreen = () => {
     longitudeDelta: Math.max(0.05, lngSpan),
   };
   const EDGE_PADDING = {
-    top: 80,
-    right: 50,
-    bottom: PANEL_PEEK_HEIGHT + 60,
-    left: 50,
+    top: 48,
+    right: 24,
+    bottom: PANEL_PEEK_HEIGHT + 12,
+    left: 24,
   };
   const fitMapToRoute = useCallback(() => {
     const origin = currentCoords ?? pickup;
@@ -262,10 +285,10 @@ const CourierTrackingScreen = () => {
     try {
       mapRef.current?.fitToCoordinates(points, {
         edgePadding: {
-          top: hp(12),
-          right: wp(10),
-          bottom: PANEL_PEEK_HEIGHT + hp(8),
-          left: wp(10),
+          top: hp(7),
+          right: wp(5),
+          bottom: PANEL_PEEK_HEIGHT + hp(2),
+          left: wp(5),
         },
         animated: true,
       });
@@ -371,6 +394,22 @@ const CourierTrackingScreen = () => {
   const routePointsValid =
     distanceBetween(routeOrigin, routeDestForPolyline) >= MIN_ROUTE_DISTANCE_DEG;
   const polylineStrokeColor = isRouteToPickup ? "#007AFF" : "#FFCC00";
+  const pickupToDropoffValid = Boolean(
+    pickup?.latitude &&
+    pickup?.longitude &&
+    dropoff?.latitude &&
+    dropoff?.longitude &&
+    Math.abs(pickup.latitude) <= 90 &&
+    Math.abs(pickup.longitude) <= 180 &&
+    Math.abs(dropoff.latitude) <= 90 &&
+    Math.abs(dropoff.longitude) <= 180 &&
+    Number.isFinite(pickup.latitude) &&
+    Number.isFinite(pickup.longitude) &&
+    Number.isFinite(dropoff.latitude) &&
+    Number.isFinite(dropoff.longitude) &&
+    (pickup.latitude !== dropoff.latitude || pickup.longitude !== dropoff.longitude)
+  );
+  const totalDistanceText = formatKm(totalRouteDistance ?? getDistanceKm(pickup, dropoff));
 
   const [statusKey, setStatusKey] = useState<string | null>(null);
 
@@ -488,52 +527,71 @@ const CourierTrackingScreen = () => {
             </View>
           </Marker.Animated>
 
-          {/* 1. BACKGROUND ROUTE: Total trip path (Pickup → Dropoff) - Subtle but visible */}
-          {pickup && dropoff && (
+          {/* 1. BACKGROUND ROUTE: Total trip path (Pickup -> Dropoff) */}
+          {pickupToDropoffValid && (
             <MapViewDirections
+              key={`full-route-${pickup.latitude.toFixed(5)}-${pickup.longitude.toFixed(5)}-${dropoff.latitude.toFixed(5)}-${dropoff.longitude.toFixed(5)}`}
               origin={pickup}
               destination={dropoff}
               apikey={GOOGLE_MAPS_APIKEY}
               mode="DRIVING"
-              strokeWidth={4}
-              strokeColor="rgba(0, 0, 0, 0.15)"
-              precision="low"
+              strokeWidth={5}
+              strokeColor="rgba(15, 23, 42, 0.22)"
+              lineCap="round"
+              lineJoin="round"
+              precision="high"
+              onReady={(res) => {
+                setTotalRouteDistance(res?.distance ?? null);
+                setRouteDuration(res?.duration ?? null);
+                mapRef.current?.fitToCoordinates(res.coordinates, {
+                  edgePadding: EDGE_PADDING,
+                  animated: true,
+                });
+              }}
+              onError={(err) => console.warn("Full route error:", err)}
             />
           )}
 
-          {/* 2. ACTIVE PROGRESS: Driver's real-time journey - High contrast */}
+          {!pickupToDropoffValid && (
+            <Polyline
+              coordinates={[pickup, dropoff]}
+              strokeWidth={4}
+              strokeColor="rgba(15, 23, 42, 0.22)"
+              lineCap="round"
+              lineJoin="round"
+            />
+          )}
+
+          {/* 2. ACTIVE PROGRESS: Driver's real-time journey */}
           {routePointsValid && (
             <MapViewDirections
-              key={`active-progress-${statusNormKey}`}
+              key={`active-progress-${statusNormKey}-${routeOrigin.latitude.toFixed(5)}-${routeOrigin.longitude.toFixed(5)}-${routeDestForPolyline.latitude.toFixed(5)}-${routeDestForPolyline.longitude.toFixed(5)}`}
               origin={routeOrigin}
               destination={routeDestForPolyline}
               apikey={GOOGLE_MAPS_APIKEY}
               mode="DRIVING"
-              strokeWidth={6}
+              strokeWidth={7}
               strokeColor={polylineStrokeColor}
+              lineCap="round"
+              lineJoin="round"
               optimizeWaypoints={true}
               precision="high"
               onReady={(res) => {
                 setDistance(res?.distance ?? 0);
                 setEta(`${Math.ceil(res?.duration ?? 0)} mins`);
-                // Auto-fit when route is first loaded to ensure proper zoom
-                fitMapToRoute();
+                mapRef.current?.fitToCoordinates(res.coordinates, {
+                  edgePadding: EDGE_PADDING,
+                  animated: true,
+                });
               }}
               onError={(err) => console.warn("Active route error:", err)}
             />
           )}
         </MapView>
 
-        {/* {tooClose && (
-          <View style={styles.arrivalBadge}>
-            <View style={styles.arrivalBadgeIconWrap}>
-              <Icon name="location-sharp" size={20} color="#FFF" />
-            </View>
-            <Text style={styles.arrivalBadgeText}>
-              {isToPickup ? strings.DriverArrivedAtPickup : strings.DriverArrivedAtDropoff}
-            </Text>
-          </View>
-        )} */}
+   
+
+      
       </View>
 
       <SafeAreaView style={styles.headerOverlay} edges={["top"]}>
@@ -551,20 +609,7 @@ const CourierTrackingScreen = () => {
           contentContainerStyle={styles.scrollContentContainer}
           showsVerticalScrollIndicator={false}
         >
-          {/* Premium ETA Strip: X mins • Y km */}
-          {/* {routePointsValid && eta && (
-            <View style={styles.etaHeaderStrip}>
-              <View style={styles.etaMain}>
-                <Text style={styles.etaValue}>{eta.replace(' mins', '')}</Text>
-                <Text style={styles.etaUnit}>MINS</Text>
-              </View>
-              <View style={styles.etaDivider} />
-              <View style={styles.etaSecondary}>
-                <Text style={styles.etaDistanceValue}>{(distance != null ? distance.toFixed(1) : "—")}</Text>
-                <Text style={styles.etaDistanceUnit}>KM</Text>
-              </View>
-            </View>
-          )} */}
+          
           <View style={styles.driverSection}>
             <View style={styles.driverCore}>
               <View style={styles.avatarWrap}>
@@ -617,7 +662,7 @@ const CourierTrackingScreen = () => {
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={[styles.circleActionBtn, { marginLeft: 12 }]}
-                  onPress={() => parcel && nav.navigate(ScreenNameEnum.ChatScreen, { item: parcel })}
+                  onPress={() => parcel && (nav as any).navigate(ScreenNameEnum.ChatScreen, { item: parcel })}
                 >
                   <Image source={imageIndex.messtrcker} style={styles.actionIcon} />
                 </TouchableOpacity>
@@ -632,22 +677,22 @@ const CourierTrackingScreen = () => {
           <View style={styles.timelineContainer}>
             <View style={styles.timelineItem}>
               <View style={styles.timelineGraphic}>
-                <View style={[styles.timelineDot, { backgroundColor: "#10B981" }]} />
+                <View style={[styles.timelineDot, { backgroundColor: "#FFCC00" }]} />
                 <View style={styles.timelineConnector} />
               </View>
               <View style={styles.timelineContent}>
                 <Text style={styles.timelineLabel}>{strings?.Pickup}</Text>
-                <Text style={styles.timelineText} numberOfLines={2}>{item?.pickupLocation || "—"}</Text>
+                <Text style={styles.timelineText} numberOfLines={2}>{pickupAddress || "—"}</Text>
               </View>
             </View>
 
             <View style={[styles.timelineItem, { marginTop: 4 }]}>
               <View style={styles.timelineGraphic}>
-                <View style={[styles.timelineDot, { backgroundColor: "#EF4444" }]} />
+                <View style={[styles.timelineDot, { backgroundColor: "#FFCC00" }]} />
               </View>
               <View style={styles.timelineContent}>
                 <Text style={styles.timelineLabel}>{strings?.Drop}</Text>
-                <Text style={styles.timelineText} numberOfLines={2}>{item?.dropLocation || "—"}</Text>
+                <Text style={styles.timelineText} numberOfLines={2}>{dropoffAddress || "—"}</Text>
               </View>
             </View>
           </View>
@@ -666,6 +711,63 @@ const styles = StyleSheet.create({
   mapWrap: { flex: 1, width: "100%", minHeight: height * 0.5 },
   map: { ...StyleSheet.absoluteFillObject },
   headerOverlay: { position: "absolute", top: 0, left: 0, right: 0, zIndex: 5 },
+  routeSummaryCard: {
+    position: "absolute",
+    top: Platform.OS === "ios" ? hp(12) : hp(10),
+    left: wp(5),
+    right: wp(5),
+    backgroundColor: "#FFF",
+    borderRadius: 18,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    flexDirection: "row",
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.12,
+    shadowRadius: 16,
+    elevation: 8,
+    zIndex: 4,
+  },
+  routeSummaryIcon: {
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    backgroundColor: "#FFF7CC",
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: 10,
+  },
+  routeSummaryCopy: { flex: 1, paddingRight: 8 },
+  routeSummaryLabel: {
+    fontSize: 11,
+    color: "#94A3B8",
+    textTransform: "uppercase",
+    fontFamily: font.MonolithRegular,
+    marginBottom: 2,
+  },
+  routeSummaryText: {
+    fontSize: 13,
+    color: "#0F172A",
+    fontFamily: font.MonolithRegular,
+    lineHeight: 18,
+  },
+  routeSummaryMetric: {
+    alignItems: "flex-end",
+    minWidth: 62,
+  },
+  routeSummaryDistance: {
+    fontSize: 14,
+    color: "#0F172A",
+    fontFamily: font.MonolithRegular,
+    fontWeight: "700",
+  },
+  routeSummaryEta: {
+    fontSize: 11,
+    color: "#64748B",
+    fontFamily: font.MonolithRegular,
+    marginTop: 2,
+  },
   pickupMarkerContainer: {
     alignItems: 'center',
     justifyContent: 'center',
@@ -678,15 +780,15 @@ const styles = StyleSheet.create({
     width: 30,
     height: 30,
     borderRadius: 15,
-    backgroundColor: 'rgba(16, 185, 129, 0.2)',
+    backgroundColor: 'rgba(255, 204, 0, 0.2)',
     borderWidth: 1,
-    borderColor: 'rgba(16, 185, 129, 0.4)',
+    borderColor: 'rgba(255, 204, 0, 0.45)',
   },
   pickupPointInner: {
     width: 12,
     height: 12,
     borderRadius: 6,
-    backgroundColor: '#10B981',
+    backgroundColor: '#FFCC00',
     borderWidth: 2,
     borderColor: '#FFF',
     elevation: 3,
@@ -700,7 +802,7 @@ const styles = StyleSheet.create({
     width: 28,
     height: 28,
     borderRadius: 14,
-    backgroundColor: '#EF4444',
+    backgroundColor: '#FFCC00',
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 2,
@@ -721,7 +823,7 @@ const styles = StyleSheet.create({
   dropoffPinPointer: {
     width: 4,
     height: 6,
-    backgroundColor: '#EF4444',
+    backgroundColor: '#FFCC00',
     marginTop: -2,
     zIndex: 1,
   },
