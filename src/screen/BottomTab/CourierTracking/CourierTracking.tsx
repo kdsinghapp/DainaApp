@@ -490,52 +490,37 @@ const CourierTrackingScreen = () => {
 
           {/* 1. BACKGROUND ROUTE: Total trip path (Pickup → Dropoff) - Subtle but visible */}
           {pickup && dropoff && (
-            <>
-              <Polyline
-                coordinates={[pickup, dropoff]}
-                strokeColor="rgba(0, 0, 0, 0.15)"
-                strokeWidth={4}
-                lineDashPattern={[5, 5]}
-              />
-              <MapViewDirections
-                origin={pickup}
-                destination={dropoff}
-                apikey={GOOGLE_MAPS_APIKEY}
-                mode="DRIVING"
-                strokeWidth={4}
-                strokeColor="rgba(0, 0, 0, 0.15)"
-                precision="low"
-              />
-            </>
+            <MapViewDirections
+              origin={pickup}
+              destination={dropoff}
+              apikey={GOOGLE_MAPS_APIKEY}
+              mode="DRIVING"
+              strokeWidth={4}
+              strokeColor="rgba(0, 0, 0, 0.15)"
+              precision="low"
+            />
           )}
 
           {/* 2. ACTIVE PROGRESS: Driver's real-time journey - High contrast */}
           {routePointsValid && (
-            <>
-              <Polyline
-                coordinates={[routeOrigin, routeDestForPolyline]}
-                strokeColor={polylineStrokeColor}
-                strokeWidth={6}
-              />
-              <MapViewDirections
-                key={`active-progress-${statusNormKey}`}
-                origin={routeOrigin}
-                destination={routeDestForPolyline}
-                apikey={GOOGLE_MAPS_APIKEY}
-                mode="DRIVING"
-                strokeWidth={8}
-                strokeColor={polylineStrokeColor}
-                optimizeWaypoints={true}
-                precision="high"
-                onReady={(res) => {
-                  setDistance(res?.distance ?? 0);
-                  setEta(`${Math.ceil(res?.duration ?? 0)} mins`);
-                  // Auto-fit when route is first loaded to ensure proper zoom
-                  fitMapToRoute();
-                }}
-                onError={(err) => console.warn("Active route error:", err)}
-              />
-            </>
+            <MapViewDirections
+              key={`active-progress-${statusNormKey}`}
+              origin={routeOrigin}
+              destination={routeDestForPolyline}
+              apikey={GOOGLE_MAPS_APIKEY}
+              mode="DRIVING"
+              strokeWidth={6}
+              strokeColor={polylineStrokeColor}
+              optimizeWaypoints={true}
+              precision="high"
+              onReady={(res) => {
+                setDistance(res?.distance ?? 0);
+                setEta(`${Math.ceil(res?.duration ?? 0)} mins`);
+                // Auto-fit when route is first loaded to ensure proper zoom
+                fitMapToRoute();
+              }}
+              onError={(err) => console.warn("Active route error:", err)}
+            />
           )}
         </MapView>
 

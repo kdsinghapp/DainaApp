@@ -496,7 +496,7 @@ const TripMap = () => {
         >
           <Image
             source={imageIndex.back}
-            style={{ height: 22, width: 22 }}
+            style={{ height: 40, width: 40 }}
             resizeMode='contain'
           />
         </TouchableOpacity>
@@ -504,7 +504,7 @@ const TripMap = () => {
         <View style={styles.locationContent}>
           <View style={styles.locationRow}>
             <View style={[styles.locationDot, { backgroundColor: '#10B981' }]} />
-            <Text style={styles.locationText} numberOfLines={2}>
+            <Text style={styles.locationText} >
               {item?.pickupLocation || item?.pickup?.location || "Pickup Location"}
             </Text>
           </View>
@@ -513,7 +513,7 @@ const TripMap = () => {
 
           <View style={styles.locationRow}>
             <View style={[styles.locationDot, { backgroundColor: '#EF4444' }]} />
-            <Text style={styles.locationText} numberOfLines={2}>
+            <Text style={styles.locationText}  >
               {item?.dropLocation || item?.drop?.location || "Drop-off Location"}
             </Text>
           </View>
@@ -701,22 +701,21 @@ const styles = StyleSheet.create({
     zIndex: 100,
   },
   backButtonWrap: {
-    width: 44,
-    height: 44,
-    borderRadius: 12,
-    backgroundColor: '#F8FAFC',
+ 
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 12,
+ 
   },
   locationContent: {
     flex: 1,
     gap: 4,
+    paddingLeft: 12,
   },
   locationRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 2,
+    paddingVertical: 2, 
+    marginBottom:4
   },
   locationDot: {
     width: 8,

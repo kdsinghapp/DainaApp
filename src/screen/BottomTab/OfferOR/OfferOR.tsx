@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Text, Image, TouchableOpacity, FlatList } from "react-native";
+import { View, Text, Image, TouchableOpacity, FlatList, ScrollView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import StatusBarComponent from "../../../compoent/StatusBarCompoent";
 import CustomHeader from "../../../compoent/CustomHeader";
@@ -138,6 +138,12 @@ export default function OfferOR() {
       <StatusBarComponent />
       <LoadingModal visible={isLoading} />
       <CustomHeader label={strings?.Back} />
+      <ScrollView showsVerticalScrollIndicator={false}
+      style={{
+        marginBottom: 45
+      }}
+      showsHorizontalScrollIndicator={false}
+      >
       <View style={{
         marginHorizontal: 15
       }}>
@@ -202,6 +208,7 @@ export default function OfferOR() {
         }}
       //  onLocationGranted
       />
+      </ScrollView>
     </SafeAreaView>
   );
 }
