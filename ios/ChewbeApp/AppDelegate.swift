@@ -27,16 +27,16 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate, MessagingDe
 
 
     // ✅ Initialize Google Maps
-    GMSServices.provideAPIKey("AIzaSyDgFGS91BvviXh_f-nmvtEggUHJcaGyUwA")
+    GMSServices.provideAPIKey("YCsdio8xRsUmoYht2WQ9jeRvF4U_tT4")
 
     // ✅ Configure Firebase (Manual initialization as fallback for missing plist bundle resource)
     if FirebaseApp.app() == nil {
-        let options = FirebaseOptions(googleAppID: "1:611091033833:ios:43e2501ab537782dcd4a78",
-                                     gcmSenderID: "611091033833")
-        options.apiKey = "AIzaSyDBzgFyCmQOJXoUJc20w1lxa8UTgpXgF1s"
-        options.projectID = "dainaapp-e287f"
-        options.storageBucket = "dainaapp-e287f.firebasestorage.app"
-        options.bundleID = "com.KMMPRPE"
+        let options = FirebaseOptions(googleAppID: "1:145218387085:ios:ca98454e86dd16a07336c4",
+                                     gcmSenderID: "145218387085")
+        options.apiKey = "AIzaSyB-YCsdio8xRsUmoYht2WQ9jeRvF4U_tT4"
+        options.projectID = "daina-3275f"
+        options.storageBucket = "daina-3275f.firebasestorage.app"
+        options.bundleID = "com.DainaAppIOS"
         FirebaseApp.configure(options: options)
         NSLog("✅ AppDelegate: Firebase manual configuration applied successfully.")
     } else {

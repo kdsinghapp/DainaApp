@@ -1,13 +1,13 @@
 {
   "project_info": {
-    "project_number": "611091033833",
-    "project_id": "dainaapp-e287f",
-    "storage_bucket": "dainaapp-e287f.firebasestorage.app"
+    "project_number": "145218387085",
+    "project_id": "daina-3275f",
+    "storage_bucket": "daina-3275f.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:611091033833:android:eac4edcaeed69a77cd4a78",
+        "mobilesdk_app_id": "1:145218387085:android:a109df5626caceea7336c4",
         "android_client_info": {
           "package_name": "com.DainaApp"
         }
@@ -15,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyB45mbhrQGQbzYC1caoJhoIxH1eZbypKnw"
+          "current_key": "AIzaSyCWm7jv0LVlxGEe8kNfIXC_o6zNX8lUrPg"
         }
       ],
       "services": {

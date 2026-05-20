@@ -245,27 +245,31 @@ class NotificationService {
         return;
       }
 
-      const channelId = await notifee.createChannel({
-        id: isNearbyParcel ? 'delivery_orders_v4' : 'default_channel',
-        name: isNearbyParcel ? 'Delivery Orders' : 'General Notifications',
-        importance: AndroidImportance.HIGH,
-        sound: isNearbyParcel ? 'ringtone_notification' : 'default',
-      });
-
-      await notifee.displayNotification({
-        title: notification?.title || 'New Parcel Request',
-        body: notification?.body || 'You have a new parcel request nearby.',
-        data: data,
-        android: {
-          channelId,
+      // Prevent duplicate notifications: Firebase automatically displays notifications in background
+      // if the 'notification' object is present. Only use notifee if it's a data-only message.
+      if (!notification) {
+        const channelId = await notifee.createChannel({
+          id: isNearbyParcel ? 'delivery_orders_v4' : 'default_channel',
+          name: isNearbyParcel ? 'Delivery Orders' : 'General Notifications',
           importance: AndroidImportance.HIGH,
           sound: isNearbyParcel ? 'ringtone_notification' : 'default',
-          pressAction: { id: 'default' },
-        },
-        ios: {
-          sound: isNearbyParcel ? 'ringtone_notification.mp3' : 'default',
-        },
-      });
+        });
+
+        await notifee.displayNotification({
+          title: data?.title || 'New Parcel Request',
+          body: data?.body || 'You have a new parcel request nearby.',
+          data: data,
+          android: {
+            channelId,
+            importance: AndroidImportance.HIGH,
+            sound: isNearbyParcel ? 'ringtone_notification' : 'default',
+            pressAction: { id: 'default' },
+          },
+          ios: {
+            sound: isNearbyParcel ? 'ringtone_notification.mp3' : 'default',
+          },
+        });
+      }
 
       // Background sound play if online
       const isUserOnline = (parsedAuth?.userData?.onlineStatus?.toLowerCase() || 'online') === 'online';
