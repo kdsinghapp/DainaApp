@@ -58,10 +58,7 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 20,
 
-    shadowColor: "#0F172A",
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.04,
-    shadowRadius: 12,
+
     borderWidth: 1,
     borderColor: "#d6e1f9ff",
     // elevation: 3,
@@ -69,8 +66,7 @@ export const styles = StyleSheet.create({
   optionSelected: {
     borderColor: '#FFCC00',
     backgroundColor: '#FFFDF0',
-    shadowOpacity: 0.1,
-    shadowColor: '#FFCC00',
+
   },
   iconWrap: {
     width: 52,

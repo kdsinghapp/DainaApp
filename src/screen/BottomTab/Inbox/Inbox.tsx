@@ -304,7 +304,7 @@ export default function ChatInboxScreen() {
 
       </View>
 
-      {/* Error banner */}
+      {/* Error banner 
       {error && (
         <View style={styles.errorBanner}>
           <Text style={styles.errorText}>{error}</Text>

@@ -47,7 +47,7 @@ export default function OtpScreen() {
       <View style={styles.container}>
         <ScrollView showsVerticalScrollIndicator={false}>
           <View style={styles.headerSection}>
-            <Text style={styles.txtHeading}>{strings.EnterVerificationCode} {phone}</Text>
+            <Text style={styles.txtHeading}>{strings.EnterVerificationCode}</Text>
             <Text style={styles.txtDes}>{strings.formatString(strings.SentCodeTo, `${data?.code} ${data?.mob}`)}
             </Text>
           </View>

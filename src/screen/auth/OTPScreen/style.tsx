@@ -35,8 +35,9 @@ export const styles = StyleSheet.create({
     color: '#9DB2BF',
     fontSize: 16,
     marginTop: 10,
-    fontFamily: font.MonolithRegular
-
+    fontFamily: font.MonolithRegular,
+    lineHeight: 30,
+    textAlign: "center"
   },
   headerSection: {
     height: hp(15),
@@ -97,6 +98,7 @@ export const styles = StyleSheet.create({
     color: 'red',
     marginTop: 18,
     fontFamily: font.MonolithRegular,
+    marginBottom: 15
 
   },
   bannerContainer: {

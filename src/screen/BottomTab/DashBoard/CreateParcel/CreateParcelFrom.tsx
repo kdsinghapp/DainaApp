@@ -10,6 +10,7 @@ import {
   KeyboardAvoidingView,
 } from "react-native";
 import DateTimePicker from "@react-native-community/datetimepicker";
+import Icon from "react-native-vector-icons/Ionicons";
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import { launchImageLibrary } from "react-native-image-picker";
 import { openCamera } from "../../../../utils/cameraHelper";
@@ -382,14 +383,14 @@ const CreateParcelFrom = () => {
                 }
               })
             }
-
-            style={[styles.input, errors.pickupLocation ? styles.inputError : null]}
+            style={[styles.input, { height: "auto", minHeight: 55, paddingVertical: 12 }, errors.pickupLocation ? styles.inputError : null]}
           >
             <Text style={{
               color: pickupLocation?.address ? "black" : "#ADA4A5",
               fontSize: 15,
               fontFamily: font.MonolithRegular,
-              flex: 1
+              flex: 1,
+              paddingRight: 10,
             }}>
               {pickupLocation ? pickupLocation?.address : strings.AddPickupLocation}
             </Text>
@@ -414,15 +415,14 @@ const CreateParcelFrom = () => {
                 }
               })
             }
-
-            style={[styles.input, errors.pickupLocation ? styles.inputError : null]}
+            style={[styles.input, { height: "auto", minHeight: 55, paddingVertical: 12 }, errors.dropLocation ? styles.inputError : null]}
           >
             <Text style={{
               color: dropLocation ? "black" : "#ADA4A5",
               fontSize: 15,
               fontFamily: font.MonolithRegular,
-              flex: 1
-
+              flex: 1,
+              paddingRight: 10,
             }}>
               {dropLocation ? dropLocation : strings.AddDropLocation}
             </Text>
@@ -627,28 +627,27 @@ const CreateParcelFrom = () => {
           {image?.uri ? (
             <TouchableOpacity
               onPress={() => setIsModalVisible(true)}
-              style={{
-                borderWidth: 0.6,
-                padding: 15,
-                borderStyle: "dotted",
-                borderRadius: 10,
-                borderColor: "#ADA4A5",
-                alignItems: "center"
-              }}
-              activeOpacity={0.7}
+              style={styles.imagePreviewContainer}
+              activeOpacity={0.8}
             >
               <Image
-                source={image ? { uri: image?.uri || image } : imageIndex.prfile}
+                source={{ uri: image?.uri || image }}
                 style={styles.parcelImage}
               />
+              <View style={styles.imageEditBadge}>
+                <Icon name="camera" size={16} color="#0F172A" style={{ marginRight: 4 }} />
+                <Text style={styles.imageEditBadgeText}>{strings.Edit || "Change"}</Text>
+              </View>
             </TouchableOpacity>
           ) : (
             <TouchableOpacity
               onPress={() => setIsModalVisible(true)}
-              style={[styles.imageUploadButton, styles.imageUploadButtonEmpty]}
+              style={styles.imageUploadButton}
               activeOpacity={0.7}
             >
-              <Text style={styles.imageUploadPlaceholderText}>{strings.AddParcelImage} </Text>
+              <Icon name="cloud-upload-outline" size={32} color="#FFD600" style={{ marginBottom: 6 }} />
+              <Text style={styles.imageUploadPlaceholderText}>{strings.AddParcelImage}</Text>
+              <Text style={styles.imageUploadSubText}>Supports JPG, PNG formats</Text>
             </TouchableOpacity>
           )}
 

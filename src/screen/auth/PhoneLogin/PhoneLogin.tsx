@@ -116,7 +116,6 @@ const PhoneLogin = () => {
         <Text style={styles.subtitle}>{strings?.PhoneSubtitle}</Text>
         {/* Phone Input */}
         <Text style={{
-          color: "#FFCC00",
           fontSize: 15,
           marginBottom: 15,
           fontFamily: font.MonolithRegular,
@@ -205,7 +204,7 @@ const styles = StyleSheet.create({
   countryPicker: { marginRight: 5, alignItems: "center", flexDirection: "row" },
   callingCode: { fontSize: 16, color: "black", fontFamily: font.MonolithRegular },
   separator: { borderWidth: 0.5, height: 22, borderColor: "#FFCC00", marginLeft: 5 },
-  input: { fontFamily: font.MonolithRegular, flex: 1, height: 50, fontSize: 16, marginLeft: 5, color: "black" },
+  input: { fontFamily: font.MonolithRegular, flex: 1, height: 55, fontSize: 16, marginLeft: 5, color: "black" },
   emailText: { color: "black", textAlign: "center", fontSize: 16, marginTop: 20, fontFamily: font.MonolithRegular },
 
   /* Modal Styles */
