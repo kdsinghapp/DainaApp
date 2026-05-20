@@ -178,6 +178,7 @@ export default function ChatInboxScreen() {
       if (!response.ok) throw new Error(`Server error: ${response.status}`);
 
       const json = await response.json();
+      console.log('json', json);
       setChats(Array.isArray(json?.chats) ? json.chats : []);
     } catch (err: any) {
       console.error("fetchChats error:", err);
@@ -236,9 +237,7 @@ export default function ChatInboxScreen() {
           ) : (
             <Image source={imageIndex.prfile} style={styles.avatar} />
           )}
-          {item.deliveryStatus?.toLowerCase() === "assigned" && (
-            <View style={styles.onlineDot} />
-          )}
+
         </View>
 
         {/* Right Side: Info Column */}

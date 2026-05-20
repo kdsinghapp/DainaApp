@@ -259,15 +259,19 @@ const CourierTrackingScreen = () => {
         p != null && typeof p.latitude === "number" && typeof p.longitude === "number",
     );
     if (points.length < 2) return;
-    mapRef.current?.fitToCoordinates(points, {
-      edgePadding: {
-        top: hp(12),
-        right: wp(10),
-        bottom: PANEL_PEEK_HEIGHT + hp(8),
-        left: wp(10),
-      },
-      animated: true,
-    });
+    try {
+      mapRef.current?.fitToCoordinates(points, {
+        edgePadding: {
+          top: hp(12),
+          right: wp(10),
+          bottom: PANEL_PEEK_HEIGHT + hp(8),
+          left: wp(10),
+        },
+        animated: true,
+      });
+    } catch (e) {
+      console.warn("fitToCoordinates failed:", e);
+    }
   }, [
     currentCoords?.latitude,
     currentCoords?.longitude,
@@ -451,6 +455,7 @@ const CourierTrackingScreen = () => {
           <Marker
             coordinate={pickup}
             anchor={{ x: 0.5, y: 0.5 }}
+            tracksViewChanges={false}
           >
             <View style={styles.pickupMarkerContainer}>
               <View style={styles.pulseRing} />
@@ -462,6 +467,7 @@ const CourierTrackingScreen = () => {
           <Marker
             coordinate={dropoff}
             anchor={{ x: 0.5, y: 1 }}
+            tracksViewChanges={false}
           >
             <View style={styles.dropoffMarkerContainer}>
               <View style={styles.dropoffPin}>
@@ -484,37 +490,52 @@ const CourierTrackingScreen = () => {
 
           {/* 1. BACKGROUND ROUTE: Total trip path (Pickup → Dropoff) - Subtle but visible */}
           {pickup && dropoff && (
-            <MapViewDirections
-              origin={pickup}
-              destination={dropoff}
-              apikey={GOOGLE_MAPS_APIKEY}
-              mode="DRIVING"
-              strokeWidth={4}
-              strokeColor="rgba(0, 0, 0, 0.15)"
-              precision="low"
-            />
+            <>
+              <Polyline
+                coordinates={[pickup, dropoff]}
+                strokeColor="rgba(0, 0, 0, 0.15)"
+                strokeWidth={4}
+                lineDashPattern={[5, 5]}
+              />
+              <MapViewDirections
+                origin={pickup}
+                destination={dropoff}
+                apikey={GOOGLE_MAPS_APIKEY}
+                mode="DRIVING"
+                strokeWidth={4}
+                strokeColor="rgba(0, 0, 0, 0.15)"
+                precision="low"
+              />
+            </>
           )}
 
           {/* 2. ACTIVE PROGRESS: Driver's real-time journey - High contrast */}
           {routePointsValid && (
-            <MapViewDirections
-              key={`active-progress-${statusNormKey}-${currentCoords.latitude.toFixed(4)}`}
-              origin={routeOrigin}
-              destination={routeDestForPolyline}
-              apikey={GOOGLE_MAPS_APIKEY}
-              mode="DRIVING"
-              strokeWidth={8}
-              strokeColor={polylineStrokeColor}
-              optimizeWaypoints={true}
-              precision="high"
-              onReady={(res) => {
-                setDistance(res?.distance ?? 0);
-                setEta(`${Math.ceil(res?.duration ?? 0)} mins`);
-                // Auto-fit when route is first loaded to ensure proper zoom
-                fitMapToRoute();
-              }}
-              onError={(err) => console.warn("Active route error:", err)}
-            />
+            <>
+              <Polyline
+                coordinates={[routeOrigin, routeDestForPolyline]}
+                strokeColor={polylineStrokeColor}
+                strokeWidth={6}
+              />
+              <MapViewDirections
+                key={`active-progress-${statusNormKey}`}
+                origin={routeOrigin}
+                destination={routeDestForPolyline}
+                apikey={GOOGLE_MAPS_APIKEY}
+                mode="DRIVING"
+                strokeWidth={8}
+                strokeColor={polylineStrokeColor}
+                optimizeWaypoints={true}
+                precision="high"
+                onReady={(res) => {
+                  setDistance(res?.distance ?? 0);
+                  setEta(`${Math.ceil(res?.duration ?? 0)} mins`);
+                  // Auto-fit when route is first loaded to ensure proper zoom
+                  fitMapToRoute();
+                }}
+                onError={(err) => console.warn("Active route error:", err)}
+              />
+            </>
           )}
         </MapView>
 
@@ -535,7 +556,7 @@ const CourierTrackingScreen = () => {
       </SafeAreaView>
 
       {/* Rapido-style bottom sheet */}
-      <View style={[styles.draggablePanel,]}>
+      <Animated.View style={[styles.draggablePanel, { top: pan }]}>
         <View {...panResponder.panHandlers} style={styles.dragArea}>
           <View style={styles.handleBar} />
         </View>
@@ -646,7 +667,7 @@ const CourierTrackingScreen = () => {
             </View>
           </View>
         </ScrollView>
-      </View>
+      </Animated.View>
     </View>
   );
 };
