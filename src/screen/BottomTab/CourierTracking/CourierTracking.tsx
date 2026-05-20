@@ -68,6 +68,7 @@ const CourierTrackingScreen = () => {
   const socketRef = useRef<WebSocket | null>(null);
   const getDetailRef = useRef<() => Promise<void>>(() => Promise.resolve());
   const parcelIdRef = useRef<number | undefined>(parcel?.id ?? item?.id);
+  const trackingIdRef = useRef<string | number | undefined>(parcel?.trackingId ?? item?.trackingId);
   const driverLocationRef = useRef<any>(null);
   const setCurrentCoordsRef = useRef<((c: { latitude: number; longitude: number }) => void) | null>(null);
   const fitMapToRouteRef = useRef<() => void>(() => { });
@@ -87,6 +88,7 @@ const CourierTrackingScreen = () => {
   };
   getDetailRef.current = getDetail;
   parcelIdRef.current = parcel?.id ?? item?.id;
+  trackingIdRef.current = parcel?.trackingId ?? item?.trackingId;
   useEffect(() => {
     isMounted.current = true;
     getDetail();
@@ -125,11 +127,19 @@ const CourierTrackingScreen = () => {
                 getDetailRef.current?.();
               }
 
-              if (data?.type === "driver_location") {
+              if (data?.type === "driver_location" || data?.type === "online" || data?.type === "location") {
                 const pId = parcelIdRef.current;
-                const match = pId != null && Number(data?.parcelId) === Number(pId);
-                const lat = parseFloat(data?.lat);
-                const lon = parseFloat(data?.lon);
+                const incomingParcelId = data?.parcelId ?? data?.parcel_id ?? data?.id;
+                const incomingTrackingId = data?.trackingId ?? data?.tracking_id;
+                const currentTrackingId = trackingIdRef.current;
+                const hasParcelId = pId != null && incomingParcelId != null;
+                const hasTrackingId = currentTrackingId != null && incomingTrackingId != null;
+                const match =
+                  (hasParcelId && Number(incomingParcelId) === Number(pId)) ||
+                  (hasTrackingId && String(incomingTrackingId) === String(currentTrackingId)) ||
+                  (!hasParcelId && !hasTrackingId);
+                const lat = parseFloat(data?.lat ?? data?.latitude);
+                const lon = parseFloat(data?.lon ?? data?.lng ?? data?.longitude);
                 if (match && Number.isFinite(lat) && Number.isFinite(lon)) {
                   let finalLat = lat;
                   let finalLon = lon;
@@ -393,7 +403,7 @@ const CourierTrackingScreen = () => {
   // Polyline always visible: need distinct points (min distance)
   const routePointsValid =
     distanceBetween(routeOrigin, routeDestForPolyline) >= MIN_ROUTE_DISTANCE_DEG;
-  const polylineStrokeColor = isRouteToPickup ? "#007AFF" : "#FFCC00";
+  const polylineStrokeColor = "#FFCC00";
   const pickupToDropoffValid = Boolean(
     pickup?.latitude &&
     pickup?.longitude &&
@@ -536,7 +546,7 @@ const CourierTrackingScreen = () => {
               apikey={GOOGLE_MAPS_APIKEY}
               mode="DRIVING"
               strokeWidth={5}
-              strokeColor="rgba(15, 23, 42, 0.22)"
+              strokeColor="#FFCC00"
               lineCap="round"
               lineJoin="round"
               precision="high"
@@ -556,7 +566,7 @@ const CourierTrackingScreen = () => {
             <Polyline
               coordinates={[pickup, dropoff]}
               strokeWidth={4}
-              strokeColor="rgba(15, 23, 42, 0.22)"
+              strokeColor="#FFCC00"
               lineCap="round"
               lineJoin="round"
             />

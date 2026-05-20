@@ -20,7 +20,7 @@ import LoadingModal from '../../../utils/Loader';
 import imageIndex from '../../../assets/imageIndex';
 import CustomButton from '../../../compoent/CustomButton';
 import { GetApi, PostApi } from '../../../Api/apiRequest';
-import { GOOGLE_MAPS_APIKEY, } from '../../../Api';
+import { GOOGLE_MAPS_APIKEY, WebSocket_Url } from '../../../Api';
 import { STATUS, STATUS_COLORS, STATUS_LABELS } from '../../../utils/Constant';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { color } from '../../../constant';
@@ -87,17 +87,97 @@ const TripMap = () => {
     latitude: 33.95,
     longitude: 117.4028,
   });
+  const locationSocketRef = useRef<WebSocket | null>(null);
+  const locationTokenRef = useRef<string | null>(null);
+  const locationHeartbeatRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const canCancel = item?.deliveryStatus &&
     [STATUS.PENDING, STATUS.ASSIGNED, STATUS.GOING_TO_PICKUP, STATUS.PICKED_UP, STATUS.ON_THE_WAY].includes(item.deliveryStatus);
 
-  // Fetch current location and watch for updates
+  useEffect(() => {
+    let cancelled = false;
+
+    const connectLocationSocket = async () => {
+      const token = await AsyncStorage.getItem('token');
+      if (!token || cancelled) return;
+      locationTokenRef.current = token;
+
+      const ws = new WebSocket(`${WebSocket_Url}/nearby-parcels?token=${encodeURIComponent(token)}`);
+      locationSocketRef.current = ws;
+
+      ws.onopen = () => {
+        if (cancelled) {
+          ws.close();
+          return;
+        }
+        locationHeartbeatRef.current = setInterval(() => {
+          if (ws.readyState === WebSocket.OPEN) {
+            ws.send(JSON.stringify({ type: 'ping' }));
+          }
+        }, 30000);
+      };
+
+      ws.onerror = (error) => {
+        console.warn('Driver location socket error:', error);
+      };
+
+      ws.onclose = () => {
+        if (locationSocketRef.current === ws) {
+          locationSocketRef.current = null;
+        }
+      };
+    };
+
+    connectLocationSocket();
+
+    return () => {
+      cancelled = true;
+      if (locationHeartbeatRef.current) {
+        clearInterval(locationHeartbeatRef.current);
+        locationHeartbeatRef.current = null;
+      }
+      locationSocketRef.current?.close();
+      locationSocketRef.current = null;
+    };
+  }, []);
+
+  const syncDriverLocation = async (latitude: number, longitude: number) => {
+    setDriverCoords({ latitude, longitude });
+
+    const payload = {
+      type: 'online',
+      lat: latitude,
+      lon: longitude,
+      parcelId: item?.parcelId || item?.id,
+      trackingId: item?.trackingId,
+    };
+
+    const ws = locationSocketRef.current;
+    if (ws?.readyState === WebSocket.OPEN) {
+      ws.send(JSON.stringify(payload));
+    }
+
+    const token = locationTokenRef.current || await AsyncStorage.getItem('token');
+    if (!token) return;
+    locationTokenRef.current = token;
+
+    PostApi({
+      url: '/driver/location',
+      data: {
+        lat: latitude,
+        lon: longitude,
+        status: 'Online',
+      },
+      token,
+    }, () => { }).catch((error: unknown) => {
+      console.warn('Save driver location failed:', error);
+    });
+  };
+
+  // Fetch current location, sync it to server, and watch for updates.
   useEffect(() => {
     const watchId = Geolocation.watchPosition(
       (position) => {
-        setDriverCoords({
-          latitude: position.coords.latitude,
-          longitude: position.coords.longitude,
-        });
+        syncDriverLocation(position.coords.latitude, position.coords.longitude);
       },
       (error) => {
         console.log('Location error:', error);
